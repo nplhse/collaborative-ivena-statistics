@@ -86,6 +86,8 @@ final class PageCrudControllerTest extends WebTestCase
             static fn (string $href): bool => str_contains($href, '/page-translation/new'),
         ));
         self::assertNotEmpty($newLinks, 'Expected a New translation link on page detail. Hrefs: '.implode(' | ', $links));
+        // The row button showed EasyAdmin's "Add %entity_label_singular%" with the placeholder unresolved.
+        self::assertSame('Add translation', trim($crawler->filter('table a.btn-success')->text()));
 
         $href = $newLinks[0];
         self::assertStringNotContainsString('/page-translation/'.(string) $page->getId(), $href);
@@ -140,6 +142,43 @@ final class PageCrudControllerTest extends WebTestCase
         self::assertCount(2, $publicLinks);
         self::assertStringContainsString('About EN', $crawler->filter('body')->text());
         self::assertStringContainsString('Über uns DE', $crawler->filter('body')->text());
+    }
+
+    public function testTranslationsPanelShowsTheStatusInTheAdminLanguage(): void
+    {
+        $client = self::createClient();
+        $page = PageFactory::new()->withoutDefaultTranslation()->create([
+            'title' => 'Status panel',
+            'slug' => 'status-panel-root',
+            'path' => '/status-panel-root',
+            'status' => PageTranslation::STATUS_PUBLISHED,
+        ]);
+        PageTranslationFactory::createOne([
+            'page' => $page,
+            'locale' => SupportedLocales::DEFAULT,
+            'title' => 'Status EN',
+            'slug' => 'status-en',
+            'path' => '/status-en',
+            'status' => PageTranslation::STATUS_PUBLISHED,
+        ]);
+        PageTranslationFactory::createOne([
+            'page' => $page,
+            'locale' => SupportedLocales::GERMAN,
+            'title' => 'Status DE',
+            'slug' => 'status-de',
+            'path' => '/status-de',
+            'status' => PageTranslation::STATUS_DRAFT,
+        ]);
+
+        $client->loginUser(UserFactory::new()->asAdmin()->create(['locale' => 'de']));
+        $crawler = $client->request(Request::METHOD_GET, sprintf('/admin/page/%d', $page->getId()));
+        self::assertResponseIsSuccessful();
+
+        // One row per locale (en, de): the status badge was hard-coded English before.
+        self::assertSame(
+            ['Veröffentlicht', 'Entwurf'],
+            $crawler->filter('table tbody tr td:nth-child(2) .badge')->each(static fn ($badge): string => trim($badge->text())),
+        );
     }
 
     public function testPageTranslationContentBlockOrderIsPersistedWhenSubmittedInReverseOrder(): void

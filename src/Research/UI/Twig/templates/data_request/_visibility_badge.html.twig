@@ -1,0 +1,4 @@
+{# Visibility of a timeline entry or comment as an icon; the level and who reads it show on hover (ADR 045). #}
+{% set color = {internal: 'text-red', private: 'text-orange', public: 'text-secondary'}[visibility.value] %}
+{% set icon = {internal: 'tabler:lock', private: 'tabler:users', public: 'tabler:world'}[visibility.value] %}
+<span class="{{ color }} d-inline-flex" title="{{ ('data_request.visibility.' ~ visibility.value ~ '_choice')|trans({}, 'research') }}" data-controller="tooltip" tabindex="0" data-testid="data-request-visibility" data-visibility="{{ visibility.value }}"><twig:ux:icon name="{{ icon }}" class="icon" aria-hidden="true" /><span class="visually-hidden">{{ visibility.labelKey|trans({}, 'research') }}</span></span>

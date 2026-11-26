@@ -15,6 +15,8 @@ final readonly class MaterializedViewAwareOrmPurger implements ORMPurgerInterfac
         private ORMPurgerInterface $inner,
         private StatisticsMaterializedViewDropper $materializedViewDropper,
         private OverviewMaterializedViewsInstaller $materializedViewsInstaller,
+        /** @var iterable<FixturePurgeParticipantInterface> */
+        private iterable $participants,
     ) {
     }
 
@@ -30,6 +32,10 @@ final readonly class MaterializedViewAwareOrmPurger implements ORMPurgerInterfac
         $this->materializedViewDropper->dropAllForSchemaReset();
         $this->materializedViewsInstaller->resetInstallationState();
         $this->inner->purge();
+        foreach ($this->participants as $participant) {
+            $participant->afterPurge();
+        }
+
         $this->materializedViewsInstaller->ensureInstalled();
     }
 }

@@ -1,0 +1,16 @@
+{#
+  Author of a saved Explorer view (library card and Explorer header): inline avatar and display name,
+  the username as title (#1240). Needs authorName (username), authorDisplayName, authorUserId, authorUrl.
+#}
+{% if authorName %}
+    {% set authorShown = user_display_name(authorDisplayName, authorName) %}
+    <twig:UserAvatar :userId="authorUserId" :displayName="authorDisplayName" :username="authorName" size="inline" />
+    {% if authorUrl %}
+        <a href="{{ authorUrl }}"{% if authorShown != authorName %} title="@{{ authorName }}"{% endif %}>{{ authorShown }}</a>
+    {%- else -%}
+        <span{% if authorShown != authorName %} title="@{{ authorName }}"{% endif %}>{{ authorShown }}</span>
+    {%- endif %}
+{% else %}
+    <twig:ux:icon name="tabler:user" class="icon icon-sm" />
+    {{ 'stats.analysis_explorer.library.card.unknown_author'|trans({}, 'statistics') }}
+{% endif %}

@@ -51,7 +51,7 @@ class ImportBatchRun
 
     /** @var Collection<int, ImportBatchRunItem> */
     #[ORM\OneToMany(targetEntity: ImportBatchRunItem::class, mappedBy: 'run', cascade: ['persist'], orphanRemoval: true)]
-    #[ORM\OrderBy(['id' => 'ASC'])]
+    #[ORM\OrderBy(['id' => \SortDirection::Ascending])]
     private Collection $items;
 
     /**

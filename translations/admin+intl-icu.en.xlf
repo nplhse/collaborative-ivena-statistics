@@ -73,6 +73,154 @@
         <source>menu.users.accounts</source>
         <target>Accounts</target>
       </trans-unit>
+      <trans-unit id="menuDashboard" resname="menu.dashboard">
+        <source>menu.dashboard</source>
+        <target>Dashboard</target>
+      </trans-unit>
+      <trans-unit id="menuBackToFrontend" resname="menu.back_to_frontend">
+        <source>menu.back_to_frontend</source>
+        <target>Back to frontend</target>
+      </trans-unit>
+      <trans-unit id="menuSectionManagement" resname="menu.section.management">
+        <source>menu.section.management</source>
+        <target>Management</target>
+      </trans-unit>
+      <trans-unit id="menuUsers" resname="menu.users">
+        <source>menu.users</source>
+        <target>Users</target>
+      </trans-unit>
+      <trans-unit id="menuUsersHospitalAccess" resname="menu.users.hospital_access">
+        <source>menu.users.hospital_access</source>
+        <target>Hospital Access</target>
+      </trans-unit>
+      <trans-unit id="menuUsersOnboardingSteps" resname="menu.users.onboarding_steps">
+        <source>menu.users.onboarding_steps</source>
+        <target>Onboarding steps</target>
+      </trans-unit>
+      <trans-unit id="menuFeedback" resname="menu.feedback">
+        <source>menu.feedback</source>
+        <target>Feedback</target>
+      </trans-unit>
+      <trans-unit id="menuFeedbackInbox" resname="menu.feedback.inbox">
+        <source>menu.feedback.inbox</source>
+        <target>Feedback Inbox</target>
+      </trans-unit>
+      <trans-unit id="menuFeedbackQuarantine" resname="menu.feedback.quarantine">
+        <source>menu.feedback.quarantine</source>
+        <target>Quarantine</target>
+      </trans-unit>
+      <trans-unit id="menuSectionData" resname="menu.section.data">
+        <source>menu.section.data</source>
+        <target>Data</target>
+      </trans-unit>
+      <trans-unit id="menuData" resname="menu.data">
+        <source>menu.data</source>
+        <target>Data</target>
+      </trans-unit>
+      <trans-unit id="menuDataAllocations" resname="menu.data.allocations">
+        <source>menu.data.allocations</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="menuDataAssignments" resname="menu.data.assignments">
+        <source>menu.data.assignments</source>
+        <target>Assignments</target>
+      </trans-unit>
+      <trans-unit id="menuDataDepartments" resname="menu.data.departments">
+        <source>menu.data.departments</source>
+        <target>Departments</target>
+      </trans-unit>
+      <trans-unit id="menuDataDispatchAreas" resname="menu.data.dispatch_areas">
+        <source>menu.data.dispatch_areas</source>
+        <target>Dispatch Areas</target>
+      </trans-unit>
+      <trans-unit id="menuDataHospitals" resname="menu.data.hospitals">
+        <source>menu.data.hospitals</source>
+        <target>Hospitals</target>
+      </trans-unit>
+      <trans-unit id="menuDataIndicationsNormalized" resname="menu.data.indications_normalized">
+        <source>menu.data.indications_normalized</source>
+        <target>Indication Normalized</target>
+      </trans-unit>
+      <trans-unit id="menuDataIndicationGroups" resname="menu.data.indication_groups">
+        <source>menu.data.indication_groups</source>
+        <target>Indication Groups</target>
+      </trans-unit>
+      <trans-unit id="menuDataIndicationsRaw" resname="menu.data.indications_raw">
+        <source>menu.data.indications_raw</source>
+        <target>Indication Raw</target>
+      </trans-unit>
+      <trans-unit id="menuDataInfections" resname="menu.data.infections">
+        <source>menu.data.infections</source>
+        <target>Infections</target>
+      </trans-unit>
+      <trans-unit id="menuDataMciCases" resname="menu.data.mci_cases">
+        <source>menu.data.mci_cases</source>
+        <target>MCI Cases</target>
+      </trans-unit>
+      <trans-unit id="menuDataOccasions" resname="menu.data.occasions">
+        <source>menu.data.occasions</source>
+        <target>Occasions</target>
+      </trans-unit>
+      <trans-unit id="menuDataSecondaryTransports" resname="menu.data.secondary_transports">
+        <source>menu.data.secondary_transports</source>
+        <target>Secondary Transports</target>
+      </trans-unit>
+      <trans-unit id="menuDataSpecialities" resname="menu.data.specialities">
+        <source>menu.data.specialities</source>
+        <target>Specialities</target>
+      </trans-unit>
+      <trans-unit id="menuDataStates" resname="menu.data.states">
+        <source>menu.data.states</source>
+        <target>States</target>
+      </trans-unit>
+      <trans-unit id="menuImports" resname="menu.imports">
+        <source>menu.imports</source>
+        <target>Imports</target>
+      </trans-unit>
+      <trans-unit id="menuImportsImports" resname="menu.imports.imports">
+        <source>menu.imports.imports</source>
+        <target>Imports</target>
+      </trans-unit>
+      <trans-unit id="menuImportsRejects" resname="menu.imports.rejects">
+        <source>menu.imports.rejects</source>
+        <target>Import Rejects</target>
+      </trans-unit>
+      <trans-unit id="menuImportsBatchRuns" resname="menu.imports.batch_runs">
+        <source>menu.imports.batch_runs</source>
+        <target>Import batch runs</target>
+      </trans-unit>
+      <trans-unit id="menuImportsBatchItems" resname="menu.imports.batch_items">
+        <source>menu.imports.batch_items</source>
+        <target>Import batch items</target>
+      </trans-unit>
+      <trans-unit id="menuExplorerViews" resname="menu.explorer_views">
+        <source>menu.explorer_views</source>
+        <target>Explorer views</target>
+      </trans-unit>
+      <trans-unit id="menuSectionContent" resname="menu.section.content">
+        <source>menu.section.content</source>
+        <target>Content</target>
+      </trans-unit>
+      <trans-unit id="menuBlog" resname="menu.blog">
+        <source>menu.blog</source>
+        <target>Blog</target>
+      </trans-unit>
+      <trans-unit id="menuSectionSystem" resname="menu.section.system">
+        <source>menu.section.system</source>
+        <target>System</target>
+      </trans-unit>
+      <trans-unit id="menuSystemCookieConsents" resname="menu.system.cookie_consents">
+        <source>menu.system.cookie_consents</source>
+        <target>Cookie consents</target>
+      </trans-unit>
+      <trans-unit id="menuSystemFailedMessages" resname="menu.system.failed_messages">
+        <source>menu.system.failed_messages</source>
+        <target>Failed messages</target>
+      </trans-unit>
+      <trans-unit id="menuSystemMonthlyReminders" resname="menu.system.monthly_reminders">
+        <source>menu.system.monthly_reminders</source>
+        <target>Monthly reminders</target>
+      </trans-unit>
       <trans-unit id="bloga001" resname="label.blog.post">
         <source>label.blog.post</source>
         <target>Blog post</target>
@@ -171,91 +319,107 @@
       </trans-unit>
       <trans-unit id="kpi001" resname="kpi.section.title">
         <source>kpi.section.title</source>
-        <target>Key metrics (last 30 days)</target>
+        <target>Key metrics (last {days, number} days)</target>
       </trans-unit>
       <trans-unit id="kpi002" resname="kpi.card.active_hospitals">
         <source>kpi.card.active_hospitals</source>
         <target>Active hospitals</target>
       </trans-unit>
-      <trans-unit id="kpi003" resname="kpi.card.imports">
-        <source>kpi.card.imports</source>
-        <target>Imports</target>
+      <trans-unit id="kpiRow01" resname="kpi.card.active_users">
+        <source>kpi.card.active_users</source>
+        <target>Active users</target>
       </trans-unit>
-      <trans-unit id="kpi004" resname="kpi.card.records_processed">
-        <source>kpi.card.records_processed</source>
-        <target>Records processed</target>
+      <trans-unit id="kpiRow02" resname="kpi.card.active_users.detail">
+        <source>kpi.card.active_users.detail</source>
+        <target>Today {dau, number} · last 7 days {wau, number}</target>
+      </trans-unit>
+      <trans-unit id="kpiRow03" resname="kpi.card.active_hospitals.detail">
+        <source>kpi.card.active_hospitals.detail</source>
+        <target>of {participating, number} participating hospitals</target>
+      </trans-unit>
+      <trans-unit id="kpiRow04" resname="kpi.card.records_imported">
+        <source>kpi.card.records_imported</source>
+        <target>Records imported</target>
+      </trans-unit>
+      <trans-unit id="kpiRow05" resname="kpi.card.records_imported.detail">
+        <source>kpi.card.records_imported.detail</source>
+        <target>{total, number} rows read in {imports, plural, =1 {one import} other {# imports}}</target>
+      </trans-unit>
+      <trans-unit id="kpiRow06" resname="kpi.card.rejection_rate.detail">
+        <source>kpi.card.rejection_rate.detail</source>
+        <target>{rejected, number} of {total, number} rows rejected</target>
+      </trans-unit>
+      <trans-unit id="kpiRow07" resname="kpi.change.previous_period">
+        <source>kpi.change.previous_period</source>
+        <target>vs. previous {days, number} days</target>
+      </trans-unit>
+      <trans-unit id="kpiRow08" resname="kpi.change.unavailable">
+        <source>kpi.change.unavailable</source>
+        <target>No previous value to compare</target>
+      </trans-unit>
+      <trans-unit id="kpiRow09" resname="kpi.change.unit.points">
+        <source>kpi.change.unit.points</source>
+        <target>pp</target>
       </trans-unit>
       <trans-unit id="kpi005" resname="kpi.card.rejection_rate">
         <source>kpi.card.rejection_rate</source>
         <target>Rejection rate</target>
       </trans-unit>
+      <trans-unit id="kpiTrend01" resname="kpi.usage_trend.title">
+        <source>kpi.usage_trend.title</source>
+        <target>Usage (last 90 days)</target>
+      </trans-unit>
+      <trans-unit id="kpiTrend02" resname="kpi.usage_trend.details">
+        <source>kpi.usage_trend.details</source>
+        <target>Usage analytics</target>
+      </trans-unit>
+      <trans-unit id="kpiTrend03" resname="kpi.usage_trend.dau">
+        <source>kpi.usage_trend.dau</source>
+        <target>Daily users</target>
+      </trans-unit>
+      <trans-unit id="kpiTrend04" resname="kpi.usage_trend.wau">
+        <source>kpi.usage_trend.wau</source>
+        <target>Users in 7 days</target>
+      </trans-unit>
+      <trans-unit id="kpiTrend05" resname="kpi.usage_trend.mau">
+        <source>kpi.usage_trend.mau</source>
+        <target>Users in 30 days</target>
+      </trans-unit>
+      <trans-unit id="kpiPeriod01" resname="kpi.period.label">
+        <source>kpi.period.label</source>
+        <target>Period</target>
+      </trans-unit>
+      <trans-unit id="kpiPeriod02" resname="kpi.period.days">
+        <source>kpi.period.days</source>
+        <target>{days, number} days</target>
+      </trans-unit>
+      <trans-unit id="kpiPeriod03" resname="kpi.card.active_users.always_30">
+        <source>kpi.card.active_users.always_30</source>
+        <target>always 30 days</target>
+      </trans-unit>
+      <trans-unit id="kpiPeriod04" resname="kpi.chart.imported">
+        <source>kpi.chart.imported</source>
+        <target>Imported</target>
+      </trans-unit>
+      <trans-unit id="kpiPeriod05" resname="kpi.chart.rejected">
+        <source>kpi.chart.rejected</source>
+        <target>Rejected</target>
+      </trans-unit>
       <trans-unit id="kpi006" resname="kpi.chart.title">
         <source>kpi.chart.title</source>
-        <target>Daily trend (last 30 days)</target>
+        <target>Imports per day (last {days, number} days)</target>
       </trans-unit>
       <trans-unit id="kpi007" resname="kpi.chart.records">
         <source>kpi.chart.records</source>
-        <target>Records per day</target>
+        <target>Records</target>
       </trans-unit>
       <trans-unit id="kpi008" resname="kpi.chart.rejection_rate">
         <source>kpi.chart.rejection_rate</source>
-        <target>Rejection rate per day</target>
-      </trans-unit>
-      <trans-unit id="kpi009" resname="kpi.failed_imports.title">
-        <source>kpi.failed_imports.title</source>
-        <target>Recent failed imports</target>
-      </trans-unit>
-      <trans-unit id="kpi010" resname="kpi.failed_imports.date">
-        <source>kpi.failed_imports.date</source>
-        <target>Date</target>
-      </trans-unit>
-      <trans-unit id="kpi011" resname="kpi.failed_imports.hospital">
-        <source>kpi.failed_imports.hospital</source>
-        <target>Hospital</target>
-      </trans-unit>
-      <trans-unit id="kpi012" resname="kpi.failed_imports.file">
-        <source>kpi.failed_imports.file</source>
-        <target>File name</target>
-      </trans-unit>
-      <trans-unit id="kpi013" resname="kpi.failed_imports.status">
-        <source>kpi.failed_imports.status</source>
-        <target>Status</target>
+        <target>Rejection rate</target>
       </trans-unit>
       <trans-unit id="kpi014" resname="kpi.failed_imports.reason">
         <source>kpi.failed_imports.reason</source>
         <target>Failure reason</target>
-      </trans-unit>
-      <trans-unit id="kpi015" resname="kpi.failed_imports.records">
-        <source>kpi.failed_imports.records</source>
-        <target>Records</target>
-      </trans-unit>
-      <trans-unit id="kpi016" resname="kpi.failed_imports.rejections">
-        <source>kpi.failed_imports.rejections</source>
-        <target>Rejections</target>
-      </trans-unit>
-      <trans-unit id="kpi017" resname="kpi.failed_imports.empty">
-        <source>kpi.failed_imports.empty</source>
-        <target>No failed imports found.</target>
-      </trans-unit>
-      <trans-unit id="kpi017a" resname="kpi.failed_imports.view_all">
-        <source>kpi.failed_imports.view_all</source>
-        <target>All failed imports</target>
-      </trans-unit>
-      <trans-unit id="kpi017b" resname="kpi.failed_imports.subtitle_30d">
-        <source>kpi.failed_imports.subtitle_30d</source>
-        <target>Last 30 days</target>
-      </trans-unit>
-      <trans-unit id="kpi018" resname="kpi.failure_reason.no_rows">
-        <source>kpi.failure_reason.no_rows</source>
-        <target>No processable rows</target>
-      </trans-unit>
-      <trans-unit id="kpi019" resname="kpi.failure_reason.high_rejection">
-        <source>kpi.failure_reason.high_rejection</source>
-        <target>Rejection rate at or above 35%</target>
-      </trans-unit>
-      <trans-unit id="kpi020" resname="kpi.failure_reason.generic">
-        <source>kpi.failure_reason.generic</source>
-        <target>Import processing failed</target>
       </trans-unit>
       <trans-unit id="admMr01" resname="admin.hospital.action.send_reminder">
         <source>admin.hospital.action.send_reminder</source>
@@ -263,7 +427,7 @@
       </trans-unit>
       <trans-unit id="admMr02" resname="admin.hospital.action.send_reminder.confirm">
         <source>admin.hospital.action.send_reminder.confirm</source>
-        <target>Send the monthly data submission reminder to the hospital owner now?</target>
+        <target>Send the monthly data submission reminder for {hospital} to {owner} now?</target>
       </trans-unit>
       <trans-unit id="admMr03" resname="flash.admin.hospital.reminder.sent">
         <source>flash.admin.hospital.reminder.sent</source>
@@ -389,22 +553,6 @@
         <source>ops.section.title</source>
         <target>Operations</target>
       </trans-unit>
-      <trans-unit id="opsCard01" resname="ops.card.failed_messages">
-        <source>ops.card.failed_messages</source>
-        <target>Failed messages</target>
-      </trans-unit>
-      <trans-unit id="opsCard02" resname="ops.card.queue_high">
-        <source>ops.card.queue_high</source>
-        <target>High-priority queue</target>
-      </trans-unit>
-      <trans-unit id="opsCard03" resname="ops.card.queue_low">
-        <source>ops.card.queue_low</source>
-        <target>Low-priority queue</target>
-      </trans-unit>
-      <trans-unit id="opsCard06" resname="ops.card.reminders_this_month">
-        <source>ops.card.reminders_this_month</source>
-        <target>Reminders this month</target>
-      </trans-unit>
       <trans-unit id="opsHlth01" resname="ops.health.status.healthy">
         <source>ops.health.status.healthy</source>
         <target>Healthy</target>
@@ -433,6 +581,22 @@
         <source>ops.health.check.storage</source>
         <target>Storage</target>
       </trans-unit>
+      <trans-unit id="opsHlthMedia" resname="ops.health.check.media">
+        <source>ops.health.check.media</source>
+        <target>Media files</target>
+      </trans-unit>
+      <trans-unit id="opsHlthTwoFactor" resname="ops.health.check.two_factor">
+        <source>ops.health.check.two_factor</source>
+        <target>Two-factor key</target>
+      </trans-unit>
+      <trans-unit id="opsHlthMaintenance" resname="ops.health.check.maintenance">
+        <source>ops.health.check.maintenance</source>
+        <target>Maintenance mode</target>
+      </trans-unit>
+      <trans-unit id="opsHlthResearchExport" resname="ops.health.check.research_export">
+        <source>ops.health.check.research_export</source>
+        <target>Data export connection</target>
+      </trans-unit>
       <trans-unit id="opsHlthMsg00" resname="ops.health.check.messenger">
         <source>ops.health.check.messenger</source>
         <target>Messenger</target>
@@ -457,33 +621,117 @@
         <source>ops.notifications.title</source>
         <target>Recent notifications</target>
       </trans-unit>
-      <trans-unit id="opsNot02" resname="ops.notifications.time">
-        <source>ops.notifications.time</source>
-        <target>Time</target>
-      </trans-unit>
-      <trans-unit id="opsNot03" resname="ops.notifications.intent">
-        <source>ops.notifications.intent</source>
-        <target>Intent</target>
-      </trans-unit>
-      <trans-unit id="opsNot04" resname="ops.notifications.action">
-        <source>ops.notifications.action</source>
-        <target>Action</target>
-      </trans-unit>
-      <trans-unit id="opsNot05" resname="ops.notifications.origin">
-        <source>ops.notifications.origin</source>
-        <target>Origin</target>
-      </trans-unit>
       <trans-unit id="opsNot06" resname="ops.notifications.empty">
         <source>ops.notifications.empty</source>
         <target>No recent notification events.</target>
       </trans-unit>
+      <trans-unit id="opsNotShowAll" resname="ops.notifications.show_all">
+        <source>ops.notifications.show_all</source>
+        <target>Show all in the audit log</target>
+      </trans-unit>
+      <trans-unit id="opsNotOpenInAudit" resname="ops.notifications.open_in_audit">
+        <source>ops.notifications.open_in_audit</source>
+        <target>Audit log</target>
+      </trans-unit>
+      <trans-unit id="opsNotEventImportRunFailed" resname="ops.notifications.event.import.run.failed">
+        <source>ops.notifications.event.import.run.failed</source>
+        <target>Import failed</target>
+      </trans-unit>
+      <trans-unit id="opsNotEventUserRegistered" resname="ops.notifications.event.user.registered">
+        <source>ops.notifications.event.user.registered</source>
+        <target>New registration</target>
+      </trans-unit>
+      <trans-unit id="opsNotEventHospitalReminderFailed" resname="ops.notifications.event.hospital.reminder_failed">
+        <source>ops.notifications.event.hospital.reminder_failed</source>
+        <target>Reminder not delivered</target>
+      </trans-unit>
+      <trans-unit id="opsNotContextImportFailed" resname="ops.notifications.context.import_failed">
+        <source>ops.notifications.context.import_failed</source>
+        <target>{import} · {hospital} · {reason}</target>
+      </trans-unit>
+      <trans-unit id="opsNotContextUserRegistered" resname="ops.notifications.context.user_registered">
+        <source>ops.notifications.context.user_registered</source>
+        <target>User {user}</target>
+      </trans-unit>
+      <trans-unit id="opsNotContextReminderFailed" resname="ops.notifications.context.reminder_failed">
+        <source>ops.notifications.context.reminder_failed</source>
+        <target>{hospital} · reporting month {period} · {reason}</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonMissingCreator" resname="ops.notifications.reason.missing_creator">
+        <source>ops.notifications.reason.missing_creator</source>
+        <target>Import has no creator</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonMissingHospital" resname="ops.notifications.reason.missing_hospital">
+        <source>ops.notifications.reason.missing_hospital</source>
+        <target>Import has no hospital</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonMissingImportPermission" resname="ops.notifications.reason.missing_import_permission">
+        <source>ops.notifications.reason.missing_import_permission</source>
+        <target>Creator may no longer import</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonMissingClosureRole" resname="ops.notifications.reason.missing_closure_role">
+        <source>ops.notifications.reason.missing_closure_role</source>
+        <target>Creator may not import closures</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonTypeMismatch" resname="ops.notifications.reason.type_mismatch">
+        <source>ops.notifications.reason.type_mismatch</source>
+        <target>File type does not match the import type</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonMissingFilePath" resname="ops.notifications.reason.missing_file_path">
+        <source>ops.notifications.reason.missing_file_path</source>
+        <target>Import file is missing</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonInvalidFilePath" resname="ops.notifications.reason.invalid_file_path">
+        <source>ops.notifications.reason.invalid_file_path</source>
+        <target>Import file could not be read</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonFileNotFound" resname="ops.notifications.reason.file_not_found">
+        <source>ops.notifications.reason.file_not_found</source>
+        <target>Import file was not found</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonInvalidFile" resname="ops.notifications.reason.invalid_file">
+        <source>ops.notifications.reason.invalid_file</source>
+        <target>File failed validation</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonNoRows" resname="ops.notifications.reason.no_rows">
+        <source>ops.notifications.reason.no_rows</source>
+        <target>File contains no rows</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonRejectionRatioExceeded" resname="ops.notifications.reason.rejection_ratio_exceeded">
+        <source>ops.notifications.reason.rejection_ratio_exceeded</source>
+        <target>Too many rows were rejected</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonProcessingError" resname="ops.notifications.reason.processing_error">
+        <source>ops.notifications.reason.processing_error</source>
+        <target>Processing error</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonRetriesExhausted" resname="ops.notifications.reason.retries_exhausted">
+        <source>ops.notifications.reason.retries_exhausted</source>
+        <target>Processing failed repeatedly</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonKeyGenerationChanged" resname="ops.notifications.reason.key_generation_changed">
+        <source>ops.notifications.reason.key_generation_changed</source>
+        <target>Pseudonym key changed after the upload</target>
+      </trans-unit>
+      <trans-unit id="opsNotReasonUnknown" resname="ops.notifications.reason.unknown">
+        <source>ops.notifications.reason.unknown</source>
+        <target>Reason in the audit log</target>
+      </trans-unit>
+      <trans-unit id="opsNotDeliveryReasonRecipientUnavailable" resname="ops.notifications.delivery_reason.recipient_unavailable">
+        <source>ops.notifications.delivery_reason.recipient_unavailable</source>
+        <target>Recipient disabled or without email address</target>
+      </trans-unit>
+      <trans-unit id="opsNotDeliveryReasonTransportFailed" resname="ops.notifications.delivery_reason.transport_failed">
+        <source>ops.notifications.delivery_reason.transport_failed</source>
+        <target>Email could not be sent</target>
+      </trans-unit>
+      <trans-unit id="opsNotDeliveryReasonDeliveryJobFailed" resname="ops.notifications.delivery_reason.delivery_job_failed">
+        <source>ops.notifications.delivery_reason.delivery_job_failed</source>
+        <target>Delivery job failed</target>
+      </trans-unit>
       <trans-unit id="opsFm01" resname="ops.failed_messages.title">
         <source>ops.failed_messages.title</source>
         <target>Failed messenger messages</target>
-      </trans-unit>
-      <trans-unit id="opsFm02" resname="ops.failed_messages.help">
-        <source>ops.failed_messages.help</source>
-        <target>Inspect and remove messages from the failed queue. Use the CLI to retry failed messages.</target>
       </trans-unit>
       <trans-unit id="opsFm03" resname="ops.failed_messages.created">
         <source>ops.failed_messages.created</source>
@@ -581,10 +829,6 @@
         <source>ops.messenger.title</source>
         <target>Messenger monitoring</target>
       </trans-unit>
-      <trans-unit id="opsMsg03" resname="ops.messenger.help">
-        <source>ops.messenger.help</source>
-        <target>Background message handling by the workers: outcomes, retries and duration in the selected period, queues as they are now.</target>
-      </trans-unit>
       <trans-unit id="opsMsg04" resname="ops.messenger.period.label">
         <source>ops.messenger.period.label</source>
         <target>Period</target>
@@ -648,6 +892,22 @@
       <trans-unit id="opsMsg19" resname="ops.messenger.kpi.failed_queue">
         <source>ops.messenger.kpi.failed_queue</source>
         <target>{count, plural, =0 {Failure queue empty} =1 {One message in the failure queue} other {# messages in the failure queue}}</target>
+      </trans-unit>
+      <trans-unit id="opsMsgCard01" resname="ops.messenger.card.title">
+        <source>ops.messenger.card.title</source>
+        <target>Messenger</target>
+      </trans-unit>
+      <trans-unit id="opsMsgCard02" resname="ops.messenger.card.details">
+        <source>ops.messenger.card.details</source>
+        <target>Details</target>
+      </trans-unit>
+      <trans-unit id="opsMsgCard03" resname="ops.messenger.card.pending">
+        <source>ops.messenger.card.pending</source>
+        <target>{count, plural, =1 {message ready to be handled} other {messages ready to be handled}}</target>
+      </trans-unit>
+      <trans-unit id="opsMsgCard04" resname="ops.messenger.card.oldest">
+        <source>ops.messenger.card.oldest</source>
+        <target>Oldest waiting since {date}</target>
       </trans-unit>
       <trans-unit id="opsMsg20" resname="ops.messenger.section.transports">
         <source>ops.messenger.section.transports</source>
@@ -781,10 +1041,6 @@
         <source>ops.reminder_dispatch.title</source>
         <target>Monthly reminder dispatches</target>
       </trans-unit>
-      <trans-unit id="opsRd02" resname="ops.reminder_dispatch.help">
-        <source>ops.reminder_dispatch.help</source>
-        <target>Only scheduler-triggered sends are recorded here. Admin and CLI sends appear in the audit log.</target>
-      </trans-unit>
       <trans-unit id="admFsAccount" resname="admin.fieldset.account">
         <source>admin.fieldset.account</source>
         <target>Account</target>
@@ -803,7 +1059,7 @@
       </trans-unit>
       <trans-unit id="admImportExportPeriodHelp" resname="admin.import.export_period.help">
         <source>admin.import.export_period.help</source>
-        <target>Derived from imported rows. Editing the period marks it as manual; set the source back to "derived" to let the next derivation overwrite it.</target>
+        <target>Derived from imported rows. Editing the period marks it as manual; set the source back to "Derived" to let the next derivation overwrite it.</target>
       </trans-unit>
       <trans-unit id="admFsMetadata" resname="admin.fieldset.metadata">
         <source>admin.fieldset.metadata</source>
@@ -889,6 +1145,26 @@
         <source>admin.user.action.access_grants</source>
         <target>Access grants</target>
       </trans-unit>
+      <trans-unit id="admUserCreatedAt" resname="admin.user.field.created_at">
+        <source>admin.user.field.created_at</source>
+        <target>Created at</target>
+      </trans-unit>
+      <trans-unit id="admUserDisplayName" resname="admin.user.field.display_name">
+        <source>admin.user.field.display_name</source>
+        <target>Display name</target>
+      </trans-unit>
+      <trans-unit id="admUserDisplayNameHelp" resname="admin.user.field.display_name_help">
+        <source>admin.user.field.display_name_help</source>
+        <target>Optional. Shown to signed-in users instead of the username.</target>
+      </trans-unit>
+      <trans-unit id="admUserFilterParticipant" resname="admin.user.filter.participant_permissions">
+        <source>admin.user.filter.participant_permissions</source>
+        <target>Has participant permissions</target>
+      </trans-unit>
+      <trans-unit id="admUserNewestNonPart" resname="admin.user.action.newest_non_participants">
+        <source>admin.user.action.newest_non_participants</source>
+        <target>Possibly unknown users</target>
+      </trans-unit>
       <trans-unit id="admImportRejects" resname="admin.import.action.rejects">
         <source>admin.import.action.rejects</source>
         <target>Rejects</target>
@@ -920,18 +1196,6 @@
       <trans-unit id="admFsRelations" resname="admin.fieldset.relations">
         <source>admin.fieldset.relations</source>
         <target>Relations</target>
-      </trans-unit>
-      <trans-unit id="admFsEvent" resname="admin.fieldset.event">
-        <source>admin.fieldset.event</source>
-        <target>Event</target>
-      </trans-unit>
-      <trans-unit id="admFsRecord" resname="admin.fieldset.record">
-        <source>admin.fieldset.record</source>
-        <target>Record</target>
-      </trans-unit>
-      <trans-unit id="admFsChanges" resname="admin.fieldset.changes">
-        <source>admin.fieldset.changes</source>
-        <target>Changes</target>
       </trans-unit>
       <trans-unit id="admFsConsent" resname="admin.fieldset.consent">
         <source>admin.fieldset.consent</source>
@@ -1093,6 +1357,10 @@
         <source>admin.job_run.job.closure_import</source>
         <target>Closure import</target>
       </trans-unit>
+      <trans-unit id="admJobRunJobEncounterImport" resname="admin.job_run.job.encounter_import">
+        <source>admin.job_run.job.encounter_import</source>
+        <target>Encounter data import</target>
+      </trans-unit>
       <trans-unit id="admJobRunJobAllocationProjectionRebuild" resname="admin.job_run.job.allocation_projection_rebuild">
         <source>admin.job_run.job.allocation_projection_rebuild</source>
         <target>Allocation statistics rebuild (import)</target>
@@ -1128,6 +1396,14 @@
       <trans-unit id="admJobRunJobStorageMeasurement" resname="admin.job_run.job.storage_measurement">
         <source>admin.job_run.job.storage_measurement</source>
         <target>Storage measurement</target>
+      </trans-unit>
+      <trans-unit id="admJobRunJobMediaIntegrityCheck" resname="admin.job_run.job.media_integrity_check">
+        <source>admin.job_run.job.media_integrity_check</source>
+        <target>Media integrity check</target>
+      </trans-unit>
+      <trans-unit id="admJobRunJobReactionCleanup" resname="admin.job_run.job.reaction_cleanup">
+        <source>admin.job_run.job.reaction_cleanup</source>
+        <target>Reaction cleanup</target>
       </trans-unit>
       <trans-unit id="admJobRunJobMessengerQueueSample" resname="admin.job_run.job.messenger_queue_sample">
         <source>admin.job_run.job.messenger_queue_sample</source>
@@ -1409,6 +1685,42 @@
         <source>admin.job_run.metric.failures</source>
         <target>Failures</target>
       </trans-unit>
+      <trans-unit id="admJobRunMetricFiles" resname="admin.job_run.metric.files">
+        <source>admin.job_run.metric.files</source>
+        <target>Files</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricHashed" resname="admin.job_run.metric.hashed">
+        <source>admin.job_run.metric.hashed</source>
+        <target>Hashed</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricMissing" resname="admin.job_run.metric.missing">
+        <source>admin.job_run.metric.missing</source>
+        <target>Missing</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricDamaged" resname="admin.job_run.metric.damaged">
+        <source>admin.job_run.metric.damaged</source>
+        <target>Damaged</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricOrphansDeleted" resname="admin.job_run.metric.orphans_deleted">
+        <source>admin.job_run.metric.orphans_deleted</source>
+        <target>Orphans deleted</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricReactionsDeleted" resname="admin.job_run.metric.reactions_deleted">
+        <source>admin.job_run.metric.reactions_deleted</source>
+        <target>Reactions deleted</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricOrphansKept" resname="admin.job_run.metric.orphans_kept">
+        <source>admin.job_run.metric.orphans_kept</source>
+        <target>Orphans kept</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricLeftoversDeleted" resname="admin.job_run.metric.leftovers_deleted">
+        <source>admin.job_run.metric.leftovers_deleted</source>
+        <target>Leftovers deleted</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricUnexpected" resname="admin.job_run.metric.unexpected">
+        <source>admin.job_run.metric.unexpected</source>
+        <target>Unexpected files</target>
+      </trans-unit>
       <trans-unit id="admJobRunMetricPending" resname="admin.job_run.metric.pending">
         <source>admin.job_run.metric.pending</source>
         <target>Pending</target>
@@ -1444,6 +1756,1750 @@
       <trans-unit id="admJobRunMetricDeletedJobRuns" resname="admin.job_run.metric.deleted_job_runs">
         <source>admin.job_run.metric.deleted_job_runs</source>
         <target>Job runs deleted</target>
+      </trans-unit>
+      <trans-unit id="uaAcc01" resname="usage_analytics.accesses.title">
+        <source>usage_analytics.accesses.title</source>
+        <target>Usage analytics — Accesses</target>
+      </trans-unit>
+      <trans-unit id="uaAcc02" resname="usage_analytics.accesses.definition">
+        <source>usage_analytics.accesses.definition</source>
+        <target>An access is a page view: a successful request for a page. Recognised bots, Turbo frames, background requests, downloads, redirects and errors are not counted. Accesses are requests, not visitors or sessions.</target>
+      </trans-unit>
+      <trans-unit id="uaAcc03" resname="usage_analytics.accesses.empty">
+        <source>usage_analytics.accesses.empty</source>
+        <target>No accesses counted yet.</target>
+      </trans-unit>
+      <trans-unit id="uaAcc04" resname="usage_analytics.accesses.total">
+        <source>usage_analytics.accesses.total</source>
+        <target>Accesses in total</target>
+      </trans-unit>
+      <trans-unit id="uaAcc05" resname="usage_analytics.accesses.counted_since">
+        <source>usage_analytics.accesses.counted_since</source>
+        <target>Counted since {date}</target>
+      </trans-unit>
+      <trans-unit id="uaAcc06" resname="usage_analytics.accesses.signed_in">
+        <source>usage_analytics.accesses.signed_in</source>
+        <target>Signed in</target>
+      </trans-unit>
+      <trans-unit id="uaAcc07" resname="usage_analytics.accesses.anonymous">
+        <source>usage_analytics.accesses.anonymous</source>
+        <target>Anonymous</target>
+      </trans-unit>
+      <trans-unit id="uaAcc08" resname="usage_analytics.accesses.chart.title">
+        <source>usage_analytics.accesses.chart.title</source>
+        <target>Accesses per month</target>
+      </trans-unit>
+      <trans-unit id="uaAcc09" resname="usage_analytics.accesses.chart.incomplete">
+        <source>usage_analytics.accesses.chart.incomplete</source>
+        <target>incomplete</target>
+      </trans-unit>
+      <trans-unit id="uaAcc11" resname="usage_analytics.accesses.years.title">
+        <source>usage_analytics.accesses.years.title</source>
+        <target>Per year</target>
+      </trans-unit>
+      <trans-unit id="uaAcc12" resname="usage_analytics.accesses.months.title">
+        <source>usage_analytics.accesses.months.title</source>
+        <target>Per month</target>
+      </trans-unit>
+      <trans-unit id="uaAcc19" resname="usage_analytics.accesses.range.label">
+        <source>usage_analytics.accesses.range.label</source>
+        <target>Time range</target>
+      </trans-unit>
+      <trans-unit id="uaAcc20" resname="usage_analytics.accesses.range.months">
+        <source>usage_analytics.accesses.range.months</source>
+        <target>{count} months</target>
+      </trans-unit>
+      <trans-unit id="uaAcc21" resname="usage_analytics.accesses.range.all">
+        <source>usage_analytics.accesses.range.all</source>
+        <target>All</target>
+      </trans-unit>
+      <trans-unit id="uaAcc13" resname="usage_analytics.accesses.column.year">
+        <source>usage_analytics.accesses.column.year</source>
+        <target>Year</target>
+      </trans-unit>
+      <trans-unit id="uaAcc14" resname="usage_analytics.accesses.column.month">
+        <source>usage_analytics.accesses.column.month</source>
+        <target>Month</target>
+      </trans-unit>
+      <trans-unit id="uaAcc15" resname="usage_analytics.accesses.column.total">
+        <source>usage_analytics.accesses.column.total</source>
+        <target>Total</target>
+      </trans-unit>
+      <trans-unit id="uaAcc16" resname="usage_analytics.accesses.note.current">
+        <source>usage_analytics.accesses.note.current</source>
+        <target>Not over yet</target>
+      </trans-unit>
+      <trans-unit id="uaAcc17" resname="usage_analytics.accesses.note.partial">
+        <source>usage_analytics.accesses.note.partial</source>
+        <target>Counted from {date}</target>
+      </trans-unit>
+      <trans-unit id="uaNav02" resname="usage_analytics.menu.section">
+        <source>usage_analytics.menu.section</source>
+        <target>Usage analytics</target>
+      </trans-unit>
+      <trans-unit id="uaNav03" resname="usage_analytics.menu.overview">
+        <source>usage_analytics.menu.overview</source>
+        <target>Overview</target>
+      </trans-unit>
+      <trans-unit id="uaNav04" resname="usage_analytics.menu.accesses">
+        <source>usage_analytics.menu.accesses</source>
+        <target>Accesses</target>
+      </trans-unit>
+      <trans-unit id="uaOv01" resname="usage_analytics.overview.requests_today">
+        <source>usage_analytics.overview.requests_today</source>
+        <target>Requests today</target>
+      </trans-unit>
+      <trans-unit id="uaOv02" resname="usage_analytics.overview.requests_7_days">
+        <source>usage_analytics.overview.requests_7_days</source>
+        <target>Requests (7 days)</target>
+      </trans-unit>
+      <trans-unit id="uaOv03" resname="usage_analytics.overview.active_users">
+        <source>usage_analytics.overview.active_users</source>
+        <target>DAU / WAU / MAU</target>
+      </trans-unit>
+      <trans-unit id="uaOv04" resname="usage_analytics.overview.sessions_7_days">
+        <source>usage_analytics.overview.sessions_7_days</source>
+        <target>Sessions (7 days)</target>
+      </trans-unit>
+      <trans-unit id="uaOv05" resname="usage_analytics.overview.title">
+        <source>usage_analytics.overview.title</source>
+        <target>Usage analytics — Overview</target>
+      </trans-unit>
+      <trans-unit id="uaOv06" resname="usage_analytics.overview.feature_areas.title">
+        <source>usage_analytics.overview.feature_areas.title</source>
+        <target>Feature areas (7 days)</target>
+      </trans-unit>
+      <trans-unit id="uaOv07" resname="usage_analytics.overview.authentication.title">
+        <source>usage_analytics.overview.authentication.title</source>
+        <target>Authentication (7 days)</target>
+      </trans-unit>
+      <trans-unit id="uaOv08" resname="usage_analytics.overview.authentication.authenticated">
+        <source>usage_analytics.overview.authentication.authenticated</source>
+        <target>Authenticated</target>
+      </trans-unit>
+      <trans-unit id="uaOv09" resname="usage_analytics.overview.authentication.anonymous">
+        <source>usage_analytics.overview.authentication.anonymous</source>
+        <target>Anonymous</target>
+      </trans-unit>
+      <trans-unit id="uaOv10" resname="usage_analytics.overview.requests_30_days">
+        <source>usage_analytics.overview.requests_30_days</source>
+        <target>Requests (30 days)</target>
+      </trans-unit>
+      <trans-unit id="uaOv11" resname="usage_analytics.overview.top_routes.title">
+        <source>usage_analytics.overview.top_routes.title</source>
+        <target>Top routes (7 days)</target>
+      </trans-unit>
+      <trans-unit id="uaOv12" resname="usage_analytics.overview.column.area">
+        <source>usage_analytics.overview.column.area</source>
+        <target>Area</target>
+      </trans-unit>
+      <trans-unit id="uaOv13" resname="usage_analytics.overview.column.requests">
+        <source>usage_analytics.overview.column.requests</source>
+        <target>Requests</target>
+      </trans-unit>
+      <trans-unit id="uaOv14" resname="usage_analytics.overview.column.share">
+        <source>usage_analytics.overview.column.share</source>
+        <target>Share</target>
+      </trans-unit>
+      <trans-unit id="uaOv15" resname="usage_analytics.overview.column.route">
+        <source>usage_analytics.overview.column.route</source>
+        <target>Route</target>
+      </trans-unit>
+      <trans-unit id="uaOv16" resname="usage_analytics.overview.empty">
+        <source>usage_analytics.overview.empty</source>
+        <target>No data yet.</target>
+      </trans-unit>
+      <trans-unit id="admFqEntity" resname="admin.feedback_quarantine.entity">
+        <source>admin.feedback_quarantine.entity</source>
+        <target>Quarantined feedback</target>
+      </trans-unit>
+      <trans-unit id="admFqTitle" resname="admin.feedback_quarantine.title">
+        <source>admin.feedback_quarantine.title</source>
+        <target>Feedback quarantine — {count, plural, one {# entry} other {# entries}}</target>
+      </trans-unit>
+      <trans-unit id="admFqDetail" resname="admin.feedback_quarantine.detail_title">
+        <source>admin.feedback_quarantine.detail_title</source>
+        <target>Quarantined feedback #{id}</target>
+      </trans-unit>
+      <trans-unit id="admFbRelease" resname="admin.feedback.action.release">
+        <source>admin.feedback.action.release</source>
+        <target>Release</target>
+      </trans-unit>
+      <trans-unit id="admFbReleaseC" resname="admin.feedback.action.release.confirm">
+        <source>admin.feedback.action.release.confirm</source>
+        <target>Release feedback #{id} from {createdAt, date,dd.MM.yyyy HH:mm}? It moves to the normal feedback list; no notification is sent.</target>
+      </trans-unit>
+      <trans-unit id="fbRelHintEn" resname="admin.feedback.action.release.hint">
+        <source>admin.feedback.action.release.hint</source>
+        <target>Moves the entry to the normal feedback list without a notification.</target>
+      </trans-unit>
+      <trans-unit id="admFbBatchRel" resname="admin.feedback.action.batch_release">
+        <source>admin.feedback.action.batch_release</source>
+        <target>Release</target>
+      </trans-unit>
+      <trans-unit id="admFbQuar" resname="admin.feedback.action.quarantine">
+        <source>admin.feedback.action.quarantine</source>
+        <target>Move to quarantine</target>
+      </trans-unit>
+      <trans-unit id="admFbQuarC" resname="admin.feedback.action.quarantine.confirm">
+        <source>admin.feedback.action.quarantine.confirm</source>
+        <target>Move feedback #{id} from {createdAt, date,dd.MM.yyyy HH:mm} to the quarantine? It leaves the feedback list and the open count.</target>
+      </trans-unit>
+      <trans-unit id="admFbFCreated" resname="admin.feedback.field.created">
+        <source>admin.feedback.field.created</source>
+        <target>Created</target>
+      </trans-unit>
+      <trans-unit id="admFbFCat" resname="admin.feedback.field.category">
+        <source>admin.feedback.field.category</source>
+        <target>Category</target>
+      </trans-unit>
+      <trans-unit id="admFbFGuest" resname="admin.feedback.field.guest_email">
+        <source>admin.feedback.field.guest_email</source>
+        <target>Guest email</target>
+      </trans-unit>
+      <trans-unit id="admFbFUser" resname="admin.feedback.field.user">
+        <source>admin.feedback.field.user</source>
+        <target>User</target>
+      </trans-unit>
+      <trans-unit id="admFbFReasons" resname="admin.feedback.field.reasons">
+        <source>admin.feedback.field.reasons</source>
+        <target>Reasons</target>
+      </trans-unit>
+      <trans-unit id="admFbFScore" resname="admin.feedback.field.score">
+        <source>admin.feedback.field.score</source>
+        <target>Score</target>
+      </trans-unit>
+      <trans-unit id="admFbFPreview" resname="admin.feedback.field.preview">
+        <source>admin.feedback.field.preview</source>
+        <target>Preview</target>
+      </trans-unit>
+      <trans-unit id="admFbFQAt" resname="admin.feedback.field.quarantined_at">
+        <source>admin.feedback.field.quarantined_at</source>
+        <target>Quarantined</target>
+      </trans-unit>
+      <trans-unit id="admFbFReviewer" resname="admin.feedback.field.reviewer">
+        <source>admin.feedback.field.reviewer</source>
+        <target>Reviewer</target>
+      </trans-unit>
+      <trans-unit id="admFbFMessage" resname="admin.feedback.field.message">
+        <source>admin.feedback.field.message</source>
+        <target>Message</target>
+      </trans-unit>
+      <trans-unit id="admFbFPage" resname="admin.feedback.field.page">
+        <source>admin.feedback.field.page</source>
+        <target>Page</target>
+      </trans-unit>
+      <trans-unit id="admFbFUa" resname="admin.feedback.field.user_agent">
+        <source>admin.feedback.field.user_agent</source>
+        <target>User agent</target>
+      </trans-unit>
+      <trans-unit id="admFbFlRel" resname="flash.admin.feedback.released">
+        <source>flash.admin.feedback.released</source>
+        <target>{count, plural, =0 {No feedback was released.} one {# feedback entry released.} other {# feedback entries released.}}</target>
+      </trans-unit>
+      <trans-unit id="admFbFlQuar" resname="flash.admin.feedback.quarantined">
+        <source>flash.admin.feedback.quarantined</source>
+        <target>Feedback moved to the quarantine.</target>
+      </trans-unit>
+      <trans-unit id="admFbFlTok" resname="flash.admin.feedback.invalid_token">
+        <source>flash.admin.feedback.invalid_token</source>
+        <target>The action has expired. Please try again.</target>
+      </trans-unit>
+      <trans-unit id="admFbFlDel" resname="flash.admin.feedback.deleted">
+        <source>flash.admin.feedback.deleted</source>
+        <target>{count, plural, =0 {No feedback was deleted.} one {# feedback entry deleted.} other {# feedback entries deleted.}}</target>
+      </trans-unit>
+      <trans-unit id="auditTl01" resname="audit.timeline.title">
+        <source>audit.timeline.title</source>
+        <target>Audit timeline</target>
+      </trans-unit>
+      <trans-unit id="auditTl03" resname="audit.timeline.empty">
+        <source>audit.timeline.empty</source>
+        <target>No audit entries match.</target>
+      </trans-unit>
+      <trans-unit id="auditTl04" resname="audit.timeline.active_filters">
+        <source>audit.timeline.active_filters</source>
+        <target>Filtered by</target>
+      </trans-unit>
+      <trans-unit id="auditTl05" resname="audit.timeline.reset_filters">
+        <source>audit.timeline.reset_filters</source>
+        <target>Reset filters</target>
+      </trans-unit>
+      <trans-unit id="auditTl06" resname="audit.timeline.pagination">
+        <source>audit.timeline.pagination</source>
+        <target>Audit timeline pages</target>
+      </trans-unit>
+      <trans-unit id="auditTl07" resname="audit.timeline.older">
+        <source>audit.timeline.older</source>
+        <target>Older entries</target>
+      </trans-unit>
+      <trans-unit id="auditTl08" resname="audit.timeline.newest">
+        <source>audit.timeline.newest</source>
+        <target>Newest entries</target>
+      </trans-unit>
+      <trans-unit id="auditTl09" resname="audit.timeline.no_actor">
+        <source>audit.timeline.no_actor</source>
+        <target>System or anonymous</target>
+      </trans-unit>
+      <trans-unit id="auditTl10" resname="audit.timeline.deleted_user">
+        <source>audit.timeline.deleted_user</source>
+        <target>Deleted user #{id}</target>
+      </trans-unit>
+      <trans-unit id="auditTl12" resname="audit.timeline.fields_more">
+        <source>audit.timeline.fields_more</source>
+        <target>+{count} more</target>
+      </trans-unit>
+      <trans-unit id="auditTl13" resname="audit.timeline.request">
+        <source>audit.timeline.request</source>
+        <target>Request</target>
+      </trans-unit>
+      <trans-unit id="auditTl14" resname="audit.timeline.request_entries">
+        <source>audit.timeline.request_entries</source>
+        <target>{count, plural, one {# entry} other {# entries}}</target>
+      </trans-unit>
+      <trans-unit id="auditTl15" resname="audit.timeline.request_partial">
+        <source>audit.timeline.request_partial</source>
+        <target>{shown} of {total} entries on this page</target>
+      </trans-unit>
+      <trans-unit id="auditTl16" resname="audit.timeline.request_matching">
+        <source>audit.timeline.request_matching</source>
+        <target>{matching} of {total} entries match the filter</target>
+      </trans-unit>
+      <trans-unit id="auditTl17" resname="audit.timeline.open_request">
+        <source>audit.timeline.open_request</source>
+        <target>Show the whole request</target>
+      </trans-unit>
+      <trans-unit id="auditTl18" resname="audit.timeline.legacy">
+        <source>audit.timeline.legacy</source>
+        <target>Older request id</target>
+      </trans-unit>
+      <trans-unit id="auditTl19" resname="audit.timeline.legacy_help">
+        <source>audit.timeline.legacy_help</source>
+        <target>Written before request ids were always generated by the application; the id may have come from a client.</target>
+      </trans-unit>
+      <trans-unit id="auditTl20" resname="audit.timeline.background">
+        <source>audit.timeline.background</source>
+        <target>Background jobs started by this request</target>
+      </trans-unit>
+      <trans-unit id="auditTl21" resname="audit.request.title">
+        <source>audit.request.title</source>
+        <target>Audit entries of one request</target>
+      </trans-unit>
+      <trans-unit id="auditTl22" resname="audit.request.back">
+        <source>audit.request.back</source>
+        <target>Back to the audit timeline</target>
+      </trans-unit>
+      <trans-unit id="auditTl23" resname="audit.request.entries">
+        <source>audit.request.entries</source>
+        <target>Entries</target>
+      </trans-unit>
+      <trans-unit id="auditTl24" resname="audit.request.limit">
+        <source>audit.request.limit</source>
+        <target>Showing the first {limit} of {total} entries.</target>
+      </trans-unit>
+      <trans-unit id="auditTl25" resname="audit.action.create">
+        <source>audit.action.create</source>
+        <target>Created</target>
+      </trans-unit>
+      <trans-unit id="auditTl26" resname="audit.action.update">
+        <source>audit.action.update</source>
+        <target>Changed</target>
+      </trans-unit>
+      <trans-unit id="auditTl27" resname="audit.action.delete">
+        <source>audit.action.delete</source>
+        <target>Deleted</target>
+      </trans-unit>
+      <trans-unit id="auditTl28" resname="audit.action.export">
+        <source>audit.action.export</source>
+        <target>Exported</target>
+      </trans-unit>
+      <trans-unit id="auditTl29" resname="audit.action.download">
+        <source>audit.action.download</source>
+        <target>Downloaded</target>
+      </trans-unit>
+      <trans-unit id="auditTl30" resname="audit.action.impersonate">
+        <source>audit.action.impersonate</source>
+        <target>Started impersonation of</target>
+      </trans-unit>
+      <trans-unit id="auditTl31" resname="audit.action.impersonate_exit">
+        <source>audit.action.impersonate_exit</source>
+        <target>Ended impersonation of</target>
+      </trans-unit>
+      <trans-unit id="auditTl32" resname="audit.origin.http">
+        <source>audit.origin.http</source>
+        <target>Web</target>
+      </trans-unit>
+      <trans-unit id="auditTl33" resname="audit.origin.cli">
+        <source>audit.origin.cli</source>
+        <target>Console</target>
+      </trans-unit>
+      <trans-unit id="auditTl34" resname="audit.origin.messenger">
+        <source>audit.origin.messenger</source>
+        <target>Background job</target>
+      </trans-unit>
+      <trans-unit id="auditTl35" resname="audit.outcome.success">
+        <source>audit.outcome.success</source>
+        <target>Successful</target>
+      </trans-unit>
+      <trans-unit id="auditTl36" resname="audit.outcome.blocked">
+        <source>audit.outcome.blocked</source>
+        <target>Blocked</target>
+      </trans-unit>
+      <trans-unit id="auditTl37" resname="audit.outcome.failed">
+        <source>audit.outcome.failed</source>
+        <target>Failed</target>
+      </trans-unit>
+      <trans-unit id="auditTl38" resname="audit.filter.from">
+        <source>audit.filter.from</source>
+        <target>From</target>
+      </trans-unit>
+      <trans-unit id="auditTl39" resname="audit.filter.to">
+        <source>audit.filter.to</source>
+        <target>Until</target>
+      </trans-unit>
+      <trans-unit id="auditTl40" resname="audit.filter.actor">
+        <source>audit.filter.actor</source>
+        <target>Actor</target>
+      </trans-unit>
+      <trans-unit id="auditTl41" resname="audit.filter.origin">
+        <source>audit.filter.origin</source>
+        <target>Origin</target>
+      </trans-unit>
+      <trans-unit id="auditTl42" resname="audit.filter.action">
+        <source>audit.filter.action</source>
+        <target>Action</target>
+      </trans-unit>
+      <trans-unit id="auditTl43" resname="audit.filter.intent">
+        <source>audit.filter.intent</source>
+        <target>Intent</target>
+      </trans-unit>
+      <trans-unit id="auditTl44" resname="audit.filter.entity">
+        <source>audit.filter.entity</source>
+        <target>Object type</target>
+      </trans-unit>
+      <trans-unit id="auditTl45" resname="audit.filter.entityId">
+        <source>audit.filter.entityId</source>
+        <target>Object id</target>
+      </trans-unit>
+      <trans-unit id="auditTl46" resname="audit.filter.request">
+        <source>audit.filter.request</source>
+        <target>Request id</target>
+      </trans-unit>
+      <trans-unit id="auditTl47" resname="audit.filter.session">
+        <source>audit.filter.session</source>
+        <target>Session</target>
+      </trans-unit>
+      <trans-unit id="auditTl48" resname="audit.filter.outcome">
+        <source>audit.filter.outcome</source>
+        <target>Outcome</target>
+      </trans-unit>
+      <trans-unit id="auditEn01" resname="audit.entry.title">
+        <source>audit.entry.title</source>
+        <target>Audit entry #{id}</target>
+      </trans-unit>
+      <trans-unit id="auditEn02" resname="audit.entry.show_details">
+        <source>audit.entry.show_details</source>
+        <target>Show details</target>
+      </trans-unit>
+      <trans-unit id="auditEn03" resname="audit.entry.details_failed">
+        <source>audit.entry.details_failed</source>
+        <target>The details could not be loaded.</target>
+      </trans-unit>
+      <trans-unit id="auditEn04" resname="audit.entry.permalink">
+        <source>audit.entry.permalink</source>
+        <target>Link to this entry</target>
+      </trans-unit>
+      <trans-unit id="auditEn05" resname="audit.entry.same_actor">
+        <source>audit.entry.same_actor</source>
+        <target>All entries of this actor</target>
+      </trans-unit>
+      <trans-unit id="auditEn06" resname="audit.entry.object_history">
+        <source>audit.entry.object_history</source>
+        <target>History of this object</target>
+      </trans-unit>
+      <trans-unit id="auditEn07" resname="audit.entry.same_intent">
+        <source>audit.entry.same_intent</source>
+        <target>All entries with this intent</target>
+      </trans-unit>
+      <trans-unit id="auditEn08" resname="audit.entry.same_session">
+        <source>audit.entry.same_session</source>
+        <target>All entries of this session</target>
+      </trans-unit>
+      <trans-unit id="auditEn09" resname="audit.entry.id">
+        <source>audit.entry.id</source>
+        <target>Entry</target>
+      </trans-unit>
+      <trans-unit id="auditEn10" resname="audit.entry.changes">
+        <source>audit.entry.changes</source>
+        <target>Recorded changes</target>
+      </trans-unit>
+      <trans-unit id="auditEn11" resname="audit.entry.field">
+        <source>audit.entry.field</source>
+        <target>Field</target>
+      </trans-unit>
+      <trans-unit id="auditEn12" resname="audit.entry.previous">
+        <source>audit.entry.previous</source>
+        <target>Previous</target>
+      </trans-unit>
+      <trans-unit id="auditEn13" resname="audit.entry.new">
+        <source>audit.entry.new</source>
+        <target>New</target>
+      </trans-unit>
+      <trans-unit id="auditEn14" resname="audit.entry.no_changes">
+        <source>audit.entry.no_changes</source>
+        <target>No field changes recorded.</target>
+      </trans-unit>
+      <trans-unit id="auditEn15" resname="audit.entry.metadata">
+        <source>audit.entry.metadata</source>
+        <target>Metadata</target>
+      </trans-unit>
+      <trans-unit id="auditEn16" resname="audit.entry.empty_string">
+        <source>audit.entry.empty_string</source>
+        <target>(empty)</target>
+      </trans-unit>
+      <trans-unit id="auditEn17" resname="audit.entry.truncated">
+        <source>audit.entry.truncated</source>
+        <target>(shortened)</target>
+      </trans-unit>
+      <trans-unit id="auditFi01" resname="audit.filter.title">
+        <source>audit.filter.title</source>
+        <target>Filter</target>
+      </trans-unit>
+      <trans-unit id="auditFi02" resname="audit.filter.any">
+        <source>audit.filter.any</source>
+        <target>Any</target>
+      </trans-unit>
+      <trans-unit id="auditFi03" resname="audit.filter.apply">
+        <source>audit.filter.apply</source>
+        <target>Apply filters</target>
+      </trans-unit>
+      <trans-unit id="auditFi04" resname="audit.filter.time_help">
+        <source>audit.filter.time_help</source>
+        <target>Local time (Europe/Berlin). From is inclusive, until exclusive.</target>
+      </trans-unit>
+      <trans-unit id="auditFi05" resname="audit.request.context">
+        <source>audit.request.context</source>
+        <target>Context</target>
+      </trans-unit>
+      <trans-unit id="auditFi06" resname="audit.request.context_help">
+        <source>audit.request.context_help</source>
+        <target>Belongs to this request but does not match the current filter.</target>
+      </trans-unit>
+      <trans-unit id="auditSe01" resname="audit.band.session">
+        <source>audit.band.session</source>
+        <target>Session</target>
+      </trans-unit>
+      <trans-unit id="auditSe02" resname="audit.band.inferred">
+        <source>audit.band.inferred</source>
+        <target>Inferred activity period</target>
+      </trans-unit>
+      <trans-unit id="auditSe03" resname="audit.band.inferred_badge">
+        <source>audit.band.inferred_badge</source>
+        <target>estimated</target>
+      </trans-unit>
+      <trans-unit id="auditSe04" resname="audit.band.inferred_help">
+        <source>audit.band.inferred_help</source>
+        <target>No session evidence: entries of this actor at most {minutes} minutes apart. Separate sessions may be merged, one session may be split.</target>
+      </trans-unit>
+      <trans-unit id="auditSe05" resname="audit.band.continues_newer">
+        <source>audit.band.continues_newer</source>
+        <target>may continue on newer entries</target>
+      </trans-unit>
+      <trans-unit id="auditSe06" resname="audit.band.continues_older">
+        <source>audit.band.continues_older</source>
+        <target>may continue on older entries</target>
+      </trans-unit>
+      <trans-unit id="auditSe07" resname="audit.timeline.new_one">
+        <source>audit.timeline.new_one</source>
+        <target>1 new entry – show</target>
+      </trans-unit>
+      <trans-unit id="auditSe08" resname="audit.timeline.new_many">
+        <source>audit.timeline.new_many</source>
+        <target>%count% new entries – show</target>
+      </trans-unit>
+      <trans-unit id="auditSe09" resname="audit.timeline.new_more">
+        <source>audit.timeline.new_more</source>
+        <target>More than %count% new entries – show</target>
+      </trans-unit>
+      <trans-unit id="admCrudFieldDescription" resname="admin.field.description">
+        <source>admin.field.description</source>
+        <target>Description</target>
+      </trans-unit>
+      <trans-unit id="admCrudFieldNote" resname="admin.field.note">
+        <source>admin.field.note</source>
+        <target>Note</target>
+      </trans-unit>
+      <trans-unit id="admCrudFieldIndications" resname="admin.field.indications">
+        <source>admin.field.indications</source>
+        <target>Indications</target>
+      </trans-unit>
+      <trans-unit id="admCrudDepartmentFieldAliases" resname="admin.department.field.aliases">
+        <source>admin.department.field.aliases</source>
+        <target>Aliases</target>
+      </trans-unit>
+      <trans-unit id="admCrudIndicationNormalizedFieldChildren" resname="admin.indication_normalized.field.children">
+        <source>admin.indication_normalized.field.children</source>
+        <target>Children</target>
+      </trans-unit>
+      <trans-unit id="admCrudIndicationRawFieldNormalized" resname="admin.indication_raw.field.normalized">
+        <source>admin.indication_raw.field.normalized</source>
+        <target>Normalized</target>
+      </trans-unit>
+      <trans-unit id="admCrudIndicationRawFieldTarget" resname="admin.indication_raw.field.target">
+        <source>admin.indication_raw.field.target</source>
+        <target>Target</target>
+      </trans-unit>
+      <trans-unit id="admCrudIndicationRawFieldHash" resname="admin.indication_raw.field.hash">
+        <source>admin.indication_raw.field.hash</source>
+        <target>Hash</target>
+      </trans-unit>
+      <trans-unit id="admCrudAssignmentEntitySingular" resname="admin.assignment.entity.singular">
+        <source>admin.assignment.entity.singular</source>
+        <target>Assignment</target>
+      </trans-unit>
+      <trans-unit id="admCrudAssignmentEntityPlural" resname="admin.assignment.entity.plural">
+        <source>admin.assignment.entity.plural</source>
+        <target>Assignments</target>
+      </trans-unit>
+      <trans-unit id="admCrudDepartmentEntitySingular" resname="admin.department.entity.singular">
+        <source>admin.department.entity.singular</source>
+        <target>Department</target>
+      </trans-unit>
+      <trans-unit id="admCrudDepartmentEntityPlural" resname="admin.department.entity.plural">
+        <source>admin.department.entity.plural</source>
+        <target>Departments</target>
+      </trans-unit>
+      <trans-unit id="admCrudDispatchAreaEntitySingular" resname="admin.dispatch_area.entity.singular">
+        <source>admin.dispatch_area.entity.singular</source>
+        <target>Dispatch Area</target>
+      </trans-unit>
+      <trans-unit id="admCrudDispatchAreaEntityPlural" resname="admin.dispatch_area.entity.plural">
+        <source>admin.dispatch_area.entity.plural</source>
+        <target>Dispatch Areas</target>
+      </trans-unit>
+      <trans-unit id="admCrudInfectionEntitySingular" resname="admin.infection.entity.singular">
+        <source>admin.infection.entity.singular</source>
+        <target>Infection</target>
+      </trans-unit>
+      <trans-unit id="admCrudInfectionEntityPlural" resname="admin.infection.entity.plural">
+        <source>admin.infection.entity.plural</source>
+        <target>Infections</target>
+      </trans-unit>
+      <trans-unit id="admCrudOccasionEntitySingular" resname="admin.occasion.entity.singular">
+        <source>admin.occasion.entity.singular</source>
+        <target>Occasion</target>
+      </trans-unit>
+      <trans-unit id="admCrudOccasionEntityPlural" resname="admin.occasion.entity.plural">
+        <source>admin.occasion.entity.plural</source>
+        <target>Occasions</target>
+      </trans-unit>
+      <trans-unit id="admCrudSecondaryTransportEntitySingular" resname="admin.secondary_transport.entity.singular">
+        <source>admin.secondary_transport.entity.singular</source>
+        <target>Secondary Transport</target>
+      </trans-unit>
+      <trans-unit id="admCrudSecondaryTransportEntityPlural" resname="admin.secondary_transport.entity.plural">
+        <source>admin.secondary_transport.entity.plural</source>
+        <target>Secondary Transports</target>
+      </trans-unit>
+      <trans-unit id="admCrudSpecialityEntitySingular" resname="admin.speciality.entity.singular">
+        <source>admin.speciality.entity.singular</source>
+        <target>Speciality</target>
+      </trans-unit>
+      <trans-unit id="admCrudSpecialityEntityPlural" resname="admin.speciality.entity.plural">
+        <source>admin.speciality.entity.plural</source>
+        <target>Specialities</target>
+      </trans-unit>
+      <trans-unit id="admCrudStateEntitySingular" resname="admin.state.entity.singular">
+        <source>admin.state.entity.singular</source>
+        <target>State</target>
+      </trans-unit>
+      <trans-unit id="admCrudStateEntityPlural" resname="admin.state.entity.plural">
+        <source>admin.state.entity.plural</source>
+        <target>States</target>
+      </trans-unit>
+      <trans-unit id="admCrudIndicationGroupEntitySingular" resname="admin.indication_group.entity.singular">
+        <source>admin.indication_group.entity.singular</source>
+        <target>Indication Group</target>
+      </trans-unit>
+      <trans-unit id="admCrudIndicationGroupEntityPlural" resname="admin.indication_group.entity.plural">
+        <source>admin.indication_group.entity.plural</source>
+        <target>Indication Groups</target>
+      </trans-unit>
+      <trans-unit id="admCrudIndicationNormalizedEntitySingular" resname="admin.indication_normalized.entity.singular">
+        <source>admin.indication_normalized.entity.singular</source>
+        <target>Indication Normalized</target>
+      </trans-unit>
+      <trans-unit id="admCrudIndicationNormalizedEntityPlural" resname="admin.indication_normalized.entity.plural">
+        <source>admin.indication_normalized.entity.plural</source>
+        <target>Indication Normalized</target>
+      </trans-unit>
+      <trans-unit id="admCrudIndicationRawEntitySingular" resname="admin.indication_raw.entity.singular">
+        <source>admin.indication_raw.entity.singular</source>
+        <target>Indication Raw</target>
+      </trans-unit>
+      <trans-unit id="admCrudIndicationRawEntityPlural" resname="admin.indication_raw.entity.plural">
+        <source>admin.indication_raw.entity.plural</source>
+        <target>Indication Raw</target>
+      </trans-unit>
+      <trans-unit id="admCrudAllocationFieldWithPhysician" resname="admin.allocation.field.with_physician">
+        <source>admin.allocation.field.with_physician</source>
+        <target>With physician</target>
+      </trans-unit>
+      <trans-unit id="admCrudAllocationFieldSecondaryIndicationRaw" resname="admin.allocation.field.secondary_indication_raw">
+        <source>admin.allocation.field.secondary_indication_raw</source>
+        <target>Secondary indication raw</target>
+      </trans-unit>
+      <trans-unit id="admCrudAllocationFieldSecondaryIndicationNormalized" resname="admin.allocation.field.secondary_indication_normalized">
+        <source>admin.allocation.field.secondary_indication_normalized</source>
+        <target>Secondary indication normalized</target>
+      </trans-unit>
+      <trans-unit id="admCrudAllocationFieldCaseIdHash" resname="admin.allocation.field.case_id_hash">
+        <source>admin.allocation.field.case_id_hash</source>
+        <target>Case ID hash</target>
+      </trans-unit>
+      <trans-unit id="admCrudMciCaseFieldMciId" resname="admin.mci_case.field.mci_id">
+        <source>admin.mci_case.field.mci_id</source>
+        <target>MANV (Hash)</target>
+      </trans-unit>
+      <trans-unit id="admCrudMciCaseFieldMciTitle" resname="admin.mci_case.field.mci_title">
+        <source>admin.mci_case.field.mci_title</source>
+        <target>MANV-ID (Title)</target>
+      </trans-unit>
+      <trans-unit id="admCrudHospitalFieldOwner" resname="admin.hospital.field.owner">
+        <source>admin.hospital.field.owner</source>
+        <target>Owner</target>
+      </trans-unit>
+      <trans-unit id="admCrudHospitalFieldLatitude" resname="admin.hospital.field.latitude">
+        <source>admin.hospital.field.latitude</source>
+        <target>Latitude</target>
+      </trans-unit>
+      <trans-unit id="admCrudHospitalFieldLongitude" resname="admin.hospital.field.longitude">
+        <source>admin.hospital.field.longitude</source>
+        <target>Longitude</target>
+      </trans-unit>
+      <trans-unit id="admCrudHospitalAccessGrantFieldUser" resname="admin.hospital_access_grant.field.user">
+        <source>admin.hospital_access_grant.field.user</source>
+        <target>User</target>
+      </trans-unit>
+      <trans-unit id="admCrudAllocationEntitySingular" resname="admin.allocation.entity.singular">
+        <source>admin.allocation.entity.singular</source>
+        <target>Allocation</target>
+      </trans-unit>
+      <trans-unit id="admCrudAllocationEntityPlural" resname="admin.allocation.entity.plural">
+        <source>admin.allocation.entity.plural</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="admCrudMciCaseEntitySingular" resname="admin.mci_case.entity.singular">
+        <source>admin.mci_case.entity.singular</source>
+        <target>MCI Case</target>
+      </trans-unit>
+      <trans-unit id="admCrudMciCaseEntityPlural" resname="admin.mci_case.entity.plural">
+        <source>admin.mci_case.entity.plural</source>
+        <target>MCI Cases</target>
+      </trans-unit>
+      <trans-unit id="admCrudHospitalEntitySingular" resname="admin.hospital.entity.singular">
+        <source>admin.hospital.entity.singular</source>
+        <target>Hospital</target>
+      </trans-unit>
+      <trans-unit id="admCrudHospitalEntityPlural" resname="admin.hospital.entity.plural">
+        <source>admin.hospital.entity.plural</source>
+        <target>Hospitals</target>
+      </trans-unit>
+      <trans-unit id="admCrudHospitalAccessGrantEntitySingular" resname="admin.hospital_access_grant.entity.singular">
+        <source>admin.hospital_access_grant.entity.singular</source>
+        <target>Hospital access grant</target>
+      </trans-unit>
+      <trans-unit id="admCrudHospitalAccessGrantEntityPlural" resname="admin.hospital_access_grant.entity.plural">
+        <source>admin.hospital_access_grant.entity.plural</source>
+        <target>Hospital access grants</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportFieldRuntimeMs" resname="admin.import.field.runtime_ms">
+        <source>admin.import.field.runtime_ms</source>
+        <target>Runtime (ms)</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportFieldExportStartsAt" resname="admin.import.field.export_starts_at">
+        <source>admin.import.field.export_starts_at</source>
+        <target>Export starts at</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportFieldExportEndsAt" resname="admin.import.field.export_ends_at">
+        <source>admin.import.field.export_ends_at</source>
+        <target>Export ends at (exclusive)</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportFieldExportPeriodSource" resname="admin.import.field.export_period_source">
+        <source>admin.import.field.export_period_source</source>
+        <target>Export period source</target>
+      </trans-unit>
+      <trans-unit id="admImportExportPeriodSourceDerived" resname="admin.import.export_period_source.derived">
+        <source>admin.import.export_period_source.derived</source>
+        <target>Derived</target>
+      </trans-unit>
+      <trans-unit id="admImportExportPeriodSourceManual" resname="admin.import.export_period_source.manual">
+        <source>admin.import.export_period_source.manual</source>
+        <target>Manual</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportFieldRejectFile" resname="admin.import.field.reject_file">
+        <source>admin.import.field.reject_file</source>
+        <target>Reject file</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportFieldChecksum" resname="admin.import.field.checksum">
+        <source>admin.import.field.checksum</source>
+        <target>Checksum</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportRejectFieldLine" resname="admin.import_reject.field.line">
+        <source>admin.import_reject.field.line</source>
+        <target>Line</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportRejectFieldMessages" resname="admin.import_reject.field.messages">
+        <source>admin.import_reject.field.messages</source>
+        <target>Messages</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportRejectFieldRowJson" resname="admin.import_reject.field.row_json">
+        <source>admin.import_reject.field.row_json</source>
+        <target>Row JSON</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportBatchRunFieldOptions" resname="admin.import_batch_run.field.options">
+        <source>admin.import_batch_run.field.options</source>
+        <target>Options</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportBatchRunFieldItems" resname="admin.import_batch_run.field.items">
+        <source>admin.import_batch_run.field.items</source>
+        <target>Items</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportBatchRunItemFieldImportName" resname="admin.import_batch_run_item.field.import_name">
+        <source>admin.import_batch_run_item.field.import_name</source>
+        <target>Import name</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportBatchRunItemFieldError" resname="admin.import_batch_run_item.field.error">
+        <source>admin.import_batch_run_item.field.error</source>
+        <target>Error</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportEntitySingular" resname="admin.import.entity.singular">
+        <source>admin.import.entity.singular</source>
+        <target>Import</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportEntityPlural" resname="admin.import.entity.plural">
+        <source>admin.import.entity.plural</source>
+        <target>Imports</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportRejectEntitySingular" resname="admin.import_reject.entity.singular">
+        <source>admin.import_reject.entity.singular</source>
+        <target>Import Reject</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportRejectEntityPlural" resname="admin.import_reject.entity.plural">
+        <source>admin.import_reject.entity.plural</source>
+        <target>Import Rejects</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportBatchRunEntitySingular" resname="admin.import_batch_run.entity.singular">
+        <source>admin.import_batch_run.entity.singular</source>
+        <target>Import batch run</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportBatchRunEntityPlural" resname="admin.import_batch_run.entity.plural">
+        <source>admin.import_batch_run.entity.plural</source>
+        <target>Import batch runs</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportBatchRunItemEntitySingular" resname="admin.import_batch_run_item.entity.singular">
+        <source>admin.import_batch_run_item.entity.singular</source>
+        <target>Import batch run item</target>
+      </trans-unit>
+      <trans-unit id="admCrudImportBatchRunItemEntityPlural" resname="admin.import_batch_run_item.entity.plural">
+        <source>admin.import_batch_run_item.entity.plural</source>
+        <target>Import batch run items</target>
+      </trans-unit>
+      <trans-unit id="adm74D5BCFE" resname="menu.data.mts_catalog">
+        <source>menu.data.mts_catalog</source>
+        <target>MTS catalog</target>
+      </trans-unit>
+      <trans-unit id="adm129C8908" resname="menu.data.mts_catalog.diagrams">
+        <source>menu.data.mts_catalog.diagrams</source>
+        <target>Diagrams</target>
+      </trans-unit>
+      <trans-unit id="adm45229836" resname="menu.data.mts_catalog.indicators">
+        <source>menu.data.mts_catalog.indicators</source>
+        <target>Indicators</target>
+      </trans-unit>
+      <trans-unit id="admAAA647DE" resname="menu.data.mts_catalog.aliases">
+        <source>menu.data.mts_catalog.aliases</source>
+        <target>Aliases</target>
+      </trans-unit>
+      <trans-unit id="adm6FB6BD90" resname="menu.data.mts_catalog.assignments">
+        <source>menu.data.mts_catalog.assignments</source>
+        <target>Assignments</target>
+      </trans-unit>
+      <trans-unit id="adm1517EB45" resname="menu.data.mts_catalog.plausibility">
+        <source>menu.data.mts_catalog.plausibility</source>
+        <target>Plausibility table</target>
+      </trans-unit>
+      <trans-unit id="admCrudFieldUser" resname="admin.field.user">
+        <source>admin.field.user</source>
+        <target>User</target>
+      </trans-unit>
+      <trans-unit id="admCrudCookieConsentFieldSubjectId" resname="admin.cookie_consent.field.subject_id">
+        <source>admin.cookie_consent.field.subject_id</source>
+        <target>Subject ID</target>
+      </trans-unit>
+      <trans-unit id="admCrudCookieConsentFieldVersion" resname="admin.cookie_consent.field.version">
+        <source>admin.cookie_consent.field.version</source>
+        <target>Version</target>
+      </trans-unit>
+      <trans-unit id="admCrudCookieConsentFieldMode" resname="admin.cookie_consent.field.mode">
+        <source>admin.cookie_consent.field.mode</source>
+        <target>Mode</target>
+      </trans-unit>
+      <trans-unit id="admCrudCookieConsentFieldDecidedAt" resname="admin.cookie_consent.field.decided_at">
+        <source>admin.cookie_consent.field.decided_at</source>
+        <target>Decided at</target>
+      </trans-unit>
+      <trans-unit id="admCrudCookieConsentFieldModeHelp" resname="admin.cookie_consent.field.mode_help">
+        <source>admin.cookie_consent.field.mode_help</source>
+        <target>Legend: shield = essential only, chart = analytics.</target>
+      </trans-unit>
+      <trans-unit id="admCrudCookieConsentPageTitleDetail" resname="admin.cookie_consent.page_title.detail">
+        <source>admin.cookie_consent.page_title.detail</source>
+        <target>Cookie consent detail</target>
+      </trans-unit>
+      <trans-unit id="admCrudMonthlyReminderDispatchFieldReportingPeriod" resname="admin.monthly_reminder_dispatch.field.reporting_period">
+        <source>admin.monthly_reminder_dispatch.field.reporting_period</source>
+        <target>Reporting period</target>
+      </trans-unit>
+      <trans-unit id="admCrudMonthlyReminderDispatchFieldRecipient" resname="admin.monthly_reminder_dispatch.field.recipient">
+        <source>admin.monthly_reminder_dispatch.field.recipient</source>
+        <target>Recipient</target>
+      </trans-unit>
+      <trans-unit id="admCrudMonthlyReminderDispatchFieldQueuedAt" resname="admin.monthly_reminder_dispatch.field.queued_at">
+        <source>admin.monthly_reminder_dispatch.field.queued_at</source>
+        <target>Queued at</target>
+      </trans-unit>
+      <trans-unit id="admCrudMonthlyReminderDispatchFieldDeliveredAt" resname="admin.monthly_reminder_dispatch.field.delivered_at">
+        <source>admin.monthly_reminder_dispatch.field.delivered_at</source>
+        <target>Delivered at</target>
+      </trans-unit>
+      <trans-unit id="admCrudFieldLocale" resname="admin.field.locale">
+        <source>admin.field.locale</source>
+        <target>Locale</target>
+      </trans-unit>
+      <trans-unit id="admCrudUserFieldOwnedHospitals" resname="admin.user.field.owned_hospitals">
+        <source>admin.user.field.owned_hospitals</source>
+        <target>Owned hospitals</target>
+      </trans-unit>
+      <trans-unit id="admCrudUserFieldPasswordHelp" resname="admin.user.field.password_help">
+        <source>admin.user.field.password_help</source>
+        <target>On edit leave empty to keep the current password.</target>
+      </trans-unit>
+      <trans-unit id="admCrudUserOnboardingStepFieldStep" resname="admin.user_onboarding_step.field.step">
+        <source>admin.user_onboarding_step.field.step</source>
+        <target>Step</target>
+      </trans-unit>
+      <trans-unit id="admCrudUserOnboardingStepFieldCompletedAt" resname="admin.user_onboarding_step.field.completed_at">
+        <source>admin.user_onboarding_step.field.completed_at</source>
+        <target>Completed at</target>
+      </trans-unit>
+      <trans-unit id="admCrudSavedExplorerViewFieldConfigJson" resname="admin.saved_explorer_view.field.config_json">
+        <source>admin.saved_explorer_view.field.config_json</source>
+        <target>Config JSON</target>
+      </trans-unit>
+      <trans-unit id="admCrudMediaFieldWidth" resname="admin.media.field.width">
+        <source>admin.media.field.width</source>
+        <target>Width</target>
+      </trans-unit>
+      <trans-unit id="admCrudMediaFieldHeight" resname="admin.media.field.height">
+        <source>admin.media.field.height</source>
+        <target>Height</target>
+      </trans-unit>
+      <trans-unit id="admCrudFeedbackPageTitleIndex" resname="admin.feedback.page_title.index">
+        <source>admin.feedback.page_title.index</source>
+        <target>Feedback — {open} open · {quarantined} in quarantine</target>
+      </trans-unit>
+      <trans-unit id="admCrudFeedbackEntitySingular" resname="admin.feedback.entity.singular">
+        <source>admin.feedback.entity.singular</source>
+        <target>Feedback</target>
+      </trans-unit>
+      <trans-unit id="admCrudFeedbackEntityPlural" resname="admin.feedback.entity.plural">
+        <source>admin.feedback.entity.plural</source>
+        <target>Feedback</target>
+      </trans-unit>
+      <trans-unit id="admCrudCookieConsentEntitySingular" resname="admin.cookie_consent.entity.singular">
+        <source>admin.cookie_consent.entity.singular</source>
+        <target>Cookie consent</target>
+      </trans-unit>
+      <trans-unit id="admCrudCookieConsentEntityPlural" resname="admin.cookie_consent.entity.plural">
+        <source>admin.cookie_consent.entity.plural</source>
+        <target>Cookie consents</target>
+      </trans-unit>
+      <trans-unit id="admCrudMonthlyReminderDispatchEntitySingular" resname="admin.monthly_reminder_dispatch.entity.singular">
+        <source>admin.monthly_reminder_dispatch.entity.singular</source>
+        <target>Monthly reminder dispatch</target>
+      </trans-unit>
+      <trans-unit id="admCrudMonthlyReminderDispatchEntityPlural" resname="admin.monthly_reminder_dispatch.entity.plural">
+        <source>admin.monthly_reminder_dispatch.entity.plural</source>
+        <target>Monthly reminder dispatches</target>
+      </trans-unit>
+      <trans-unit id="admCrudUserEntitySingular" resname="admin.user.entity.singular">
+        <source>admin.user.entity.singular</source>
+        <target>User</target>
+      </trans-unit>
+      <trans-unit id="admCrudUserEntityPlural" resname="admin.user.entity.plural">
+        <source>admin.user.entity.plural</source>
+        <target>Users</target>
+      </trans-unit>
+      <trans-unit id="admCrudUserOnboardingStepEntitySingular" resname="admin.user_onboarding_step.entity.singular">
+        <source>admin.user_onboarding_step.entity.singular</source>
+        <target>User onboarding step</target>
+      </trans-unit>
+      <trans-unit id="admCrudUserOnboardingStepEntityPlural" resname="admin.user_onboarding_step.entity.plural">
+        <source>admin.user_onboarding_step.entity.plural</source>
+        <target>User onboarding steps</target>
+      </trans-unit>
+      <trans-unit id="admCrudSavedExplorerViewEntitySingular" resname="admin.saved_explorer_view.entity.singular">
+        <source>admin.saved_explorer_view.entity.singular</source>
+        <target>Saved explorer view</target>
+      </trans-unit>
+      <trans-unit id="admCrudSavedExplorerViewEntityPlural" resname="admin.saved_explorer_view.entity.plural">
+        <source>admin.saved_explorer_view.entity.plural</source>
+        <target>Saved explorer views</target>
+      </trans-unit>
+      <trans-unit id="pgLocaleSwitchEn" resname="admin.page_translation.action.switch_locale">
+        <source>admin.page_translation.action.switch_locale</source>
+        <target>Language {locale}</target>
+      </trans-unit>
+      <trans-unit id="navInsp01" resname="navigation.inspector.menu_label">
+        <source>navigation.inspector.menu_label</source>
+        <target>Navigation tree</target>
+      </trans-unit>
+      <trans-unit id="navInsp03" resname="navigation.inspector.title">
+        <source>navigation.inspector.title</source>
+        <target>Navigation tree</target>
+      </trans-unit>
+      <trans-unit id="navInsp05" resname="navigation.inspector.form.user">
+        <source>navigation.inspector.form.user</source>
+        <target>Evaluate for user</target>
+      </trans-unit>
+      <trans-unit id="navInsp06" resname="navigation.inspector.form.user_placeholder">
+        <source>navigation.inspector.form.user_placeholder</source>
+        <target>Username (empty: you)</target>
+      </trans-unit>
+      <trans-unit id="navInsp07" resname="navigation.inspector.form.route">
+        <source>navigation.inspector.form.route</source>
+        <target>Check route</target>
+      </trans-unit>
+      <trans-unit id="navInsp08" resname="navigation.inspector.form.parameters">
+        <source>navigation.inspector.form.parameters</source>
+        <target>Route parameters</target>
+      </trans-unit>
+      <trans-unit id="navInsp09" resname="navigation.inspector.form.submit">
+        <source>navigation.inspector.form.submit</source>
+        <target>Check</target>
+      </trans-unit>
+      <trans-unit id="navInsp10" resname="navigation.inspector.form.reset">
+        <source>navigation.inspector.form.reset</source>
+        <target>Reset</target>
+      </trans-unit>
+      <trans-unit id="navInsp11" resname="navigation.inspector.unknown_user">
+        <source>navigation.inspector.unknown_user</source>
+        <target>There is no user "{username}".</target>
+      </trans-unit>
+      <trans-unit id="navInsp12" resname="navigation.inspector.evaluated_for_current">
+        <source>navigation.inspector.evaluated_for_current</source>
+        <target>Permissions are evaluated for you.</target>
+      </trans-unit>
+      <trans-unit id="navInsp13" resname="navigation.inspector.evaluated_for_user">
+        <source>navigation.inspector.evaluated_for_user</source>
+        <target>Permissions are evaluated for the user "{username}".</target>
+      </trans-unit>
+      <trans-unit id="navInsp14" resname="navigation.inspector.warnings.title">
+        <source>navigation.inspector.warnings.title</source>
+        <target>Warnings</target>
+      </trans-unit>
+      <trans-unit id="navInsp15" resname="navigation.inspector.warnings.none">
+        <source>navigation.inspector.warnings.none</source>
+        <target>No problems found in any menu.</target>
+      </trans-unit>
+      <trans-unit id="navInsp16" resname="navigation.inspector.warnings.duplicate_claim">
+        <source>navigation.inspector.warnings.duplicate_claim</source>
+        <target>Route {route} is claimed by several entries: {ids}</target>
+      </trans-unit>
+      <trans-unit id="navInsp17" resname="navigation.inspector.warnings.overlapping_prefix">
+        <source>navigation.inspector.warnings.overlapping_prefix</source>
+        <target>Overlapping area prefixes: {overlap}</target>
+      </trans-unit>
+      <trans-unit id="navInsp18" resname="navigation.inspector.warnings.unknown_route">
+        <source>navigation.inspector.warnings.unknown_route</source>
+        <target>Unknown route: {route}</target>
+      </trans-unit>
+      <trans-unit id="navInsp19" resname="navigation.inspector.route_check.title">
+        <source>navigation.inspector.route_check.title</source>
+        <target>Active path for {route}</target>
+      </trans-unit>
+      <trans-unit id="navInsp20" resname="navigation.inspector.route_check.menu">
+        <source>navigation.inspector.route_check.menu</source>
+        <target>Menu</target>
+      </trans-unit>
+      <trans-unit id="navInsp21" resname="navigation.inspector.route_check.path">
+        <source>navigation.inspector.route_check.path</source>
+        <target>Active path</target>
+      </trans-unit>
+      <trans-unit id="navInsp22" resname="navigation.inspector.route_check.rule">
+        <source>navigation.inspector.route_check.rule</source>
+        <target>Matched by</target>
+      </trans-unit>
+      <trans-unit id="navInsp23" resname="navigation.inspector.route_check.no_match">
+        <source>navigation.inspector.route_check.no_match</source>
+        <target>No entry is active.</target>
+      </trans-unit>
+      <trans-unit id="navInsp24" resname="navigation.inspector.route_check.hint">
+        <source>navigation.inspector.route_check.hint</source>
+        <target>Checked without the area of a page; on a real page the sidebar of the page also marks its area in the top navbar.</target>
+      </trans-unit>
+      <trans-unit id="navInsp25" resname="navigation.inspector.rule.route">
+        <source>navigation.inspector.rule.route</source>
+        <target>Route</target>
+      </trans-unit>
+      <trans-unit id="navInsp26" resname="navigation.inspector.rule.detail_route">
+        <source>navigation.inspector.rule.detail_route</source>
+        <target>Detail route</target>
+      </trans-unit>
+      <trans-unit id="navInsp27" resname="navigation.inspector.rule.sidebar_menu">
+        <source>navigation.inspector.rule.sidebar_menu</source>
+        <target>Route of the area's sidebar menu</target>
+      </trans-unit>
+      <trans-unit id="navInsp28" resname="navigation.inspector.rule.area">
+        <source>navigation.inspector.rule.area</source>
+        <target>Area of the page</target>
+      </trans-unit>
+      <trans-unit id="navInsp29" resname="navigation.inspector.rule.area_route_prefix">
+        <source>navigation.inspector.rule.area_route_prefix</source>
+        <target>Area route prefix</target>
+      </trans-unit>
+      <trans-unit id="navInsp30" resname="navigation.inspector.menu.primary">
+        <source>navigation.inspector.menu.primary</source>
+        <target>Top navbar</target>
+      </trans-unit>
+      <trans-unit id="navInsp31" resname="navigation.inspector.menu.footer">
+        <source>navigation.inspector.menu.footer</source>
+        <target>Footer</target>
+      </trans-unit>
+      <trans-unit id="navInsp32" resname="navigation.inspector.menu.statistics">
+        <source>navigation.inspector.menu.statistics</source>
+        <target>Statistics sidebar</target>
+      </trans-unit>
+      <trans-unit id="navInsp33" resname="navigation.inspector.menu.explore">
+        <source>navigation.inspector.menu.explore</source>
+        <target>Explore sidebar</target>
+      </trans-unit>
+      <trans-unit id="navInsp34" resname="navigation.inspector.primary_entry">
+        <source>navigation.inspector.primary_entry</source>
+        <target>Entry in the top navbar</target>
+      </trans-unit>
+      <trans-unit id="navInsp35" resname="navigation.inspector.carried_query_keys">
+        <source>navigation.inspector.carried_query_keys</source>
+        <target>Carried query parameters</target>
+      </trans-unit>
+      <trans-unit id="navInsp36" resname="navigation.inspector.untitled_group">
+        <source>navigation.inspector.untitled_group</source>
+        <target>Untitled group</target>
+      </trans-unit>
+      <trans-unit id="navInsp37" resname="navigation.inspector.weight">
+        <source>navigation.inspector.weight</source>
+        <target>Weight</target>
+      </trans-unit>
+      <trans-unit id="navInsp38" resname="navigation.inspector.literal_label">
+        <source>navigation.inspector.literal_label</source>
+        <target>Literal text</target>
+      </trans-unit>
+      <trans-unit id="navInsp39" resname="navigation.inspector.area_prefix">
+        <source>navigation.inspector.area_prefix</source>
+        <target>Area prefix</target>
+      </trans-unit>
+      <trans-unit id="navInsp40" resname="navigation.inspector.group_item">
+        <source>navigation.inspector.group_item</source>
+        <target>None, groups its children</target>
+      </trans-unit>
+      <trans-unit id="navInsp41" resname="navigation.inspector.granted">
+        <source>navigation.inspector.granted</source>
+        <target>granted</target>
+      </trans-unit>
+      <trans-unit id="navInsp42" resname="navigation.inspector.not_granted">
+        <source>navigation.inspector.not_granted</source>
+        <target>not granted</target>
+      </trans-unit>
+      <trans-unit id="navInsp43" resname="navigation.inspector.orphans">
+        <source>navigation.inspector.orphans</source>
+        <target>Entries outside the tree</target>
+      </trans-unit>
+      <trans-unit id="navInsp44" resname="navigation.inspector.provider_diff">
+        <source>navigation.inspector.provider_diff</source>
+        <target>from {provider}</target>
+      </trans-unit>
+      <trans-unit id="navInsp45" resname="navigation.inspector.status.visible">
+        <source>navigation.inspector.status.visible</source>
+        <target>Visible</target>
+      </trans-unit>
+      <trans-unit id="navInsp46" resname="navigation.inspector.status.denied">
+        <source>navigation.inspector.status.denied</source>
+        <target>Hidden · {attribute} missing</target>
+      </trans-unit>
+      <trans-unit id="navInsp47" resname="navigation.inspector.status.hidden_parent">
+        <source>navigation.inspector.status.hidden_parent</source>
+        <target>Hidden · parent hidden</target>
+      </trans-unit>
+      <trans-unit id="navInsp48" resname="navigation.inspector.status.no_visible_children">
+        <source>navigation.inspector.status.no_visible_children</source>
+        <target>Hidden · no visible children</target>
+      </trans-unit>
+      <trans-unit id="navInsp49" resname="navigation.inspector.status.orphaned">
+        <source>navigation.inspector.status.orphaned</source>
+        <target>Outside the tree</target>
+      </trans-unit>
+      <trans-unit id="navInsp50" resname="navigation.inspector.status.empty">
+        <source>navigation.inspector.status.empty</source>
+        <target>Empty for this user</target>
+      </trans-unit>
+      <trans-unit id="navInsp51" resname="navigation.inspector.status.unknown_route">
+        <source>navigation.inspector.status.unknown_route</source>
+        <target>Unknown route</target>
+      </trans-unit>
+      <trans-unit id="navInsp52" resname="navigation.inspector.status.active">
+        <source>navigation.inspector.status.active</source>
+        <target>Active · {rule}</target>
+      </trans-unit>
+      <trans-unit id="navInsp53" resname="navigation.inspector.status.on_path">
+        <source>navigation.inspector.status.on_path</source>
+        <target>On the path</target>
+      </trans-unit>
+      <trans-unit id="navInsp54" resname="navigation.inspector.filter.search">
+        <source>navigation.inspector.filter.search</source>
+        <target>Search: label, ID or route</target>
+      </trans-unit>
+      <trans-unit id="navInsp55" resname="navigation.inspector.filter.scope">
+        <source>navigation.inspector.filter.scope</source>
+        <target>Entries to show</target>
+      </trans-unit>
+      <trans-unit id="navInsp56" resname="navigation.inspector.filter.all">
+        <source>navigation.inspector.filter.all</source>
+        <target>All</target>
+      </trans-unit>
+      <trans-unit id="navInsp57" resname="navigation.inspector.filter.issues">
+        <source>navigation.inspector.filter.issues</source>
+        <target>Only deviations</target>
+      </trans-unit>
+      <trans-unit id="navInsp58" resname="navigation.inspector.filter.show_hidden">
+        <source>navigation.inspector.filter.show_hidden</source>
+        <target>Show hidden</target>
+      </trans-unit>
+      <trans-unit id="navInsp59" resname="navigation.inspector.filter.only_path">
+        <source>navigation.inspector.filter.only_path</source>
+        <target>Only the path</target>
+      </trans-unit>
+      <trans-unit id="navInsp60" resname="navigation.inspector.filter.count">
+        <source>navigation.inspector.filter.count</source>
+        <target>{shown} of {total} entries</target>
+      </trans-unit>
+      <trans-unit id="navInsp61" resname="navigation.inspector.filter.none">
+        <source>navigation.inspector.filter.none</source>
+        <target>No entries match these filters.</target>
+      </trans-unit>
+      <trans-unit id="navInsp62" resname="navigation.inspector.filter.folded">
+        <source>navigation.inspector.filter.folded</source>
+        <target>{count} more entries hidden</target>
+      </trans-unit>
+      <trans-unit id="navInsp63" resname="navigation.inspector.filter.show_all">
+        <source>navigation.inspector.filter.show_all</source>
+        <target>show all</target>
+      </trans-unit>
+      <trans-unit id="navInsp64" resname="navigation.inspector.panel.hint">
+        <source>navigation.inspector.panel.hint</source>
+        <target>Select an entry to see all its properties.</target>
+      </trans-unit>
+      <trans-unit id="navInsp65" resname="navigation.inspector.detail.id">
+        <source>navigation.inspector.detail.id</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="navInsp66" resname="navigation.inspector.detail.label">
+        <source>navigation.inspector.detail.label</source>
+        <target>Label</target>
+      </trans-unit>
+      <trans-unit id="navInsp67" resname="navigation.inspector.detail.route">
+        <source>navigation.inspector.detail.route</source>
+        <target>Route</target>
+      </trans-unit>
+      <trans-unit id="navInsp68" resname="navigation.inspector.detail.detail_routes">
+        <source>navigation.inspector.detail.detail_routes</source>
+        <target>Detail routes</target>
+      </trans-unit>
+      <trans-unit id="navInsp69" resname="navigation.inspector.detail.permission">
+        <source>navigation.inspector.detail.permission</source>
+        <target>Permission</target>
+      </trans-unit>
+      <trans-unit id="navInsp70" resname="navigation.inspector.detail.no_permission">
+        <source>navigation.inspector.detail.no_permission</source>
+        <target>None of its own</target>
+      </trans-unit>
+      <trans-unit id="navInsp71" resname="navigation.inspector.detail.display">
+        <source>navigation.inspector.detail.display</source>
+        <target>Display</target>
+      </trans-unit>
+      <trans-unit id="navInsp72" resname="navigation.inspector.detail.provider">
+        <source>navigation.inspector.detail.provider</source>
+        <target>Provider</target>
+      </trans-unit>
+      <trans-unit id="navInsp73" resname="navigation.inspector.unclaimed.title">
+        <source>navigation.inspector.unclaimed.title</source>
+        <target>Area routes without entry</target>
+      </trans-unit>
+      <trans-unit id="navInsp74" resname="navigation.inspector.unclaimed.hint">
+        <source>navigation.inspector.unclaimed.hint</source>
+        <target>GET routes that start with the area prefix of a top navbar entry but that no entry claims. Such pages only mark their area; frames and helper routes appear here too.</target>
+      </trans-unit>
+      <trans-unit id="navInsp75" resname="navigation.inspector.unclaimed.count">
+        <source>navigation.inspector.unclaimed.count</source>
+        <target>{count, plural, one {# route} other {# routes}}</target>
+      </trans-unit>
+      <trans-unit id="c1304de675a84" resname="admin.user.role.admin">
+        <source>admin.user.role.admin</source>
+        <target>Admin</target>
+      </trans-unit>
+      <trans-unit id="c1304cb493e63" resname="admin.user.role.participant">
+        <source>admin.user.role.participant</source>
+        <target>Participant</target>
+      </trans-unit>
+      <trans-unit id="c1304a105f987" resname="admin.user.role.board_member">
+        <source>admin.user.role.board_member</source>
+        <target>Board Member</target>
+      </trans-unit>
+      <trans-unit id="c1304eaeaf7f5" resname="admin.user.role.user">
+        <source>admin.user.role.user</source>
+        <target>User</target>
+      </trans-unit>
+      <trans-unit id="c13041cfdabb7" resname="admin.user.role.review_indications">
+        <source>admin.user.role.review_indications</source>
+        <target>Reviews indications</target>
+      </trans-unit>
+      <trans-unit id="c13042638efe0" resname="admin.user.role.encounter_beta">
+        <source>admin.user.role.encounter_beta</source>
+        <target>Encounter beta</target>
+      </trans-unit>
+      <trans-unit id="c1304b80c7822" resname="admin.user.role.encounter_catalog_reviewer">
+        <source>admin.user.role.encounter_catalog_reviewer</source>
+        <target>Encounter catalog reviewer</target>
+      </trans-unit>
+      <trans-unit id="c130433767f98" resname="admin.monthly_reminder_dispatch.trigger.scheduler">
+        <source>admin.monthly_reminder_dispatch.trigger.scheduler</source>
+        <target>Scheduler</target>
+      </trans-unit>
+      <trans-unit id="c1304ae5f0a4a" resname="admin.monthly_reminder_dispatch.trigger.admin">
+        <source>admin.monthly_reminder_dispatch.trigger.admin</source>
+        <target>Admin</target>
+      </trans-unit>
+      <trans-unit id="c1304cfa3afd4" resname="admin.monthly_reminder_dispatch.trigger.cli">
+        <source>admin.monthly_reminder_dispatch.trigger.cli</source>
+        <target>CLI</target>
+      </trans-unit>
+      <trans-unit id="c1304f435668b" resname="admin.monthly_reminder_dispatch.status.queued">
+        <source>admin.monthly_reminder_dispatch.status.queued</source>
+        <target>Queued</target>
+      </trans-unit>
+      <trans-unit id="c1304c208909e" resname="admin.monthly_reminder_dispatch.status.sent">
+        <source>admin.monthly_reminder_dispatch.status.sent</source>
+        <target>Sent</target>
+      </trans-unit>
+      <trans-unit id="c13049968bc53" resname="admin.monthly_reminder_dispatch.status.failed">
+        <source>admin.monthly_reminder_dispatch.status.failed</source>
+        <target>Failed</target>
+      </trans-unit>
+      <trans-unit id="c1314d0cdb7da" resname="admin.user.field.roles">
+        <source>admin.user.field.roles</source>
+        <target>Roles</target>
+      </trans-unit>
+      <trans-unit id="c1314485e82fc" resname="admin.user.field.is_verified">
+        <source>admin.user.field.is_verified</source>
+        <target>Email verified</target>
+      </trans-unit>
+      <trans-unit id="c13140e4d0f09" resname="admin.user.field.credentials_expired">
+        <source>admin.user.field.credentials_expired</source>
+        <target>Credentials expired</target>
+      </trans-unit>
+      <trans-unit id="admHarMenuUsersAssignmentRequests" resname="menu.users.assignment_requests">
+        <source>menu.users.assignment_requests</source>
+        <target>Assignment requests</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestEntitySingular" resname="admin.hospital_assignment_request.entity.singular">
+        <source>admin.hospital_assignment_request.entity.singular</source>
+        <target>Assignment request</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestEntityPlural" resname="admin.hospital_assignment_request.entity.plural">
+        <source>admin.hospital_assignment_request.entity.plural</source>
+        <target>Assignment requests</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestFieldStatus" resname="admin.hospital_assignment_request.field.status">
+        <source>admin.hospital_assignment_request.field.status</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestFieldRequester" resname="admin.hospital_assignment_request.field.requester">
+        <source>admin.hospital_assignment_request.field.requester</source>
+        <target>Requested by</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestFieldHospital" resname="admin.hospital_assignment_request.field.hospital">
+        <source>admin.hospital_assignment_request.field.hospital</source>
+        <target>Hospital</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestFieldReason" resname="admin.hospital_assignment_request.field.reason">
+        <source>admin.hospital_assignment_request.field.reason</source>
+        <target>Reason</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestFieldComment" resname="admin.hospital_assignment_request.field.comment">
+        <source>admin.hospital_assignment_request.field.comment</source>
+        <target>Comment</target>
+      </trans-unit>
+      <trans-unit id="uploadAuthAdmin0En" resname="admin.hospital_assignment_request.upload_authority.confirmed">
+        <source>admin.hospital_assignment_request.upload_authority.confirmed</source>
+        <target>Confirmed in the request on {date}; stored on approval with the import permission</target>
+      </trans-unit>
+      <trans-unit id="uploadAuthAdmin1En" resname="admin.hospital_assignment_request.upload_authority.not_confirmed">
+        <source>admin.hospital_assignment_request.upload_authority.not_confirmed</source>
+        <target>Not confirmed in the request; asked before the first upload</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestFieldCreatedAt" resname="admin.hospital_assignment_request.field.created_at">
+        <source>admin.hospital_assignment_request.field.created_at</source>
+        <target>Submitted</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestFieldClosedAt" resname="admin.hospital_assignment_request.field.closed_at">
+        <source>admin.hospital_assignment_request.field.closed_at</source>
+        <target>Closed</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestFieldDecidedBy" resname="admin.hospital_assignment_request.field.decided_by">
+        <source>admin.hospital_assignment_request.field.decided_by</source>
+        <target>Decided by</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestFieldRegisteredAt" resname="admin.hospital_assignment_request.field.registered_at">
+        <source>admin.hospital_assignment_request.field.registered_at</source>
+        <target>Registered</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestFieldRequesterHospitals" resname="admin.hospital_assignment_request.field.requester_hospitals">
+        <source>admin.hospital_assignment_request.field.requester_hospitals</source>
+        <target>Current hospitals of the requester</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestFieldOwner" resname="admin.hospital_assignment_request.field.owner">
+        <source>admin.hospital_assignment_request.field.owner</source>
+        <target>Current owner</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestFieldGrants" resname="admin.hospital_assignment_request.field.grants">
+        <source>admin.hospital_assignment_request.field.grants</source>
+        <target>Users with access</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestFieldDecision" resname="admin.hospital_assignment_request.field.decision">
+        <source>admin.hospital_assignment_request.field.decision</source>
+        <target>Decision</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestStatusPending" resname="admin.hospital_assignment_request.status.pending">
+        <source>admin.hospital_assignment_request.status.pending</source>
+        <target>Pending</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestStatusApproved" resname="admin.hospital_assignment_request.status.approved">
+        <source>admin.hospital_assignment_request.status.approved</source>
+        <target>Approved</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestStatusRejected" resname="admin.hospital_assignment_request.status.rejected">
+        <source>admin.hospital_assignment_request.status.rejected</source>
+        <target>Rejected</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestStatusWithdrawn" resname="admin.hospital_assignment_request.status.withdrawn">
+        <source>admin.hospital_assignment_request.status.withdrawn</source>
+        <target>Withdrawn</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestSectionRequester" resname="admin.hospital_assignment_request.section.requester">
+        <source>admin.hospital_assignment_request.section.requester</source>
+        <target>Requester</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestSectionRequest" resname="admin.hospital_assignment_request.section.request">
+        <source>admin.hospital_assignment_request.section.request</source>
+        <target>Request and hospital</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestLabelOwner" resname="admin.hospital_assignment_request.label.owner">
+        <source>admin.hospital_assignment_request.label.owner</source>
+        <target>owner</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestLabelGrant" resname="admin.hospital_assignment_request.label.grant">
+        <source>admin.hospital_assignment_request.label.grant</source>
+        <target>access</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestLabelNone" resname="admin.hospital_assignment_request.label.none">
+        <source>admin.hospital_assignment_request.label.none</source>
+        <target>none</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestLabelEnteredName" resname="admin.hospital_assignment_request.label.entered_name">
+        <source>admin.hospital_assignment_request.label.entered_name</source>
+        <target>Entered name: {name}</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestDecisionResolve" resname="admin.hospital_assignment_request.decision.resolve">
+        <source>admin.hospital_assignment_request.decision.resolve</source>
+        <target>Match the hospital</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestDecisionGrant" resname="admin.hospital_assignment_request.decision.grant">
+        <source>admin.hospital_assignment_request.decision.grant</source>
+        <target>Approve as access</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestDecisionOwnership" resname="admin.hospital_assignment_request.decision.ownership">
+        <source>admin.hospital_assignment_request.decision.ownership</source>
+        <target>Approve as ownership</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestDecisionReject" resname="admin.hospital_assignment_request.decision.reject">
+        <source>admin.hospital_assignment_request.decision.reject</source>
+        <target>Reject</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestFormHospital" resname="admin.hospital_assignment_request.form.hospital">
+        <source>admin.hospital_assignment_request.form.hospital</source>
+        <target>Hospital</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestFormHospitalPlaceholder" resname="admin.hospital_assignment_request.form.hospital_placeholder">
+        <source>admin.hospital_assignment_request.form.hospital_placeholder</source>
+        <target>Choose the hospital the requester means</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestFormPermissions" resname="admin.hospital_assignment_request.form.permissions">
+        <source>admin.hospital_assignment_request.form.permissions</source>
+        <target>Permissions</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestFormPermissionsHelp" resname="admin.hospital_assignment_request.form.permissions_help">
+        <source>admin.hospital_assignment_request.form.permissions_help</source>
+        <target>Preset from the reason of the request.</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestFormPreviousOwnerAccess" resname="admin.hospital_assignment_request.form.previous_owner_access">
+        <source>admin.hospital_assignment_request.form.previous_owner_access</source>
+        <target>Access of the current owner after the transfer</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestFormConfirmTransfer" resname="admin.hospital_assignment_request.form.confirm_transfer">
+        <source>admin.hospital_assignment_request.form.confirm_transfer</source>
+        <target>I confirm that the ownership of this hospital is transferred.</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestFormMessage" resname="admin.hospital_assignment_request.form.message">
+        <source>admin.hospital_assignment_request.form.message</source>
+        <target>Message to the requester (optional)</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestFormRejectionMessage" resname="admin.hospital_assignment_request.form.rejection_message">
+        <source>admin.hospital_assignment_request.form.rejection_message</source>
+        <target>Reason for the rejection</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestFormRejectionMessageHelp" resname="admin.hospital_assignment_request.form.rejection_message_help">
+        <source>admin.hospital_assignment_request.form.rejection_message_help</source>
+        <target>The requester sees this message.</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestPreviousOwnerAccessKeepFullAccess" resname="admin.hospital_assignment_request.previous_owner_access.keep_full_access">
+        <source>admin.hospital_assignment_request.previous_owner_access.keep_full_access</source>
+        <target>Keeps full access (access with all permissions)</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestPreviousOwnerAccessRemoveAccess" resname="admin.hospital_assignment_request.previous_owner_access.remove_access">
+        <source>admin.hospital_assignment_request.previous_owner_access.remove_access</source>
+        <target>Loses access to the hospital</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestTransferWarning" resname="admin.hospital_assignment_request.transfer_warning">
+        <source>admin.hospital_assignment_request.transfer_warning</source>
+        <target>This hospital is owned by {current}. Approving as ownership makes {new} the owner instead.</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestActionResolve" resname="admin.hospital_assignment_request.action.resolve">
+        <source>admin.hospital_assignment_request.action.resolve</source>
+        <target>Match hospital</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestActionApproveGrant" resname="admin.hospital_assignment_request.action.approve_grant">
+        <source>admin.hospital_assignment_request.action.approve_grant</source>
+        <target>Approve and grant access</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestActionApproveOwnership" resname="admin.hospital_assignment_request.action.approve_ownership">
+        <source>admin.hospital_assignment_request.action.approve_ownership</source>
+        <target>Approve and transfer ownership</target>
+      </trans-unit>
+      <trans-unit id="admHarAdminHospitalAssignmentRequestActionReject" resname="admin.hospital_assignment_request.action.reject">
+        <source>admin.hospital_assignment_request.action.reject</source>
+        <target>Reject request</target>
+      </trans-unit>
+      <trans-unit id="admHarFlashAdminHospitalAssignmentRequestHospitalResolved" resname="flash.admin.hospital_assignment_request.hospital_resolved">
+        <source>flash.admin.hospital_assignment_request.hospital_resolved</source>
+        <target>The request is matched to the hospital.</target>
+      </trans-unit>
+      <trans-unit id="admHarFlashAdminHospitalAssignmentRequestApproved" resname="flash.admin.hospital_assignment_request.approved">
+        <source>flash.admin.hospital_assignment_request.approved</source>
+        <target>The request is approved.</target>
+      </trans-unit>
+      <trans-unit id="admHarFlashAdminHospitalAssignmentRequestRejected" resname="flash.admin.hospital_assignment_request.rejected">
+        <source>flash.admin.hospital_assignment_request.rejected</source>
+        <target>The request is rejected.</target>
+      </trans-unit>
+      <trans-unit id="admHarFlashAdminHospitalAssignmentRequestInvalid" resname="flash.admin.hospital_assignment_request.invalid">
+        <source>flash.admin.hospital_assignment_request.invalid</source>
+        <target>The decision is incomplete. Check the form and try again.</target>
+      </trans-unit>
+      <trans-unit id="adminUserTwoFactor00" resname="admin.user.field.two_factor">
+        <source>admin.user.field.two_factor</source>
+        <target>Two-factor authentication</target>
+      </trans-unit>
+      <trans-unit id="adminUserTwoFactor01" resname="admin.user.action.reset_two_factor">
+        <source>admin.user.action.reset_two_factor</source>
+        <target>Reset two-factor authentication</target>
+      </trans-unit>
+      <trans-unit id="adminUserTwoFactor02" resname="admin.user.action.reset_two_factor.confirm">
+        <source>admin.user.action.reset_two_factor.confirm</source>
+        <target>Reset two-factor authentication of {username}? The account then signs in without a code and gets an email about it.</target>
+      </trans-unit>
+      <trans-unit id="adminTermsAcceptance00" resname="admin.user.field.terms_acceptance">
+        <source>admin.user.field.terms_acceptance</source>
+        <target>Terms of use</target>
+      </trans-unit>
+      <trans-unit id="adminTermsAcceptance01" resname="admin.terms_acceptance.none">
+        <source>admin.terms_acceptance.none</source>
+        <target>No acceptance stored</target>
+      </trans-unit>
+      <trans-unit id="adminTermsAcceptance02" resname="admin.terms_acceptance.accepted">
+        <source>admin.terms_acceptance.accepted</source>
+        <target>Version {version} on {date}</target>
+      </trans-unit>
+      <trans-unit id="adminTermsAcceptance05" resname="admin.terms_acceptance.accepted_without_version">
+        <source>admin.terms_acceptance.accepted_without_version</source>
+        <target>Without version on {date}</target>
+      </trans-unit>
+      <trans-unit id="adminTermsAcceptance03" resname="admin.terms_acceptance.not_current">
+        <source>admin.terms_acceptance.not_current</source>
+        <target>not the current version</target>
+      </trans-unit>
+      <trans-unit id="adminTermsAcceptance04" resname="admin.terms_acceptance.current_summary">
+        <source>admin.terms_acceptance.current_summary</source>
+        <target>Accepted the current version {version}: {accepted} of {total}</target>
+      </trans-unit>
+      <trans-unit id="adminUploadAuthority0En" resname="admin.upload_authority.label">
+        <source>admin.upload_authority.label</source>
+        <target>Upload authority</target>
+      </trans-unit>
+      <trans-unit id="adminUploadAuthority1En" resname="admin.upload_authority.missing">
+        <source>admin.upload_authority.missing</source>
+        <target>not confirmed</target>
+      </trans-unit>
+      <trans-unit id="adminUserTwoFactor03" resname="flash.admin.user.two_factor_reset.done">
+        <source>flash.admin.user.two_factor_reset.done</source>
+        <target>Two-factor authentication of {username} was reset.</target>
+      </trans-unit>
+      <trans-unit id="adminUserTwoFactor04" resname="flash.admin.user.two_factor_reset.invalid_token">
+        <source>flash.admin.user.two_factor_reset.invalid_token</source>
+        <target>The request has expired. Please try again.</target>
+      </trans-unit>
+      <trans-unit id="geo1406bcced5f0ba" resname="menu.data.districts">
+        <source>menu.data.districts</source>
+        <target>Districts</target>
+      </trans-unit>
+      <trans-unit id="geo14067f3164b2f5" resname="admin.district.entity.singular">
+        <source>admin.district.entity.singular</source>
+        <target>District</target>
+      </trans-unit>
+      <trans-unit id="geo140620cabae78e" resname="admin.district.entity.plural">
+        <source>admin.district.entity.plural</source>
+        <target>Districts</target>
+      </trans-unit>
+      <trans-unit id="geo1406b01723b63f" resname="admin.district.field.ags">
+        <source>admin.district.field.ags</source>
+        <target>Official key (AGS)</target>
+      </trans-unit>
+      <trans-unit id="geo140633a029239a" resname="admin.district.field.kind">
+        <source>admin.district.field.kind</source>
+        <target>Kind</target>
+      </trans-unit>
+      <trans-unit id="geo140672886b5f5b" resname="admin.district.field.dispatch_area">
+        <source>admin.district.field.dispatch_area</source>
+        <target>Dispatch area</target>
+      </trans-unit>
+      <trans-unit id="geo1406939ffa8a5d" resname="admin.district.field.boundary">
+        <source>admin.district.field.boundary</source>
+        <target>District boundary</target>
+      </trans-unit>
+      <trans-unit id="geo14062d80b6d997" resname="admin.district.action.fetch_boundary">
+        <source>admin.district.action.fetch_boundary</source>
+        <target>Fetch district boundary</target>
+      </trans-unit>
+      <trans-unit id="geo1406a9f7092282" resname="admin.district.boundary.ready">
+        <source>admin.district.boundary.ready</source>
+        <target>Available</target>
+      </trans-unit>
+      <trans-unit id="geo140697156b2849" resname="admin.district.boundary.missing">
+        <source>admin.district.boundary.missing</source>
+        <target>Missing</target>
+      </trans-unit>
+      <trans-unit id="geo14066a617df14b" resname="admin.district.boundary.running">
+        <source>admin.district.boundary.running</source>
+        <target>Fetching</target>
+      </trans-unit>
+      <trans-unit id="geo14063a8893a021" resname="admin.district.boundary.failed">
+        <source>admin.district.boundary.failed</source>
+        <target>Fetch failed</target>
+      </trans-unit>
+      <trans-unit id="geo1406adfcfd64a5" resname="admin.district.boundary.failure.not_found">
+        <source>admin.district.boundary.failure.not_found</source>
+        <target>The BKG does not know this key.</target>
+      </trans-unit>
+      <trans-unit id="geo1406bddc8ca0cf" resname="admin.district.boundary.failure.unavailable">
+        <source>admin.district.boundary.failure.unavailable</source>
+        <target>The BKG service was not available.</target>
+      </trans-unit>
+      <trans-unit id="geo140609b46a5f6f" resname="admin.district.boundary.failure.rate_limited">
+        <source>admin.district.boundary.failure.rate_limited</source>
+        <target>The BKG service limited the requests.</target>
+      </trans-unit>
+      <trans-unit id="geo1406387cfc2a23" resname="admin.district.boundary.failure.invalid_geometry">
+        <source>admin.district.boundary.failure.invalid_geometry</source>
+        <target>The BKG returned an unusable boundary.</target>
+      </trans-unit>
+      <trans-unit id="geo14065ce2b597a8" resname="admin.district.boundary.failure.dispatch_failed">
+        <source>admin.district.boundary.failure.dispatch_failed</source>
+        <target>The job could not be queued.</target>
+      </trans-unit>
+      <trans-unit id="geo1406264d653e7a" resname="admin.district.boundary.failure.timed_out">
+        <source>admin.district.boundary.failure.timed_out</source>
+        <target>The job did not finish in time.</target>
+      </trans-unit>
+      <trans-unit id="geo14065fc09a22a4" resname="admin.district.boundary.provider">
+        <source>admin.district.boundary.provider</source>
+        <target>Source</target>
+      </trans-unit>
+      <trans-unit id="geo140693274a2a44" resname="admin.district.boundary.licence">
+        <source>admin.district.boundary.licence</source>
+        <target>Licence</target>
+      </trans-unit>
+      <trans-unit id="geo1406e2604e4362" resname="admin.district.boundary.attribution">
+        <source>admin.district.boundary.attribution</source>
+        <target>Source note</target>
+      </trans-unit>
+      <trans-unit id="geo140624b8976fd7" resname="admin.district.boundary.fetched_at">
+        <source>admin.district.boundary.fetched_at</source>
+        <target>Fetched at</target>
+      </trans-unit>
+      <trans-unit id="geo140604b6e00633" resname="admin.district.boundary.fetched_at_unknown">
+        <source>admin.district.boundary.fetched_at_unknown</source>
+        <target>Not known</target>
+      </trans-unit>
+      <trans-unit id="geo1406a614fa060e" resname="flash.admin.district.fetch.started">
+        <source>flash.admin.district.fetch.started</source>
+        <target>The boundary of {name} is being fetched.</target>
+      </trans-unit>
+      <trans-unit id="geo1406bd88920d41" resname="flash.admin.district.fetch.not_started">
+        <source>flash.admin.district.fetch.not_started</source>
+        <target>No fetch was started for {name}: the boundary exists or a fetch is running.</target>
+      </trans-unit>
+      <trans-unit id="geo14061744d845a0" resname="flash.admin.district.fetch.invalid_token">
+        <source>flash.admin.district.fetch.invalid_token</source>
+        <target>The request has expired. Please try again.</target>
+      </trans-unit>
+      <trans-unit id="geo14061e183e4aff" resname="admin.dispatch_area.field.districts">
+        <source>admin.dispatch_area.field.districts</source>
+        <target>Districts</target>
+      </trans-unit>
+      <trans-unit id="geo140674772e5f5a" resname="admin.dispatch_area.field.map_shape">
+        <source>admin.dispatch_area.field.map_shape</source>
+        <target>Map area</target>
+      </trans-unit>
+      <trans-unit id="geo140659ffc10bcb" resname="admin.dispatch_area.map_shape.complete">
+        <source>admin.dispatch_area.map_shape.complete</source>
+        <target>Complete</target>
+      </trans-unit>
+      <trans-unit id="geo14068599c59c8d" resname="admin.dispatch_area.map_shape.no_districts">
+        <source>admin.dispatch_area.map_shape.no_districts</source>
+        <target>No districts</target>
+      </trans-unit>
+      <trans-unit id="geo140625c4581918" resname="admin.dispatch_area.map_shape.incomplete">
+        <source>admin.dispatch_area.map_shape.incomplete</source>
+        <target>{count, plural, one {# boundary missing} other {# boundaries missing}}</target>
       </trans-unit>
     </body>
   </file>

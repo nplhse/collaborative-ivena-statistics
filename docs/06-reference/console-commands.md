@@ -23,7 +23,7 @@ Examples: `app:import:start`, `app:statistics:rebuild-projection`. Geographic en
 | `--<entity>-id` | Optional or filter scoping | `--hospital-id`, `--user-id`, `--only-id`, `--page-id` |
 | `--dry-run` | Preview destructive or write operations without persisting | Backfill, requeue, deduplicate, content migration |
 
-**Dry-run rule:** Analysis-only commands are read-only by default. Commands that write data apply changes when run without `--dry-run`. Use `--dry-run` to preview what would change. Exceptions that preview by default: `app:audit:purge-import-assessments` (`--execute` to delete), `app:user:backfill-created-at`, `app:user-activity:backfill`, `app:hospital:backfill-participating-since`, `app:import:derive-export-periods`, `app:import:derive-data-coverage`, `app:user:normalize-usernames`, `app:geo:geocode-hospitals`, `app:geo:fetch-isochrones`, `app:geo:prepare-location` and `app:geo:apply-prepared-location` (`--apply` to write).
+**Dry-run rule:** Analysis-only commands are read-only by default. Commands that write data apply changes when run without `--dry-run`. Use `--dry-run` to preview what would change. Exceptions that preview by default: `app:audit:purge-import-assessments` (`--execute` to delete), `app:user:backfill-created-at`, `app:user-activity:backfill`, `app:hospital:backfill-participating-since`, `app:audit:backfill-derived`, `app:import:derive-export-periods`, `app:import:derive-data-coverage`, `app:user:normalize-usernames`, `app:geo:geocode-hospitals`, `app:geo:fetch-isochrones`, `app:geo:prepare-location` and `app:geo:apply-prepared-location` (`--apply` to write).
 
 ### Output
 
@@ -67,6 +67,13 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 | `app:reference:validate` | Check a JSON reference catalog package (`--source=`, default `var/reference/catalog.json`) without importing it: format and version, types, field rules, ids, references, counts and checksum. Lists every problem with its path in the file. See [ADR 020](../02-architecture/decisions/020-portable-reference-catalog.md). |
 | `app:reference:propose-from-rejects` | Read-only on rejects: write a report directory (`report.md`, requeue ID list) with catalog values that rejects miss. Add them through the admin pages, then requeue. |
 
+### Encounter curation
+
+| Command | Purpose |
+|---|---|
+| `app:encounter:curation:export` | Write the curated MTS catalog (curated entries, aliases to them, assignments) and the plausibility problem areas (PZC codes, rules) into one JSON package (`--output=`, default `var/encounter/curation-<Ymd-His>.json`; `--notes=`). No provisional entries, snapshots, counts or hospital data. Validated before it is written. See [../04-features/encounter/curation-package.md](../04-features/encounter/curation-package.md). |
+| `app:encounter:curation:import` | Add a curation package to this instance (`--source=`, required): adds missing rows, skips identical ones, reports every difference as a conflict; one conflict stops it before any write. Never changes, moves or deletes. Rebuilds the seed draft when areas changed; activation stays manual. `--dry-run` prints the plan; `--user=` (default `admin`) is the audit actor. |
+
 ### Allocation
 
 | Command | Purpose |
@@ -85,6 +92,8 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 | `app:geo:prepare-location <slug>` | Prepare a location for offline use (demo): coordinates from an address (`--street`, `--postal-code`, `--city`; geocoded), a manual pin (`--lat`, `--lng`) or an existing hospital (`--from-hospital-id`), plus destination isochrones. Stores `var/geo/prepared-locations/<slug>.json`. Default: dry-run; `--apply` calls OpenRouteService when needed (at most 2 requests) and writes; `--force` replaces an existing slug. Runbook: [../05-operations/hospital-geodata.md](../05-operations/hospital-geodata.md#prepared-locations-offline-use). |
 | `app:geo:list-prepared-locations` | List prepared locations (slug, label, address, coordinates, bands, date). Read-only, offline. |
 | `app:geo:apply-prepared-location <slug> --hospital-id=` | Apply a prepared location to a hospital without network access: sets coordinates, fills an empty address, writes the isochrone file. Default: dry-run; `--apply` writes; different existing coordinates need `--force`. |
+| `app:geo:import-legacy-districts [--verify]` | One-time, offline takeover of the legacy district geography into the database (#1406). Repeatable and never overwrites maintained data; `--verify` compares all 29 areas with the reference data and stores the completion marker. Runs on deploy before the switch; skipped in demo. |
+| `app:geo:check-dispatch-areas` | Read-only. List dispatch areas with allocations but no complete map shape, and districts assigned across a state border. Exit code 1 if an area with allocations has no complete shape. |
 
 ### Statistics
 
@@ -98,7 +107,6 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 | `app:statistics:refresh-mviews` | Refresh materialized views manually. |
 | `app:statistics:deduplicate-projection` | Detect and remove duplicate projection/allocation rows. Use `--dry-run` first. |
 | `app:statistics:explorer-views:sync` | Seed or update Analysis Explorer system demo views. See [../04-features/statistics/analysis-explorer.md](../04-features/statistics/analysis-explorer.md). |
-| `app:statistics:case-flow:build-geojson` | Build merged Hessen dispatch-area GeoJSON asset for Case Flow maps. |
 
 ### KPI, analytics, and engagement
 
@@ -125,6 +133,9 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 | Command | Purpose |
 |---|---|
 | `app:content:analyze-page-images` | Analyze CMS page images; optional dimension backfill and layout migration. Runs on deploy via Deployer. |
+| `app:media:migrate-storage` | Move media files that are still in the old upload directory into the media storage, verified by SHA-256 (`--dry-run`, `--legacy-dir`). Runs on every deploy via Deployer; does nothing once every file has moved. Exit code `1` only when a copy failed. See [../04-features/content/media-storage.md](../04-features/content/media-storage.md). |
+| `app:media:rewrite-content-urls` | Replace old `/uploads/media/…` URLs in posts and pages with the URLs of the moved media. Previews by default; `--apply` writes. Run once after the v0.3 deploy ([upgrading](../05-operations/upgrading.md#v027-beta--v03-beta)). |
+| `app:media:check` | Check the media files against the media library (existence, size, rolling SHA-256; `--full` hashes all) and delete files no media item refers to after 24 hours (`--dry-run` only reports). Exit code `1` when files are missing or damaged. The scheduler runs it daily. |
 
 ### User
 
@@ -134,7 +145,8 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 | `app:user:promote-admin` | Grant `ROLE_ADMIN` to an existing user identified by **username**. Asks for confirmation. |
 | `app:user:demote-admin` | Remove `ROLE_ADMIN` from an existing user identified by **username**. Asks for confirmation. Refuses to demote the last remaining administrator. |
 | `app:user:delete` | Delete an existing user identified by **username**. Asks for confirmation. Refuses when the user is the last administrator, still owns hospitals, or other records still reference the account. |
-| `app:user:normalize-usernames` | Rename usernames that break the username policy (`UserUsernameConstraints`), for example by replacing whitespace with hyphens. Renames only when the proposal is valid and unique; collisions and still invalid names are listed for an administrator. Default: dry-run preview. Writes only with `--apply`. |
+| `app:user:reset-two-factor` | Switch off two-factor authentication (#1357, ADR 040) of a user identified by **username**, for an administrator who lost the authenticator app and the backup codes and has no other administrator to reset it. Asks for confirmation, writes an audit entry (`user.two_factor.reset_by_console`) and tells the user by mail. |
+| `app:user:normalize-usernames` | Rename usernames that break the username policy (`UserUsernameConstraints`), for example by replacing whitespace with hyphens. Renames only when the proposal is valid and unique; collisions and still invalid names (such as usernames of digits only, reserved for IDs since #1354) are listed for an administrator to rename by hand. Default: dry-run preview. Writes only with `--apply`. |
 | `app:user:backfill-created-at` | One-time legacy tool: reconstruct `User.createdAt` from the earliest successful own import, otherwise the earliest successful import of an **owned** hospital. Access-grant users are not backfilled from hospital imports. Default: dry-run preview. Writes only with `--apply`. Removable after the production run. |
 | `app:user-activity:backfill` | One-time backfill of the `user_activity` profile projection from historical imports, posts, comments, and hospital relations. Default: dry-run preview. Writes only with `--apply`. Idempotent via unique deduplication keys. See [ADR 014](../02-architecture/decisions/014-persisted-user-activity-projection.md). |
 
@@ -142,6 +154,7 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 
 | Command | Purpose |
 |---|---|
+| `app:audit:backfill-derived` | One-time tool: copy `intent` and `outcome` of audit entries written before ADR 025 from their stored metadata. Only empty columns are filled; never sets `session_ref`. Default: preview. Writes only with `--apply`. See [../05-operations/audit-log.md](../05-operations/audit-log.md#backfill-of-older-entries). |
 | `app:audit:purge-import-assessments` | One-time cleanup of import-generated `Assessment` `create` entries in `audit_log`. Default: dry-run preview. See [../05-operations/audit-log-maintenance.md](../05-operations/audit-log-maintenance.md). |
 
 ### Doctrine / ad-hoc SQL
@@ -182,4 +195,6 @@ Some commands mirror scheduled Messenger jobs:
 | Daily 08:00 Europe/Berlin | `SendMonthlySubmissionRemindersMessage` | `app:reminder:preview --hospital-id=ID --send` (per hospital) |
 | Daily 02:15 Europe/Berlin | `AggregateDailyAnalyticsMessage` | `app:analytics:aggregate` (yesterday + catch-up + cleanup) |
 | Daily 03:30 Europe/Berlin | `MeasureStorageMessage` | `app:storage:analyze --persist` |
+| Daily 05:10 Europe/Berlin | `CheckMediaIntegrityMessage` | `app:media:check` |
+| Daily 05:40 Europe/Berlin | `CleanUpReactionsMessage` | none ([reactions](../04-features/content/reactions.md#cleanup)) |
 | Hourly at minute 17 | `ReconcileNotificationsMessage` | `app:notification:reconcile` (last 24 hours) |

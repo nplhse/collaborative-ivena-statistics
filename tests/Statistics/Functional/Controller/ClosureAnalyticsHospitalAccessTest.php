@@ -32,8 +32,8 @@ final class ClosureAnalyticsHospitalAccessTest extends WebTestCase
     public function testParticipantSeesOnlyAssignedHospitalsAcrossQueriesExportsAndDirectIds(): void
     {
         $client = self::createClient();
-        $owner = $this->login($client, [UserRole::USER, UserRole::PARTICIPANT, UserRole::CLOSURE_BETA]);
-        $other = UserFactory::createOne(['roles' => [UserRole::USER, UserRole::PARTICIPANT, UserRole::CLOSURE_BETA]]);
+        $owner = $this->login($client, [UserRole::USER, UserRole::PARTICIPANT]);
+        $other = UserFactory::createOne(['roles' => [UserRole::USER, UserRole::PARTICIPANT]]);
         $own = $this->seedClosure($owner, 'Own Closure Hospital', 'own-group');
         $foreign = $this->seedClosure($other, 'Foreign Closure Hospital', 'foreign-group');
 
@@ -117,7 +117,7 @@ final class ClosureAnalyticsHospitalAccessTest extends WebTestCase
     public function testParticipantWithTwoHospitalsCanSelectEitherOrBoth(): void
     {
         $client = self::createClient();
-        $owner = $this->login($client, [UserRole::USER, UserRole::PARTICIPANT, UserRole::CLOSURE_BETA]);
+        $owner = $this->login($client, [UserRole::USER, UserRole::PARTICIPANT]);
         $first = $this->seedClosure($owner, 'Closure Hospital A', 'group-a');
         $second = $this->seedClosure($owner, 'Closure Hospital B', 'group-b');
 
@@ -152,8 +152,8 @@ final class ClosureAnalyticsHospitalAccessTest extends WebTestCase
     public function testMissingHospitalAssignmentStaysEmpty(): void
     {
         $client = self::createClient();
-        $this->login($client, [UserRole::USER, UserRole::PARTICIPANT, UserRole::CLOSURE_BETA]);
-        $other = UserFactory::createOne(['roles' => [UserRole::USER, UserRole::PARTICIPANT, UserRole::CLOSURE_BETA]]);
+        $this->login($client, [UserRole::USER, UserRole::PARTICIPANT]);
+        $other = UserFactory::createOne(['roles' => [UserRole::USER, UserRole::PARTICIPANT]]);
         $this->seedClosure($other, 'Hidden Closure Hospital', 'hidden-group');
 
         $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all_time');
@@ -176,7 +176,7 @@ final class ClosureAnalyticsHospitalAccessTest extends WebTestCase
     public function testClosureBetaWithoutParticipantIsRejectedAndAdminCanCrossHospitals(): void
     {
         $client = self::createClient();
-        $this->login($client, [UserRole::USER, UserRole::CLOSURE_BETA]);
+        $this->login($client, [UserRole::USER]);
         $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all_time');
         $this->assertResponseStatusCodeSame(403);
         $client->request(Request::METHOD_GET, '/statistics/closure-analytics/export.csv?scope=public&period=all_time');
@@ -185,7 +185,7 @@ final class ClosureAnalyticsHospitalAccessTest extends WebTestCase
         $owner = UserFactory::createOne(['roles' => [UserRole::USER, UserRole::PARTICIPANT]]);
         $first = $this->seedClosure($owner, 'Admin Visible Hospital A', 'admin-a');
         $second = $this->seedClosure($owner, 'Admin Visible Hospital B', 'admin-b');
-        $this->login($client, [UserRole::USER, UserRole::ADMIN, UserRole::CLOSURE_BETA]);
+        $this->login($client, [UserRole::USER, UserRole::ADMIN]);
 
         $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all_time');
         $this->assertResponseIsSuccessful();

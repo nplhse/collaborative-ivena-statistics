@@ -42,11 +42,11 @@ final class Area extends Base
      */
     public static function coordinatesIn(string $dispatchArea): array
     {
-        return HesseDistrictPolygons::randomPoint(self::district($dispatchArea)['geo_key']);
+        return HesseDistrictPolygons::randomPoint($dispatchArea);
     }
 
     /**
-     * @return array{geo_key: string, towns: list<array{city: string, postal_code: string, location: 'Urban'|'Mixed'|'Rural'}>}
+     * @return array{towns: list<array{city: string, postal_code: string, location: 'Urban'|'Mixed'|'Rural'}>}
      */
     private static function district(string $dispatchArea): array
     {

@@ -10,6 +10,7 @@ use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -78,10 +79,18 @@ final class FeedbackSubmitFormType extends AbstractType
                 'required' => false,
                 'data' => '',
             ])
+            // Honeypot for bots that skip hidden inputs: visually hidden, out of the tab order, hidden from
+            // assistive technology and excluded from autofill (see feedback_widget.html.twig).
+            ->add('subject', TextType::class, [
+                'mapped' => false,
+                'required' => false,
+                'label' => 'feedback.form.honeypot',
+                'attr' => ['autocomplete' => 'off', 'tabindex' => '-1'],
+            ])
+            // No `data` option: it would override the render time FeedbackWidgetController sets.
             ->add('renderedAt', HiddenType::class, [
                 'mapped' => false,
                 'required' => false,
-                'data' => '',
             ]);
 
         if ($guestRequired) {

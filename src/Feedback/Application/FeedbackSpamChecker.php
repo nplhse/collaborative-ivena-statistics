@@ -6,10 +6,36 @@ namespace App\Feedback\Application;
 
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
+/**
+ * Scores a feedback submission and decides whether it is accepted, quarantined or rejected.
+ *
+ * Only clearly invalid submissions are rejected (honeypot filled, message over the hard limit). Everything
+ * else is scored; at the threshold the entry goes into quarantine. Weights are chosen so that a single weak
+ * signal (a fast submission, one link, a missing page context, a repeated email) stays below the threshold;
+ * only configured hard rules (blocked link domain, spam pattern) reach it on their own.
+ */
 final readonly class FeedbackSpamChecker
 {
+    public const int WEIGHT_SUBMITTED_TOO_FAST = 4;
+    public const int WEIGHT_MISSING_RENDER_TIMESTAMP = 1;
+    public const int WEIGHT_MISSING_PAGE_CONTEXT = 4;
+    public const int WEIGHT_CONTAINS_URL = 4;
+    public const int WEIGHT_MULTIPLE_URLS = 2;
+    public const int WEIGHT_CONTAINS_HTML = 3;
+    public const int WEIGHT_KEYWORDS_MAX = 3;
+    public const int WEIGHT_VERY_LONG_MESSAGE = 2;
+    public const int WEIGHT_REPEATED_GUEST_EMAIL = 3;
+    public const int WEIGHT_DUPLICATE_MESSAGE = 3;
+    public const int WEIGHT_TOKEN_ONLY_MESSAGE = 3;
+    public const int WEIGHT_BLOCKED_LINK_DOMAIN = 6;
+    public const int WEIGHT_SPAM_PATTERN = 6;
+
+    private const string URL_PATTERN = '/\b(?:https?:\/\/|www\.)\S+/iu';
+
     /**
      * @param list<string> $keywords
+     * @param list<string> $blockedLinkDomains
+     * @param list<string> $patterns           PCRE patterns with delimiters
      */
     /** @psalm-suppress PossiblyUnusedMethod Wired by Symfony DI container. */
     public function __construct(
@@ -28,52 +54,70 @@ final readonly class FeedbackSpamChecker
         /** @var list<string> */
         #[Autowire(param: 'app.feedback.spam.keywords')]
         private array $keywords,
+        /** @var list<string> */
+        #[Autowire(param: 'app.feedback.spam.blocked_link_domains')]
+        private array $blockedLinkDomains = [],
+        /** @var list<string> */
+        #[Autowire(param: 'app.feedback.spam.patterns')]
+        private array $patterns = [],
     ) {
     }
 
+    /**
+     * @param bool $hasPageContext whether the submission names the page it was sent from (only scored for guests)
+     */
     public function check(
         string $message,
         ?string $honeypotValue,
         ?int $renderedAtTimestamp,
         int $submittedAtTimestamp,
         bool $isAuthenticated,
+        bool $hasPageContext = true,
+        FeedbackSpamHistory $history = new FeedbackSpamHistory(),
     ): FeedbackSpamCheckResult {
         if (null !== $honeypotValue && '' !== trim($honeypotValue)) {
-            return new FeedbackSpamCheckResult(true, 100, ['honeypot_filled']);
+            return new FeedbackSpamCheckResult(FeedbackSpamVerdict::REJECT, 100, ['honeypot_filled']);
         }
 
         if (mb_strlen($message) > $this->maxMessageLength) {
-            return new FeedbackSpamCheckResult(true, 100, ['message_too_long']);
+            return new FeedbackSpamCheckResult(FeedbackSpamVerdict::REJECT, 100, ['message_too_long']);
         }
 
         $score = 0;
         $reasons = [];
+        $add = static function (int $weight, string $reason) use (&$score, &$reasons): void {
+            $score += $weight;
+            $reasons[] = $reason;
+        };
 
         if (null !== $renderedAtTimestamp && $renderedAtTimestamp > 0) {
-            $elapsed = $submittedAtTimestamp - $renderedAtTimestamp;
-            if ($elapsed < $this->minSubmissionSeconds) {
-                $score += 6;
-                $reasons[] = 'submitted_too_fast';
+            if ($submittedAtTimestamp - $renderedAtTimestamp < $this->minSubmissionSeconds) {
+                $add(self::WEIGHT_SUBMITTED_TOO_FAST, 'submitted_too_fast');
             }
         } elseif (!$isAuthenticated) {
-            ++$score;
-            $reasons[] = 'missing_render_timestamp';
+            $add(self::WEIGHT_MISSING_RENDER_TIMESTAMP, 'missing_render_timestamp');
         }
 
-        $urlCount = preg_match_all('/\b(?:https?:\/\/|www\.)\S+/i', $message);
-        if (\is_int($urlCount) && $urlCount >= 1) {
-            // A single URL alone stays under the anonymous threshold (6); multiple URLs tip it.
-            $score += 4;
-            $reasons[] = 'contains_url';
-            if ($urlCount >= 2) {
-                $score += 2;
-                $reasons[] = 'multiple_urls';
+        if (!$hasPageContext && !$isAuthenticated) {
+            $add(self::WEIGHT_MISSING_PAGE_CONTEXT, 'missing_page_context');
+        }
+
+        $urls = [];
+        preg_match_all(self::URL_PATTERN, $message, $urls);
+        $urls = $urls[0];
+        if ([] !== $urls) {
+            $add(self::WEIGHT_CONTAINS_URL, 'contains_url');
+            if (\count($urls) >= 2) {
+                $add(self::WEIGHT_MULTIPLE_URLS, 'multiple_urls');
+            }
+
+            if ($this->containsBlockedLinkDomain($urls)) {
+                $add(self::WEIGHT_BLOCKED_LINK_DOMAIN, 'blocked_link_domain');
             }
         }
 
         if (1 === preg_match('/<[^>]+>/', $message)) {
-            $score += 3;
-            $reasons[] = 'contains_html';
+            $add(self::WEIGHT_CONTAINS_HTML, 'contains_html');
         }
 
         $keywordMatches = 0;
@@ -88,13 +132,30 @@ final readonly class FeedbackSpamChecker
         }
 
         if ($keywordMatches > 0) {
-            $score += min(3, $keywordMatches);
-            $reasons[] = 'spam_keywords';
+            $add(min(self::WEIGHT_KEYWORDS_MAX, $keywordMatches), 'spam_keywords');
+        }
+
+        foreach ($this->patterns as $pattern) {
+            if ('' !== $pattern && 1 === preg_match($pattern, $message)) {
+                $add(self::WEIGHT_SPAM_PATTERN, 'spam_pattern');
+                break;
+            }
+        }
+
+        if (1 === preg_match('/^(?=\S*\p{L})(?=\S*\p{N})[\p{L}\p{N}]{12,}$/u', trim($message))) {
+            $add(self::WEIGHT_TOKEN_ONLY_MESSAGE, 'token_only_message');
         }
 
         if (mb_strlen($message) > $this->longMessageThreshold) {
-            $score += 2;
-            $reasons[] = 'very_long_message';
+            $add(self::WEIGHT_VERY_LONG_MESSAGE, 'very_long_message');
+        }
+
+        if ($history->earlierEntriesFromGuestEmail > 0) {
+            $add(self::WEIGHT_REPEATED_GUEST_EMAIL, 'repeated_guest_email');
+        }
+
+        if ($history->earlierEntriesWithSameMessage > 0) {
+            $add(self::WEIGHT_DUPLICATE_MESSAGE, 'duplicate_message');
         }
 
         if ($isAuthenticated) {
@@ -102,7 +163,29 @@ final readonly class FeedbackSpamChecker
         }
 
         $threshold = $isAuthenticated ? $this->authenticatedThreshold : $this->anonymousThreshold;
+        $verdict = $score >= $threshold ? FeedbackSpamVerdict::QUARANTINE : FeedbackSpamVerdict::ACCEPT;
 
-        return new FeedbackSpamCheckResult($score >= $threshold, $score, $reasons);
+        return new FeedbackSpamCheckResult($verdict, $score, $reasons);
+    }
+
+    /** @param list<string> $urls */
+    private function containsBlockedLinkDomain(array $urls): bool
+    {
+        foreach ($urls as $url) {
+            $host = parse_url(str_starts_with(strtolower($url), 'www.') ? 'http://'.$url : $url, \PHP_URL_HOST);
+            if (!\is_string($host) || '' === $host) {
+                continue;
+            }
+
+            $host = strtolower(rtrim($host, '.'));
+            foreach ($this->blockedLinkDomains as $domain) {
+                $domain = strtolower(trim($domain, " .\t\n\r"));
+                if ('' !== $domain && ($host === $domain || str_ends_with($host, '.'.$domain))) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

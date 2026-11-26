@@ -12,7 +12,7 @@ final class StatisticsScopePeriodFormData
     public function __construct(
         public string $scopeGroup = 'public',
         public ?string $scopeDetail = null,
-        public string $period = 'all',
+        public string $period = 'last_12_months',
         public ?int $periodYear = null,
         public ?int $periodQuarter = null,
         public ?int $periodMonth = null,

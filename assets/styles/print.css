@@ -1,0 +1,257 @@
+/*
+ * Print layout (#969). Loaded after Tabler, applies to the browser's print output only and leaves the
+ * screen untouched. The print context (period, scope, filters in a header) belongs to #1403.
+ */
+/*
+ * The print icon only earns its place where sections load lazily: it loads them before printing. On all
+ * other pages the browser's own print command gives the same result.
+ */
+.page:not(:has(.page-body turbo-frame[src][loading])) .print-action {
+    display: none;
+}
+
+@media print {
+    @page {
+        size: A4;
+        margin: 14mm 12mm;
+    }
+
+    /* Paper is always light, whichever colour scheme the screen uses. */
+    :root,
+    :root[data-bs-theme],
+    [data-bs-theme] {
+        color-scheme: light;
+        --tblr-body-color: #182433;
+        --tblr-body-bg: #fff;
+        --tblr-bg-surface: #fff;
+        --tblr-bg-surface-secondary: #fff;
+        --tblr-bg-surface-tertiary: #fff;
+        --tblr-secondary: #49566c;
+        --tblr-secondary-color: #49566c;
+        --tblr-muted: #49566c;
+        --tblr-border-color: #c9d0da;
+        --tblr-border-color-translucent: #c9d0da;
+        --tblr-card-bg: #fff;
+    }
+
+    html,
+    body {
+        background: #fff !important;
+        color: #182433;
+        font-size: 10.5pt;
+    }
+
+    /* Interactive and purely navigational parts. */
+    .navbar,
+    .site-footer,
+    .breadcrumb,
+    .offcanvas,
+    .offcanvas-backdrop,
+    .modal,
+    .modal-backdrop,
+    .toast-container,
+    .tooltip,
+    .feedback-widget,
+    .pagination,
+    .dropdown,
+    .dropdown-menu,
+    .btn,
+    .btn-list,
+    .data-table-toolbar,
+    .data-table-popover,
+    form:has(textarea),
+    details:has(form) {
+        display: none !important;
+    }
+
+    /* The header carries the page title; its controls are hidden on their own (d-print-none, .btn). */
+    .page-header.d-print-none {
+        display: block !important;
+        margin-block: 0 0.75rem;
+    }
+
+    .page,
+    .page-wrapper,
+    .page-body,
+    .container-xl {
+        display: block !important;
+        min-height: 0 !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding-inline: 0 !important;
+    }
+
+    .page-body {
+        padding-block: 0 !important;
+    }
+
+    /* Screen scroll containers would cut their content off at the page edge. */
+    .table-responsive,
+    .closure-timeline-scroll,
+    .closure-timeline-scroll--years {
+        max-height: none !important;
+        overflow: visible !important;
+    }
+
+    /* A4 is narrower than the card breakpoint: without a container, tables stay tables on paper. */
+    .data-table-cards {
+        container-type: normal !important;
+    }
+
+    .sticky-top,
+    .position-sticky,
+    thead th {
+        position: static !important;
+    }
+
+    /* Tabler draws the card edge as a shadow, which does not print reliably. */
+    .card {
+        border: 1px solid var(--tblr-border-color) !important;
+        box-shadow: none !important;
+        break-inside: auto !important;
+    }
+
+    /* Tabler removes the padding for print, which only works without a card edge. */
+    .card-body {
+        padding: 0.6rem 0.75rem !important;
+    }
+
+    /* A header that only held the toolbar would stay behind as an empty strip. */
+    .data-table-header:not(:has(.card-title)) {
+        display: none !important;
+    }
+
+    /* A lazy frame that has not loaded yet would print its empty placeholder. */
+    turbo-frame[src]:not([complete]) {
+        display: none !important;
+    }
+
+    /* Small cards stay whole; a table card has to be able to run over several pages. */
+    .card:not(:has(table)) {
+        break-inside: avoid !important;
+    }
+
+    /*
+     * A4 is narrower than the md breakpoint, so KPI rows would stack into one column per card.
+     * Rows with a wide main column (8/4) stay stacked: the narrow side would be unreadable.
+     */
+    .row > :is(.col-md-3, .col-lg-3, .col-xl-3) {
+        flex: 0 0 auto;
+        width: 25%;
+    }
+
+    .row:not(:has(> :is(.col-md-8, .col-lg-8, .col-xl-8))) > :is(.col-md-4, .col-lg-4, .col-xl-4) {
+        flex: 0 0 auto;
+        width: 33.3333%;
+    }
+
+    .row > :is(.col-md-6, .col-lg-6, .col-xl-6) {
+        flex: 0 0 auto;
+        width: 50%;
+    }
+
+    /* Of the tabs only the current one says something on paper. */
+    .nav-tabs .nav-item:not(:has(.active)) {
+        display: none !important;
+    }
+
+    .nav-tabs {
+        border: 0;
+    }
+
+    .nav-tabs .nav-link.active {
+        padding-inline: 0;
+        border: 0;
+        font-weight: 600;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    .page-title,
+    .card-header,
+    .card-title {
+        break-after: avoid;
+    }
+
+    table {
+        width: 100% !important;
+        font-size: 9pt;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    tfoot {
+        display: table-footer-group;
+    }
+
+    tr,
+    img,
+    svg,
+    figure,
+    .alert {
+        break-inside: avoid;
+    }
+
+    td,
+    th {
+        overflow-wrap: break-word;
+        white-space: normal !important;
+    }
+
+    a {
+        color: inherit !important;
+        text-decoration: none !important;
+    }
+
+    img {
+        max-width: 100% !important;
+        height: auto;
+    }
+
+    /* Backgrounds may be missing on paper: badges keep dark text and an outline. */
+    .badge {
+        border: 1px solid #8a94a6;
+        color: #182433 !important;
+    }
+
+    /* Charts are scaled to the paper: print-preparation.js gives their SVG a viewBox. */
+    .chart-sm,
+    .chart-lg,
+    .apexcharts-canvas {
+        width: 100% !important;
+        height: auto !important;
+        min-height: 0 !important;
+    }
+
+    svg.apexcharts-svg[data-print-viewbox] {
+        display: block;
+        width: 100% !important;
+        height: auto !important;
+    }
+
+    .apexcharts-toolbar,
+    .apexcharts-menu,
+    .apexcharts-tooltip,
+    .apexcharts-xaxistooltip,
+    .apexcharts-yaxistooltip {
+        display: none !important;
+    }
+
+    /* Only the result count stays from the table footer: it says which records are on paper. */
+    .data-table-card > .card-footer {
+        padding-block: 0.4rem;
+        background: transparent;
+    }
+
+    .print-meta {
+        margin-top: 1rem;
+        padding-top: 0.4rem;
+        border-top: 1px solid var(--tblr-border-color);
+        color: #49566c;
+        font-size: 8.5pt;
+    }
+}

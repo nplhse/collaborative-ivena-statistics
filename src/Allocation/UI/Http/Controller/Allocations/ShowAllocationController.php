@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Allocation\UI\Http\Controller\Allocations;
 
+use App\Allocation\Application\Allocations\ClosureAtAssignmentResolver;
 use App\Allocation\Application\Explore\Catalog\CatalogOrientationMapFactory;
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Infrastructure\Security\Voter\AllocationVoter;
-use App\Analytics\Application\UsageEvents\UsageAnalytics;
-use App\Analytics\Domain\Enum\FeatureArea;
-use App\Analytics\Domain\UsageEventName;
+use App\Shared\UI\Http\Routing\OpensById;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,11 +18,12 @@ use Symfony\Component\Routing\Requirement\Requirement;
 final class ShowAllocationController extends AbstractController
 {
     public function __construct(
-        private readonly UsageAnalytics $usageAnalytics,
         private readonly CatalogOrientationMapFactory $orientationMapFactory,
+        private readonly ClosureAtAssignmentResolver $closureAtAssignment,
     ) {
     }
 
+    #[OpensById(Allocation::class)]
     #[Route(
         '/explore/allocation/{publicId}',
         name: 'app_explore_allocation_show',
@@ -35,15 +35,10 @@ final class ShowAllocationController extends AbstractController
     ): Response {
         $this->denyAccessUnlessGranted(AllocationVoter::VIEW, $allocation);
 
-        $this->usageAnalytics->record(
-            UsageEventName::EXPLORE_ALLOCATION_OPENED,
-            FeatureArea::Explore,
-            ['entity' => 'allocation'],
-        );
-
         return $this->render('@Allocation/allocations/show.html.twig', [
             'allocation' => $allocation,
             'orientationMap' => $this->orientationMapFactory->forAllocation($allocation),
+            'closureAtAssignment' => $this->closureAtAssignment->forAllocation($allocation),
         ]);
     }
 }

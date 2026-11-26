@@ -8,6 +8,7 @@ use App\Allocation\Application\ReferenceCatalog\Package\AliasedEntry;
 use App\Allocation\Application\ReferenceCatalog\Package\CatalogEntry;
 use App\Allocation\Application\ReferenceCatalog\Package\HospitalEntry;
 use App\Allocation\Application\ReferenceCatalog\Package\ReferenceCatalogChecksum;
+use App\Allocation\Application\ReferenceCatalog\Package\ReferenceCatalogFormat;
 use App\Allocation\Application\ReferenceCatalog\Package\ReferenceCatalogNaturalKey;
 use App\Allocation\Application\ReferenceCatalog\Package\ReferenceCatalogPackage;
 use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogAliasConflictException;
@@ -89,7 +90,12 @@ final class ValidReferenceCatalogPackageValidator extends ConstraintValidator
             }
         }
 
-        $isComplete = \count($listed) === \count(ReferenceCatalogType::cases());
+        $withoutDistricts = ReferenceCatalogFormat::VERSION_WITHOUT_DISTRICTS === $package->meta->version;
+        if ($withoutDistricts && isset($listed[ReferenceCatalogType::District->value])) {
+            $this->violation('meta.types', 'Format version 1 has no districts.');
+        }
+
+        $isComplete = \count($listed) === \count(ReferenceCatalogType::cases()) - ($withoutDistricts ? 1 : 0);
         if ($package->meta->complete !== $isComplete) {
             $this->violation('meta.complete', $isComplete
                 ? 'All types are listed, so meta.complete must be true.'
@@ -174,6 +180,16 @@ final class ValidReferenceCatalogPackageValidator extends ConstraintValidator
 
         foreach ($package->hospitals as $index => $hospital) {
             $this->checkHospitalReferences($index, $hospital, $stateIds, $areaStates, $statesListed, $areasListed);
+        }
+
+        foreach ($package->districts as $index => $district) {
+            if (!str_starts_with($district->ags, $district->state)) {
+                $this->violation(sprintf('districts[%d].state', $index), sprintf('State key "%s" does not match the district key "%s".', $district->state, $district->ags));
+            }
+
+            if ($areasListed && null !== $district->dispatchArea && !isset($areaStates[strtolower($district->dispatchArea)])) {
+                $this->violation(sprintf('districts[%d].dispatchArea', $index), sprintf('Dispatch area "%s" is not in the package.', $district->dispatchArea));
+            }
         }
     }
 

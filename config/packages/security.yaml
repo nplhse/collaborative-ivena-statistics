@@ -14,6 +14,17 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/|^/_ux/inspector\.js$
             security: false
+        # Public update check of the offline data preparation tool (ADR 026): no session, no cookies.
+        data_prep:
+            pattern: ^/data-prep/
+            stateless: true
+            security: false
+        # Media files (ADR 039) are public and served without a session: no authenticator may read the token, not even
+        # the remember-me authenticator when its cookie is sent (#1595). Restricted media (#580) need access control here.
+        media:
+            pattern: ^/(media|uploads/media)/
+            stateless: true
+            security: false
         main:
             lazy: true
             provider: app_user_provider
@@ -23,7 +34,26 @@ security:
                 - App\User\Infrastructure\Security\ConfirmPasswordAuthenticator
             user_checker: App\User\Infrastructure\Security\UserAccountStatusChecker
 
-            # Limits failed login attempts per IP + username (Symfony default key).
+            # One-time login link by email (#1355): opt-in and never for administrators (User::isLoginLinkAllowed(),
+            # part of the signature). The link opens a confirmation page; only its POST signs in, so mail scanners that
+            # open links in advance cannot use up the link.
+            login_link:
+                check_route: app_login_link_check
+                check_post_only: true
+                # Also in LoginLinkController::SIGNATURE_PROPERTIES (confirmation page).
+                signature_properties: [email, password, loginLinkAllowed]
+                lifetime: 900
+                max_uses: 1
+                used_link_cache: cache.app
+
+            # Second factor with an authenticator app (#1357, ADR 040, config/packages/scheb_2fa.yaml). After the
+            # password or the login link, accounts with two-factor authentication must enter a code on /2fa.
+            two_factor:
+                auth_form_path: app_two_factor_login
+                check_path: app_two_factor_check
+                enable_csrf: true
+
+            # Limits failed login attempts per IP + username (Symfony default key). Also counts wrong two-factor codes.
             # 5 attempts / 15 minutes balances brute-force protection with typo tolerance.
             login_throttling:
                 max_attempts: 5
@@ -39,6 +69,8 @@ security:
                 path: /
                 # REMEMBERME, with the demo prefix in the demo environment (ADR 023).
                 name: '%app.cookie_prefix%REMEMBERME'
+                # Switching two-factor authentication on, off or resetting it ends remember-me sessions (#1689).
+                signature_properties: ['password', 'totpEnabledAt']
                 # by default, the feature is enabled by checking a checkbox in the
                 # login form, uncomment the following line to always enable it.
                 #always_remember_me: true
@@ -54,6 +86,9 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+        # During two-factor authentication only the code form and logout are reachable (#1357).
+        - { path: ^/logout, roles: PUBLIC_ACCESS }
+        - { path: ^/2fa, roles: IS_AUTHENTICATED_2FA_IN_PROGRESS }
         - { path: ^/health, roles: PUBLIC_ACCESS }
         - { path: ^/_error_preview, roles: PUBLIC_ACCESS }
         - { path: ^/_error/, roles: PUBLIC_ACCESS }
@@ -62,10 +97,15 @@ security:
         - { path: ^/import, roles: ROLE_PARTICIPANT }
         - { path: ^/explore/indication/raw/assign, roles: ROLE_PARTICIPANT }
         # Profiles: every user may open their own; UserProfileVoter decides per profile.
-        - { path: '^/explore/user/[0-9a-f-]{36}(/activity)?$', roles: ROLE_USER }
+        - { path: '^/explore/user/[^/]+(/activity)?$', roles: ROLE_USER }
         - { path: ^/explore, roles: ROLE_PARTICIPANT }
-        - { path: ^/statistics/closure-analytics, roles: ROLE_CLOSURE_BETA }
+        # Glossary and data catalog in the help (ADR 042). The boundary keeps CMS articles like /help/glossary-basics public.
+        - { path: '^/help/(glossary|data-catalog)(/|$)', roles: ROLE_PARTICIPANT }
+        - { path: ^/encounter, roles: ROLE_ENCOUNTER_BETA }
+        # Closure Analytics left the beta (#1350): participants only, not every user like the rest of /statistics.
+        - { path: ^/statistics/closure-analytics, roles: ROLE_PARTICIPANT }
         - { path: ^/statistics, roles: ROLE_USER }
+        - { path: ^/tools, roles: ROLE_USER }
         - { path: ^/activity, roles: ROLE_USER }
         - { path: ^/dashboard, roles: ROLE_USER }
         - { path: ^/_components, roles: ROLE_USER }
@@ -73,7 +113,7 @@ security:
         # - { path: ^/profile, roles: ROLE_USER }
 
     role_hierarchy:
-        ROLE_ADMIN: [ROLE_PARTICIPANT, ROLE_REVIEW_INDICATIONS]
+        ROLE_ADMIN: [ROLE_PARTICIPANT, ROLE_REVIEW_INDICATIONS, ROLE_ENCOUNTER_BETA, ROLE_ENCOUNTER_CATALOG_REVIEWER]
 
 when@test:
     security:

@@ -1,0 +1,110 @@
+{
+    "login": {
+        "username": "demo",
+        "password": "Ivena!1234"
+    },
+    "viewport": [
+        1400,
+        1120
+    ],
+    "padding": 0,
+    "hide": [
+        "#demo-environment-banner",
+        "[class*='feedback-widget']",
+        "#notification-toasts",
+        "[data-testid='notification-bell-badge']",
+        "[data-testid='user-menu-notifications-badge']",
+        ".sf-toolbar",
+        "[id^='sfwdt']"
+    ],
+    "screenshots": [
+        {
+            "file": "overview.de.png",
+            "actions": [
+                {
+                    "script": "localStorage.setItem('tabler-sidebar', 'folded-hover'); true"
+                },
+                {
+                    "goto": "/locale/switch/de?_target_path=%2Fstatistics%2F%3Fscope%3Dpublic%26period%3Dall_time"
+                }
+            ]
+        },
+        {
+            "file": "benchmarking.de.png",
+            "actions": [
+                {
+                    "script": "localStorage.setItem('tabler-sidebar', 'folded-hover'); true"
+                },
+                {
+                    "goto": "/locale/switch/de?_target_path=%2Fstatistics%2Fbenchmarking%3Fscope%3Dmy_hospitals%26period%3Dyear%26year%3D2025%26comparison_scope%3Dhospital_cohort%26comparison_period%3Dyear%26comparison_year%3D2025"
+                }
+            ]
+        },
+        {
+            "file": "closure-analysis.de.png",
+            "actions": [
+                {
+                    "script": "localStorage.setItem('tabler-sidebar', 'folded-hover'); true"
+                },
+                {
+                    "goto": "/locale/switch/de?_target_path=%2Fstatistics%2Fclosure-analytics%3Fscope%3Dmy_hospitals%26period%3Dyear%26year%3D2025"
+                }
+            ]
+        },
+        {
+            "file": "analysis-explorer.de.png",
+            "actions": [
+                {
+                    "script": "localStorage.setItem('tabler-sidebar', 'folded-hover'); true"
+                },
+                {
+                    "goto": "/locale/switch/de?_target_path=%2Fstatistics%2Fanalysis%2Fexplorer%3Fscope%3Dpublic%26period%3Dyear%26year%3D2025"
+                }
+            ]
+        },
+        {
+            "file": "overview.en.png",
+            "actions": [
+                {
+                    "script": "localStorage.setItem('tabler-sidebar', 'folded-hover'); true"
+                },
+                {
+                    "goto": "/locale/switch/en?_target_path=%2Fstatistics%2F%3Fscope%3Dpublic%26period%3Dall_time"
+                }
+            ]
+        },
+        {
+            "file": "benchmarking.en.png",
+            "actions": [
+                {
+                    "script": "localStorage.setItem('tabler-sidebar', 'folded-hover'); true"
+                },
+                {
+                    "goto": "/locale/switch/en?_target_path=%2Fstatistics%2Fbenchmarking%3Fscope%3Dmy_hospitals%26period%3Dyear%26year%3D2025%26comparison_scope%3Dhospital_cohort%26comparison_period%3Dyear%26comparison_year%3D2025"
+                }
+            ]
+        },
+        {
+            "file": "closure-analysis.en.png",
+            "actions": [
+                {
+                    "script": "localStorage.setItem('tabler-sidebar', 'folded-hover'); true"
+                },
+                {
+                    "goto": "/locale/switch/en?_target_path=%2Fstatistics%2Fclosure-analytics%3Fscope%3Dmy_hospitals%26period%3Dyear%26year%3D2025"
+                }
+            ]
+        },
+        {
+            "file": "analysis-explorer.en.png",
+            "actions": [
+                {
+                    "script": "localStorage.setItem('tabler-sidebar', 'folded-hover'); true"
+                },
+                {
+                    "goto": "/locale/switch/en?_target_path=%2Fstatistics%2Fanalysis%2Fexplorer%3Fscope%3Dpublic%26period%3Dyear%26year%3D2025"
+                }
+            ]
+        }
+    ]
+}

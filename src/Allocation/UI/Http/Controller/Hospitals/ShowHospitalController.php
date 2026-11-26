@@ -11,9 +11,10 @@ use App\Allocation\Application\Service\HospitalPermissionAccess;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery;
-use App\Analytics\Application\UsageEvents\UsageAnalytics;
-use App\Analytics\Domain\Enum\FeatureArea;
-use App\Analytics\Domain\UsageEventName;
+use App\Allocation\Infrastructure\Repository\HospitalAccessGrantRepository;
+use App\Allocation\Infrastructure\Repository\HospitalAssignmentRequestRepository;
+use App\Allocation\Infrastructure\Security\Voter\HospitalVoter;
+use App\Shared\UI\Http\Routing\OpensById;
 use App\User\Domain\Entity\User;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,10 +30,12 @@ final class ShowHospitalController extends AbstractController
         private readonly CatalogActionFactory $actionFactory,
         private readonly CatalogAllocationYearUrlFactory $yearUrlFactory,
         private readonly HospitalPermissionAccess $hospitalPermissionAccess,
-        private readonly UsageAnalytics $usageAnalytics,
+        private readonly HospitalAccessGrantRepository $hospitalAccessGrantRepository,
+        private readonly HospitalAssignmentRequestRepository $assignmentRequestRepository,
     ) {
     }
 
+    #[OpensById(Hospital::class)]
     #[Route(
         '/explore/hospital/{publicId}',
         name: 'app_explore_hospital_show',
@@ -56,16 +59,22 @@ final class ShowHospitalController extends AbstractController
         $canViewBenchmarking = $user instanceof User
             && $this->hospitalPermissionAccess->hasPermission($user, $id, HospitalPermission::Benchmarking);
 
-        $this->usageAnalytics->record(
-            UsageEventName::EXPLORE_HOSPITAL_OPENED,
-            FeatureArea::Explore,
-            ['entity' => 'hospital'],
-        );
-
         $coverage = $this->coverageQuery->forHospital($id, $revealSensitiveMetrics);
+        // Who has access (#1240): only for viewers who may manage the grants, as on the access matrix.
+        $accessGrants = $this->isGranted(HospitalVoter::MANAGE_ACCESS_GRANTS, $hospital)
+            ? $this->hospitalAccessGrantRepository->findForHospital($hospital)
+            : null;
+
+        // Participants without access may ask to be assigned (#975); a pending request is shown instead.
+        $assignmentRequestState = match (true) {
+            !$user instanceof User || $revealSensitiveMetrics => null,
+            $this->assignmentRequestRepository->hasPendingForRequesterAndHospital($user, $hospital) => 'pending',
+            default => 'available',
+        };
 
         return $this->render('@Allocation/hospitals/show.html.twig', [
             'hospital' => $hospital,
+            'assignmentRequestState' => $assignmentRequestState,
             'coverage' => $coverage,
             'actions' => $this->actionFactory->forHospital(
                 $id,
@@ -75,11 +84,12 @@ final class ShowHospitalController extends AbstractController
                 $canViewBenchmarking,
             ),
             'canImport' => $canViewImports,
+            'accessGrants' => $accessGrants,
             'yearExploreUrls' => $revealSensitiveMetrics
                 ? $this->yearUrlFactory->forYears(['hospitalFilter' => (string) $id], $coverage->years)
                 : [],
             'orientationMap' => $this->orientationMapFactory->forHospital(
-                $dispatchArea?->getName(),
+                $dispatchArea?->getId(),
                 $hospital->getLatitude(),
                 $hospital->getLongitude(),
                 $hospital->getName(),

@@ -45,6 +45,7 @@ final class FailedMessengerControllerTest extends WebTestCase
         self::assertStringNotContainsString('onsubmit=', $detailHtml);
         self::assertStringContainsString('ea-failed-messages-pre-headers', $detailHtml);
         self::assertStringContainsString('ea-failed-messages-pre-body', $detailHtml);
+        self::assertCount(1, $client->getCrawler()->filter('link[rel="stylesheet"][href*="admin-kpi"]'), 'admin-kpi.css comes only from the asset-mapper entry (#1236)');
     }
 
     public function testAdminCanDeleteSingleFailedMessage(): void

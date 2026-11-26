@@ -11,13 +11,12 @@ final readonly class AnalyticsRetentionResult
      */
     public function __construct(
         public int $requestsDeleted,
-        public int $eventsDeleted,
         public array $datesCleaned,
     ) {
     }
 
     public function rawRowsDeleted(): int
     {
-        return $this->requestsDeleted + $this->eventsDeleted;
+        return $this->requestsDeleted;
     }
 }

@@ -5,17 +5,22 @@ declare(strict_types=1);
 namespace App\Admin\UI\Http\Controller\Hospital;
 
 use App\Admin\Application\Service\HospitalPermissionLabelFormatter;
+use App\Admin\Application\Service\TermsAcceptanceLabelFormatter;
 use App\Admin\UI\Http\Controller\Engagement\MonthlyReminderDispatchCrudController;
+use App\Admin\UI\Http\Controller\TranslatedEnumChoices;
 use App\Admin\UI\Http\Controller\User\UserCrudController;
 use App\Allocation\Application\Hospital\HospitalRelationNotifier;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalLocation;
+use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
+use App\Allocation\Domain\HospitalPermissionMask;
 use App\Allocation\Infrastructure\Doctrine\OriginalEntityUser;
 use App\Engagement\Application\Dto\MonthlyReminderTrigger;
 use App\Engagement\Application\MonthlyReminderSender;
 use App\Shared\Infrastructure\Audit\AuditContext;
+use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -25,7 +30,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Option\EA;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
@@ -53,6 +57,7 @@ final class HospitalCrudController extends AbstractCrudController
         private readonly TranslatorInterface $translator,
         private readonly AdminUrlGenerator $adminUrlGenerator,
         private readonly HospitalRelationNotifier $hospitalRelationNotifier,
+        private readonly TermsAcceptanceLabelFormatter $termsAcceptanceLabels,
     ) {
     }
 
@@ -94,8 +99,8 @@ final class HospitalCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('Hospital')
-            ->setEntityLabelInPlural('Hospitals')
+            ->setEntityLabelInSingular(new TranslatableMessage('admin.hospital.entity.singular', domain: 'admin'))
+            ->setEntityLabelInPlural(new TranslatableMessage('admin.hospital.entity.plural', domain: 'admin'))
             ->setSearchFields(['id', 'name'])
             ->setDefaultSort(['id' => 'ASC']);
     }
@@ -115,8 +120,8 @@ final class HospitalCrudController extends AbstractCrudController
                 ->setEntityId($hospital->getId())
                 ->set('requestId', Uuid::v4()->toRfc4122())
                 ->generateUrl())
-            ->displayIf(static fn (Hospital $hospital): bool => $hospital->isParticipating() && $hospital->getOwner() instanceof \App\User\Domain\Entity\User)
-            ->askConfirmation(new TranslatableMessage('admin.hospital.action.send_reminder.confirm', domain: 'admin'));
+            ->displayIf(static fn (Hospital $hospital): bool => $hospital->isParticipating() && $hospital->getOwner() instanceof User)
+            ->askConfirmation(MonthlyReminderDispatchCrudController::sendReminderConfirmation(...));
 
         $reminderHistory = Action::new(
             'reminderHistory',
@@ -170,60 +175,45 @@ final class HospitalCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.identity', domain: 'admin'));
-        yield TextField::new('name', 'Name');
-        yield AssociationField::new('owner', 'Owner');
-        yield AssociationField::new('dispatchArea', 'Dispatch Area');
-        yield AssociationField::new('state', 'State');
+        yield TextField::new('name', new TranslatableMessage('label.name', domain: 'messages'));
+        yield AssociationField::new('owner', new TranslatableMessage('admin.hospital.field.owner', domain: 'admin'));
+        yield AssociationField::new('dispatchArea', new TranslatableMessage('admin.dispatch_area.entity.singular', domain: 'admin'));
+        yield AssociationField::new('state', new TranslatableMessage('label.state', domain: 'messages'));
 
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.address', domain: 'admin'));
-        yield TextField::new('address.street', 'Street')
+        yield TextField::new('address.street', new TranslatableMessage('label.address.street', domain: 'messages'))
             ->hideOnIndex();
-        yield TextField::new('address.postalCode', 'Postal code')
+        yield TextField::new('address.postalCode', new TranslatableMessage('label.address.postal_code', domain: 'messages'))
             ->hideOnIndex();
-        yield TextField::new('address.city', 'City')
+        yield TextField::new('address.city', new TranslatableMessage('label.address.city', domain: 'messages'))
             ->hideOnIndex();
-        yield TextField::new('address.state', 'State')
+        yield TextField::new('address.state', new TranslatableMessage('label.state', domain: 'messages'))
             ->hideOnIndex();
-        yield TextField::new('address.country', 'Country')
+        yield TextField::new('address.country', new TranslatableMessage('label.address.country', domain: 'messages'))
             ->hideOnIndex();
 
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.classification', domain: 'admin'));
-        yield ChoiceField::new('location', 'Location')
-            ->setChoices([
-                'Urban' => HospitalLocation::URBAN,
-                'Mixed' => HospitalLocation::MIXED,
-                'Rural' => HospitalLocation::RURAL,
-            ])
+        yield TranslatedEnumChoices::field('location', new TranslatableMessage('label.location', domain: 'messages'), HospitalLocation::class, static fn (HospitalLocation $case): string => 'hospital.badge.location.'.$case->value, 'allocation')
             ->hideOnIndex();
-        yield ChoiceField::new('tier', 'Tier')
-            ->setChoices([
-                'Basic' => HospitalTier::BASIC,
-                'Extended' => HospitalTier::EXTENDED,
-                'Full' => HospitalTier::FULL,
-            ])
+        yield TranslatedEnumChoices::field('tier', new TranslatableMessage('label.tier', domain: 'messages'), HospitalTier::class, static fn (HospitalTier $case): string => 'hospital.badge.tier.'.$case->value, 'allocation')
             ->hideOnIndex();
-        yield ChoiceField::new('size', 'Size')
-            ->setChoices([
-                'Small' => HospitalSize::SMALL,
-                'Medium' => HospitalSize::MEDIUM,
-                'Large' => HospitalSize::LARGE,
-            ])
+        yield TranslatedEnumChoices::field('size', new TranslatableMessage('label.hospital_size', domain: 'messages'), HospitalSize::class, static fn (HospitalSize $case): string => 'hospital.badge.size.'.$case->value, 'allocation')
             ->hideOnIndex();
-        yield IntegerField::new('beds', 'Beds')
+        yield IntegerField::new('beds', new TranslatableMessage('label.hospital_beds', domain: 'messages'))
             ->hideOnIndex();
-        yield NumberField::new('latitude', 'Latitude')
+        yield NumberField::new('latitude', new TranslatableMessage('admin.hospital.field.latitude', domain: 'admin'))
             ->hideOnIndex();
-        yield NumberField::new('longitude', 'Longitude')
+        yield NumberField::new('longitude', new TranslatableMessage('admin.hospital.field.longitude', domain: 'admin'))
             ->hideOnIndex();
 
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.participation', domain: 'admin'));
-        yield BooleanField::new('isParticipating', 'Participating');
-        yield DateTimeField::new('participatingSince', 'Participating since')
+        yield BooleanField::new('isParticipating', new TranslatableMessage('label.is_participating', domain: 'messages'));
+        yield DateTimeField::new('participatingSince', new TranslatableMessage('label.participating_since', domain: 'messages'))
             ->setFormat('dd.MM.yyyy HH:mm')
             ->hideOnIndex();
 
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.access', domain: 'admin'));
-        yield AssociationField::new('accessGrants', 'Access grants')
+        yield AssociationField::new('accessGrants', new TranslatableMessage('admin.user.field.access_grants', domain: 'admin'))
             ->onlyOnDetail()
             ->setSortable(false)
             ->renderAsHtml()
@@ -232,21 +222,22 @@ final class HospitalCrudController extends AbstractCrudController
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.metadata', domain: 'admin'));
         yield IdField::new('id')
             ->onlyOnDetail();
-        yield DateTimeField::new('createdAt', 'Created')
+        yield DateTimeField::new('createdAt', new TranslatableMessage('label.created', domain: 'messages'))
             ->setFormat('dd.MM.yyyy HH:mm')
             ->onlyOnDetail();
-        yield DateTimeField::new('updatedAt', 'Updated')
+        yield DateTimeField::new('updatedAt', new TranslatableMessage('label.updated', domain: 'messages'))
             ->setFormat('dd.MM.yyyy HH:mm')
             ->onlyOnDetail();
-        yield AssociationField::new('createdBy', 'Created by')
+        yield AssociationField::new('createdBy', new TranslatableMessage('label.created_by', domain: 'messages'))
             ->onlyOnDetail();
-        yield AssociationField::new('updatedBy', 'Updated by')
+        yield AssociationField::new('updatedBy', new TranslatableMessage('label.updated_by', domain: 'messages'))
             ->onlyOnDetail();
     }
 
     private function formatAccessGrantsHtml(Hospital $hospital): string
     {
         $parts = [];
+        $users = [];
         foreach ($hospital->getAccessGrants() as $grant) {
             $user = $grant->getUser();
             $userId = $user?->getId();
@@ -262,9 +253,32 @@ final class HospitalCrudController extends AbstractCrudController
                 ->generateUrl();
             $name = htmlspecialchars((string) $user->getUsername(), ENT_QUOTES);
             $permissions = htmlspecialchars(HospitalPermissionLabelFormatter::formatMask($grant->getPermissions()), ENT_QUOTES);
-            $parts[] = sprintf('<a href="%s">%s</a> (%s)', htmlspecialchars($url, ENT_QUOTES), $name, $permissions);
+            // Terms of use accepted by each person with access (#1564); the upload authority for those who may import (#1565).
+            $terms = $this->termsAcceptanceLabels->forUser($user);
+            $authority = HospitalPermissionMask::has($grant->getPermissions(), HospitalPermission::Import)
+                ? ' · '.$this->termsAcceptanceLabels->uploadAuthorityFor($user, $hospital)
+                : '';
+            $parts[] = sprintf('<a href="%s">%s</a> (%s) · %s%s', htmlspecialchars($url, ENT_QUOTES), $name, $permissions, $terms, $authority);
+            $users[] = $user;
         }
 
-        return [] === $parts ? '—' : implode('<br>', $parts);
+        // The owner may import as well; their upload authority stands first (#1565).
+        $owner = $hospital->getOwner();
+        if ($owner instanceof User) {
+            array_unshift($parts, sprintf(
+                '%s: %s · %s',
+                htmlspecialchars($this->translator->trans('admin.hospital.field.owner', [], 'admin'), ENT_QUOTES),
+                htmlspecialchars((string) $owner->getUsername(), ENT_QUOTES),
+                $this->termsAcceptanceLabels->uploadAuthorityFor($owner, $hospital),
+            ));
+        }
+
+        if ([] === $parts) {
+            return '—';
+        }
+
+        $summary = $this->termsAcceptanceLabels->currentVersionSummary($users);
+
+        return (null === $summary ? '' : $summary.'<br>').implode('<br>', $parts);
     }
 }

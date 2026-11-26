@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Http\Controller\Media;
 
+use App\Admin\UI\Form\MediaFileType;
 use App\Content\Application\Media\MediaSnippetGenerator;
-use App\Content\Application\Media\MediaTypeResolver;
 use App\Content\Domain\Entity\Media;
 use App\Content\Domain\Enum\MediaType;
+use App\Content\Infrastructure\Media\MediaUploadHandler;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -20,13 +21,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Vich\UploaderBundle\Form\Type\VichFileType;
 
 /**
  * @extends AbstractCrudController<Media>
@@ -35,7 +34,7 @@ use Vich\UploaderBundle\Form\Type\VichFileType;
 final class MediaCrudController extends AbstractCrudController
 {
     public function __construct(
-        private readonly MediaTypeResolver $mediaTypeResolver,
+        private readonly MediaUploadHandler $mediaUploadHandler,
         private readonly MediaSnippetGenerator $mediaSnippetGenerator,
         private readonly TranslatorInterface $translator,
     ) {
@@ -54,9 +53,9 @@ final class MediaCrudController extends AbstractCrudController
             ->setEntityLabelInSingular(new TranslatableMessage('label.media', domain: 'content'))
             ->setEntityLabelInPlural(new TranslatableMessage('label.media_library', domain: 'content'))
             ->setDefaultSort(['createdAt' => 'DESC'])
-            ->setSearchFields(['originalFilename', 'title', 'altText', 'filename'])
+            ->setSearchFields(['originalFilename', 'title', 'altText', 'storageKey', 'filename', 'legacyFilename'])
             ->overrideTemplate('crud/detail', '@Admin/media/detail.html.twig')
-            ->addFormTheme('@Admin/form/vich_file_theme.html.twig');
+            ->addFormTheme('@Admin/form/media_file_theme.html.twig');
     }
 
     #[\Override]
@@ -72,24 +71,17 @@ final class MediaCrudController extends AbstractCrudController
     {
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.file', domain: 'admin'));
         yield TextField::new('file', new TranslatableMessage('label.media_file', domain: 'content'))
-            ->setFormType(VichFileType::class)
+            ->setFormType(MediaFileType::class)
             ->setFormTypeOptions([
                 'required' => Crud::PAGE_NEW === $pageName,
-                'allow_delete' => false,
-                'download_uri' => false,
             ])
             ->onlyOnForms();
-        yield ImageField::new('filename', 'label.preview')
-            ->setBasePath('/uploads/media')
-            ->onlyOnDetail()
-            ->hideOnForm()
-            ->formatValue(static fn (?string $filename, Media $media): ?string => MediaType::IMAGE === $media->getType() ? $filename : null);
         yield TextField::new('originalFilename', 'label.original_filename')->onlyOnDetail();
-        yield TextField::new('filename', 'label.filename')->onlyOnDetail();
+        yield TextField::new('storedName', 'label.filename')->onlyOnDetail();
         yield TextField::new('mimeType', 'label.mime_type')->onlyOnDetail();
         yield IntegerField::new('size', 'label.file_size')->onlyOnDetail();
-        yield IntegerField::new('width', 'label.width')->onlyOnDetail();
-        yield IntegerField::new('height', 'label.height')->onlyOnDetail();
+        yield IntegerField::new('width', new TranslatableMessage('admin.media.field.width', domain: 'admin'))->onlyOnDetail();
+        yield IntegerField::new('height', new TranslatableMessage('admin.media.field.height', domain: 'admin'))->onlyOnDetail();
         yield ChoiceField::new('type', new TranslatableMessage('label.media_type', domain: 'content'))
             ->setChoices($this->mediaTypeChoices())
             ->renderAsBadges()
@@ -135,7 +127,7 @@ final class MediaCrudController extends AbstractCrudController
     #[\Override]
     public function persistEntity(EntityManagerInterface $entityManager, object $entityInstance): void
     {
-        $this->mediaTypeResolver->applyTo($entityInstance);
+        $this->mediaUploadHandler->storeAttachedFile($entityInstance);
 
         parent::persistEntity($entityManager, $entityInstance);
     }
@@ -143,7 +135,7 @@ final class MediaCrudController extends AbstractCrudController
     #[\Override]
     public function updateEntity(EntityManagerInterface $entityManager, object $entityInstance): void
     {
-        $this->mediaTypeResolver->applyTo($entityInstance);
+        $this->mediaUploadHandler->storeAttachedFile($entityInstance);
 
         parent::updateEntity($entityManager, $entityInstance);
     }

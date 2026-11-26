@@ -1,0 +1,27 @@
+{# Card block (#1578): one to four cards with optional icon, title, short text and optional link. #}
+{% set items = block.data.items|default([]) %}
+{% set column = {1: 'col-12', 2: 'col-md-6', 3: 'col-md-4'}[items|length] ?? 'col-md-6' %}
+{% if items is not empty %}
+    <div class="row row-cards page-content-cards" data-testid="page-content-cards">
+        {% for item in items %}
+            <div class="{{ column }}">
+                <div class="card h-100" data-testid="page-content-card">
+                    <div class="card-body d-flex flex-column">
+                        {% if item.icon|default('') is not empty %}
+                            <span class="avatar bg-primary-lt mb-3" aria-hidden="true">
+                                <twig:ux:icon name="{{ item.icon }}" class="w-4 h-4" />
+                            </span>
+                        {% endif %}
+                        <h3 class="card-title mb-2">{{ item.title|default('') }}</h3>
+                        <div class="content text-secondary">{{ item.html|default('')|raw }}</div>
+                        {% if item.linkUrl|default('') is not empty %}
+                            <div class="mt-auto pt-3">
+                                <a href="{{ item.linkUrl }}">{{ item.linkLabel|default('') is not empty ? item.linkLabel : 'page.cards.read_more'|trans({}, 'content') }} →</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

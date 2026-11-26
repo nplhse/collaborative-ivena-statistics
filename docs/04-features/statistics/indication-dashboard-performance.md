@@ -8,7 +8,7 @@ The detail page issued **7 sequential scans** on `allocation_stats_projection`. 
 - computed indication **and** baseline via 44× `FILTER (WHERE indication_normalized_id = ? / IS DISTINCT FROM ?)` on every row
 - ran 4× `PERCENTILE_CONT` on the full scope set
 
-With `period=all` and a wide hospital scope, that forces a large heap scan per request.
+With `period=last_12_months` (named `period=all` before #1017) and a wide hospital scope, that forces a large heap scan per request.
 
 ## Strategy (after optimisation)
 

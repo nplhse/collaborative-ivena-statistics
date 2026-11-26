@@ -80,7 +80,7 @@ The entity is **Allocation** everywhere in code; in the UI it is **Zuweisung / Z
 | Benchmark / Benchmarking | Benchmarking | loanword vs. „Vergleichsanalyse“ |
 | Dashboard | Dashboard | common in hospital IT context |
 | Settings | Einstellungen | already translated |
-| Worklist | Arbeitsliste | indication review; currently „Review-Worklist“ |
+| Worklist | Arbeitsliste | indication review |
 
 ---
 
@@ -151,7 +151,9 @@ Boolean flags and explorer metrics — largely established.
 | Clinical features | Klinische Merkmale | |
 | Clinical care (group) | Klinische Versorgung | |
 
-### ABCDE assessment (`label.assessment.*`) — **no DE yet**
+### ABCD assessment (`label.assessment.*`) — **no DE yet**
+
+IVENA records A to D only (airway, breathing, circulation, disability) and no E, so the assessment is called ABCD.
 
 | EN (category) | DE | Status |
 |---|---|---|
@@ -171,7 +173,7 @@ Boolean flags and explorer metrics — largely established.
 | Circulation — stable | Kreislauf stabil | clinical review |
 | Circulation — unstable | Kreislauf instabil | clinical review |
 | Circulation — ongoing CPR | laufende Reanimation | clinical review |
-| Disability | Neurologie | ABCDE-D |
+| Disability | Neurologie | ABCD-D |
 | GCS below 15 / below 9 | GCS &lt; 15 / GCS &lt; 9 | keep GCS abbreviation |
 
 ---
@@ -264,7 +266,7 @@ Owned by the `allocation` domain; duplicated in `messages` for default-domain te
 
 | EN | DE | Status |
 |---|---|---|
-| Review worklist | Indikations-Review-Arbeitsliste | decision #11 |
+| Review worklist | Indikations-Review | decision #11; page title shortened to the tool name in #1201 |
 | Start matching | Matching starten | |
 | Start reviewing | Review starten | |
 | Unreviewed | Ungeprüft | |
@@ -341,3 +343,20 @@ Kontext-Modul: [z.B. stats.benchmark.*]
 1. **Phase 1 (tooling):** `make trans-de`, `make lint-trans-de` — see [../03-development/testing.md](../03-development/testing.md)
 2. **Phase 2a — terminology audit:** existing DE entries against this glossary (Zuweisung instead of Verlegung, Leitstelle, Schockraum, …)
 3. **Phase 2b — waves:** Shared/User → Content → Statistics → Import/Allocation (prefix batch MT + review per module)
+
+---
+
+## Tools (names)
+
+Binding since #1201; card, page title and breadcrumb use the same name ([tools.md](../04-features/tools.md)).
+
+| EN | DE |
+|---|---|
+| Indication review | Indikations-Review |
+| ED match review | Abgleichsprüfung Notaufnahme |
+| ED match validation | Abgleichsvalidierung Notaufnahme |
+| PZC × MTS plausibility table | Plausibilitätstabelle PZC × MTS |
+| Assignment conflicts | Zuordnungskonflikte |
+| Encounter data preparation | Aufbereitung der Behandlungsdaten |
+| Matching and review (category) | Abgleich und Prüfung |
+| Data preparation (category) | Datenaufbereitung |

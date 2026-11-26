@@ -1,0 +1,71 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+/*
+ * Checks the Content-Security-Policy-Report-Only header of the prod kernel (docs/05-operations/content-security-policy.md).
+ *
+ * CI runs it in the job "Prod kernel smoke", which builds the prod container anyway (#1343). Before, a test compiled
+ * a prod container inside the database test job, where it was one of the slowest tests.
+ *
+ * It handles GET /data-prep/latest.json twice, with SENTRY_CSP_REPORT_URI empty and set, and checks the header only.
+ * That job has no database, so the request must not need one: the route is stateless (no cookie consent check, no
+ * session) and answers from configuration. Since Symfony 8.1.12 an error response is rendered with the HTML error
+ * page under the CLI SAPI too (CVE-2026-133762), and its footer reads the database, so a route that fails would end
+ * in an uncaught exception instead of a 500. Nelmio adds the header to every response.
+ *
+ * Locally: APP_ENV=prod APP_DEBUG=0 php bin/check-prod-csp
+ */
+
+use App\Kernel;
+use Symfony\Component\Dotenv\Dotenv;
+use Symfony\Component\HttpFoundation\Request;
+
+require dirname(__DIR__).'/vendor/autoload.php';
+
+$_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = 'prod';
+$_SERVER['APP_DEBUG'] = $_ENV['APP_DEBUG'] = '0';
+new Dotenv()->bootEnv(dirname(__DIR__).'/.env');
+
+$expectedEverywhere = ["default-src 'self'", "connect-src 'self'", 'https://*.ingest.sentry.io', "script-src 'self'", "'unsafe-inline'"];
+$reportUri = 'https://o1234567890.ingest.sentry.io/api/1/security/?sentry_key=check';
+$failures = [];
+
+foreach (['' => null, $reportUri => $reportUri] as $configured => $expectedReportUri) {
+    $_SERVER['SENTRY_CSP_REPORT_URI'] = $_ENV['SENTRY_CSP_REPORT_URI'] = $configured;
+    putenv('SENTRY_CSP_REPORT_URI='.$configured);
+
+    $kernel = new Kernel('prod', false);
+    $response = $kernel->handle(Request::create('https://localhost/data-prep/latest.json'));
+    $header = $response->headers->get('Content-Security-Policy-Report-Only');
+    $kernel->shutdown();
+
+    $case = '' === $configured ? 'SENTRY_CSP_REPORT_URI empty' : 'SENTRY_CSP_REPORT_URI set';
+    if (null === $header) {
+        $failures[] = sprintf('%s: no Content-Security-Policy-Report-Only header (status %d)', $case, $response->getStatusCode());
+        continue;
+    }
+
+    foreach ($expectedEverywhere as $fragment) {
+        if (!str_contains($header, $fragment)) {
+            $failures[] = sprintf('%s: header lacks "%s"', $case, $fragment);
+        }
+    }
+
+    if (null === $expectedReportUri && str_contains($header, 'report-uri')) {
+        $failures[] = sprintf('%s: header has a report-uri', $case);
+    }
+    if (null !== $expectedReportUri && !str_contains($header, 'report-uri '.$expectedReportUri)) {
+        $failures[] = sprintf('%s: header lacks "report-uri %s"', $case, $expectedReportUri);
+    }
+
+    fwrite(STDOUT, sprintf("%s: header present (status %d)\n", $case, $response->getStatusCode()));
+}
+
+if ([] !== $failures) {
+    fwrite(STDERR, implode("\n", $failures)."\n");
+    exit(1);
+}
+
+fwrite(STDOUT, "Prod CSP header OK\n");

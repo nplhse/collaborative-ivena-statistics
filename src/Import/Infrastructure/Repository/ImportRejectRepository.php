@@ -67,7 +67,7 @@ final class ImportRejectRepository extends ServiceEntityRepository implements Im
             )
             ->join('r.import', 'i')
             ->leftJoin('i.hospital', 'h')
-            ->orderBy('r.id', 'ASC')
+            ->orderBy('r.id', \SortDirection::Ascending)
             ->getQuery();
 
         foreach ($query->toIterable() as $row) {

@@ -18,6 +18,7 @@ use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Tests\Support\Content\HelpPages;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\HttpFoundation\Request;
@@ -77,10 +78,27 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
         $this->assertSelectorNotExists('[data-testid="stats-data-quality-dimensions-table"]');
     }
 
+    public function testHelpLinkComesBeforeThePrintButton(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        HelpPages::article(HelpPages::root(), 'Statistics overview', '/help/statistics-overview', '<p>Text</p>', 0, ['helpKey' => 'statistics.overview']);
+
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/');
+
+        $this->assertResponseIsSuccessful();
+        $actions = $crawler->filter('.btn-list')->reduce(
+            static fn ($list): bool => $list->filter('[data-testid="print-action"]')->count() > 0,
+        );
+        self::assertCount(1, $actions);
+        // Help is always the leftmost header action.
+        self::assertSame('help-link', $actions->children()->first()->attr('data-testid'));
+        self::assertSame('print-action', $actions->children()->eq(1)->attr('data-testid'));
+    }
+
     public function testOverviewRendersHospitalInsightsWhenBenchmarkDataIsSufficient(): void
     {
-        // The month baseline is the rolling 12-month window, so the fixed 2026
-        // data needs a fixed "now" to stay inside it.
+        // June (130 cases) is compared with May (100 cases, #1071): both reach the minimum of 100,
+        // and the volume change of +30% is an insight. A fixed "now" keeps June a complete month.
         self::mockTime(new \DateTimeImmutable('2026-07-15 12:00:00'));
         $client = $this->createClientAsRoleUser();
         $this->seedOverviewHospitalInsightsScenario();
@@ -96,6 +114,8 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
             1,
             $client->getCrawler()->filter('[data-testid^="stats-overview-hospital-insight-"]')->count(),
         );
+        $this->assertSelectorTextContains('[data-testid="stats-overview-hospital-insight-1"]', '+30.0% allocations over the previous month.');
+        $this->assertSelectorTextContains('[data-testid="stats-executive-kpi-comparison-period"]', 'Comparison period:');
     }
 
     public function testOverviewDataQualityIndicatorUsesProgressivePrefetch(): void
@@ -155,11 +175,11 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
 
         $resourcesHref = (string) $crawler->filter('[data-testid="stats-cross-nav-overview-resources"]')->attr('href');
         self::assertStringContainsString('/statistics/analysis/explorer/overview-clinical-resources', $resourcesHref);
-        self::assertStringContainsString('period=all', $resourcesHref);
+        self::assertStringContainsString('period=last_12_months', $resourcesHref);
 
         $clinicalHref = (string) $crawler->filter('[data-testid="stats-cross-nav-overview-indicators"]')->attr('href');
         self::assertStringContainsString('/statistics/analysis/explorer/overview-clinical-features', $clinicalHref);
-        self::assertStringContainsString('period=all', $clinicalHref);
+        self::assertStringContainsString('period=last_12_months', $clinicalHref);
     }
 
     public function testOverviewTopReportsLazyEndpointRendersAllCards(): void
@@ -217,7 +237,7 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
         $client = $this->createClientAsRoleUser();
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/?scope=public&period=all',
+            '/statistics/?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -230,6 +250,7 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
         );
         self::assertSame('shift', $shiftButton->attr('data-indication-dashboard-charts-mode-param'));
 
+        self::assertSame('Cases', $crawler->filter('[data-testid="stats-charts"]')->attr('data-indication-dashboard-charts-cases-label-value'));
         $payloadRaw = (string) $crawler->filter('[data-testid="stats-charts"]')->attr('data-indication-dashboard-charts-payload-value');
         /** @var array<string, mixed> $payload */
         $payload = json_decode(html_entity_decode($payloadRaw, ENT_QUOTES), true, flags: JSON_THROW_ON_ERROR);
@@ -291,11 +312,11 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
             'createdAt' => new \DateTimeImmutable('2026-02-15 09:00:00'),
             'arrivalAt' => new \DateTimeImmutable('2026-02-15 09:20:00'),
         ]);
-        AllocationFactory::createMany(50, $allocationDefaults + [
+        AllocationFactory::createMany(100, $allocationDefaults + [
             'createdAt' => new \DateTimeImmutable('2026-05-10 10:00:00'),
             'arrivalAt' => new \DateTimeImmutable('2026-05-10 10:20:00'),
         ]);
-        AllocationFactory::createMany(110, $allocationDefaults + [
+        AllocationFactory::createMany(130, $allocationDefaults + [
             'createdAt' => new \DateTimeImmutable('2026-06-10 11:00:00'),
             'arrivalAt' => new \DateTimeImmutable('2026-06-10 11:20:00'),
         ]);

@@ -89,6 +89,10 @@
         <source>feedback.form.category</source>
         <target>Kategorie</target>
       </trans-unit>
+      <trans-unit id="FbkFrmHoneypotDe" resname="feedback.form.honeypot">
+        <source>feedback.form.honeypot</source>
+        <target>Dieses Feld leer lassen</target>
+      </trans-unit>
       <trans-unit id="FbkFrmEmlDe" resname="feedback.form.guest_email">
         <source>feedback.form.guest_email</source>
         <target>Ihre E-Mail-Adresse</target>
@@ -116,6 +120,14 @@
       <trans-unit id="FbkEmlGstDe" resname="feedback.email.actor.guest">
         <source>feedback.email.actor.guest</source>
         <target>Gast</target>
+      </trans-unit>
+      <trans-unit id="c1304f03e449c" resname="feedback.status.new">
+        <source>feedback.status.new</source>
+        <target>Offen</target>
+      </trans-unit>
+      <trans-unit id="c1304fc96ee2a" resname="feedback.status.done">
+        <source>feedback.status.done</source>
+        <target>Erledigt</target>
       </trans-unit>
     </body>
   </file>

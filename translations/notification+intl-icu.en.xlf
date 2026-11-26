@@ -321,6 +321,14 @@
         <source>notification.category.announcements</source>
         <target>Announcements</target>
       </trans-unit>
+      <trans-unit id="NtfCatCommunityEn" resname="notification.category.community">
+        <source>notification.category.community</source>
+        <target>Community</target>
+      </trans-unit>
+      <trans-unit id="NtfCategoryResearch" resname="notification.category.research">
+        <source>notification.category.research</source>
+        <target>Data extract requests</target>
+      </trans-unit>
       <trans-unit id="Ntf162B4673" resname="notification.category.administration">
         <source>notification.category.administration</source>
         <target>Administration</target>
@@ -376,6 +384,18 @@
       <trans-unit id="Ntf3429DD8A" resname="admin.import_failed.label">
         <source>admin.import_failed.label</source>
         <target>Failed imports</target>
+      </trans-unit>
+      <trans-unit id="NtfFbQsTitleEn" resname="admin.feedback_quarantine_summary.title">
+        <source>admin.feedback_quarantine_summary.title</source>
+        <target>{count, plural, one {# feedback entry} other {# feedback entries}} moved to quarantine</target>
+      </trans-unit>
+      <trans-unit id="NtfFbQsMsgEn" resname="admin.feedback_quarantine_summary.message">
+        <source>admin.feedback_quarantine_summary.message</source>
+        <target>Suspected spam since the last summary. {total, plural, one {# entry is} other {# entries are}} in the quarantine now; open it to review them.</target>
+      </trans-unit>
+      <trans-unit id="NtfFbQsLabelEn" resname="admin.feedback_quarantine_summary.label">
+        <source>admin.feedback_quarantine_summary.label</source>
+        <target>Weekly feedback quarantine summary</target>
       </trans-unit>
       <trans-unit id="NtfF91586F0" resname="admin.feedback_received.title">
         <source>admin.feedback_received.title</source>
@@ -536,6 +556,102 @@
       <trans-unit id="NtfA3C9D2EF" resname="storage.email.category_value">
         <source>storage.email.category_value</source>
         <target>{category, select, database {Database} imports {Imports} media {Media} application {Application} temporary {Temporary files} other {Other}}: {size}</target>
+      </trans-unit>
+      <trans-unit id="Ntf90C992DA" resname="admin.encounter_key_changed.title">
+        <source>admin.encounter_key_changed.title</source>
+        <target>Pseudonym key changed: {hospitalName}</target>
+      </trans-unit>
+      <trans-unit id="NtfBE78881E" resname="admin.encounter_key_changed.message">
+        <source>admin.encounter_key_changed.message</source>
+        <target>{username} changed the encounter pseudonym key of {hospitalName} (key generation {generation}). {option, select, delete {The existing encounter data is deleted.} other {The existing encounter data was kept.}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf56F80BDB" resname="admin.encounter_key_changed.label">
+        <source>admin.encounter_key_changed.label</source>
+        <target>Pseudonym key changes (encounter data)</target>
+      </trans-unit>
+      <trans-unit id="NtfMediaIntegrityTitle" resname="admin.media_integrity_problem.title">
+        <source>admin.media_integrity_problem.title</source>
+        <target>{missing, plural, =0 {} one {# media file is missing} other {# media files are missing}}{missing, plural, =0 {} other {{damaged, plural, =0 {} other {, }}}}{damaged, plural, =0 {} one {# media file is damaged} other {# media files are damaged}}</target>
+      </trans-unit>
+      <trans-unit id="NtfMediaIntegrityMessage" resname="admin.media_integrity_problem.message">
+        <source>admin.media_integrity_problem.message</source>
+        <target>The media integrity check found {missing, plural, =0 {no missing file} one {one missing file} other {# missing files}} and {damaged, plural, =0 {no damaged file} one {one damaged file} other {# damaged files}}. Pages and posts that use them show broken images or links. Run app:media:check on the server to see which files are affected, and restore them from a backup.</target>
+      </trans-unit>
+      <trans-unit id="NtfMediaIntegrityLabel" resname="admin.media_integrity_problem.label">
+        <source>admin.media_integrity_problem.label</source>
+        <target>Missing or damaged media files</target>
+      </trans-unit>
+      <trans-unit id="NtfHarAdminHospitalAssignmentRequestedTitle" resname="admin.hospital_assignment_requested.title">
+        <source>admin.hospital_assignment_requested.title</source>
+        <target>Hospital assignment requested: {hospitalName}</target>
+      </trans-unit>
+      <trans-unit id="NtfHarAdminHospitalAssignmentRequestedMessage" resname="admin.hospital_assignment_requested.message">
+        <source>admin.hospital_assignment_requested.message</source>
+        <target>{username} asks to be assigned to {hospitalName} ({reason, select, ed_leadership {emergency department leadership} hospital_management {hospital management} data_submission {data submission} other {other reason}}). Review the request to approve or reject it.</target>
+      </trans-unit>
+      <trans-unit id="NtfHarAdminHospitalAssignmentRequestedLabel" resname="admin.hospital_assignment_requested.label">
+        <source>admin.hospital_assignment_requested.label</source>
+        <target>Hospital assignment requests</target>
+      </trans-unit>
+      <trans-unit id="NtfHarHospitalAssignmentDecidedTitle" resname="hospital_assignment.decided.title">
+        <source>hospital_assignment.decided.title</source>
+        <target>{decision, select, approved {Your request for {hospitalName} was approved} other {Your request for {hospitalName} was rejected}}</target>
+      </trans-unit>
+      <trans-unit id="NtfHarHospitalAssignmentDecidedMessage" resname="hospital_assignment.decided.message">
+        <source>hospital_assignment.decided.message</source>
+        <target>{decision, select, approved {{outcome, select, ownership {You are now the owner of {hospitalName}.} other {You now have access to {hospitalName}.}}} other {An administrator rejected your request for {hospitalName}. Your requests show the reason, if one was given.}}</target>
+      </trans-unit>
+      <trans-unit id="NtfHarHospitalAssignmentDecidedLabel" resname="hospital_assignment.decided.label">
+        <source>hospital_assignment.decided.label</source>
+        <target>Decisions on my hospital assignment requests</target>
+      </trans-unit>
+      <trans-unit id="NtfHarHospitalAssignmentOwnershipTransferredTitle" resname="hospital_assignment.ownership_transferred.title">
+        <source>hospital_assignment.ownership_transferred.title</source>
+        <target>Ownership of {hospitalName} was transferred</target>
+      </trans-unit>
+      <trans-unit id="NtfHarHospitalAssignmentOwnershipTransferredMessage" resname="hospital_assignment.ownership_transferred.message">
+        <source>hospital_assignment.ownership_transferred.message</source>
+        <target>An administrator made {newOwner} the owner of {hospitalName}. {access, select, keep_full_access {You keep full access to the hospital.} other {You no longer have access to the hospital.}}</target>
+      </trans-unit>
+      <trans-unit id="NtfHarHospitalAssignmentOwnershipTransferredLabel" resname="hospital_assignment.ownership_transferred.label">
+        <source>hospital_assignment.ownership_transferred.label</source>
+        <target>Transfers of my hospitals</target>
+      </trans-unit>
+      <trans-unit id="NtfReactLabelEn" resname="content.reaction_received.label">
+        <source>content.reaction_received.label</source>
+        <target>Reactions to my content</target>
+      </trans-unit>
+      <trans-unit id="NtfReactTitleEn" resname="content.reaction_received.title">
+        <source>content.reaction_received.title</source>
+        <target>{count, plural, one {New reaction} other {# new reactions}}</target>
+      </trans-unit>
+      <trans-unit id="NtfReactMsgEn" resname="content.reaction_received.message">
+        <source>content.reaction_received.message</source>
+        <target>{actors, select, one {{firstActor}} two {{firstActor} and {secondActor}} many {{firstActor}, {secondActor} and {others, plural, one {# other} other {# others}}} other {{count, plural, one {One person} other {# people}}}} reacted to {targetType, select, post {your post “{title}”} comment {your comment on “{title}”} other {your entry in the activity feed}}: {breakdown}</target>
+      </trans-unit>
+      <trans-unit id="NtfPostAnnEn1" resname="announcement.post.label">
+        <source>announcement.post.label</source>
+        <target>Announcements from the blog</target>
+      </trans-unit>
+      <trans-unit id="NtfPostAnnEn2" resname="announcement.post.title">
+        <source>announcement.post.title</source>
+        <target>Announcement: {title}</target>
+      </trans-unit>
+      <trans-unit id="NtfPostAnnEn3" resname="announcement.post.message">
+        <source>announcement.post.message</source>
+        <target>Read the new announcement in the blog.</target>
+      </trans-unit>
+      <trans-unit id="NtfTwoFactorResetTitle" resname="security.two_factor_reset.title">
+        <source>security.two_factor_reset.title</source>
+        <target>Two-factor authentication was reset</target>
+      </trans-unit>
+      <trans-unit id="NtfTwoFactorResetMessage" resname="security.two_factor_reset.message">
+        <source>security.two_factor_reset.message</source>
+        <target>Your account no longer asks for a code from an authenticator app. If you did not ask for this, change your password and contact an administrator. You can set up two-factor authentication again in your settings.</target>
+      </trans-unit>
+      <trans-unit id="NtfTwoFactorResetLabel" resname="security.two_factor_reset.label">
+        <source>security.two_factor_reset.label</source>
+        <target>Two-factor authentication reset</target>
       </trans-unit>
     </body>
   </file>

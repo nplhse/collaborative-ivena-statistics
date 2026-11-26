@@ -17,7 +17,7 @@ final readonly class HospitalInsightSelector
 
     private const float BASELINE_RATIO_LOW = 0.9;
 
-    private const float VOLUME_CHANGE_THRESHOLD = 5.0;
+    public const float VOLUME_CHANGE_THRESHOLD = 5.0;
 
     public function __construct(
         private TranslatorInterface $translator,
@@ -39,6 +39,7 @@ final readonly class HospitalInsightSelector
         string $baselinePeriodLabel,
         string $reportingPeriodLabel,
         ?string $locale = null,
+        ?string $rejectionRateNote = null,
     ): array {
         $candidates = [];
 
@@ -91,6 +92,7 @@ final readonly class HospitalInsightSelector
                     'delta' => number_format(abs($rejectionRateDeltaPp), 1, '.', ''),
                 ], $locale),
                 HospitalInsightTrend::Up,
+                note: $rejectionRateNote,
             );
         }
 
@@ -125,7 +127,7 @@ final readonly class HospitalInsightSelector
                 'period' => $reportingPeriodLabel,
                 'primary_percent' => number_format($metric->primaryValue, 1, '.', ''),
                 'baseline_percent' => number_format($metric->comparisonValue, 1, '.', ''),
-                'delta_pp' => $this->formatSignedPercent($metric->absoluteDelta),
+                'delta_pp' => $this->formatSignedPercentagePoints($metric->absoluteDelta, $locale),
                 'baseline' => $baselinePeriodLabel,
             ], $locale),
             $metric->absoluteDelta >= 0 ? HospitalInsightTrend::Up : HospitalInsightTrend::Down,
@@ -161,7 +163,7 @@ final readonly class HospitalInsightSelector
                 'indication' => $top->label,
                 'primary_percent' => number_format($top->primaryShare, 1, '.', ''),
                 'baseline_percent' => number_format($top->comparisonShare, 1, '.', ''),
-                'delta_pp' => $this->formatSignedPercent($top->primaryShare - $top->comparisonShare),
+                'delta_pp' => $this->formatSignedPercentagePoints($top->primaryShare - $top->comparisonShare, $locale),
                 'baseline' => $baselinePeriodLabel,
             ], $locale),
             $top->primaryShare >= $top->comparisonShare
@@ -188,5 +190,15 @@ final readonly class HospitalInsightSelector
         $prefix = $value >= 0 ? '+' : '';
 
         return $prefix.number_format($value, 1, '.', '').'%';
+    }
+
+    /**
+     * Difference between two shares: percentage points, not a relative change.
+     */
+    private function formatSignedPercentagePoints(float $value, ?string $locale): string
+    {
+        $prefix = $value >= 0 ? '+' : '';
+
+        return $prefix.number_format($value, 1, '.', '').' '.$this->trans('monthly_reminder.unit.percentage_points', [], $locale);
     }
 }

@@ -1,0 +1,39 @@
+{# Replay of one hospital (or the sum for administrators): no bonus, active snapshot, draft, cross-fitted draft. #}
+{% set d = 'encounter' %}
+<div class="card-body border-top pb-0" data-test="encounter-plausibility-replay" data-hospital="{{ test_id }}">
+    <h4 class="mb-1">{{ title }}</h4>
+    <p class="small text-secondary mb-2">{{ 'encounter.plausibility.learning.eligible_value'|trans({pairs: figures.eligible_pairs, bonus: figures.eligible_from_bonus}, d) }}</p>
+</div>
+<div class="table-responsive">
+    <table class="table card-table table-vcenter">
+        <thead>
+            <tr>
+                <th>{{ 'encounter.plausibility.learning.column.variant'|trans({}, d) }}</th>
+                <th class="text-end">{{ 'encounter.plausibility.learning.column.allocations'|trans({}, d) }}</th>
+                <th class="text-end">{{ 'encounter.plausibility.learning.column.automatic'|trans({}, d) }}</th>
+                <th class="text-end">{{ 'encounter.plausibility.learning.column.proposal'|trans({}, d) }}</th>
+                <th class="text-end">{{ 'encounter.plausibility.learning.column.none'|trans({}, d) }}</th>
+                <th class="text-end">{{ 'encounter.plausibility.learning.column.decisive'|trans({}, d) }}</th>
+                <th class="text-end">{{ 'encounter.plausibility.learning.column.agree'|trans({}, d) }}</th>
+                <th class="text-end">{{ 'encounter.plausibility.learning.column.disagree'|trans({}, d) }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for variant in ['none', 'active', 'draft', 'cross_fitted'] %}
+                {% set outcome = figures.variants[variant] ?? null %}
+                {% if outcome %}
+                    <tr data-test="encounter-plausibility-replay-row" data-variant="{{ variant }}">
+                        <td>{{ ('encounter.plausibility.learning.variant.' ~ variant)|trans({}, d) }}</td>
+                        <td class="text-end">{{ outcome.allocations }}</td>
+                        <td class="text-end">{{ outcome.automatic }}{% if outcome.allocations > 0 %} <span class="text-secondary">({{ (100 * outcome.automatic / outcome.allocations)|format_number({fraction_digit: 1}) }} %)</span>{% endif %}</td>
+                        <td class="text-end">{{ outcome.proposal }}</td>
+                        <td class="text-end">{{ outcome.none }}</td>
+                        <td class="text-end">{{ outcome.decisive }}</td>
+                        <td class="text-end">{{ outcome.agree }}</td>
+                        <td class="text-end">{{ outcome.disagree }}</td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

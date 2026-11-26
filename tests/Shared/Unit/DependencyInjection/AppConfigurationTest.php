@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Shared\Unit\DependencyInjection;
 
 use App\Shared\Infrastructure\DependencyInjection\AppConfiguration;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\Definition\Processor;
@@ -24,8 +25,7 @@ final class AppConfigurationTest extends TestCase
         self::assertSame('Blog', $processed['blog']['title']);
         self::assertSame('Neuigkeiten, Updates und Hintergrundinformationen.', $processed['blog']['description']);
         self::assertSame(2025, $processed['meta']['copyright_start_year']);
-        self::assertSame('', $processed['meta']['hoster']['name']);
-        self::assertSame('', $processed['meta']['hoster']['url']);
+        self::assertTrue($processed['meta']['uberspace_credit']);
         self::assertSame('csv', $processed['import']['reject_writer']);
         self::assertSame(4, $processed['feedback']['spam']['min_submission_seconds']);
         self::assertSame(1800, $processed['feedback']['spam']['long_message_threshold']);
@@ -46,6 +46,27 @@ final class AppConfigurationTest extends TestCase
             'make money',
             'click here',
         ], $processed['feedback']['spam']['keywords']);
+    }
+
+    public function testUberspaceCreditCanBeTurnedOff(): void
+    {
+        $processed = new Processor()->processConfiguration(new AppConfiguration(), [[
+            ...$this->minimalConfig(),
+            'meta' => ['uberspace_credit' => false],
+        ]]);
+
+        self::assertFalse($processed['meta']['uberspace_credit']);
+    }
+
+    public function testGenericHosterSettingIsRejected(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('Unrecognized option "hoster"');
+
+        new Processor()->processConfiguration(new AppConfiguration(), [[
+            ...$this->minimalConfig(),
+            'meta' => ['hoster' => ['name' => 'Other hoster', 'url' => 'https://example.org']],
+        ]]);
     }
 
     public function testRegistrationBlockedEmailDomainsCanBeOverridden(): void
@@ -156,5 +177,117 @@ final class AppConfigurationTest extends TestCase
             'short_title' => 'APP',
             'default_locale' => 'en',
         ];
+    }
+
+    public function testDataPrepToolVersionDefaults(): void
+    {
+        $processed = new Processor()->processConfiguration(new AppConfiguration(), [[
+            'title' => 'App title',
+            'short_title' => 'APP',
+            'default_locale' => 'en',
+        ]]);
+
+        self::assertSame(['version' => '1.0.0', 'min_version' => '1.0.0', 'released_at' => '2026-11-12'], $processed['encounter']['data_prep']);
+    }
+
+    public function testEncounterSourceFileRetentionDefaultsToThirtyDays(): void
+    {
+        $processed = new Processor()->processConfiguration(new AppConfiguration(), [$this->minimalConfig()]);
+
+        self::assertSame(30, $processed['encounter']['source_file_retention_days']);
+    }
+
+    public function testEncounterValidationDefaults(): void
+    {
+        $processed = new Processor()->processConfiguration(new AppConfiguration(), [$this->minimalConfig()]);
+
+        self::assertSame(['score_bands' => [0.50, 0.70, 0.90, 0.99], 'sample_size' => 20], $processed['encounter']['validation']);
+    }
+
+    public function testEncounterPlausibilityMinimumObservationsDefaultsToTenAndIsPositive(): void
+    {
+        $processed = new Processor()->processConfiguration(new AppConfiguration(), [$this->minimalConfig()]);
+        self::assertSame(['min_observations' => 10, 'learning' => ['smoothing' => 1.0, 'shrinkage' => 10.0, 'fold' => 'alternating_days']], $processed['encounter']['plausibility']);
+
+        $this->expectException(InvalidConfigurationException::class);
+        new Processor()->processConfiguration(new AppConfiguration(), [[
+            ...$this->minimalConfig(),
+            'encounter' => ['plausibility' => ['min_observations' => 0]],
+        ]]);
+    }
+
+    public function testEncounterValidationScoreBandsMustAscend(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        new Processor()->processConfiguration(new AppConfiguration(), [[
+            ...$this->minimalConfig(),
+            'encounter' => ['validation' => ['score_bands' => [0.90, 0.50]]],
+        ]]);
+    }
+
+    #[DataProvider('invalidEncounterSourceFileRetentionDays')]
+    public function testEncounterSourceFileRetentionMustBeAPositiveInteger(mixed $days): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        new Processor()->processConfiguration(new AppConfiguration(), [[
+            ...$this->minimalConfig(),
+            'encounter' => ['source_file_retention_days' => $days],
+        ]]);
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function invalidEncounterSourceFileRetentionDays(): iterable
+    {
+        yield 'zero' => [0];
+        yield 'negative' => [-1];
+        yield 'string' => ['30'];
+        yield 'float' => [30.5];
+    }
+
+    /**
+     * @param array<string, string> $dataPrep
+     */
+    #[DataProvider('invalidDataPrepVersions')]
+    public function testDataPrepToolVersionIsValidated(array $dataPrep): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        new Processor()->processConfiguration(new AppConfiguration(), [[
+            'title' => 'App title',
+            'short_title' => 'APP',
+            'default_locale' => 'en',
+            'encounter' => ['data_prep' => $dataPrep],
+        ]]);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, string>}>
+     */
+    public static function invalidDataPrepVersions(): iterable
+    {
+        yield 'version without patch' => [['version' => '1.0']];
+        yield 'minimum above version' => [['version' => '1.0.0', 'min_version' => '1.1.0']];
+        yield 'release date format' => [['released_at' => '12.11.2026']];
+    }
+
+    public function testTermsVersionIsUnsetByDefault(): void
+    {
+        $processed = new Processor()->processConfiguration(new AppConfiguration(), [$this->minimalConfig()]);
+
+        self::assertSame(['version' => null], $processed['terms']);
+    }
+
+    public function testTermsVersionIsAccepted(): void
+    {
+        $processed = new Processor()->processConfiguration(new AppConfiguration(), [[
+            ...$this->minimalConfig(),
+            'terms' => ['version' => '2026-12'],
+        ]]);
+
+        self::assertSame(['version' => '2026-12'], $processed['terms']);
     }
 }

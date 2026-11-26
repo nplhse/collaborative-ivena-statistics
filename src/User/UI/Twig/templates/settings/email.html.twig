@@ -26,12 +26,12 @@
             <div class="card">
                 <div class="row g-0">
                     {{ include('@User/settings/_sidebar.html.twig', {active: 'email'}) }}
-                    <div class="col-12 col-md-9">
-                        {{ form_start(emailForm) }}
+                    <div class="col-12 col-md-9 d-flex flex-column">
+                        {{ form_start(emailForm, {attr: {class: 'd-flex flex-column flex-grow-1'}}) }}
                         <div class="card-header">
                             <h3 class="card-title">{{ 'title.settings.change_email'|trans({}, 'user') }}</h3>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body flex-grow-1">
                             {{ form_row(emailForm.email) }}
                         </div>
                         <div class="card-footer d-flex justify-content-end gap-2">

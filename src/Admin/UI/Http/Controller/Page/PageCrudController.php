@@ -6,24 +6,32 @@ namespace App\Admin\UI\Http\Controller\Page;
 
 use App\Content\Domain\Entity\Page;
 use App\Content\Domain\Enum\PageKey;
+use App\Content\Domain\Enum\PageType;
 use App\Shared\Application\Locale\SupportedLocales;
+use Doctrine\ORM\QueryBuilder;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * Structural page identity (hierarchy, key, visibility). Locale content lives in PageTranslation CRUD.
+ * Structural page identity (hierarchy, key, visibility). Locale content lives in PageTranslation CRUD. Help articles
+ * have their own list ({@see HelpArticleCrudController}, #596).
  *
  * @extends AbstractCrudController<Page>
  */
@@ -50,6 +58,14 @@ final class PageCrudController extends AbstractCrudController
             ->setEntityLabelInPlural(new TranslatableMessage('label.pages', domain: 'content'))
             ->setSearchFields(['id', 'key', 'translations.title', 'translations.slug', 'translations.path'])
             ->setDefaultSort(['id' => 'DESC']);
+    }
+
+    #[\Override]
+    public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder
+    {
+        return parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters)
+            ->andWhere('entity.type = :pageType')
+            ->setParameter('pageType', PageType::Page);
     }
 
     #[\Override]
@@ -92,6 +108,10 @@ final class PageCrudController extends AbstractCrudController
             ->allowMultipleChoices(false)
             ->setFormTypeOption('placeholder', '—');
         yield AssociationField::new('parent', 'label.parent_page')->autocomplete();
+        yield TextField::new('icon', new TranslatableMessage('label.page_icon', domain: 'content'))
+            ->setRequired(false)
+            ->hideOnIndex()
+            ->setHelp(new TranslatableMessage('label.page_icon_help', domain: 'content'));
         yield ChoiceField::new('visibility', 'label.visibility')
             ->setChoices([
                 'label.public' => Page::VISIBILITY_PUBLIC,

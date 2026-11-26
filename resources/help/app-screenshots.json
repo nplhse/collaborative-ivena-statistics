@@ -1,0 +1,265 @@
+{
+    "login": {
+        "username": "demo",
+        "password": "Ivena!1234"
+    },
+    "viewport": [1280, 900],
+    "hide": [
+        "#demo-environment-banner",
+        "[class*='feedback-widget']",
+        "#notification-toasts",
+        "[data-testid='notification-bell-badge']",
+        "[data-testid='user-menu-notifications-badge']",
+        ".sf-toolbar",
+        "[id^='sfwdt']",
+        "header.navbar",
+        "aside.navbar-vertical"
+    ],
+    "screenshots": [
+        {
+            "file": "app-konto-registrieren.png",
+            "anonymous": true,
+            "path": "/register",
+            "clip": {
+                "selector": "form",
+                "index": 0
+            },
+            "padding": 12,
+            "hide": ["#cookie-consent-banner", ".offcanvas-backdrop"]
+        },
+        {
+            "file": "app-klinikzugang-beantragen.png",
+            "actions": [
+                {
+                    "goto": "/hospitals/requests/new"
+                },
+                {
+                    "fill": {
+                        "selector": "[name='hospital_assignment_request[hospitalName]']",
+                        "value": "Klinikum Musterstadt"
+                    }
+                },
+                {
+                    "click": {
+                        "selector": "label",
+                        "text": "Leitung der Notaufnahme"
+                    }
+                },
+                {
+                    "fill": {
+                        "selector": "[name='hospital_assignment_request[explanation]']",
+                        "value": "Ich leite die Zentrale Notaufnahme und möchte die Zuweisungen unserer Klinik hochladen."
+                    }
+                },
+                {
+                    "click": {
+                        "selector": "[name='hospital_assignment_request[uploadAuthority]']"
+                    }
+                }
+            ],
+            "clip": {
+                "selector": "[data-testid='hospital-assignment-request-form']"
+            },
+            "padding": 22,
+            "markers": [
+                {
+                    "step": 1,
+                    "selector": "[name='hospital_assignment_request[hospitalName]']"
+                },
+                {
+                    "step": 2,
+                    "selector": ".form-check",
+                    "text": "Leitung der Notaufnahme"
+                },
+                {
+                    "step": 3,
+                    "selector": "[name='hospital_assignment_request[explanation]']"
+                },
+                {
+                    "step": 4,
+                    "selector": ".form-check",
+                    "text": "Ich bin berechtigt"
+                },
+                {
+                    "step": 5,
+                    "selector": "[data-testid='hospital-assignment-request-form'] button[type=submit]"
+                }
+            ]
+        },
+        {
+            "file": "app-import-anlegen.png",
+            "actions": [
+                {
+                    "goto": "/import/new"
+                },
+                {
+                    "fill": {
+                        "selector": "[name='import_create[name]']",
+                        "value": "2026-10 IVENA Zuweisungen Klinikum Musterstadt"
+                    }
+                },
+                {
+                    "select": {
+                        "selector": "[name='import_create[hospital]']",
+                        "option": "Klinikum Musterstadt"
+                    }
+                },
+                {
+                    "click": {
+                        "selector": "[name='import_create[uploadAuthority]']"
+                    }
+                }
+            ],
+            "clip": {
+                "selector": "form[name='import_create']"
+            },
+            "hide": ["[data-bs-target*='ptions']", "[aria-controls*='ptions']"],
+            "markers": [
+                {
+                    "step": 1,
+                    "selector": "[name='import_create[name]']"
+                },
+                {
+                    "step": 2,
+                    "selector": "[name='import_create[hospital]']"
+                },
+                {
+                    "step": 3,
+                    "selector": "[name='import_create[type]']"
+                },
+                {
+                    "step": 4,
+                    "selector": ".import-dropzone"
+                },
+                {
+                    "step": 5,
+                    "selector": ".form-check",
+                    "text": "Ich bin berechtigt"
+                },
+                {
+                    "step": 6,
+                    "selector": "[name='import_create[submit]']"
+                }
+            ]
+        },
+        {
+            "file": "app-import-details.png",
+            "path": "/import/1139",
+            "clip": {
+                "selector": ".page-wrapper"
+            },
+            "maxHeight": 1670,
+            "markers": [
+                {
+                    "step": 1,
+                    "selector": "[data-testid='import-status-badge']"
+                },
+                {
+                    "step": 2,
+                    "selector": ".card",
+                    "text": "Ausführungsergebnisse"
+                },
+                {
+                    "step": 3,
+                    "selector": "[data-testid='import-data-coverage']"
+                },
+                {
+                    "step": 4,
+                    "selector": "a.btn",
+                    "text": "Originaldatei herunterladen"
+                }
+            ]
+        },
+        {
+            "file": "app-import-teilweise.png",
+            "path": "/import/1141",
+            "clip": {
+                "selector": ".page-wrapper"
+            },
+            "maxHeight": 1300,
+            "markers": [
+                {
+                    "step": 1,
+                    "selector": "[data-testid='import-status-badge']"
+                },
+                {
+                    "step": 2,
+                    "selector": ".card",
+                    "text": "Ausführungsergebnisse"
+                }
+            ]
+        },
+        {
+            "file": "app-statistik-uebersicht.png",
+            "path": "/statistics/?period=quarter&year=2026&quarter=3",
+            "clip": {
+                "selector": ".page-wrapper"
+            },
+            "maxHeight": 1000
+        },
+        {
+            "file": "app-bereich-zeitraum.png",
+            "actions": [
+                {
+                    "goto": "/statistics/?period=quarter&year=2026&quarter=3"
+                },
+                {
+                    "click": {
+                        "selector": "[data-testid='stats-analysis-context-location']"
+                    },
+                    "wait": 1200
+                }
+            ],
+            "clip": {
+                "selector": "#statistics-analysis-context-modal .modal-content"
+            },
+            "markers": [
+                {
+                    "step": 1,
+                    "selector": "[data-testid='stats-analysis-context-scope-group']"
+                },
+                {
+                    "step": 2,
+                    "selector": "[data-testid='stats-analysis-context-period']"
+                },
+                {
+                    "step": 3,
+                    "selector": "[data-testid='stats-analysis-context-apply']"
+                }
+            ]
+        },
+        {
+            "file": "app-benchmarking.png",
+            "path": "/statistics/benchmarking?scope=my_hospitals&period=quarter&year=2026&quarter=3&comparison_scope=hospital_cohort&comparison_period=quarter&comparison_year=2026&comparison_quarter=3",
+            "clip": {
+                "selector": ".page-wrapper"
+            },
+            "maxHeight": 1100
+        },
+        {
+            "file": "app-fehlende-werte.png",
+            "path": "/statistics/benchmarking?scope=my_hospitals&period=quarter&year=2026&quarter=3&comparison_scope=hospital_cohort&comparison_period=quarter&comparison_year=2026&comparison_quarter=3",
+            "clip": {
+                "selector": ".card",
+                "text": "Geschlecht"
+            },
+            "padding": 4
+        },
+        {
+            "file": "app-zuweisung-erkunden.png",
+            "path": "/explore/allocation/582dca4a-a28d-415c-930c-1b50e8b8dc79",
+            "clip": {
+                "selector": ".page-wrapper"
+            },
+            "maxHeight": 940
+        },
+        {
+            "file": "app-analyse-explorer.png",
+            "path": "/statistics/analysis/explorer?period=year&year=2025",
+            "clip": {
+                "selector": ".page-wrapper"
+            },
+            "maxHeight": 1100
+        }
+    ]
+}

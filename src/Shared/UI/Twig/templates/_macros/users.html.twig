@@ -1,21 +1,42 @@
 {#
-  Renders a username as profile link when the user has a publicId (and optionally ROLE_PARTICIPANT).
+  Renders a user by name as profile link (/explore/user/{username}, #1353), optionally only for ROLE_PARTICIPANT.
+  Takes a User entity, or a hash {userId, username, displayName} for read models.
+  The visible name follows user_display_name() (#462): signed-in viewers see the display name, with the
+  username as title; anonymous visitors see the username.
 
   Options:
     - empty: fallback when user is null (default: —)
     - requireParticipant: only link for ROLE_PARTICIPANT (default: false)
     - target: link target (default: _top, so DataTable/Turbo-Frames navigate the full page)
+    - avatar: false | 'inline' | 'xs' | 'sm' renders a decorative UserAvatar before the name; 'inline' scales with the text (default: false)
 #}
-{% macro link(user, options = {}) %}
-    {% set empty = options.empty|default('—') %}
-    {% set requireParticipant = options.requireParticipant|default(false) %}
-    {% set target = options.target|default('_top') %}
+{# Whitespace control keeps the output on one line, so text right after the call (", date") does not get a space. #}
+{% macro link(user, options = {}) -%}
+    {%- set empty = options.empty|default('—') -%}
+    {%- set requireParticipant = options.requireParticipant|default(false) -%}
+    {%- set target = options.target|default('_top') -%}
+    {%- set avatar = options.avatar|default(false) -%}
 
-    {% if user is null %}
-        {{ empty }}
-    {% elseif (not requireParticipant or is_granted('ROLE_PARTICIPANT')) and user.publicId %}
-        <a href="{{ path('app_explore_user_show', {publicId: user.publicId}) }}"{% if target %} target="{{ target }}"{% endif %}>{{ user }}</a>
-    {% else %}
-        {{ user }}
-    {% endif %}
-{% endmacro %}
+    {%- if user is null -%}
+        {{- empty -}}
+    {%- else -%}
+        {%- set username = user.username -%}
+        {%- set name = user_display_name(user.displayName, username) -%}
+        {%- set showTitle = name != username -%}
+        {%- if avatar -%}<span class="user-link">{% if user.userId is defined %}<twig:UserAvatar :userId="user.userId" :displayName="user.displayName" :username="user.username" :size="avatar" />{% else %}<twig:UserAvatar :user="user" :size="avatar" />{% endif %} {% endif -%}
+        {%- if (not requireParticipant or is_granted('ROLE_PARTICIPANT')) and username -%}
+            <a href="{{ path('app_explore_user_show', {username: username}) }}"{% if target %} target="{{ target }}"{% endif %}{% if showTitle %} title="@{{ username }}"{% endif %}>{{ name }}</a>
+        {%- elseif showTitle -%}
+            <span title="@{{ username }}">{{ name }}</span>
+        {%- else -%}
+            {{- name -}}
+        {%- endif -%}
+        {%- if avatar %}</span>{% endif -%}
+    {%- endif -%}
+{%- endmacro %}
+
+{# Plain-text label for selects and filter badges (#1240): "Name (@username)" when the viewer sees a display name, else the username. #}
+{% macro label(displayName, username) -%}
+    {%- set shown = user_display_name(displayName, username) -%}
+    {{- shown != username ? shown ~ ' (@' ~ username ~ ')' : shown -}}
+{%- endmacro %}

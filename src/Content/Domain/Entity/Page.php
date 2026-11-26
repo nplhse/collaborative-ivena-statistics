@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Content\Domain\Entity;
 
 use App\Content\Domain\Enum\PageKey;
+use App\Content\Domain\Enum\PageType;
+use App\Content\Domain\Validation\Constraints\KnownIcon;
 use App\Content\Infrastructure\Repository\PageRepository;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -19,13 +21,17 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 #[ORM\Entity(repositoryClass: PageRepository::class)]
 #[ORM\Table(name: 'page')]
 #[ORM\UniqueConstraint(name: 'uniq_page_key', columns: ['key'])]
+#[ORM\UniqueConstraint(name: 'uniq_page_help_key', columns: ['help_key'])]
 #[ORM\Index(name: 'idx_page_parent_sort', columns: ['parent_id', 'sort_order'])]
 #[ORM\HasLifecycleCallbacks]
 #[UniqueEntity(fields: ['key'], message: 'page.validation.key_unique')]
+#[UniqueEntity(fields: ['helpKey'], message: 'page.validation.help_key_unique')]
 class Page implements \Stringable
 {
     public const string VISIBILITY_PUBLIC = 'public';
     public const string VISIBILITY_AUTHENTICATED = 'authenticated';
+    public const int MAX_HELP_KEY_LENGTH = 100;
+    public const int MAX_ICON_LENGTH = 64;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -38,16 +44,35 @@ class Page implements \Stringable
 
     /** @var Collection<int, self> */
     #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'parent')]
-    #[ORM\OrderBy(['sortOrder' => 'ASC', 'id' => 'ASC'])]
+    #[ORM\OrderBy(['sortOrder' => \SortDirection::Ascending, 'id' => \SortDirection::Ascending])]
     private Collection $children;
 
     /** @var Collection<int, PageTranslation> */
     #[ORM\OneToMany(targetEntity: PageTranslation::class, mappedBy: 'page', cascade: ['persist'], orphanRemoval: true)]
-    #[ORM\OrderBy(['locale' => 'ASC'])]
+    #[ORM\OrderBy(['locale' => \SortDirection::Ascending])]
     private Collection $translations;
 
     #[ORM\Column(nullable: true, enumType: PageKey::class)]
     private ?PageKey $key = null;
+
+    /** Help articles (#596) live below the help start page and are left out of the general page navigation. */
+    #[ORM\Column(length: 16, enumType: PageType::class, options: ['default' => 'page'])]
+    private PageType $type = PageType::Page;
+
+    /**
+     * Stable name of a help article for links from the application (`help_link('import.rejects')`), independent of
+     * title and path.
+     */
+    #[Assert\Length(max: self::MAX_HELP_KEY_LENGTH)]
+    #[Assert\Regex(pattern: '/^[a-z0-9]+(?:[._-][a-z0-9]+)*$/', message: 'page.validation.help_key_format')]
+    #[ORM\Column(length: self::MAX_HELP_KEY_LENGTH, nullable: true)]
+    private ?string $helpKey = null;
+
+    /** Optional icon (#1590), e.g. `tabler:file-import`: shown on help topic cards and subpage cards. */
+    #[KnownIcon]
+    #[Assert\Length(max: self::MAX_ICON_LENGTH)]
+    #[ORM\Column(length: self::MAX_ICON_LENGTH, nullable: true)]
+    private ?string $icon = null;
 
     #[Assert\Choice(choices: [self::VISIBILITY_PUBLIC, self::VISIBILITY_AUTHENTICATED])]
     #[ORM\Column(length: 32)]
@@ -164,6 +189,55 @@ class Page implements \Stringable
         return $this;
     }
 
+    public function getType(): PageType
+    {
+        return $this->type;
+    }
+
+    public function setType(PageType $type): self
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    public function isHelpArticle(): bool
+    {
+        return PageType::Help === $this->type;
+    }
+
+    /** The help start page or a help article: shown with the help sidebar and searched by the help search. */
+    public function isInHelp(): bool
+    {
+        return $this->isHelpArticle() || PageKey::Help === $this->key;
+    }
+
+    public function getHelpKey(): ?string
+    {
+        return $this->helpKey;
+    }
+
+    public function getIcon(): ?string
+    {
+        return $this->icon;
+    }
+
+    public function setIcon(?string $icon): self
+    {
+        $icon = null === $icon ? null : trim($icon);
+        $this->icon = '' === $icon ? null : $icon;
+
+        return $this;
+    }
+
+    public function setHelpKey(?string $helpKey): self
+    {
+        $helpKey = null === $helpKey ? null : trim($helpKey);
+        $this->helpKey = '' === $helpKey ? null : $helpKey;
+
+        return $this;
+    }
+
     public function getVisibility(): string
     {
         return $this->visibility;
@@ -213,6 +287,26 @@ class Page implements \Stringable
         }
 
         return false;
+    }
+
+    /**
+     * Help articles sit below the help start page or another help article, and every page there is a help article,
+     * so the help section is one tree. Only help articles have a help key.
+     */
+    #[Assert\Callback]
+    public function validateHelpSection(ExecutionContextInterface $context): void
+    {
+        $parentInHelp = $this->parent instanceof self && $this->parent->isInHelp();
+
+        if ($this->isHelpArticle() && !$parentInHelp) {
+            $context->buildViolation('page.validation.help_parent_required')->atPath('parent')->addViolation();
+        } elseif (!$this->isHelpArticle() && $parentInHelp) {
+            $context->buildViolation('page.validation.help_child_type')->atPath('type')->addViolation();
+        }
+
+        if (null !== $this->helpKey && !$this->isHelpArticle()) {
+            $context->buildViolation('page.validation.help_key_help_only')->atPath('helpKey')->addViolation();
+        }
     }
 
     #[Assert\Callback]

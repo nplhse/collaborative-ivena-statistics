@@ -7,9 +7,11 @@ namespace App\Engagement\Domain\Entity;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Engagement\Domain\Enum\MonthlyReminderDispatchStatus;
 use App\Engagement\Infrastructure\Repository\MonthlyReminderDispatchRepository;
+use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+#[Audit\Audited]
 #[ORM\Entity(repositoryClass: MonthlyReminderDispatchRepository::class)]
 #[ORM\Table(name: 'monthly_reminder_dispatch')]
 #[ORM\UniqueConstraint(name: 'uniq_monthly_reminder_dispatch', columns: ['hospital_id', 'reporting_period', 'trigger'])]

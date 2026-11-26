@@ -50,12 +50,12 @@
                         <twig:ux:icon name="tabler:server" class="icon icon-sm" />
                         {{ 'stats.analysis_explorer.library.card.system_source'|trans({}, 'statistics') }}
                     {% else %}
-                        <twig:ux:icon name="tabler:user" class="icon icon-sm" />
-                        {% if savedViewAuthorUrl and savedViewAuthorName %}
-                            <a href="{{ savedViewAuthorUrl }}">{{ savedViewAuthorName }}</a>
-                        {% else %}
-                            {{ savedViewAuthorName ?: ('stats.analysis_explorer.library.card.unknown_author'|trans({}, 'statistics')) }}
-                        {% endif %}
+                        {{ include('@Statistics/analysis_explorer_library/_author.html.twig', {
+                            authorName: savedViewAuthorName,
+                            authorDisplayName: savedViewAuthorDisplayName,
+                            authorUserId: savedViewAuthorUserId,
+                            authorUrl: savedViewAuthorUrl,
+                        }) }}
                     {% endif %}
                     {% if savedViewActivityIso %}
                         <span class="mx-1" aria-hidden="true">·</span>

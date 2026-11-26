@@ -2,7 +2,7 @@
 
 **Audience:** Operators and developers importing IVENA closure lists.
 
-The closure import is a beta. Only users with `ROLE_CLOSURE_BETA` can choose it, see those imports in the participant list, or open them. `ROLE_ADMIN` does not include that role. Assign it on the user in EasyAdmin. The EasyAdmin import screen still lists every import for operators.
+Closure lists are imported like allocation lists: every participant with the import permission for a hospital can choose the type, and sees and opens those imports like other imports. The import left the beta in #1350; the former opt-in role `ROLE_CLOSURE_BETA` no longer exists. The EasyAdmin import screen lists every import for operators.
 
 Allocation imports are unchanged. The flag `departmentWasClosed` on allocations is not derived from these intervals.
 
@@ -57,6 +57,16 @@ The import is always stored on the hospital selected when the upload starts. Tha
 - Several short names keep a row only when it exactly matches the selected hospital's catalog name. Other rows reject (`HOSPITAL_MISMATCH`). Split the file and import each hospital on its own. If none of the names match, nothing is stored.
 
 A catalog name that normalizes to more than one hospital is not treated as a unique contradiction. There is no alias list and no fuzzy match. Hospitals have no external id. The long `Krankenhaus` column is an address line, not an id.
+
+### Target hospital override (dev and demo)
+
+A real closure export can be loaded into a fictional demo hospital (#878). In the `dev` and `demo` environments the Options section of the upload form offers **Override target hospital** to everyone who may upload to the selected hospital (#1352, [import-pipeline.md](import-pipeline.md#import-options-and-the-target-hospital-override)). When it is ticked, a single `Krankenhaus-Kurzname` that names a different catalog hospital no longer rejects the rows (`HOSPITAL_CONFLICT`); the rows are stored on the selected hospital.
+
+- Only the hospital assignment changes. Parsing, the closure catalogs, speciality and department resolution, duplicate handling and rejects stay as without the override. Specialities and departments are one global catalog; there is no per-hospital list of departments, so a row with an unknown speciality or department is rejected as usual.
+- A file with several hospital names is still checked row by row (`HOSPITAL_MISMATCH`). The override does not spread one file across hospitals.
+- The import records `hospital_override = true`; when a conflicting name was bypassed, `hospital_override_source_label` keeps it. The import page shows a notice with that name.
+- Outside `dev` and `demo` the field does not exist (a posted value makes the form invalid) and a stored flag is ignored: the run applies the normal checks and logs `closure.import.hospital_override.ignored`. The check is `ImportHospitalOverride`.
+- The rows stay real operational data. Assigning them to a fictional hospital does not make them synthetic ([synthetic-data-generator.md](../../03-development/synthetic-data-generator.md)).
 
 ## Rejects
 

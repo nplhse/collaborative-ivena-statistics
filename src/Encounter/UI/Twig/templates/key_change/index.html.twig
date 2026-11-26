@@ -1,0 +1,90 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'encounter.key_change.title'|trans({}, 'encounter') }} - {{ hospital.name }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    {{ include('@Allocation/hospitals/_hospital_edit_page_header.html.twig') }}
+{% endblock %}
+
+{% block page_body %}
+    {% embed '@Allocation/hospitals/_edit_shell.html.twig' with {
+        hospital: hospital,
+        activeSection: 'encounter.key_change',
+        summary: summary,
+        form: form,
+    } %}
+        {% block edit_card_title %}{{ 'encounter.key_change.title'|trans({}, 'encounter') }}{% endblock %}
+        {% block edit_content %}
+            <p data-test="encounter-key-change-purpose">{{ 'encounter.key_change.purpose'|trans({}, 'encounter') }}</p>
+
+            <h4>{{ 'encounter.key_change.when.title'|trans({}, 'encounter') }}</h4>
+            <p data-test="encounter-key-change-when">{{ 'encounter.key_change.when.text'|trans({}, 'encounter') }}</p>
+
+            {% if summary.key_change_in_progress %}
+                <div class="alert alert-warning mb-0" role="alert" data-test="encounter-key-change-in-progress">
+                    {{ 'encounter.key_change.in_progress'|trans({}, 'encounter') }}
+                </div>
+            {% else %}
+                <h4>{{ 'encounter.key_change.consequence.title'|trans({}, 'encounter') }}</h4>
+                <ul data-test="encounter-key-change-consequences">
+                    <li>{{ 'encounter.key_change.consequence.key_file'|trans({}, 'encounter') }}</li>
+                    <li>{{ 'encounter.key_change.consequence.no_matching'|trans({}, 'encounter') }}</li>
+                </ul>
+
+                <div data-controller="encounter-key-change"
+                     data-encounter-key-change-hospital-name-value="{{ hospital.name }}"
+                     data-encounter-key-change-delete-message-value="{{ 'encounter.key_change.modal.delete'|trans({encounters: summary.encounters, imports: summary.imports, links: summary.links, decisions: summary.decisions}, 'encounter') }}"
+                     data-encounter-key-change-keep-message-value="{{ 'encounter.key_change.modal.keep'|trans({}, 'encounter') }}">
+                {{ form_start(form, {attr: {
+                    id: 'encounter-key-change-form',
+                    'data-test': 'encounter-key-change-form',
+                    'data-encounter-key-change-target': 'form',
+                }}) }}
+                    <div class="mb-3">
+                        <h4>{{ 'encounter.key_change.field.option'|trans({}, 'encounter') }}</h4>
+                        {{ form_errors(form.option) }}
+                        {% for choice in form.option %}
+                            <div class="form-check mb-2" data-test="encounter-key-change-option-{{ choice.vars.value }}">
+                                <input class="form-check-input" type="radio" id="{{ choice.vars.id }}" name="{{ choice.vars.full_name }}" value="{{ choice.vars.value }}" required{{ choice.vars.checked ? ' checked' }}>
+                                <label class="form-check-label" for="{{ choice.vars.id }}">
+                                    <strong>{{ ('encounter.key_change.option.' ~ choice.vars.value)|trans({}, 'encounter') }}</strong>
+                                    <span class="d-block text-secondary">{{ ('encounter.key_change.option.' ~ choice.vars.value ~ '_help')|trans({encounters: summary.encounters, imports: summary.imports, links: summary.links, decisions: summary.decisions}, 'encounter') }}</span>
+                                </label>
+                            </div>
+                            {% do choice.setRendered %}
+                        {% endfor %}
+                        {% do form.option.setRendered %}
+                    </div>
+                    <div class="alert alert-danger mb-0" role="alert" data-test="encounter-key-change-safety">
+                        <h4 class="alert-title text-danger d-flex align-items-center gap-2">
+                            <twig:ux:icon name="tabler:alert-triangle" class="icon" aria-hidden="true" />
+                            {{ 'encounter.key_change.safety.title'|trans({}, 'encounter') }}
+                        </h4>
+                        <p>{{ 'encounter.key_change.safety.text'|trans({}, 'encounter') }}</p>
+                        {{ form_row(form.confirmName, {attr: {
+                            'data-encounter-key-change-target': 'name',
+                            'data-action': 'input->encounter-key-change#update',
+                        }}) }}
+                        <button class="btn btn-danger" type="button" data-bs-toggle="modal" data-bs-target="#encounter-key-change-modal" data-encounter-key-change-target="submit">{{ 'encounter.key_change.action.submit'|trans({}, 'encounter') }}</button>
+                    </div>
+                {{ form_end(form) }}
+
+                <twig:Modal id="encounter-key-change-modal" :title="'encounter.key_change.modal.title'|trans({}, 'encounter')" size="sm" :scrollable="false"
+                            data-action="show.bs.modal->encounter-key-change#prepare"
+                            data-test="encounter-key-change-modal">
+                    <div class="modal-body">
+                        <p class="mb-0" data-encounter-key-change-target="message"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">{{ 'action.cancel'|trans({}, 'messages') }}</button>
+                        <button type="submit" form="encounter-key-change-form" class="btn btn-danger">{{ 'encounter.key_change.action.submit'|trans({}, 'encounter') }}</button>
+                    </div>
+                </twig:Modal>
+                </div>
+            {% endif %}
+        {% endblock %}
+        {% block edit_footer %}
+            <a class="btn btn-link" href="{{ path('app_explore_hospital_show', {publicId: hospital.publicId}) }}">{{ 'label.hospital.back_to_profile'|trans({}, 'messages') }}</a>
+        {% endblock %}
+    {% endembed %}
+{% endblock %}

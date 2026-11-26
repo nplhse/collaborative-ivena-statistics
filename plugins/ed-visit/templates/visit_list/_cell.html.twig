@@ -1,0 +1,46 @@
+{# Cells of the visit list (#1178). The visit time links to the detail page, so the list needs no action column.
+   The list sits in a Turbo frame; links to other pages leave it with target="_top" (#1380). #}
+{% set d = 'encounter' %}
+{% if column.key == 'anchor' %}
+    <a class="fw-semibold" href="{{ path('app_explore_ed_visit_show', {visitUid: row.visit_uid}) }}" target="_top" data-testid="encounter-visit-list-link">{{ row.anchor_at|date('d.m.Y, H:i') }}</a>
+    {% if row.substitute %}
+        <small class="text-secondary d-block">{{ 'encounter.visit_list.anchor_assessment'|trans({}, d) }}</small>
+    {% endif %}
+{% elseif column.key == 'age' %}
+    {{ row.age }}
+    <span class="text-secondary">· {{ ('encounter.review.value.sex_' ~ row.sex)|trans({}, d) }}</span>
+{% elseif column.key == 'route' %}
+    {{ ('encounter.arrival_route.' ~ row.arrival_route)|trans({}, d) }}{% if row.arrival_mode and row.arrival_mode != 'self' %} <span class="text-secondary">({{ ('encounter.review.value.mode_' ~ row.arrival_mode)|trans({}, d) }})</span>{% endif %}
+{% elseif column.key == 'triage' %}
+    {% if row.mts_diagram %}
+        {% if row.mts_category %}<span class="badge bg-{{ row.mts_category }} me-1" title="{{ ('encounter.mts.category.' ~ row.mts_category ~ '.name')|trans({}, d) }}"></span>{% endif %}
+        {{ encounter_mts_diagram_name(row.mts_diagram) }}
+        {% if row.mts_category %}<small class="text-secondary d-block">{{ ('encounter.mts.category.' ~ row.mts_category ~ '.name')|trans({}, d) }}</small>{% endif %}
+    {% elseif row.mts_category %}
+        <span class="badge bg-{{ row.mts_category }} me-1"></span>{{ ('encounter.mts.category.' ~ row.mts_category ~ '.name')|trans({}, d) }}
+    {% else %}
+        <span class="text-secondary">–</span>
+    {% endif %}
+{% elseif column.key == 'disposition' %}
+    {{ row.disposition ? ('encounter.disposition.' ~ row.disposition)|trans({}, d) : '–' }}
+{% elseif column.key == 'link' %}
+    <span data-testid="encounter-visit-list-state" data-state="{{ row.link_state }}">
+        {% if row.link_state == 'linked' %}
+            <span class="badge bg-green-lt">{{ 'encounter.visit.link.linked'|trans({}, d) }}</span>
+            {# The case file in Explore needs access to the hospital (ADR 044), which encounter grants do not imply. #}
+            {% if row.allocation_public_id and (context.allocation_links ?? false) %}
+                <a class="small d-block" href="{{ path('app_explore_allocation_show', {publicId: row.allocation_public_id}) }}" target="_top" data-testid="encounter-visit-list-allocation-link">{{ 'encounter.visit.link.allocation'|trans({id: row.allocation_id}, d) }}</a>
+            {% endif %}
+        {% elseif row.link_state == 'pending' %}
+            <span class="badge bg-yellow-lt">{{ 'encounter.visit.link.pending'|trans({}, d) }}</span>
+        {% else %}
+            <span class="text-secondary small">{{ 'encounter.visit.link.unlinked'|trans({}, d) }}</span>
+        {% endif %}
+    </span>
+{% elseif column.key == 'referral' %}
+    {{ row.referral_source ? ('encounter.visit.referral.' ~ row.referral_source)|trans({}, d) : '–' }}
+{% elseif column.key == 'caseStatus' %}
+    {{ row.case_status ? ('encounter.visit.case_status.' ~ row.case_status)|trans({}, d) : '–' }}
+{% elseif column.key == 'department' %}
+    {{ row.department ?? '–' }}
+{% endif %}

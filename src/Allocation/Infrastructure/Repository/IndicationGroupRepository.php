@@ -6,6 +6,7 @@ namespace App\Allocation\Infrastructure\Repository;
 
 use App\Allocation\Domain\Entity\IndicationGroup;
 use App\Allocation\UI\Http\DTO\SpecialityQueryParametersDTO;
+use App\Shared\Infrastructure\Doctrine\SortDirections;
 use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -30,14 +31,14 @@ final class IndicationGroupRepository extends ServiceEntityRepository
         ;
 
         if ('lastChange' === $queryParametersDTO->sortBy) {
-            $qb->orderBy('sortDate', $queryParametersDTO->orderBy);
+            $qb->orderBy('sortDate', SortDirections::fromString($queryParametersDTO->orderBy));
         } else {
             $sortField = match ($queryParametersDTO->sortBy) {
                 'id' => 'g.id',
                 'name' => 'g.name',
                 default => 'g.name',
             };
-            $qb->orderBy($sortField, $queryParametersDTO->orderBy);
+            $qb->orderBy($sortField, SortDirections::fromString($queryParametersDTO->orderBy));
         }
 
         if (null !== $queryParametersDTO->search) {
@@ -57,7 +58,7 @@ final class IndicationGroupRepository extends ServiceEntityRepository
         /** @var list<array{id: int, name: string, category: ?string}> $rows */
         $rows = $this->createQueryBuilder('g')
             ->select('g.id', 'g.name', 'g.category')
-            ->orderBy('g.name', 'ASC')
+            ->orderBy('g.name', \SortDirection::Ascending)
             ->getQuery()
             ->getArrayResult();
 

@@ -80,10 +80,16 @@ updates:
       commit-message:
           prefix: "fix(security)"
 
-    # GitHub Actions: version updates into develop
+    # GitHub Actions: version updates into develop. Workflows pin actions to a commit SHA with
+    # the release as a comment (`@<sha> # v1.2.3`); Dependabot updates both. Pinned actions get
+    # an update for every release, so all of them go into one weekly pull request.
     - package-ecosystem: "github-actions"
       directory: "/"
       target-branch: "develop"
       schedule:
           interval: "weekly"
           day: "sunday"
+      groups:
+          github-actions:
+              patterns:
+                  - "*"

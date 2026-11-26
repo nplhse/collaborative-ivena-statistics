@@ -713,6 +713,22 @@
         <source>validation.import.excel_rejected</source>
         <target>Excel files (.xls, .xlsx) are not supported. Please export your data as CSV.</target>
       </trans-unit>
+      <trans-unit id="impValUploadEnFailed" resname="validation.import.upload_failed">
+        <source>validation.import.upload_failed</source>
+        <target>The file could not be uploaded. Please choose it again.</target>
+      </trans-unit>
+      <trans-unit id="impValUploadAuthorityEn" resname="validation.import.upload_authority_required">
+        <source>validation.import.upload_authority_required</source>
+        <target>Confirm that you are authorised to upload data for this hospital.</target>
+      </trans-unit>
+      <trans-unit id="impValUploadEnConsumed" resname="validation.import.upload_consumed">
+        <source>validation.import.upload_consumed</source>
+        <target>This file has already been used for an import. Please choose the file again.</target>
+      </trans-unit>
+      <trans-unit id="impValHospTypeEn" resname="validation.import.hospital_type_not_allowed">
+        <source>validation.import.hospital_type_not_allowed</source>
+        <target>You may not upload this import type for this hospital. Choose another hospital or type.</target>
+      </trans-unit>
       <trans-unit id="pagev001" resname="page.validation.path_unique">
         <source>page.validation.path_unique</source>
         <target>This path already exists.</target>
@@ -737,6 +753,10 @@
         <source>validation.registration.accept_terms_required</source>
         <target>You must accept the terms and conditions to register.</target>
       </trans-unit>
+      <trans-unit id="termsv001" resname="validation.terms.accept_required">
+        <source>validation.terms.accept_required</source>
+        <target>You must accept the terms of use to continue.</target>
+      </trans-unit>
       <trans-unit id="regv002" resname="validation.registration.identity_taken">
         <source>validation.registration.identity_taken</source>
         <target>This username or email address is already taken.</target>
@@ -744,6 +764,10 @@
       <trans-unit id="usrv001" resname="validation.username.format">
         <source>validation.username.format</source>
         <target>Please use letters and numbers. Periods, underscores, and hyphens are fine, but spaces are not.</target>
+      </trans-unit>
+      <trans-unit id="usrv002" resname="validation.username.digits_only">
+        <source>validation.username.digits_only</source>
+        <target>Please use at least one letter or symbol. Usernames made of digits only are not allowed.</target>
       </trans-unit>
       <trans-unit id="pagev013" resname="page.validation.key_unique">
         <source>page.validation.key_unique</source>
@@ -868,6 +892,106 @@
       <trans-unit id="ExpValEn01" resname="error.export.date_range_invalid">
         <source>error.export.date_range_invalid</source>
         <target>The start date must not be after the end date.</target>
+      </trans-unit>
+      <trans-unit id="EncValAC01F2BD" resname="validation.encounter.grant.user_required">
+        <source>validation.encounter.grant.user_required</source>
+        <target>Choose a user.</target>
+      </trans-unit>
+      <trans-unit id="EncValEE8E9EFC" resname="validation.encounter.grant.actions_required">
+        <source>validation.encounter.grant.actions_required</source>
+        <target>Choose at least one action.</target>
+      </trans-unit>
+      <trans-unit id="EncValD6EF1558" resname="validation.encounter.import.confirmation_required">
+        <source>validation.encounter.import.confirmation_required</source>
+        <target>Confirm that the file comes from the data preparation tool, contains no direct identifiers, that participation is agreed with your hospital's data protection officer and that the data may be used on this platform.</target>
+      </trans-unit>
+      <trans-unit id="EncVal796CE2AF" resname="validation.encounter.import.schema_required">
+        <source>validation.encounter.import.schema_required</source>
+        <target>Choose the schema of the encounter file.</target>
+      </trans-unit>
+      <trans-unit id="valHarReasonRequired" resname="hospital_assignment_request.reason.required">
+        <source>hospital_assignment_request.reason.required</source>
+        <target>Choose your relation to the hospital.</target>
+      </trans-unit>
+      <trans-unit id="valHarHospitalRequired" resname="hospital_assignment_request.hospital.required">
+        <source>hospital_assignment_request.hospital.required</source>
+        <target>Choose a hospital or enter its name.</target>
+      </trans-unit>
+      <trans-unit id="valHarExplanationRequired" resname="hospital_assignment_request.explanation.required">
+        <source>hospital_assignment_request.explanation.required</source>
+        <target>Explain your relation to the hospital.</target>
+      </trans-unit>
+      <trans-unit id="help_page_validation_help_parent_required" resname="page.validation.help_parent_required">
+        <source>page.validation.help_parent_required</source>
+        <target>A help article must be placed below the help start page or another help article.</target>
+      </trans-unit>
+      <trans-unit id="help_page_validation_help_child_type" resname="page.validation.help_child_type">
+        <source>page.validation.help_child_type</source>
+        <target>Pages below the help are help articles. Manage them under “Help”.</target>
+      </trans-unit>
+      <trans-unit id="help_page_validation_help_key_help_only" resname="page.validation.help_key_help_only">
+        <source>page.validation.help_key_help_only</source>
+        <target>Only help articles have a help key.</target>
+      </trans-unit>
+      <trans-unit id="help_page_validation_help_key_unique" resname="page.validation.help_key_unique">
+        <source>page.validation.help_key_unique</source>
+        <target>This help key is already used by another help article.</target>
+      </trans-unit>
+      <trans-unit id="help_page_validation_help_key_format" resname="page.validation.help_key_format">
+        <source>page.validation.help_key_format</source>
+        <target>Use lowercase letters and digits, separated by dots, hyphens or underscores.</target>
+      </trans-unit>
+      <trans-unit id="geo1406a135cfe822" resname="district.ags.invalid">
+        <source>district.ags.invalid</source>
+        <target>The official key must have exactly five digits.</target>
+      </trans-unit>
+      <trans-unit id="geo140695b6ceba42" resname="district.ags.unique">
+        <source>district.ags.unique</source>
+        <target>A district with this official key already exists.</target>
+      </trans-unit>
+      <trans-unit id="cms1578v01en" resname="page.validation.child_pages_numbered_must_be_bool">
+        <source>page.validation.child_pages_numbered_must_be_bool</source>
+        <target>“Number as steps” must be yes or no.</target>
+      </trans-unit>
+      <trans-unit id="cms1578v02en" resname="page.validation.cards_items_required">
+        <source>page.validation.cards_items_required</source>
+        <target>At least one card is required.</target>
+      </trans-unit>
+      <trans-unit id="cms1578v03en" resname="page.validation.cards_too_many">
+        <source>page.validation.cards_too_many</source>
+        <target>At most {max} cards are allowed.</target>
+      </trans-unit>
+      <trans-unit id="cms1578v04en" resname="page.validation.cards_invalid_icon">
+        <source>page.validation.cards_invalid_icon</source>
+        <target>Invalid icon name. Expected for example tabler:info-circle.</target>
+      </trans-unit>
+      <trans-unit id="cms1578v05en" resname="page.validation.cards_invalid_link">
+        <source>page.validation.cards_invalid_link</source>
+        <target>The link must be a path on this site (starting with /) or an http(s) address.</target>
+      </trans-unit>
+      <trans-unit id="cms1578v06en" resname="page.validation.cards_unknown_icon">
+        <source>page.validation.cards_unknown_icon</source>
+        <target>The icon “{icon}” does not exist.</target>
+      </trans-unit>
+      <trans-unit id="cms1590v01en" resname="page.validation.read_more_items_required">
+        <source>page.validation.read_more_items_required</source>
+        <target>At least one link is required.</target>
+      </trans-unit>
+      <trans-unit id="cms1590v02en" resname="page.validation.read_more_too_many">
+        <source>page.validation.read_more_too_many</source>
+        <target>At most {max} links are allowed.</target>
+      </trans-unit>
+      <trans-unit id="cms1590iconen" resname="page.validation.icon_format">
+        <source>page.validation.icon_format</source>
+        <target>Enter an icon such as tabler:file-import.</target>
+      </trans-unit>
+      <trans-unit id="Rsc4DCBEDF9" resname="data_request.field.required">
+        <source>data_request.field.required</source>
+        <target>Please fill in this field.</target>
+      </trans-unit>
+      <trans-unit id="RscC7E2C706" resname="data_request.period.order">
+        <source>data_request.period.order</source>
+        <target>The period ends before it starts.</target>
       </trans-unit>
     </body>
   </file>

@@ -9,7 +9,6 @@ use App\Allocation\Application\ReferenceCatalog\Package\NormalizedIndicationEntr
 use App\Allocation\Application\ReferenceCatalog\Package\ReferenceCatalogPackageReader;
 use App\Allocation\Application\ReferenceCatalog\Package\ReferenceCatalogPackageWriter;
 use App\Allocation\Infrastructure\Faker\Provider\HesseDistrictPolygons;
-use App\Allocation\Infrastructure\Faker\Provider\HesseDistricts;
 use App\DataFixtures\Reference\SyntheticReferenceCatalogBuilder;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -32,6 +31,27 @@ final class SyntheticReferenceCatalogBuilderTest extends KernelTestCase
         self::assertSame(SyntheticReferenceCatalogBuilder::DEFAULT_HOSPITALS, $package->meta->counts['hospital']);
         self::assertGreaterThan(208, $package->meta->counts['indication-raw'], 'variants and unmapped labels on top of the official wording');
         self::assertContains(null, array_map(static fn (\App\Allocation\Application\ReferenceCatalog\Package\RawIndicationEntry $raw): ?string => $raw->target, $package->indicationsRaw), 'unmapped raw labels');
+    }
+
+    public function testEveryDispatchAreaHasItsOfficialDistricts(): void
+    {
+        $package = $this->builder()->build();
+        $areaNames = [];
+        foreach ($package->dispatchAreas as $area) {
+            $areaNames[$area->id] = $area->name;
+        }
+
+        $perArea = [];
+        foreach ($package->districts as $district) {
+            self::assertNotNull($district->dispatchArea);
+            self::assertSame('06', $district->state);
+            $perArea[$areaNames[$district->dispatchArea]][] = $district->ags;
+        }
+
+        self::assertCount(26, $package->districts);
+        self::assertCount(24, $perArea);
+        self::assertSame(['06611', '06633'], $perArea['Kassel']);
+        self::assertSame(['06413', '06438'], $perArea['Offenbach']);
     }
 
     public function testTheSameSeedGivesTheSameBytes(): void
@@ -66,7 +86,7 @@ final class SyntheticReferenceCatalogBuilderTest extends KernelTestCase
             $name = $areaNames[$hospital->area];
             $covered[$name] = true;
             self::assertNotNull($hospital->coordinates);
-            self::assertTrue(HesseDistrictPolygons::contains(HesseDistricts::DISTRICTS[$name]['geo_key'], $hospital->coordinates->lat, $hospital->coordinates->lng), $hospital->name);
+            self::assertTrue(HesseDistrictPolygons::contains($name, $hospital->coordinates->lat, $hospital->coordinates->lng), $hospital->name);
         }
 
         self::assertCount(24, $covered);

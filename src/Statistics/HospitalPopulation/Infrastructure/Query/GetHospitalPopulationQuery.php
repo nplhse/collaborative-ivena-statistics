@@ -58,9 +58,9 @@ final readonly class GetHospitalPopulationQuery
             ->from(Hospital::class, 'h')
             ->innerJoin('h.state', 's')
             ->innerJoin('h.dispatchArea', 'da')
-            ->orderBy('s.name', 'ASC')
-            ->addOrderBy('da.name', 'ASC')
-            ->addOrderBy('h.name', 'ASC')
+            ->orderBy('s.name', \SortDirection::Ascending)
+            ->addOrderBy('da.name', \SortDirection::Ascending)
+            ->addOrderBy('h.name', \SortDirection::Ascending)
             ->getQuery()
             ->getArrayResult();
 

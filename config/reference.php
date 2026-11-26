@@ -828,11 +828,13 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             class_metadata_factory_name?: scalar|Param|null, // Default: "Doctrine\\ORM\\Mapping\\ClassMetadataFactory"
  *             default_repository_class?: scalar|Param|null, // Default: "Doctrine\\ORM\\EntityRepository"
  *             auto_mapping?: scalar|Param|null, // Default: false
+ *             auto_discover_entities?: bool|Param|null, // Registers all entity classes discovered by the container scan, removing the need for explicit "mappings". When not set, enabled if neither "mappings" nor "auto_mapping" is configured and Symfony 8.2 and doctrine/orm 3.6 are available. // Default: null
  *             naming_strategy?: scalar|Param|null, // Default: "doctrine.orm.naming_strategy.default"
  *             quote_strategy?: scalar|Param|null, // Default: "doctrine.orm.quote_strategy.default"
  *             typed_field_mapper?: scalar|Param|null, // Default: "doctrine.orm.typed_field_mapper.default"
  *             entity_listener_resolver?: scalar|Param|null, // Default: null
  *             fetch_mode_subselect_batch_size?: scalar|Param|null,
+ *             use_schema_editor_api?: bool|Param|null, // Set to "true" or "false" to explicitly opt in or out of the schema editor API for schema generation. Requires doctrine/dbal 4.5 or higher and doctrine/orm 3.8 or higher. // Default: null
  *             repository_factory?: scalar|Param|null, // Default: "doctrine.orm.container_repository_factory"
  *             schema_ignore_classes?: list<scalar|Param|null>,
  *             validate_xml_mapping?: bool|Param, // Set to "true" to opt-in to the new mapping driver mode that was added in Doctrine ORM 2.14 and will be mandatory in ORM 3.0. See https://github.com/doctrine/orm/pull/6728. // Default: false
@@ -870,7 +872,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *                 mapping?: scalar|Param|null, // Default: true
  *                 type?: scalar|Param|null,
  *                 dir?: scalar|Param|null,
- *                 alias?: scalar|Param|null,
+ *                 alias?: scalar|Param|null, // Deprecated: The "doctrine.orm.entity_managers..mappings..alias.alias" option is deprecated and will be removed in DoctrineBundle 4.0, as Doctrine ORM no longer supports entity namespace aliases.
  *                 prefix?: scalar|Param|null,
  *                 is_bundle?: bool|Param,
  *             }>,
@@ -976,6 +978,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         },
  *     },
  *     default_transport?: scalar|Param|null, // Default: "default"
+ *     mercure?: array{
+ *         ignore_cookie_domain_errors?: bool|Param, // Render nothing and log a warning, instead of failing, when the authorization cookie of a private stream source cannot be created because the page is served on another domain than the hub // Default: false
+ *     },
  * }
  * @psalm-type TwigExtraConfig = array{
  *     cache?: bool|array{
@@ -1317,6 +1322,28 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             always_remember_me?: bool|Param, // Default: false
  *             remember_me_parameter?: scalar|Param|null, // Default: "_remember_me"
  *         },
+ *         two_factor?: array{
+ *             check_path?: scalar|Param|null, // Default: "/2fa_check"
+ *             post_only?: bool|Param, // Default: true
+ *             auth_form_path?: scalar|Param|null, // Default: "/2fa"
+ *             always_use_default_target_path?: bool|Param, // Default: false
+ *             default_target_path?: scalar|Param|null, // Default: "/"
+ *             success_handler?: scalar|Param|null, // Default: null
+ *             failure_handler?: scalar|Param|null, // Default: null
+ *             authentication_required_handler?: scalar|Param|null, // Default: null
+ *             auth_code_parameter_name?: scalar|Param|null, // Default: "_auth_code"
+ *             trusted_parameter_name?: scalar|Param|null, // Default: "_trusted"
+ *             remember_me_sets_trusted?: scalar|Param|null, // Default: false
+ *             multi_factor?: bool|Param, // Default: false
+ *             prepare_on_login?: bool|Param, // Default: false
+ *             prepare_on_access_denied?: bool|Param, // Default: false
+ *             enable_csrf?: scalar|Param|null, // Default: false
+ *             csrf_parameter?: scalar|Param|null, // Default: "_csrf_token"
+ *             csrf_token_id?: scalar|Param|null, // Default: "two_factor"
+ *             csrf_header?: scalar|Param|null, // Default: null
+ *             csrf_token_manager?: scalar|Param|null, // Default: "scheb_two_factor.csrf_token_manager"
+ *             provider?: scalar|Param|null, // Default: null
+ *         },
  *     }>,
  *     access_control?: list<array{ // Default: []
  *         request_matcher?: scalar|Param|null, // Default: null
@@ -1523,7 +1550,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         reset?: array{
  *             connections?: list<scalar|Param|null>,
  *             entity_managers?: list<scalar|Param|null>,
- *             mode?: \Zenstruck\Foundry\ORM\ResetDatabase\ResetDatabaseMode::SCHEMA|\Zenstruck\Foundry\ORM\ResetDatabase\ResetDatabaseMode::MIGRATE|"schema"|"migrate"|Param, // Reset mode to use with ResetDatabase trait // Default: "schema"
+ *             mode?: null|\Zenstruck\Foundry\ORM\ResetDatabase\ResetDatabaseMode::SCHEMA|\Zenstruck\Foundry\ORM\ResetDatabase\ResetDatabaseMode::MIGRATE|\Zenstruck\Foundry\ORM\ResetDatabase\ResetDatabaseMode::AUTO|"schema"|"migrate"|"auto"|Param, // Reset mode to use with ResetDatabase trait ("auto" migrates if the app has migrations, otherwise resets the schema) // Default: null
  *             migrations?: array{
  *                 configurations?: list<scalar|Param|null>,
  *             },
@@ -1580,6 +1607,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     dsn?: scalar|Param|null, // If this value is not provided, the SDK will try to read it from the SENTRY_DSN environment variable. If that variable also does not exist, the SDK will not send any events.
  *     register_error_listener?: bool|Param, // Default: true
  *     register_error_handler?: bool|Param, // Default: true
+ *     register_monolog_handler?: bool|Param, // EXPERIMENT: automatically push a Sentry handler onto every Monolog channel (requires MonologBundle). // Default: false
  *     logger?: scalar|Param|null, // The service ID of the PSR-3 logger used to log messages coming from the SDK client. Be aware that setting the same logger of the application may create a circular loop when an event fails to be sent. // Default: null
  *     options?: array{
  *         integrations?: mixed, // Default: []
@@ -1587,7 +1615,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         prefixes?: list<scalar|Param|null>,
  *         sample_rate?: float|Param, // The sampling factor to apply to events. A value of 0 will deny sending any event, and a value of 1 will send all events.
  *         enable_tracing?: bool|Param,
- *         traces_sample_rate?: float|Param, // The sampling factor to apply to transactions. A value of 0 will deny sending any transaction, and a value of 1 will send all transactions.
+ *         traces_sample_rate?: float|Param, // The sampling factor to apply to transactions. A value of 0 will deny sending any transaction, and a value of 1 will send all transactions. A value of null disables tracing unless "traces_sampler" is set.
  *         traces_sampler?: scalar|Param|null,
  *         profiles_sample_rate?: float|Param, // The sampling factor to apply to profiles. A value of 0 will deny sending any profiles, and a value of 1 will send all profiles. Profiles are sampled in relation to traces_sample_rate
  *         enable_logs?: bool|Param,
@@ -1605,6 +1633,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         server_name?: scalar|Param|null,
  *         ignore_exceptions?: list<scalar|Param|null>,
  *         ignore_transactions?: list<scalar|Param|null>,
+ *         trace_ignore_status_codes?: list<mixed>,
  *         before_send?: scalar|Param|null,
  *         before_send_transaction?: scalar|Param|null,
  *         before_send_check_in?: scalar|Param|null,
@@ -1694,44 +1723,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             excluded_commands?: list<scalar|Param|null>,
  *         },
  *     },
- * }
- * @psalm-type VichUploaderConfig = array{
- *     default_filename_attribute_suffix?: scalar|Param|null, // Default: "_name"
- *     db_driver?: scalar|Param|null,
- *     storage?: scalar|Param|null, // Default: "file_system"
- *     use_flysystem_to_resolve_uri?: bool|Param, // Default: false
- *     twig?: scalar|Param|null, // twig requires templating // Default: true
- *     form?: scalar|Param|null, // Default: true
- *     metadata?: array{
- *         cache?: scalar|Param|null, // Default: "file"
- *         type?: scalar|Param|null, // Default: "attribute"
- *         file_cache?: array{
- *             dir?: scalar|Param|null, // Default: "%kernel.cache_dir%/vich_uploader"
- *         },
- *         auto_detection?: bool|Param, // Default: true
- *         directories?: list<array{ // Default: []
- *             path?: scalar|Param|null,
- *             namespace_prefix?: scalar|Param|null, // Default: ""
- *         }>,
- *     },
- *     mappings?: array<string, array{ // Default: []
- *         uri_prefix?: scalar|Param|null, // Default: "/uploads"
- *         upload_destination?: scalar|Param|null, // Default: null
- *         namer?: Param|string|array{
- *             service?: scalar|Param|null, // Default: null
- *             options?: mixed, // Default: null
- *         },
- *         directory_namer?: Param|string|array{
- *             service?: scalar|Param|null, // Default: null
- *             options?: mixed, // Default: null
- *         },
- *         delete_on_remove?: scalar|Param|null, // Default: true
- *         erase_fields?: scalar|Param|null, // Default: true
- *         delete_on_update?: scalar|Param|null, // Default: true
- *         inject_on_load?: scalar|Param|null, // Default: false
- *         namer_keep_extension?: scalar|Param|null, // Default: false
- *         db_driver?: scalar|Param|null, // Default: null
- *     }>,
  * }
  * @psalm-type DamaDoctrineTestConfig = array{
  *     enable_static_connection?: mixed, // Default: true
@@ -1955,6 +1946,32 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     exclude_paths?: list<scalar|Param|null>,
  *     ignore_selectors?: list<scalar|Param|null>,
  * }
+ * @psalm-type SchebTwoFactorConfig = array{
+ *     persister?: scalar|Param|null, // Default: "scheb_two_factor.persister.doctrine"
+ *     model_manager_name?: scalar|Param|null, // Default: null
+ *     security_tokens?: list<scalar|Param|null>,
+ *     ip_whitelist?: list<scalar|Param|null>,
+ *     ip_whitelist_provider?: scalar|Param|null, // Default: "scheb_two_factor.default_ip_whitelist_provider"
+ *     two_factor_token_factory?: scalar|Param|null, // Default: "scheb_two_factor.default_token_factory"
+ *     two_factor_provider_decider?: scalar|Param|null, // Default: "scheb_two_factor.default_provider_decider"
+ *     two_factor_condition?: scalar|Param|null, // Default: null
+ *     code_reuse_cache?: scalar|Param|null, // Default: null
+ *     code_reuse_cache_duration?: int|Param, // Default: 60
+ *     code_reuse_default_handler?: scalar|Param|null, // Default: null
+ *     backup_codes?: bool|array{
+ *         enabled?: scalar|Param|null, // Default: false
+ *         manager?: scalar|Param|null, // Default: "scheb_two_factor.default_backup_code_manager"
+ *     },
+ *     totp?: bool|array{
+ *         enabled?: scalar|Param|null, // Default: false
+ *         form_renderer?: scalar|Param|null, // Default: null
+ *         issuer?: scalar|Param|null, // Default: null
+ *         server_name?: scalar|Param|null, // Default: null
+ *         leeway?: int|Param, // Default: 0
+ *         parameters?: list<scalar|Param|null>,
+ *         template?: scalar|Param|null, // Default: "@SchebTwoFactor/Authentication/form.html.twig"
+ *     },
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -1974,9 +1991,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     symfonycasts_verify_email?: SymfonycastsVerifyEmailConfig,
  *     live_component?: LiveComponentConfig,
  *     sentry?: SentryConfig,
- *     vich_uploader?: VichUploaderConfig,
  *     nelmio_security?: NelmioSecurityConfig,
  *     ux_pagination?: UxPaginationConfig,
+ *     scheb_two_factor?: SchebTwoFactorConfig,
  *     "when@demo"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -1997,9 +2014,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         symfonycasts_verify_email?: SymfonycastsVerifyEmailConfig,
  *         live_component?: LiveComponentConfig,
  *         sentry?: SentryConfig,
- *         vich_uploader?: VichUploaderConfig,
  *         nelmio_security?: NelmioSecurityConfig,
  *         ux_pagination?: UxPaginationConfig,
+ *         scheb_two_factor?: SchebTwoFactorConfig,
  *     },
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
@@ -2024,10 +2041,10 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         symfonycasts_verify_email?: SymfonycastsVerifyEmailConfig,
  *         live_component?: LiveComponentConfig,
  *         sentry?: SentryConfig,
- *         vich_uploader?: VichUploaderConfig,
  *         nelmio_security?: NelmioSecurityConfig,
  *         ux_pagination?: UxPaginationConfig,
  *         ux_inspector?: UxInspectorConfig,
+ *         scheb_two_factor?: SchebTwoFactorConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -2048,9 +2065,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         symfonycasts_verify_email?: SymfonycastsVerifyEmailConfig,
  *         live_component?: LiveComponentConfig,
  *         sentry?: SentryConfig,
- *         vich_uploader?: VichUploaderConfig,
  *         nelmio_security?: NelmioSecurityConfig,
  *         ux_pagination?: UxPaginationConfig,
+ *         scheb_two_factor?: SchebTwoFactorConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -2073,10 +2090,10 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         symfonycasts_verify_email?: SymfonycastsVerifyEmailConfig,
  *         live_component?: LiveComponentConfig,
  *         sentry?: SentryConfig,
- *         vich_uploader?: VichUploaderConfig,
  *         dama_doctrine_test?: DamaDoctrineTestConfig,
  *         nelmio_security?: NelmioSecurityConfig,
  *         ux_pagination?: UxPaginationConfig,
+ *         scheb_two_factor?: SchebTwoFactorConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,

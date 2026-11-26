@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\Benchmarking\Stub;
 
+use App\Statistics\Application\DTO\StatisticsDrawerFilter;
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Benchmarking\Application\Contract\BenchmarkAggregationProviderInterface;
@@ -32,6 +33,7 @@ final readonly class FixedBenchmarkAggregationProvider implements BenchmarkAggre
         StatisticsPeriodBounds $primaryPeriod,
         StatisticsScopeCriteria $comparisonScope,
         StatisticsPeriodBounds $comparisonPeriod,
+        ?StatisticsDrawerFilter $drawerFilter = null,
     ): BenchmarkAggregationResult {
         return $this->result;
     }

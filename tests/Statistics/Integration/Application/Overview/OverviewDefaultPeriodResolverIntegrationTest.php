@@ -51,7 +51,7 @@ final class OverviewDefaultPeriodResolverIntegrationTest extends KernelTestCase
             ),
         );
 
-        self::assertSame(StatisticsFilterPeriod::All, $resolver->resolveDefaultPeriod($context));
+        self::assertSame(StatisticsFilterPeriod::Last12Months, $resolver->resolveDefaultPeriod($context));
     }
 
     public function testResolvesAllTimeWhenOnlyThreeMonthsHaveData(): void

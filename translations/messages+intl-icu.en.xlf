@@ -205,13 +205,13 @@
         <source>label.age_group</source>
         <target>Age group</target>
       </trans-unit>
-      <trans-unit id="labelAgeGrp018" resname="label.age_group.0_18">
-        <source>label.age_group.0_18</source>
-        <target>0–18</target>
+      <trans-unit id="labelAgeGrp017" resname="label.age_group.0_17">
+        <source>label.age_group.0_17</source>
+        <target>0–17</target>
       </trans-unit>
-      <trans-unit id="labelAgeGrp1929" resname="label.age_group.19_29">
-        <source>label.age_group.19_29</source>
-        <target>19–29</target>
+      <trans-unit id="labelAgeGrp1829" resname="label.age_group.18_29">
+        <source>label.age_group.18_29</source>
+        <target>18–29</target>
       </trans-unit>
       <trans-unit id="labelAgeGrp3039" resname="label.age_group.30_39">
         <source>label.age_group.30_39</source>
@@ -769,9 +769,13 @@
         <source>label.pagination_results</source>
         <target>{pageSize} records</target>
       </trans-unit>
-      <trans-unit id="dtPagEstEn" resname="label.pagination_numbers_estimated">
-        <source>label.pagination_numbers_estimated</source>
-        <target>Showing approx. {total} results across {pages} pages.</target>
+      <trans-unit id="dtPagCountEn" resname="label.pagination_numbers_counted">
+        <source>label.pagination_numbers_counted</source>
+        <target>{count, plural, one {1 result} other {{total} results}} across {pageCount, plural, one {1 page} other {{pages} pages}}.</target>
+      </trans-unit>
+      <trans-unit id="dtPagMoreEn" resname="label.pagination_numbers_more_than">
+        <source>label.pagination_numbers_more_than</source>
+        <target>More than {total} results.</target>
       </trans-unit>
       <trans-unit id="dtPagShowEn" resname="label.pagination_showing_results">
         <source>label.pagination_showing_results</source>
@@ -997,7 +1001,7 @@
       </trans-unit>
       <trans-unit id="NkgZk7H" resname="text.settings.account_intro">
         <source>text.settings.account_intro</source>
-        <target>Manage your account profile, email, and password.</target>
+        <target>Manage your profile details, email address and language.</target>
       </trans-unit>
       <trans-unit id="notif05" resname="text.settings.notifications_intro">
         <source>text.settings.notifications_intro</source>

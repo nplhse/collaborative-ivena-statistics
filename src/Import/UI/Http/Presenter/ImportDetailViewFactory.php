@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Import\UI\Http\Presenter;
 
+use App\Import\Application\DTO\ImportTypeDetailSection;
+use App\Import\Application\DTO\ImportTypeRecordAction;
+use App\Import\Application\Service\ImportTypeExtensionRegistry;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\UI\Http\Presenter\Coverage\ImportCoverageViewFactory;
@@ -25,6 +28,7 @@ final readonly class ImportDetailViewFactory
         private TranslatorInterface $translator,
         private UrlGeneratorInterface $urlGenerator,
         private ImportCoverageViewFactory $coverageViewFactory,
+        private ImportTypeExtensionRegistry $typeExtensions,
     ) {
     }
 
@@ -42,6 +46,7 @@ final readonly class ImportDetailViewFactory
 
         $importedCount = $import->getRowsPassed() ?? 0;
         $coverage = $this->coverageViewFactory->create($import);
+        $typeSection = ImportType::ENCOUNTER === $type ? $this->typeExtensions->for($type)?->detailSection($import) : null;
 
         return match ($type) {
             ImportType::ALLOCATION => new ImportDetailView(
@@ -65,6 +70,7 @@ final readonly class ImportDetailViewFactory
                     ),
                 ],
                 coverage: $coverage,
+                showsDeduplicationBreakdown: true,
             ),
             ImportType::CLOSURE => new ImportDetailView(
                 typeLabel: $this->trans('label.import.type.closure'),
@@ -82,7 +88,35 @@ final readonly class ImportDetailViewFactory
                 ],
                 coverage: $coverage,
             ),
+            // Owned by the Encounter context, which adds its report section and record links (`import.type_extension`).
+            ImportType::ENCOUNTER => new ImportDetailView(
+                typeLabel: $this->trans('label.import.type.encounter'),
+                // Known visits pass validation but are skipped; only inserted visits count as imported (#1463).
+                importedRecordsLabel: $this->trans('import.summary.encounters_imported', ['count' => $typeSection->importedRecordCount ?? $importedCount]),
+                showsDeduplication: true,
+                deleteConfirmation: $this->confirmation($import, 'import.delete.modal.body.encounter'),
+                reprocessConfirmation: $this->confirmation($import, 'import.reprocess.modal.body.encounter'),
+                recordActions: $this->extensionRecordActions($typeSection),
+                coverage: $coverage,
+                typeSection: $typeSection,
+            ),
         };
+    }
+
+    /**
+     * @return list<ImportDetailAction>
+     */
+    private function extensionRecordActions(?ImportTypeDetailSection $section): array
+    {
+        return array_map(
+            static fn (ImportTypeRecordAction $action): ImportDetailAction => new ImportDetailAction(
+                label: $action->label,
+                url: $action->url,
+                icon: $action->icon,
+                variant: 'outline-primary',
+            ),
+            $section->recordActions ?? [],
+        );
     }
 
     private function closureAnalyticsUrl(Import $import): string

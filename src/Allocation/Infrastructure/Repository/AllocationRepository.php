@@ -469,7 +469,7 @@ SQL;
         $qb = $this->createQueryBuilder('a')
             ->where('a.createdAt >= :from')
             ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('a.createdAt', 'ASC');
+            ->orderBy('a.createdAt', \SortDirection::Ascending);
         $this->applyCreatedAtBefore($qb, $toExclusive);
 
         /** @var Allocation[] $rows */
@@ -522,7 +522,7 @@ SQL;
             ->andWhere('a.hospital IN (:hospitalIds)')
             ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->setParameter('hospitalIds', $hospitalIds)
-            ->orderBy('a.createdAt', 'ASC');
+            ->orderBy('a.createdAt', \SortDirection::Ascending);
         $this->applyCreatedAtBefore($qb, $toExclusive);
 
         /** @var Allocation[] $rows */
@@ -979,7 +979,7 @@ SQL;
         $qb = $this->createQueryBuilder('a')
             ->where('a.createdAt >= :from')
             ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('a.createdAt', 'ASC');
+            ->orderBy('a.createdAt', \SortDirection::Ascending);
         $this->applyCreatedAtBefore($qb, $toExclusive);
 
         if (null !== $hospitalIds) {
@@ -1022,7 +1022,7 @@ SQL;
         $qb = $this->createQueryBuilder('a')
             ->where('a.createdAt >= :from')
             ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('a.createdAt', 'ASC');
+            ->orderBy('a.createdAt', \SortDirection::Ascending);
         $this->applyCreatedAtBefore($qb, $toExclusive);
 
         if (null !== $hospitalIds) {

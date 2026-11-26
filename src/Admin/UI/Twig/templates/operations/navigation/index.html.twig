@@ -1,0 +1,290 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% trans_default_domain 'admin' %}
+
+{% block content_title %}{{ 'navigation.inspector.title'|trans }}{% endblock %}
+
+{% macro short_class(class) %}<span class="nav-inspector-mono" title="{{ class }}">{{ class|split('\\')|last }}</span>{% endmacro %}
+
+{# Deviations only: a visible entry off the active path has no status. #}
+{% macro status(node, menu) %}
+    {% if node.visibility.value == 'orphaned' %}
+        <span class="nav-inspector-pill is-error" data-visibility="orphaned">{{ 'navigation.inspector.status.orphaned'|trans }}</span>
+    {% elseif node.visibility.value == 'denied' %}
+        <span class="nav-inspector-pill is-hidden" data-visibility="denied">{{ 'navigation.inspector.status.denied'|trans({attribute: node.item.grantedAttribute}) }}</span>
+    {% elseif node.visibility.value != 'visible' %}
+        <span class="nav-inspector-pill is-hidden" data-visibility="{{ node.visibility.value }}">{{ ('navigation.inspector.status.' ~ node.visibility.value)|trans }}</span>
+    {% endif %}
+    {% if node.unknownRoutes is not empty %}
+        <span class="nav-inspector-pill is-error">{{ 'navigation.inspector.status.unknown_route'|trans }}</span>
+    {% endif %}
+    {% if node.active %}
+        <span class="nav-inspector-pill is-active" data-nav-inspector-active>{{ 'navigation.inspector.status.active'|trans({rule: ('navigation.inspector.rule.' ~ menu.activeRule.value)|trans}) }}</span>
+    {% elseif node.onActivePath %}
+        <span class="nav-inspector-pill is-path">{{ 'navigation.inspector.status.on_path'|trans }}</span>
+    {% endif %}
+{% endmacro %}
+
+{% macro details(node, menu) %}
+    {% set item = node.item %}
+    <h3 class="h6 d-flex gap-2 align-items-center mb-2">
+        {% if item.icon %}{{ ux_icon(item.icon, {class: 'nav-inspector-icon', 'aria-hidden': 'true'}) }}{% endif %}
+        {{ node.label ? node.label.text : item.id }}
+    </h3>
+    <div class="mb-3">
+        {% if node.visibility.value == 'visible' and node.unknownRoutes is empty and not node.onActivePath %}
+            <span class="text-body-secondary">{{ 'navigation.inspector.status.visible'|trans }}</span>
+        {% else %}
+            {{ _self.status(node, menu) }}
+        {% endif %}
+    </div>
+    <dl class="nav-inspector-props">
+        <dt>{{ 'navigation.inspector.detail.id'|trans }}</dt>
+        <dd><span class="nav-inspector-mono">{{ item.id }}</span> <span class="text-body-secondary">← {{ item.parentId }}</span></dd>
+        <dt>{{ 'navigation.inspector.detail.label'|trans }}</dt>
+        <dd>
+            {% if node.label is null %}–
+            {% elseif node.label.source == 'message' %}<span class="nav-inspector-mono">{{ node.label.key }}</span> <span class="text-body-secondary">· {{ node.label.domain ?? 'messages' }}</span>
+            {% elseif node.label.source == 'literal' %}{{ 'navigation.inspector.literal_label'|trans }}
+            {% else %}<span class="nav-inspector-mono">{{ node.label.source }}</span>{% endif %}
+        </dd>
+        <dt>{{ 'navigation.inspector.detail.route'|trans }}</dt>
+        <dd>
+            {% if item.route %}<span class="nav-inspector-mono">{{ item.route }}</span>{% if item.routeParameters is not empty %} <span class="text-body-secondary nav-inspector-mono">{{ item.routeParameters|json_encode }}</span>{% endif %}
+            {% elseif item.url %}<span class="nav-inspector-mono">{{ item.url }}</span>
+            {% else %}<span class="text-body-secondary">{{ 'navigation.inspector.group_item'|trans }}</span>{% endif %}
+            {% for unknown in node.unknownRoutes %}<div class="text-danger">{{ 'navigation.inspector.status.unknown_route'|trans }}: <span class="nav-inspector-mono">{{ unknown }}</span></div>{% endfor %}
+        </dd>
+        {% if item.detailRoutes is not empty %}
+            <dt>{{ 'navigation.inspector.detail.detail_routes'|trans }}</dt>
+            <dd>{% for detail in item.detailRoutes %}<div class="nav-inspector-mono">{{ detail }}</div>{% endfor %}</dd>
+        {% endif %}
+        {% if item.areaRoutePrefix %}
+            <dt>{{ 'navigation.inspector.area_prefix'|trans }}</dt>
+            <dd><span class="nav-inspector-mono">{{ item.areaRoutePrefix }}*</span></dd>
+        {% endif %}
+        <dt>{{ 'navigation.inspector.detail.permission'|trans }}</dt>
+        <dd>
+            {% if item.grantedAttribute %}<span class="nav-inspector-mono">{{ item.grantedAttribute }}</span> <span class="text-body-secondary">· {{ (node.granted ? 'navigation.inspector.granted' : 'navigation.inspector.not_granted')|trans }}</span>
+            {% else %}<span class="text-body-secondary">{{ 'navigation.inspector.detail.no_permission'|trans }}</span>{% endif %}
+        </dd>
+        <dt>{{ 'navigation.inspector.detail.display'|trans }}</dt>
+        <dd>
+            {{ 'navigation.inspector.weight'|trans }} {{ item.weight }}
+            {% if item.icon %} · <span class="nav-inspector-mono">{{ item.icon }}</span>{% endif %}
+            {% if item.badge %} · <twig:ea:Badge color="primary">{{ item.badge.label|trans }}</twig:ea:Badge> <span class="text-body-secondary">{{ item.badge.color.value }}</span>{% endif %}
+            {% if item.sharedFilterState %} · <span class="nav-inspector-mono">sharedFilterState</span>{% endif %}
+        </dd>
+        <dt>{{ 'navigation.inspector.detail.provider'|trans }}</dt>
+        <dd><span class="nav-inspector-mono">{{ node.provider }}</span></dd>
+    </dl>
+{% endmacro %}
+
+{% macro nodes(nodes, menu, groupProvider) %}
+    {% for node in nodes %}
+        {% set item = node.item %}
+        {% set hidden = node.visibility.value != 'visible' %}
+        <li data-nav-node="{{ item.id }}" data-nav-inspector-item="{{ item.id }}"
+            data-nav-text="{{ ([node.label ? node.label.text : '', item.id, item.route ?? '']|merge(item.detailRoutes))|join(' ') }}"
+            {%- if hidden or node.unknownRoutes is not empty %} data-nav-issue{% endif %}
+            {%- if hidden %} data-nav-hidden{% endif %}
+            {%- if node.onActivePath %} data-nav-on-path{% endif %}>
+            <div class="nav-inspector-row{{ hidden ? ' is-hidden' }}{{ node.onActivePath ? ' is-on-path' }}" role="button" tabindex="0" aria-pressed="false"
+                 data-nav-row="{{ item.id }}"
+                 data-action="click->navigation-inspector#select keydown.enter->navigation-inspector#select:prevent keydown.space->navigation-inspector#select:prevent">
+                <div class="nav-inspector-who">
+                    {% if node.depth == 0 %}
+                        {% if item.icon %}{{ ux_icon(item.icon, {class: 'nav-inspector-icon', 'aria-hidden': 'true'}) }}{% else %}<span class="nav-inspector-icon" aria-hidden="true"></span>{% endif %}
+                    {% endif %}
+                    <div class="nav-inspector-text">
+                        <span class="nav-inspector-label">{{ node.label ? node.label.text : item.id }}</span>
+                        {% if item.badge %}<twig:ea:Badge color="primary">{{ item.badge.label|trans }}</twig:ea:Badge>{% endif %}
+                        {% if node.provider != groupProvider %}<span class="nav-inspector-provider-diff">{{ 'navigation.inspector.provider_diff'|trans({provider: node.provider|split('\\')|last}) }}</span>{% endif %}
+                        {% if item.route %}<div class="nav-inspector-route">{{ item.route }}{% if item.routeParameters is not empty %} {{ item.routeParameters|map((value, key) => key ~ '=' ~ value)|join('&') }}{% endif %}</div>{% endif %}
+                    </div>
+                </div>
+                <div class="nav-inspector-status">{{ _self.status(node, menu) }}</div>
+            </div>
+            {% if node.children is not empty %}
+                <ul>{{ _self.nodes(node.children, menu, groupProvider) }}</ul>
+            {% endif %}
+            <template data-nav-details="{{ item.id }}">{{ _self.details(node, menu) }}</template>
+        </li>
+    {% endfor %}
+{% endmacro %}
+
+{% block main %}
+    <form method="get" class="card mb-4" data-testid="nav-inspector-form">
+        <div class="card-body row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label" for="nav-inspector-user">{{ 'navigation.inspector.form.user'|trans }}</label>
+                <input type="text" class="form-control" id="nav-inspector-user" name="user" value="{{ username }}" placeholder="{{ 'navigation.inspector.form.user_placeholder'|trans }}" autocomplete="off">
+            </div>
+            <div class="col-md">
+                <label class="form-label" for="nav-inspector-route">{{ 'navigation.inspector.form.route'|trans }}</label>
+                <input type="text" class="form-control" id="nav-inspector-route" name="route" value="{{ route }}" placeholder="app_stats_insights_dimension" autocomplete="off" spellcheck="false">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="nav-inspector-parameters">{{ 'navigation.inspector.form.parameters'|trans }}</label>
+                <input type="text" class="form-control" id="nav-inspector-parameters" name="parameters" value="{{ parameter_query }}" placeholder="dimension=occasions" autocomplete="off" spellcheck="false">
+            </div>
+            {# auto width: the buttons of the EasyAdmin 5.9 design no longer fit into a fixed col-md-2 #}
+            <div class="col-md-auto d-flex gap-2">
+                <twig:ea:Button color="primary">{{ 'navigation.inspector.form.submit'|trans({}, 'admin') }}</twig:ea:Button>
+                <twig:ea:Button htmlElement="a" href="?">{{ 'navigation.inspector.form.reset'|trans({}, 'admin') }}</twig:ea:Button>
+            </div>
+        </div>
+        <div class="card-footer small text-body-secondary">
+            {% if unknown_user %}
+                <span class="text-danger" data-testid="nav-inspector-unknown-user">{{ 'navigation.inspector.unknown_user'|trans({username: username}) }}</span>
+                {{ 'navigation.inspector.evaluated_for_current'|trans }}
+            {% elseif inspection.userIdentifier %}
+                {{ 'navigation.inspector.evaluated_for_user'|trans({username: inspection.userIdentifier}) }}
+            {% else %}
+                {{ 'navigation.inspector.evaluated_for_current'|trans }}
+            {% endif %}
+        </div>
+    </form>
+
+    <section class="mb-4" data-testid="nav-inspector-warnings">
+        {% if inspection.warningCount == 0 %}
+            <p class="nav-inspector-summary mb-0">{{ 'navigation.inspector.warnings.none'|trans }}</p>
+        {% else %}
+            <twig:ea:Alert variant="danger" title="{{ 'navigation.inspector.warnings.title'|trans({}, 'admin') }}" class="mb-0">
+                {% for menu in inspection.menus|filter(menu => menu.warningCount > 0) %}
+                    <div class="mb-2" data-nav-inspector-warnings="{{ menu.menu.value }}">
+                        <strong>{{ ('navigation.inspector.menu.' ~ menu.menu.value)|trans({}, 'admin') }}</strong>
+                        <ul class="mb-0">
+                            {% for problem in menu.problems %}<li>{{ problem }}</li>{% endfor %}
+                            {% for claimedRoute, ids in menu.duplicateRouteClaims %}<li>{{ 'navigation.inspector.warnings.duplicate_claim'|trans({route: claimedRoute, ids: ids|join(', ')}, 'admin') }}</li>{% endfor %}
+                            {% for overlap in menu.overlappingAreaRoutePrefixes %}<li>{{ 'navigation.inspector.warnings.overlapping_prefix'|trans({overlap: overlap}, 'admin') }}</li>{% endfor %}
+                            {% for unknown in menu.unknownRoutes %}<li>{{ 'navigation.inspector.warnings.unknown_route'|trans({route: unknown}, 'admin') }}</li>{% endfor %}
+                        </ul>
+                    </div>
+                {% endfor %}
+            </twig:ea:Alert>
+        {% endif %}
+    </section>
+
+    {% if inspection.route %}
+        <section class="mb-4" data-testid="nav-inspector-route-check">
+            <h2 class="h6">{{ 'navigation.inspector.route_check.title'|trans({route: inspection.route}) }}{{ include('@Admin/_info_tooltip.html.twig', {text: 'navigation.inspector.route_check.hint'|trans({}, 'admin')}) }}</h2>
+            <table class="table table-sm align-middle mb-1">
+                <thead>
+                    <tr>
+                        <th>{{ 'navigation.inspector.route_check.menu'|trans }}</th>
+                        <th>{{ 'navigation.inspector.route_check.path'|trans }}</th>
+                        <th>{{ 'navigation.inspector.route_check.rule'|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for menu in inspection.menus %}
+                        <tr data-nav-inspector-route-menu="{{ menu.menu.value }}">
+                            <td>{{ ('navigation.inspector.menu.' ~ menu.menu.value)|trans }}</td>
+                            <td>
+                                {% if menu.routeCheckError %}
+                                    <span class="text-danger">{{ menu.routeCheckError }}</span>
+                                {% elseif menu.activePath is empty %}
+                                    <span class="text-body-secondary">{{ 'navigation.inspector.route_check.no_match'|trans }}</span>
+                                {% else %}
+                                    <span class="nav-inspector-mono" data-nav-inspector-path>{{ menu.activePath|join(' › ') }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{% if menu.activeRule %}<span data-nav-inspector-rule="{{ menu.activeRule.value }}">{{ ('navigation.inspector.rule.' ~ menu.activeRule.value)|trans }}</span>{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    {% endif %}
+
+    <ul class="nav nav-tabs" role="tablist">
+        {% for menu in inspection.menus %}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link{{ loop.first ? ' active' }}" id="nav-inspector-tab-{{ menu.menu.value }}" data-bs-toggle="tab" data-bs-target="#nav-inspector-menu-{{ menu.menu.value }}"
+                        type="button" role="tab" aria-controls="nav-inspector-menu-{{ menu.menu.value }}" aria-selected="{{ loop.first ? 'true' : 'false' }}">
+                    {{ ('navigation.inspector.menu.' ~ menu.menu.value)|trans }}
+                    {% if menu.warningCount > 0 %}<twig:ea:Badge color="danger" class="ms-1">{{ menu.warningCount }}</twig:ea:Badge>{% endif %}
+                </button>
+            </li>
+        {% endfor %}
+    </ul>
+    <div class="tab-content mb-4">
+        {% for menu in inspection.menus %}
+            <div class="tab-pane fade{{ loop.first ? ' show active' }}" id="nav-inspector-menu-{{ menu.menu.value }}" role="tabpanel"
+                 aria-labelledby="nav-inspector-tab-{{ menu.menu.value }}" data-testid="nav-inspector-menu-{{ menu.menu.value }}">
+                <div class="nav-inspector-layout" data-controller="navigation-inspector">
+                    <div class="card nav-inspector-card">
+                        <div class="nav-inspector-filters">
+                            <input type="search" class="form-control form-control-sm nav-inspector-search" placeholder="{{ 'navigation.inspector.filter.search'|trans }}" aria-label="{{ 'navigation.inspector.filter.search'|trans }}"
+                                   data-navigation-inspector-target="search" data-action="input->navigation-inspector#filter">
+                            <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'navigation.inspector.filter.scope'|trans }}">
+                                <twig:ea:Button type="button" size="sm" aria-pressed="true" data-scope="all" data-navigation-inspector-target="scope" data-action="navigation-inspector#showScope">{{ 'navigation.inspector.filter.all'|trans({}, 'admin') }}</twig:ea:Button>
+                                <twig:ea:Button type="button" size="sm" aria-pressed="false" data-scope="issues" data-navigation-inspector-target="scope" data-action="navigation-inspector#showScope">{{ 'navigation.inspector.filter.issues'|trans({}, 'admin') }}</twig:ea:Button>
+                            </div>
+                            <div class="form-check form-switch mb-0">
+                                <input class="form-check-input" type="checkbox" id="nav-inspector-hidden-{{ menu.menu.value }}" checked data-navigation-inspector-target="showHidden" data-action="navigation-inspector#filter">
+                                <label class="form-check-label" for="nav-inspector-hidden-{{ menu.menu.value }}">{{ 'navigation.inspector.filter.show_hidden'|trans }}</label>
+                            </div>
+                            {% if menu.activePath is not empty %}
+                                <div class="form-check form-switch mb-0">
+                                    <input class="form-check-input" type="checkbox" id="nav-inspector-path-{{ menu.menu.value }}" checked data-navigation-inspector-target="onlyPath" data-action="navigation-inspector#filter">
+                                    <label class="form-check-label" for="nav-inspector-path-{{ menu.menu.value }}">{{ 'navigation.inspector.filter.only_path'|trans }}</label>
+                                </div>
+                            {% endif %}
+                            <span class="nav-inspector-count" data-navigation-inspector-target="count" data-template="{{ 'navigation.inspector.filter.count'|trans({shown: '__SHOWN__', total: '__TOTAL__'}) }}"></span>
+                        </div>
+
+                        <dl class="nav-inspector-meta">
+                            <dt>{{ 'navigation.inspector.primary_entry'|trans }}</dt>
+                            <dd>{% if menu.primaryEntryId %}<span class="nav-inspector-mono">{{ menu.primaryEntryId }}</span>{% else %}–{% endif %}</dd>
+                            <dt>{{ 'navigation.inspector.carried_query_keys'|trans }}</dt>
+                            <dd>{% if menu.carriedQueryKeys is not empty %}<span class="nav-inspector-mono">{{ menu.carriedQueryKeys|join(', ') }}</span>{% else %}–{% endif %}</dd>
+                        </dl>
+
+                        <ul class="nav-inspector-tree" data-navigation-inspector-target="tree">
+                            {% for section in menu.sections %}
+                                <li data-nav-section data-nav-inspector-group="{{ section.group.id }}">
+                                    <div class="nav-inspector-section">
+                                        <span>{{ section.label ? section.label.text : 'navigation.inspector.untitled_group'|trans }}</span>
+                                        <span class="nav-inspector-mono">{{ section.group.id }}</span>
+                                        {% if section.visibility.value == 'empty' %}<span class="nav-inspector-pill is-hidden">{{ 'navigation.inspector.status.empty'|trans }}</span>{% endif %}
+                                        <span class="nav-inspector-section-provider">{{ _self.short_class(section.provider) }}</span>
+                                    </div>
+                                    <ul>{{ _self.nodes(section.nodes, menu, section.provider) }}</ul>
+                                </li>
+                            {% endfor %}
+                            {% if menu.orphans is not empty %}
+                                <li data-nav-section data-testid="nav-inspector-orphans-{{ menu.menu.value }}">
+                                    <div class="nav-inspector-section text-danger"><span>{{ 'navigation.inspector.orphans'|trans }}</span></div>
+                                    <ul>{{ _self.nodes(menu.orphans, menu, '') }}</ul>
+                                </li>
+                            {% endif %}
+                        </ul>
+                        <p class="nav-inspector-note" hidden data-navigation-inspector-target="none">{{ 'navigation.inspector.filter.none'|trans }}</p>
+                        {% if menu.activePath is not empty %}
+                            <p class="nav-inspector-note nav-inspector-folded" hidden data-navigation-inspector-target="folded" data-template="{{ 'navigation.inspector.filter.folded'|trans({count: '__COUNT__'}) }}">
+                                <span data-count></span> · <twig:ea:Button type="button" variant="link" size="sm" class="p-0 align-baseline" data-action="navigation-inspector#showAll">{{ 'navigation.inspector.filter.show_all'|trans({}, 'admin') }}</twig:ea:Button>
+                            </p>
+                        {% endif %}
+                    </div>
+                    <aside class="card nav-inspector-panel" aria-live="polite" data-navigation-inspector-target="panel">
+                        <p class="text-body-secondary mb-0">{{ 'navigation.inspector.panel.hint'|trans }}</p>
+                    </aside>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <section data-testid="nav-inspector-unclaimed">
+        <h2 class="h6">{{ 'navigation.inspector.unclaimed.title'|trans }}{{ include('@Admin/_info_tooltip.html.twig', {text: 'navigation.inspector.unclaimed.hint'|trans({}, 'admin')}) }}</h2>
+        {% for entryId, area in inspection.unclaimedAreaRoutes %}
+            <details class="mb-2" data-nav-inspector-unclaimed="{{ entryId }}">
+                <summary><span class="nav-inspector-mono">{{ entryId }}</span> · <span class="nav-inspector-mono">{{ area.prefix }}*</span> · {{ 'navigation.inspector.unclaimed.count'|trans({count: area.routes|length}) }}</summary>
+                <ul class="small mt-2">
+                    {% for name in area.routes %}<li class="nav-inspector-mono">{{ name }}</li>{% endfor %}
+                </ul>
+            </details>
+        {% endfor %}
+    </section>
+{% endblock %}

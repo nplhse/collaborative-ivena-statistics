@@ -62,7 +62,7 @@ final readonly class CatalogActionFactory
         if ($includeReviewWorklist) {
             $actions[] = new CatalogAction(
                 label: $this->translator->trans('catalog.action.review_raw_indications', [], 'allocation'),
-                url: $this->urlGenerator->generate('app_explore_indication_raw_review_worklist'),
+                url: $this->urlGenerator->generate('app_tools_indication_review'),
                 icon: 'tabler:checklist',
             );
         }
@@ -206,7 +206,7 @@ final readonly class CatalogActionFactory
                 url: $this->urlGenerator->generate('app_stats_benchmarking', [
                     StatisticsQueryKeys::SCOPE => StatisticsFilterScope::Hospital->value,
                     StatisticsQueryKeys::HOSPITAL => $id,
-                    StatisticsQueryKeys::PERIOD => StatisticsFilterPeriod::All->value,
+                    StatisticsQueryKeys::PERIOD => StatisticsFilterPeriod::Last12Months->value,
                     StatisticsQueryKeys::COMPARISON_SCOPE => StatisticsFilterScope::HospitalCohort->value,
                     StatisticsQueryKeys::COMPARISON_PERIOD => StatisticsFilterPeriod::AllTime->value,
                 ]),

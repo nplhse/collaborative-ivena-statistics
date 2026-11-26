@@ -69,7 +69,7 @@ final class OverviewKpiPresentationFactoryTest extends TestCase
             $scope,
             StatisticsFilterScope::Hospital === $scope ? 1 : null,
             null,
-            StatisticsFilterPeriod::All,
+            StatisticsFilterPeriod::Last12Months,
             stateId: StatisticsFilterScope::State === $scope ? 1 : null,
             dispatchAreaId: StatisticsFilterScope::DispatchArea === $scope ? 1 : null,
         );

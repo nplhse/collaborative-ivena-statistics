@@ -1,14 +1,14 @@
 .DEFAULT_GOAL = help
 .PHONY: help install install-dev install-guard setup-dev setup-prod prod upgrade-dev upgrade-prod \
-        upgrade warmup update-security-advisories start build up down logs compile consume asset \
-        backup-db backup-files backup restore-db verify-restore-baseline verify-restore env-check \
+        upgrade warmup update-security-advisories start build up down logs db-readonly-role compile consume asset \
+        backup-db backup-files backup backup-verify backup-restore restore-db verify-restore-baseline verify-restore env-check \
         fixtures trans trans-de trans-all trans-de-all lint analyse check fix ci ci-full cs \
         static-analysis audit security check-phpunit-suite-dirs composer-validate check-conflicts \
         lint-yaml lint-container check-deprecations lint-xliff lint-trans lint-trans-de \
         lint-templates swiss-knife swiss-knife-check rector rector-check fix-php lint-php fix-twig \
         lint-twig fix-js lint-js phpstan psalm deptrac deptrac-strict deptrac-baseline test testdox \
         demo-install demo-install-guard demo-start demo-consume demo-reminder \
-        coverage test-unit test-database purge-runtime purge reset clear
+        coverage test-unit test-database test-warmup check-without-ed-visit purge-runtime purge reset clear
 
 # Executables
 COMPOSER      = composer
@@ -80,6 +80,7 @@ upgrade-dev: ## Update deps and schema (dev, keeps existing DB data)
 	@$(CONSOLE) doctrine:migrations:migrate --no-interaction --allow-no-migration
 	@$(SYMFONY) composer upgrade-test-env
 	@$(CONSOLE) importmap:install
+	@$(CONSOLE) assets:install public
 	@$(CONSOLE) asset-map:compile
 	@$(CONSOLE) cache:clear
 	@$(CONSOLE) cache:warmup
@@ -90,6 +91,7 @@ upgrade-prod: ## Update deps and schema (prod-like, keeps existing DB data)
 	@$(PROD_ENV) $(CONSOLE) doctrine:migrations:migrate --no-interaction --allow-no-migration
 	rm -rf public/assets/*
 	@$(CONSOLE) importmap:install
+	@$(PROD_ENV) $(CONSOLE) assets:install public
 	@$(PROD_ENV) $(CONSOLE) asset-map:compile
 	@$(PROD_ENV) $(CONSOLE) cache:clear
 	@$(PROD_ENV) $(CONSOLE) cache:warmup
@@ -128,6 +130,9 @@ down: ## Stop the docker hub
 logs: ## Show live logs
 	@$(DOCKER) compose logs --tail=0 --follow
 
+db-readonly-role: ## Create or update the read-only role app_ro for the export connection (data extract requests)
+	@$(DOCKER) compose exec -T database sh -c 'psql -v ON_ERROR_STOP=1 -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"' < docker/db/init/10-research-readonly.sql
+
 ## —— Symfony 🎵 ———————————————————————————————————————————————————————————————
 compile: ## Execute some tasks before deployment
 	rm -rf public/assets/*
@@ -142,8 +147,8 @@ asset: ## Recompile local assets
 	@$(CONSOLE) asset-map:compile
 
 ## —— Demo environment 🎬 —————————————————————————————————————————————————————
-# APP_ENV=demo with its own database app_demo (.env.demo), storage under var/demo and
-# public/uploads/demo, synthetic data only (ADR 023, docs/05-operations/demo-environment.md).
+# APP_ENV=demo with its own database app_demo (.env.demo), storage under var/demo,
+# synthetic data only (ADR 023, docs/05-operations/demo-environment.md).
 # Plain php, not the Symfony CLI: the CLI may export DATABASE_URL of a Docker database, which
 # would win over .env.demo (DemoEnvironmentGuard refuses it anyway). Without debug mode the demo
 # container is not rebuilt after code changes, so the targets delete var/cache/demo first.
@@ -157,8 +162,8 @@ demo-install: ## Create the demo DB app_demo with synthetic data (DEMO_PRESET=la
 	@$(DEMO_CONSOLE) doctrine:database:drop --if-exists --force
 	@$(DEMO_CONSOLE) doctrine:database:create
 	@$(DEMO_CONSOLE) doctrine:migrations:migrate --no-interaction
-	@rm -rf var/demo/imports public/uploads/demo
-	@mkdir -p var/demo/imports/rejects public/uploads/demo/media
+	@rm -rf var/demo/imports var/demo/media public/uploads/demo/media
+	@mkdir -p var/demo/imports/rejects var/demo/media
 	@$(FIXTURES_XDEBUG) FIXTURES_PROFILE=$(DEMO_PRESET) $(DEMO_CONSOLE) doctrine:fixtures:load --group=dev --no-interaction
 	@$(FIXTURES_XDEBUG) $(DEMO_CONSOLE) app:statistics:rebuild-closure-volume-projection
 	@$(FIXTURES_XDEBUG) $(DEMO_CONSOLE) app:statistics:refresh-mviews
@@ -170,6 +175,17 @@ demo-install-guard:
 		echo "Replace it: make demo-install DEMO_CONFIRM=yes" >&2; \
 		exit 1; \
 	fi
+
+demo-uninstall: ## Remove the demo: drop app_demo and delete var/demo, its cache and log (DEMO_CONFIRM=yes)
+	@if [ "$(DEMO_CONFIRM)" != "yes" ]; then \
+		echo "demo-uninstall drops the demo database app_demo and deletes var/demo with its imports and media." >&2; \
+		echo "Remove the demo: make demo-uninstall DEMO_CONFIRM=yes" >&2; \
+		exit 1; \
+	fi
+	@rm -rf var/cache/demo
+	@$(DEMO_CONSOLE) doctrine:database:drop --if-exists --force
+	@rm -rf var/cache/demo var/demo public/uploads/demo var/log/demo.log
+	@echo "Demo removed: database app_demo, var/demo, public/uploads/demo, cache and log."
 
 demo-start: ## Serve the demo on http://127.0.0.1:8001 (DEMO_PORT=; built-in PHP server, Ctrl+C stops)
 	@rm -rf var/cache/demo
@@ -186,13 +202,20 @@ demo-reminder: ## Send the monthly reminder of a demo hospital to Mailpit (HOSPI
 	@$(DEMO_CONSOLE) app:reminder:preview --hospital-id=$(HOSPITAL) --send
 
 ## —— Backups 💾 ———————————————————————————————————————————————————————————————
-backup-db: ## PostgreSQL dump to var/backups (uses Docker database service when running)
+backup: ## Full backup with manifest to BACKUP_DIR or var/backups (app:backup:create; Docker database when it runs)
+	@BACKUP_PG_TOOLS=$${BACKUP_PG_TOOLS:-$$($(DOCKER) compose ps --status running --services 2>/dev/null | grep -qx database && echo docker || echo local)} $(CONSOLE) app:backup:create --no-interaction
+
+backup-verify: ## Verify the newest backup in BACKUP_DIR, or BACKUP=<directory> (app:backup:verify; Docker database when it runs)
+	@BACKUP_PG_TOOLS=$${BACKUP_PG_TOOLS:-$$($(DOCKER) compose ps --status running --services 2>/dev/null | grep -qx database && echo docker || echo local)} $(CONSOLE) app:backup:verify $(BACKUP)
+
+backup-restore: ## Restore the newest backup in BACKUP_DIR, or BACKUP=<directory>; asks first (app:backup:restore; Docker database when it runs)
+	@BACKUP_PG_TOOLS=$${BACKUP_PG_TOOLS:-$$($(DOCKER) compose ps --status running --services 2>/dev/null | grep -qx database && echo docker || echo local)} $(CONSOLE) app:backup:restore $(BACKUP)
+
+backup-db: ## Legacy: PostgreSQL dump only (bin/ops script, no manifest)
 	@./bin/ops/backup-database.sh
 
-backup-files: ## Archive var/imports and public/uploads/media to var/backups
+backup-files: ## Legacy: archive var/imports and var/media only (bin/ops script, no manifest)
 	@./bin/ops/backup-files.sh
-
-backup: backup-db backup-files ## Full backup (database + files)
 
 restore-db: ## Restore DB from BACKUP_FILE=var/backups/....dump RESTORE_CONFIRM=yes
 	@if [ -z "$(BACKUP_FILE)" ]; then echo "Set BACKUP_FILE=var/backups/ivena-stats-db-....dump" >&2; exit 1; fi
@@ -288,17 +311,17 @@ lint-trans: ## Lint EN + DE translation contents
 lint-trans-de: ## Lint DE translation contents
 	@$(CONSOLE) lint:translations --locale=de
 
-lint-templates: ## Lint Twig template syntax (templates/ and src/)
-	@$(CONSOLE) lint:twig templates src --env=prod
+lint-templates: ## Lint Twig template syntax (templates/, src/ and plugin templates)
+	@$(CONSOLE) lint:twig templates src plugins/ed-visit/templates --env=prod
 
 # 3. Code style and refactoring (fix / check)
 swiss-knife: ## Apply Swiss Knife fixes (commented code, finalize classes)
-	@$(SWISS_KNIFE) check-commented-code src tests
-	@$(SWISS_KNIFE) finalize-classes src tests $(SWISS_KNIFE_FINALIZE_OPTS)
+	@$(SWISS_KNIFE) check-commented-code src tests plugins
+	@$(SWISS_KNIFE) finalize-classes src tests plugins $(SWISS_KNIFE_FINALIZE_OPTS)
 
 swiss-knife-check: ## Check for commented-out code and non-final classes
-	@$(SWISS_KNIFE) check-commented-code src tests
-	@$(SWISS_KNIFE) finalize-classes src tests --dry-run $(SWISS_KNIFE_FINALIZE_OPTS)
+	@$(SWISS_KNIFE) check-commented-code src tests plugins
+	@$(SWISS_KNIFE) finalize-classes src tests plugins --dry-run $(SWISS_KNIFE_FINALIZE_OPTS)
 
 rector: ## Run Rector
 	@$(RECTOR)
@@ -357,6 +380,9 @@ ARGS ?=
 test: ## Run tests (SUITE=all|unit|integration|functional|functional-http|browser|fixtures|system|materialized-view, PATH_ARG=tests/…, GROUP=, EXCLUDE_GROUP=, ARGS=)
 	@SUITE=$(SUITE) PATH_ARG=$(PATH_ARG) GROUP=$(GROUP) EXCLUDE_GROUP=$(EXCLUDE_GROUP) ./bin/run-tests --stop-on-failure --no-coverage $(ARGS)
 
+check-without-ed-visit: ## Install a temporary copy without the ED visit plugin package and smoke-test it (own test database, about 2 min)
+	@./bin/check-without-ed-visit
+
 testdox: ## Run tests with testdox (same SUITE/PATH_ARG/GROUP/EXCLUDE_GROUP/ARGS as test)
 	@SUITE=$(SUITE) PATH_ARG=$(PATH_ARG) GROUP=$(GROUP) EXCLUDE_GROUP=$(EXCLUDE_GROUP) ./bin/run-tests --testdox --no-coverage $(ARGS)
 
@@ -376,14 +402,17 @@ test-unit: ## Run the unit suite via ParaTest, no database (PROCESSES=4, COVERAG
 	@mkdir -p var/coverage/logs
 	@$(PARATEST) --testsuite unit --processes=$(PROCESSES) $(call PARATEST_REPORTS,unit) $(ARGS)
 
-test-database: ## Run every non-unit suite via ParaTest, needs the test DB (PROCESSES=4, COVERAGE=1, JUNIT=1, ARGS=)
+test-database: test-warmup ## Run every non-unit suite via ParaTest, needs the test DB (PROCESSES=4, COVERAGE=1, JUNIT=1, ARGS=)
 	@mkdir -p var/coverage/logs
 	@$(PARATEST) --testsuite $(DATABASE_SUITES) --processes=$(PROCESSES) $(call PARATEST_REPORTS,integration) $(ARGS)
+
+test-warmup: ## Compile the extra test containers (kernels without bundles, demo kernel) without coverage
+	@php -d pcov.enabled=0 bin/warmup-test-kernels
 
 ## —— Cleanup 🚮 ————————————————————————————————————————————————————————————————
 purge-runtime: ## Remove compiled assets, uploads, imports, cache, and logs
 	@rm -rf public/assets/*
-	@find public/uploads/media -mindepth 1 ! -name '.gitkeep' ! -name '.htaccess' -delete 2>/dev/null || true
+	@rm -rf var/media public/uploads/media
 	@rm -rf var/imports/*
 	@mkdir -p var/imports var/imports/rejects
 	@rm -rf var/cache/* var/logs/*

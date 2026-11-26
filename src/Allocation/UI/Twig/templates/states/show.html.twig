@@ -5,7 +5,7 @@
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
         {% block header_after %}
-            {{ include('@Shared/_includes/subnav_explore.html.twig') }}
+            <twig:Navigation:Sidebar menu="explore" />
         {% endblock %}
     {% endembed %}
 {% endblock %}
@@ -29,6 +29,7 @@
             <div class="col">
                 <h1 id="state-name" class="fw-bold">{{ state.name }}</h1>
                 <div class="list-inline list-inline-dots text-secondary">
+                    <twig:AdminObjectId :id="state.id" />
                     <div class="list-inline-item">
                         {{ 'catalog.type.state'|trans({}, 'allocation') }}
                     </div>
@@ -64,7 +65,7 @@
                     </div>
                     <div class="mb-2">
                         <twig:ux:icon name="tabler:user" width="1.5em" height="1.5em" />
-                        {{ 'label.created_by'|trans({}, 'messages') }} <strong>{{ users.link(state.createdBy) }}</strong>
+                        {{ 'label.created_by'|trans({}, 'messages') }} <strong>{{ users.link(state.createdBy, {avatar: 'inline'}) }}</strong>
                     </div>
                     {% if state.updatedBy and state.updatedAt %}
                         <div class="mt-1 mb-2">
@@ -73,7 +74,7 @@
                         </div>
                         <div class="mb-2">
                             <twig:ux:icon name="tabler:user" width="1.5em" height="1.5em" />
-                            {{ 'label.updated_by'|trans({}, 'messages') }} <strong>{{ users.link(state.updatedBy) }}</strong>
+                            {{ 'label.updated_by'|trans({}, 'messages') }} <strong>{{ users.link(state.updatedBy, {avatar: 'inline'}) }}</strong>
                         </div>
                     {% endif %}
             </twig:Card>

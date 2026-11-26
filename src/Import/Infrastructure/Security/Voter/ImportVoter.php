@@ -8,8 +8,8 @@ use App\Allocation\Application\Service\HospitalPermissionAccess;
 use App\Import\Application\Service\ImportCreatorPermissionCheck;
 use App\Import\Application\Service\ImportFileStorage;
 use App\Import\Application\Service\ImportListAccess;
+use App\Import\Application\Service\ImportTypeExtensionRegistry;
 use App\Import\Domain\Entity\Import;
-use App\Import\Domain\Enum\ImportType;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -35,6 +35,7 @@ final class ImportVoter extends Voter
         private readonly HospitalPermissionAccess $hospitalPermissionAccess,
         private readonly ImportCreatorPermissionCheck $creatorPermissionCheck,
         private readonly ImportFileStorage $fileStorage,
+        private readonly ImportTypeExtensionRegistry $typeExtensions,
     ) {
     }
 
@@ -58,8 +59,11 @@ final class ImportVoter extends Voter
             return false;
         }
 
-        if ($this->closureBetaDenied($subject, $user)) {
-            return false;
+        // Types owned by another context decide access themselves (`import.type_extension`), for example
+        // encounter imports with the encounter grants (ADR 028).
+        $extension = $this->typeExtensions->for($subject->getType());
+        if ($extension instanceof \App\Import\Application\Contracts\ImportTypeExtensionInterface) {
+            return $extension->vote($attribute, $subject, $token);
         }
 
         $hospitalId = $subject->getHospital()?->getId();
@@ -73,15 +77,7 @@ final class ImportVoter extends Voter
         }
 
         if (self::DOWNLOAD_SOURCE === $attribute) {
-            if (!\in_array(UserRole::ADMIN, $user->getRoles(), true)) {
-                return false;
-            }
-
-            if (null === $hospitalId) {
-                return false;
-            }
-
-            return $this->importListAccess->canAccessImportHospital($user, $hospitalId);
+            return $this->canDownloadSource($subject, $user, $hospitalId);
         }
 
         if (self::REPROCESS === $attribute) {
@@ -92,6 +88,24 @@ final class ImportVoter extends Voter
         }
 
         return $this->canManage($subject, $user, $hospitalId);
+    }
+
+    /**
+     * Source files hold the IVENA free text and the case number in clear, so only administrators and the owner of
+     * the import's hospital may download them (#1569), not the creator or other grantees.
+     */
+    private function canDownloadSource(Import $subject, User $user, ?int $hospitalId): bool
+    {
+        $hospital = $subject->getHospital();
+        if (!$hospital instanceof \App\Allocation\Domain\Entity\Hospital || null === $hospitalId) {
+            return false;
+        }
+
+        if (\in_array(UserRole::ADMIN, $user->getRoles(), true)) {
+            return $this->importListAccess->canAccessImportHospital($user, $hospitalId);
+        }
+
+        return $this->hospitalPermissionAccess->isOwner($user, $hospital);
     }
 
     /**
@@ -119,14 +133,5 @@ final class ImportVoter extends Voter
         $createdBy = $subject->getCreatedBy();
 
         return $createdBy instanceof User && $createdBy->getId() === $user->getId();
-    }
-
-    private function closureBetaDenied(Import $import, User $user): bool
-    {
-        if (ImportType::CLOSURE !== $import->getType()) {
-            return false;
-        }
-
-        return !\in_array(UserRole::CLOSURE_BETA, $user->getRoles(), true);
     }
 }

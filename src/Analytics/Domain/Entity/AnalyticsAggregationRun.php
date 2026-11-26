@@ -28,21 +28,16 @@ class AnalyticsAggregationRun
     private int $rawRequestCount;
 
     #[ORM\Column]
-    private int $rawEventCount;
-
-    #[ORM\Column]
     private int $aggregateRowsWritten;
 
     public function __construct(
         \DateTimeImmutable $date,
         int $rawRequestCount,
-        int $rawEventCount,
         int $aggregateRowsWritten,
         ?\DateTimeImmutable $aggregatedAt = null,
     ) {
         $this->date = $date;
         $this->rawRequestCount = $rawRequestCount;
-        $this->rawEventCount = $rawEventCount;
         $this->aggregateRowsWritten = $aggregateRowsWritten;
         $this->aggregatedAt = $aggregatedAt ?? Clock::get()->now();
     }
@@ -65,11 +60,6 @@ class AnalyticsAggregationRun
     public function getRawRequestCount(): int
     {
         return $this->rawRequestCount;
-    }
-
-    public function getRawEventCount(): int
-    {
-        return $this->rawEventCount;
     }
 
     public function getAggregateRowsWritten(): int

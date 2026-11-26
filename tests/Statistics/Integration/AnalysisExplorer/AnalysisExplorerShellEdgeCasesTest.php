@@ -22,7 +22,7 @@ final class AnalysisExplorerShellEdgeCasesTest extends AnalysisExplorerShellTest
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
         $state = $mapper->toStateArray($viewFactory->createDefault($filter));
         $state['query']['rows'] = ['dimension' => 'hospital', 'grain' => 'total'];

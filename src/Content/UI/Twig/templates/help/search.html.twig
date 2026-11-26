@@ -1,0 +1,69 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'help.search.title'|trans({}, 'content') }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                { label: help_root.title, path: help_root.url, translatable: false },
+                { label: 'help.search.title', label_domain: 'content' }
+            ]"
+        />
+        <h1 class="fw-bold mb-0">{{ 'help.search.title'|trans({}, 'content') }}</h1>
+    </div>
+{% endblock %}
+
+{% block page_body %}
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row g-3">
+                <div class="col-lg-8">
+                    <div class="card" data-testid="help-search-results">
+                        {% if help_query is empty %}
+                            <div class="card-body text-secondary">{{ 'help.search.empty_query'|trans({}, 'content') }}</div>
+                        {% elseif hits is empty %}
+                            <div class="card-body">
+                                <twig:EmptyState
+                                    title="{{ 'help.search.no_results'|trans({query: help_query}, 'content') }}"
+                                    description="{{ 'help.search.no_results_hint'|trans({}, 'content') }}"
+                                    icon="tabler:search"
+                                />
+                            </div>
+                        {% else %}
+                            <div class="card-header">
+                                <h2 class="card-title">{{ 'help.search.results'|trans({count: hits|length, query: help_query}, 'content') }}</h2>
+                            </div>
+                            <div class="list-group list-group-flush" data-controller="help-search-results">
+                                {% for hit in hits %}
+                                    <a class="list-group-item list-group-item-action help-search-hit" id="help-search-hit-{{ hit.pageId }}" data-help-search-results-target="hit" href="{{ path('app_page_show', {path: hit.path|trim('/'), q: help_query}) }}" data-testid="help-search-hit">
+                                        <div class="fw-medium">{{ hit.title }}</div>
+                                        {# Short description for what the article is about, the excerpt for where the terms occur. #}
+                                        {% if hit.summary %}
+                                            <div class="text-secondary small help-search-summary">{{ hit.summary }}</div>
+                                        {% endif %}
+                                        {% if hit.excerpt and (hit.excerptHasMatch or not hit.summary) %}
+                                            {# Each passage is a paragraph; […] marks where it starts or ends inside the text. #}
+                                            <div class="text-secondary small help-search-excerpt{{ hit.summary ? ' mt-1 fst-italic' }}">
+                                                {% for passage in hit.passages %}
+                                                    <p class="mb-{{ loop.last ? 0 : 1 }}">
+                                                        {%- if passage.cutBefore %}<span class="text-body fst-normal help-search-gap">[…]</span> {% endif -%}
+                                                        {{ passage.html|raw }}
+                                                        {%- if passage.cutAfter %} <span class="text-body fst-normal help-search-gap">[…]</span>{% endif -%}
+                                                    </p>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    {{ include('@Content/page/_sidebar.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -98,7 +98,7 @@ final class ClosureAnalyticsExportControllerTest extends WebTestCase
     private function loginAsClosureBetaUser(KernelBrowser $client): User
     {
         $user = UserFactory::createOne([
-            'roles' => [UserRole::USER, UserRole::PARTICIPANT, UserRole::CLOSURE_BETA],
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT],
         ]);
         $client->followRedirects(true);
         $client->loginUser($user);

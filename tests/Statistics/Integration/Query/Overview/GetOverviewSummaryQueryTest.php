@@ -96,7 +96,7 @@ final class GetOverviewSummaryQueryTest extends KernelTestCase
             StatisticsFilterScope::Hospital,
             $hospital->getId(),
             null,
-            StatisticsFilterPeriod::All,
+            StatisticsFilterPeriod::Last12Months,
         );
         $bounds = StatisticsPeriodResolver::resolve($filter);
         $criteria = OverviewQueryCriteria::fromPeriodBounds($bounds, [$hospital->getId()]);

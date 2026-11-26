@@ -24,7 +24,7 @@
     {% endif %}
 {% endmacro %}
 
-{% macro allocation_filter_badges(filters, states, dispatchAreas, indications, secondaryTransports, infections, departments, specialities, transportTypes, assignments, occasions, hospitalScopeOptions = null) %}
+{% macro allocation_filter_badges(filters, states, dispatchAreas, indications, secondaryTransports, infections, departments, specialities, transportTypes, assignments, occasions, hospitalScopeOptions = null, extensionFilters = []) %}
     {% set rawFilters = [] %}
 
     {% set selectedHospitalFilter = filters.resolvedHospitalFilter %}
@@ -74,7 +74,7 @@
     {% endif %}
 
     {% if filters.importId is not null %}
-        {% set rawFilters = rawFilters|merge([{key: 'label.importId', value: filters.importId}]) %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.import_id', domain: 'allocation', value: filters.importId}]) %}
     {% endif %}
 
     {# --- Boolean-like filters --- #}
@@ -112,6 +112,10 @@
 
     {% if filters.departmentWasClosed is not null %}
         {% set rawFilters = rawFilters|merge([{key: 'field.departmentWasClosed', value: _self.boolean_value(filters.departmentWasClosed)}]) %}
+    {% endif %}
+
+    {% if filters.closureAtAssignment is not empty %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.closure_at_assignment', domain: 'allocation', value: ('closure_at_assignment.' ~ filters.closureAtAssignment)|trans({}, 'allocation')}]) %}
     {% endif %}
 
     {% if filters.hasCreatedAtRange %}
@@ -265,7 +269,7 @@
             {% endif %}
         {% endfor %}
         {% if transportTypeLabel is not null %}
-            {% set rawFilters = rawFilters|merge([{key: 'stats.analysis_explorer.dimension.transport_type', value: transportTypeLabel}]) %}
+            {% set rawFilters = rawFilters|merge([{key: 'stats.analysis_explorer.dimension.transport_type', domain: 'statistics', value: transportTypeLabel}]) %}
         {% endif %}
     {% endif %}
 
@@ -287,6 +291,13 @@
             {% endif %}
         {% endif %}
     {% endif %}
+
+    {# --- Filters of other contexts (allocation list extensions, #1203) --- #}
+    {% for extension in extensionFilters %}
+        {% if extension.value is not null %}
+            {% set rawFilters = rawFilters|merge([{key: extension.filter.label, domain: extension.filter.domain, value: extension.filter.choices[extension.value]|trans({}, extension.filter.domain)}]) %}
+        {% endif %}
+    {% endfor %}
 
     {{ _self.render_active_filters(rawFilters) }}
 {% endmacro %}
@@ -350,12 +361,14 @@
         {% set ownerName = null %}
         {% for owner in owners %}
             {% if ownerName is null and owner.id == filters.ownerId %}
-                {% set ownerName = owner.username %}
+                {% import '@Shared/_macros/users.html.twig' as users %}
+                {% set ownerName = users.label(owner.displayName ?? null, owner.username) %}
             {% endif %}
         {% endfor %}
         {% if ownerName is not null %}
             {% set rawFilters = rawFilters|merge([{
                 key: 'label.import.filter.owner',
+                domain: 'import',
                 value: ownerName,
             }]) %}
         {% endif %}
@@ -368,9 +381,17 @@
         }]) %}
     {% endif %}
 
+    {% if filters.type is not empty %}
+        {% set rawFilters = rawFilters|merge([{
+            key: 'label.type',
+            value: ('import.type.label.' ~ filters.type|lower)|trans({}, 'import'),
+        }]) %}
+    {% endif %}
+
     {% if filters.createdFrom is not empty and not filters.isDefaultCreatedFrom %}
         {% set rawFilters = rawFilters|merge([{
             key: 'label.import.filter.created_from',
+            domain: 'import',
             value: filters.createdFrom|date('d.m.Y'),
         }]) %}
     {% endif %}
@@ -378,7 +399,24 @@
     {% if filters.createdUntil is not empty and not filters.isDefaultCreatedUntil %}
         {% set rawFilters = rawFilters|merge([{
             key: 'label.import.filter.created_until',
+            domain: 'import',
             value: filters.createdUntil|date('d.m.Y'),
+        }]) %}
+    {% endif %}
+
+    {% if filters.periodFrom is not empty %}
+        {% set rawFilters = rawFilters|merge([{
+            key: 'label.import.filter.period_from',
+            domain: 'import',
+            value: filters.periodFrom|date('d.m.Y'),
+        }]) %}
+    {% endif %}
+
+    {% if filters.periodUntil is not empty %}
+        {% set rawFilters = rawFilters|merge([{
+            key: 'label.import.filter.period_until',
+            domain: 'import',
+            value: filters.periodUntil|date('d.m.Y'),
         }]) %}
     {% endif %}
 
@@ -588,7 +626,7 @@
             {% endif %}
         {% endfor %}
         {% if transportTypeLabel is not null %}
-            {% set rawFilters = rawFilters|merge([{key: 'stats.analysis_explorer.dimension.transport_type', value: transportTypeLabel}]) %}
+            {% set rawFilters = rawFilters|merge([{key: 'stats.analysis_explorer.dimension.transport_type', domain: 'statistics', value: transportTypeLabel}]) %}
         {% endif %}
     {% endif %}
 

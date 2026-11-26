@@ -31,7 +31,7 @@ final readonly class PageContentBlockDataFieldsConfigurator
         'level', 'align', 'spacingBefore', 'spacingAfter',
         'variant', 'title', 'iconMode', 'icon',
         'size', 'float',
-        'items',
+        'items', 'numbered',
     ];
 
     /** @psalm-suppress PossiblyUnusedMethod Symfony autowires this service */
@@ -60,6 +60,13 @@ final readonly class PageContentBlockDataFieldsConfigurator
             PageContentBlockType::Headline->value => $this->addHeadlineFields($dataForm),
             PageContentBlockType::Highlight->value => $this->addHighlightFields($dataForm),
             PageContentBlockType::Accordion->value => $this->addAccordionFields($dataForm),
+            PageContentBlockType::Cards->value => $this->addCardsFields($dataForm),
+            PageContentBlockType::ChildPages->value => $this->addChildPagesFields($dataForm),
+            PageContentBlockType::ReadMore->value => $this->addReadMoreFields($dataForm),
+            // Help blocks (#596) and the board members block have no settings; their content comes from the help
+            // tree or the user accounts.
+            PageContentBlockType::HelpSearch->value, PageContentBlockType::HelpTopics->value,
+            PageContentBlockType::BoardMembers->value => null,
             default => $this->addRichtextFields($dataForm),
         };
     }
@@ -71,13 +78,17 @@ final readonly class PageContentBlockDataFieldsConfigurator
      */
     public function hydrateMediaReference(array $data): array
     {
-        $mediaId = $data['mediaId'] ?? null;
-        if (is_int($mediaId) || (is_string($mediaId) && ctype_digit($mediaId))) {
-            $media = $this->mediaRepository->find((int) $mediaId);
-            if ($media instanceof Media) {
-                $data['mediaId'] = $media;
-            }
+        if (!array_key_exists('mediaId', $data) || $data['mediaId'] instanceof Media) {
+            return $data;
         }
+
+        // The media fields are entity choices: anything but a Media entity (an empty selection kept in a draft, an id
+        // of a deleted file) has to become "no selection", otherwise the form cannot be rendered.
+        $mediaId = $data['mediaId'];
+        $media = is_int($mediaId) || (is_string($mediaId) && ctype_digit($mediaId))
+            ? $this->mediaRepository->find((int) $mediaId)
+            : null;
+        $data['mediaId'] = $media instanceof Media ? $media : null;
 
         return $data;
     }
@@ -111,7 +122,7 @@ final readonly class PageContentBlockDataFieldsConfigurator
                 'query_builder' => fn (): \Doctrine\ORM\QueryBuilder => $this->mediaRepository->createQueryBuilder('m')
                     ->andWhere('m.type = :type')
                     ->setParameter('type', MediaType::IMAGE)
-                    ->orderBy('m.createdAt', 'DESC'),
+                    ->orderBy('m.createdAt', \SortDirection::Descending),
                 'help' => $this->translator->trans('help.page.image_media', [], 'content')
                     .sprintf(
                         ' <a href="%s" target="_blank" rel="noopener">%s</a>.',
@@ -192,7 +203,7 @@ final readonly class PageContentBlockDataFieldsConfigurator
                 'query_builder' => fn (): \Doctrine\ORM\QueryBuilder => $this->mediaRepository->createQueryBuilder('m')
                     ->andWhere('m.type = :type')
                     ->setParameter('type', MediaType::PDF)
-                    ->orderBy('m.createdAt', 'DESC'),
+                    ->orderBy('m.createdAt', \SortDirection::Descending),
                 'help' => 'help.page.cta_media_pdf',
             ])
             ->add('openInNewTab', CheckboxType::class, [
@@ -325,5 +336,58 @@ final readonly class PageContentBlockDataFieldsConfigurator
             'prototype' => true,
             'required' => true,
         ]);
+    }
+
+    /**
+     * @param FormInterface<array<string, mixed>> $dataForm
+     */
+    private function addCardsFields(FormInterface $dataForm): void
+    {
+        $dataForm->add('items', CollectionType::class, [
+            'label' => 'label.cards_items',
+            'entry_type' => PageContentCardItemType::class,
+            'allow_add' => true,
+            'allow_delete' => true,
+            'by_reference' => false,
+            'prototype' => true,
+            'required' => true,
+            'help' => 'help.page.cards_items',
+        ]);
+    }
+
+    /**
+     * @param FormInterface<array<string, mixed>> $dataForm
+     */
+    private function addChildPagesFields(FormInterface $dataForm): void
+    {
+        $dataForm->add('numbered', CheckboxType::class, [
+            'label' => 'label.child_pages_numbered',
+            'required' => false,
+            'help' => 'help.page.child_pages_numbered',
+        ]);
+    }
+
+    /**
+     * @param FormInterface<array<string, mixed>> $dataForm
+     */
+    private function addReadMoreFields(FormInterface $dataForm): void
+    {
+        $dataForm
+            ->add('title', TextType::class, [
+                'label' => 'label.read_more_title',
+                'required' => false,
+                'help' => 'help.page.read_more_title',
+            ])
+            ->add('items', CollectionType::class, [
+                'label' => 'label.read_more_items',
+                'entry_type' => PageContentReadMoreItemType::class,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'by_reference' => false,
+                'prototype' => true,
+                'required' => true,
+                'help' => 'help.page.read_more_items',
+            ])
+        ;
     }
 }

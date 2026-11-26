@@ -6,6 +6,7 @@ namespace App\Tests\User\Functional\Controller;
 
 use App\Tests\Support\Browser\CookieConsentTestHelper;
 use App\User\Domain\Factory\UserFactory;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Browser\Test\HasBrowser;
@@ -19,7 +20,7 @@ final class SettingsControllerTest extends WebTestCase
     use Factories;
     use HasBrowser;
 
-    public function testAuthenticatedUserCanOpenSettingsOverview(): void
+    public function testSettingsOverviewShowsTilesInsideTheSettingsCard(): void
     {
         UserFactory::new([
             'email' => 'settings@example.test',
@@ -30,7 +31,130 @@ final class SettingsControllerTest extends WebTestCase
         $this->loginWithConsent($this->browser(), 'settings-user')
             ->visit('/settings')
             ->assertSuccessful()
-            ->assertSee('Account Settings')
+            ->assertSeeIn('h2', 'Settings')
+            ->assertNotSeeElement('select[name="settings_locale[locale]"]')
+            ->assertSeeIn('[data-testid="settings-section-nav"] [aria-current="page"]', 'Overview')
+            ->assertNotSeeElement('[data-testid="settings-back-to-overview"]')
+            // #1508: password, sign-in link and two-factor authentication sit below "Sign-in & security".
+            ->assertElementCount('[data-testid="settings-overview"] a.settings-tile', 4)
+            ->assertElementAttributeContains('[data-testid="settings-tile-account"]', 'href', '/settings/account')
+            ->assertElementAttributeContains('[data-testid="settings-tile-email"]', 'href', '/settings/email')
+            ->assertElementAttributeContains('[data-testid="settings-tile-security"]', 'href', '/settings/security')
+            ->assertSeeIn('[data-testid="settings-tile-security"]', 'Sign-in & security')
+            // Its sub-items open only on its own pages; here a chevron hints at them.
+            ->assertNotSeeElement('[data-testid^="settings-subsection-"]')
+            ->assertSeeElement('[data-testid="settings-section-security"]')
+            ->assertElementAttributeContains('[data-testid="settings-tile-notifications"]', 'href', '/settings/notifications')
+            ->assertSeeIn('[data-testid="settings-tile-account"]', 'My Account')
+            ->assertSeeIn('[data-testid="settings-tile-account"]', 'Display name, email verification status and language.')
+            ->assertSeeIn('[data-testid="settings-tile-notifications"]', 'Notifications')
+            ->visit('/settings/security')
+            ->assertElementAttributeContains('[data-testid="settings-subsection-password"]', 'href', '/settings/password')
+            ->assertElementAttributeContains('[data-testid="settings-subsection-login_link"]', 'href', '/settings/login-link')
+            ->assertElementAttributeContains('[data-testid="settings-subsection-two_factor"]', 'href', '/settings/two-factor')
+            ->visit('/settings/two-factor')
+            ->assertSeeElement('[data-testid="settings-subsection-two_factor"][aria-current="page"]')
+        ;
+    }
+
+    public function testSettingsOverviewTilesLeadToWorkingPages(): void
+    {
+        UserFactory::new([
+            'email' => 'settings-tiles@example.test',
+            'isVerified' => true,
+            'username' => 'settings-tiles-user',
+        ])->create();
+
+        $browser = $this->loginWithConsent($this->browser(), 'settings-tiles-user');
+
+        foreach (['account' => 'Account Settings', 'email' => 'Change email', 'security' => 'Sign-in & security', 'notifications' => 'Notifications'] as $tile => $heading) {
+            $browser
+                ->visit('/settings')
+                ->click(sprintf('[data-testid="settings-tile-%s"]', $tile))
+                ->assertSuccessful()
+                ->assertSeeIn('h2', $heading)
+            ;
+        }
+    }
+
+    public function testSettingsOverviewIsShownInGerman(): void
+    {
+        UserFactory::new([
+            'email' => 'settings-de@example.test',
+            'isVerified' => true,
+            'username' => 'settings-de-user',
+        ])->create();
+
+        $this->loginWithConsent($this->browser(), 'settings-de-user')
+            ->visit('/locale/switch/de?_target_path=/settings')
+            ->assertOn('/settings')
+            ->assertSuccessful()
+            ->assertSeeIn('h2', 'Einstellungen')
+            ->assertSeeIn('[data-testid="settings-tile-account"]', 'Mein Konto')
+            ->assertSeeIn('[data-testid="settings-tile-notifications"]', 'Legen Sie fest, welche Benachrichtigungen Sie wie erhalten.')
+        ;
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function settingsSectionPages(): iterable
+    {
+        yield 'account' => ['/settings/account', 'My Account'];
+        yield 'email' => ['/settings/email', 'Change email'];
+        yield 'security' => ['/settings/security', 'Sign-in & security'];
+        yield 'password' => ['/settings/password', 'Set new password'];
+        yield 'login link' => ['/settings/login-link', 'Sign in with a link'];
+        yield 'notifications' => ['/settings/notifications', 'Notifications'];
+    }
+
+    #[DataProvider('settingsSectionPages')]
+    public function testSettingsPageMarksItsSectionAndLinksBackToOverview(string $path, string $activeSection): void
+    {
+        UserFactory::new([
+            'email' => 'settings-section@example.test',
+            'isVerified' => true,
+            'username' => 'settings-section-user',
+        ])->create();
+
+        $this->loginWithConsent($this->browser(), 'settings-section-user')
+            ->visit($path)
+            ->assertSuccessful()
+            ->assertSeeIn('[data-testid="settings-section-nav"] [aria-current="page"]', $activeSection)
+            ->assertElementCount('[data-testid="settings-section-nav"] [aria-current="page"]', 1)
+            ->assertElementAttributeContains('[data-testid="settings-back-to-overview"]', 'href', '/settings')
+            ->click('All settings')
+            ->assertOn('/settings')
+            ->assertSeeElement('[data-testid="settings-overview"]')
+        ;
+    }
+
+    public function testAccountPageShowsProfileDetailsAndLanguageForm(): void
+    {
+        UserFactory::new([
+            'email' => 'settings-account@example.test',
+            'isVerified' => true,
+            'username' => 'settings-account-user',
+        ])->create();
+
+        $this->loginWithConsent($this->browser(), 'settings-account-user')
+            ->visit('/settings/account')
+            ->assertSuccessful()
+            ->assertSeeIn('h2', 'Account Settings')
+            ->assertSee('Profile Details')
+            ->assertNotSeeElement('input[value="settings-account-user"]')
+            ->assertSeeElement('input[name="settings_profile[displayName]"]')
+            ->assertSeeElement('input[value="settings-account@example.test"][readonly]')
+            ->assertSeeIn('[data-test="email-login-notice"]', 'From version 1.0, you sign in with your email address only.')
+            ->assertSeeElement('select[name="settings_locale[locale]"]')
+            ->assertNotSeeElement('.card-body a[href="/settings/password"].btn')
+            // #1508: one section per setting, each form with its own save button, no shared footer.
+            ->assertSeeElement('[data-testid="settings-section-profile"] form#settings-profile-form button[type="submit"]')
+            ->assertSeeElement('[data-testid="settings-section-email"] input[value="settings-account@example.test"]')
+            ->assertSeeElement('[data-testid="settings-section-language"] form#settings-locale-form select[name="settings_locale[locale]"]')
+            ->assertSeeElement('[data-testid="settings-section-language"] form#settings-locale-form button[type="submit"]')
+            ->assertNotSeeElement('.card-footer')
+            ->assertNotSeeElement('[data-test="login-link-setting"]')
         ;
     }
 
@@ -49,7 +173,7 @@ final class SettingsControllerTest extends WebTestCase
         \Zenstruck\Foundry\Persistence\save($user);
 
         $browser
-            ->visit('/settings')
+            ->visit('/settings/account')
             ->assertSuccessful()
             ->assertSee('Resend verification email')
         ;
@@ -74,7 +198,7 @@ final class SettingsControllerTest extends WebTestCase
         \Zenstruck\Foundry\Persistence\save($user);
 
         $browser
-            ->visit('/settings')
+            ->visit('/settings/account')
             ->assertSuccessful()
         ;
 
@@ -82,6 +206,74 @@ final class SettingsControllerTest extends WebTestCase
         $browser->click('Resend verification email')->assertSee('Verification email sent.');
         $browser->click('Resend verification email')->assertSee('Verification email sent.');
         $browser->click('Resend verification email')->assertSee('Please wait before requesting another verification email.');
+    }
+
+    public function testResendVerificationForVerifiedUserReturnsToAccountPage(): void
+    {
+        $user = UserFactory::new([
+            'email' => 'resend-verified@example.test',
+            'isVerified' => true,
+            'username' => 'resend-verified-user',
+        ])->create();
+
+        $browser = $this->loginWithConsent($this->browser(), 'resend-verified-user');
+
+        \Zenstruck\Foundry\Persistence\refresh($user);
+        $user->setIsVerified(false);
+        \Zenstruck\Foundry\Persistence\save($user);
+
+        $browser->visit('/settings/account')->assertSee('Resend verification email');
+
+        \Zenstruck\Foundry\Persistence\refresh($user);
+        $user->setIsVerified(true);
+        \Zenstruck\Foundry\Persistence\save($user);
+
+        $browser
+            ->click('Resend verification email')
+            ->assertOn('/settings/account')
+            ->assertSee('Your email is already verified.')
+        ;
+    }
+
+    public function testEmailChangeReturnsToAccountPage(): void
+    {
+        $user = UserFactory::new([
+            'email' => 'email-change@example.test',
+            'isVerified' => true,
+            'username' => 'email-change-user',
+        ])->create();
+
+        $this->loginWithConsent($this->browser(), 'email-change-user')
+            ->visit('/settings/email')
+            ->fillField('settings_email[email]', 'email-changed@example.test')
+            ->click('Save email')
+            ->assertOn('/settings/account')
+            ->assertSee('Email address updated. Please verify your new email.')
+            ->assertSeeElement('input[value="email-changed@example.test"][readonly]')
+        ;
+
+        \Zenstruck\Foundry\Persistence\refresh($user);
+        self::assertSame('email-changed@example.test', $user->getEmail());
+        self::assertFalse($user->isVerified());
+    }
+
+    public function testPasswordChangeReturnsToAccountPage(): void
+    {
+        UserFactory::new([
+            'email' => 'pwd-change@example.test',
+            'isVerified' => true,
+            'username' => 'pwd-change-user',
+        ])->create();
+
+        $this->loginWithConsent($this->browser(), 'pwd-change-user')
+            ->visit('/settings/password')
+            ->fillField('Current password', 'password')
+            ->fillField('New password', 'Gr33n-Valley-Lantern-42!')
+            ->fillField('Repeat new password', 'Gr33n-Valley-Lantern-42!')
+            ->click('Save password')
+            ->assertOn('/settings/account')
+            ->assertSee('Password updated.')
+        ;
     }
 
     public function testRememberMeUserIsRedirectedToConfirmPasswordForPasswordPage(): void
@@ -99,7 +291,7 @@ final class SettingsControllerTest extends WebTestCase
 
         $client->request(Request::METHOD_GET, '/settings');
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('h2', 'Account Settings');
+        self::assertSelectorTextContains('h2', 'Settings');
 
         $client->request(Request::METHOD_GET, '/settings/password');
         self::assertResponseIsSuccessful();
@@ -185,12 +377,13 @@ final class SettingsControllerTest extends WebTestCase
 
         $browser = $this->loginWithConsent($this->browser(), 'locale-settings-user');
         $browser
-            ->visit('/settings')
+            ->visit('/settings/account')
             ->assertSuccessful()
             ->assertSee('Language')
             ->selectFieldOption('settings_locale[locale]', 'de')
             ->click('Save')
             ->assertSuccessful()
+            ->assertOn('/settings/account')
             ->assertSee('Spracheinstellung gespeichert.')
         ;
 
@@ -208,9 +401,67 @@ final class SettingsControllerTest extends WebTestCase
         ])->create();
 
         $this->loginWithConsent($this->browser(), 'locale-default-user')
-            ->visit('/settings')
+            ->visit('/settings/account')
             ->assertSuccessful()
             ->assertSee('English (automatic default)')
         ;
+    }
+
+    public function testUserCanSetAndClearTheDisplayName(): void
+    {
+        $user = UserFactory::new([
+            'email' => 'display-name@example.test',
+            'isVerified' => true,
+            'username' => 'display-name-user',
+        ])->create();
+
+        $browser = $this->loginWithConsent($this->browser(), 'display-name-user');
+        $browser
+            ->visit('/settings/account')
+            ->assertSuccessful()
+            ->assertSeeElement('[data-testid="settings-profile-avatar"][data-avatar="fallback"]')
+            ->fillField('settings_profile[displayName]', '  Michael   Müller ')
+            ->click('Update name')
+            ->assertSuccessful()
+            ->assertOn('/settings/account')
+            ->assertSee('Display name saved.')
+            ->assertSeeIn('[data-testid="settings-profile-avatar"]', 'MM')
+        ;
+
+        \Zenstruck\Foundry\Persistence\refresh($user);
+        self::assertSame('Michael Müller', $user->getDisplayName());
+        self::assertNull($user->getLocale(), 'saving the name leaves the language untouched');
+
+        $browser
+            ->fillField('settings_profile[displayName]', '   ')
+            ->click('Update name')
+            ->assertSuccessful()
+            ->assertSee('Display name saved.')
+        ;
+
+        \Zenstruck\Foundry\Persistence\refresh($user);
+        self::assertNull($user->getDisplayName());
+    }
+
+    public function testDisplayNameLongerThanTheLimitIsRejected(): void
+    {
+        $user = UserFactory::new([
+            'email' => 'display-name-long@example.test',
+            'isVerified' => true,
+            'username' => 'display-name-long',
+            'displayName' => 'Ada Admin',
+        ])->create();
+
+        $this->loginWithConsent($this->browser(), 'display-name-long')
+            ->visit('/settings/account')
+            ->fillField('settings_profile[displayName]', str_repeat('a', 101))
+            ->click('Update name')
+            ->assertOn('/settings/account')
+            ->assertNotSee('Display name saved.')
+            ->assertSeeElement('#settings_profile_displayName.is-invalid')
+        ;
+
+        \Zenstruck\Foundry\Persistence\refresh($user);
+        self::assertSame('Ada Admin', $user->getDisplayName());
     }
 }

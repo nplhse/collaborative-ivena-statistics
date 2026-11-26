@@ -1,0 +1,31 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+{% import '@Admin/audit/_macros.html.twig' as audit %}
+
+{% block content_title %}{{ 'audit.request.title'|trans({}, 'admin') }}{% endblock %}
+
+{% block main %}
+    <p><a href="{{ path('app_admin_dashboard_audit_timeline', filter.toQuery) }}">{{ 'audit.request.back'|trans({}, 'admin') }}</a></p>
+
+    <dl class="row mb-3">
+        <dt class="col-sm-3">{{ 'audit.filter.request'|trans({}, 'admin') }}</dt>
+        <dd class="col-sm-9"><span class="font-monospace text-break">{{ request_id }}</span>{% if entries[0].legacyRequestId %} <twig:ea:Badge title="{{ 'audit.timeline.legacy_help'|trans({}, 'admin') }}">{{ 'audit.timeline.legacy'|trans({}, 'admin') }}</twig:ea:Badge>{% endif %}</dd>
+        {% if stats is not null %}
+            <dt class="col-sm-3">{{ 'audit.request.entries'|trans({}, 'admin') }}</dt>
+            <dd class="col-sm-9">
+                {{ stats.total }}
+                {% if not filter.isEmpty %}<span class="text-secondary">· {{ 'audit.timeline.request_matching'|trans({matching: stats.matching, total: stats.total}, 'admin') }}</span>{% endif %}
+            </dd>
+        {% endif %}
+    </dl>
+
+    {% if stats is not null and stats.total > entries|length %}
+        <twig:ea:Alert variant="warning" data-audit-limit>{{ 'audit.request.limit'|trans({limit: limit, total: stats.total}, 'admin') }}</twig:ea:Alert>
+    {% endif %}
+
+    <twig:Timeline :label="'audit.request.title'|trans({}, 'admin')">
+        {% import '@Admin/audit/_macros.html.twig' as audit %}
+        {% for entry in entries %}
+            {{ audit.item(entry, true, matching_ids is not null and matching_ids[entry.id] is not defined) }}
+        {% endfor %}
+    </twig:Timeline>
+{% endblock %}

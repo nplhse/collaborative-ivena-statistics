@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="en" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony"/>
+    </header>
+    <body>
+      <trans-unit id="Ist9553BDE76" resname="inpatient_stay_test.schema">
+        <source>inpatient_stay_test.schema</source>
+        <target>Inpatient stays (test)</target>
+      </trans-unit>
+      <trans-unit id="IstB7C44A2D2" resname="inpatient_stay_test.explore.title">
+        <source>inpatient_stay_test.explore.title</source>
+        <target>Inpatient stays (test)</target>
+      </trans-unit>
+      <trans-unit id="Ist0583AA780" resname="inpatient_stay_test.explore.description">
+        <source>inpatient_stay_test.explore.description</source>
+        <target>Synthetic inpatient stays of the test plugin.</target>
+      </trans-unit>
+      <trans-unit id="Ist73B50AB53" resname="inpatient_stay_test.section.title">
+        <source>inpatient_stay_test.section.title</source>
+        <target>Inpatient stay</target>
+      </trans-unit>
+      <trans-unit id="Ist416D0B346" resname="inpatient_stay_test.field.admitted_at">
+        <source>inpatient_stay_test.field.admitted_at</source>
+        <target>Admission</target>
+      </trans-unit>
+      <trans-unit id="IstDEC963ACC" resname="inpatient_stay_test.field.discharge_diagnosis">
+        <source>inpatient_stay_test.field.discharge_diagnosis</source>
+        <target>Discharge diagnosis</target>
+      </trans-unit>
+      <trans-unit id="Ist0530B7CCF" resname="inpatient_stay_test.field.discharged_at">
+        <source>inpatient_stay_test.field.discharged_at</source>
+        <target>Discharge</target>
+      </trans-unit>
+      <trans-unit id="IstDDAA34C91" resname="inpatient_stay_test.field.assigned">
+        <source>inpatient_stay_test.field.assigned</source>
+        <target>Assigned</target>
+      </trans-unit>
+      <trans-unit id="Ist9457CFA93" resname="inpatient_stay_test.no_hospitals">
+        <source>inpatient_stay_test.no_hospitals</source>
+        <target>You may not view cases of any hospital.</target>
+      </trans-unit>
+      <trans-unit id="Ist1E46AC8B2" resname="inpatient_stay_test.yes">
+        <source>inpatient_stay_test.yes</source>
+        <target>yes</target>
+      </trans-unit>
+      <trans-unit id="IstC357DB0FD" resname="inpatient_stay_test.no">
+        <source>inpatient_stay_test.no</source>
+        <target>no</target>
+      </trans-unit>
+      <trans-unit id="Ist5BE9FC9F0" resname="inpatient_stay_test.statistics.title">
+        <source>inpatient_stay_test.statistics.title</source>
+        <target>Inpatient stays (test)</target>
+      </trans-unit>
+      <trans-unit id="Ist906195C8F" resname="inpatient_stay_test.statistics.count">
+        <source>inpatient_stay_test.statistics.count</source>
+        <target>{count, plural, one {# stay} other {# stays}} admitted in the period</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

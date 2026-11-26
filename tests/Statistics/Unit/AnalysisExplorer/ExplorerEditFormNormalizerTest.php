@@ -90,7 +90,7 @@ final class ExplorerEditFormNormalizerTest extends KernelTestCase
     public function testDistributionProfileKeepsColumnAxis(): void
     {
         $normalized = $this->normalizer->normalize(new ExplorerEditFormData(
-            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'all'),
+            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'last_12_months'),
             dataSource: 'allocations',
             rowDimension: 'urgency',
             rowGrain: 'total',
@@ -177,7 +177,7 @@ final class ExplorerEditFormNormalizerTest extends KernelTestCase
     public function testMetricsAsRowsFallsBackToMatrixWithoutAdditionalMetrics(): void
     {
         $normalized = $this->normalizer->normalize(new ExplorerEditFormData(
-            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'all'),
+            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'last_12_months'),
             rowDimension: 'age_group',
             rowGrain: 'total',
             columnDimension: 'urgency',
@@ -193,7 +193,7 @@ final class ExplorerEditFormNormalizerTest extends KernelTestCase
     public function testMetricsAsRowsStaysWhenAdditionalMetricsAreSelected(): void
     {
         $normalized = $this->normalizer->normalize(new ExplorerEditFormData(
-            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'all'),
+            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'last_12_months'),
             dataSource: 'hospitals',
             rowDimension: 'hospital_tier',
             rowGrain: 'total',
@@ -212,7 +212,7 @@ final class ExplorerEditFormNormalizerTest extends KernelTestCase
     public function testNormalizePreservesFilterFields(): void
     {
         $normalized = $this->normalizer->normalize(new ExplorerEditFormData(
-            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'all'),
+            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'last_12_months'),
             rowDimension: 'time',
             rowGrain: 'month',
             metric: 'allocation_count',
@@ -230,7 +230,7 @@ final class ExplorerEditFormNormalizerTest extends KernelTestCase
     public function testHospitalColumnClearsComparePopulation(): void
     {
         $normalized = $this->normalizer->normalize(new ExplorerEditFormData(
-            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'all'),
+            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'last_12_months'),
             dataSource: 'hospitals',
             rowDimension: 'hospital_tier',
             rowGrain: 'total',
@@ -248,7 +248,7 @@ final class ExplorerEditFormNormalizerTest extends KernelTestCase
     public function testHospitalCompareStaysWhenPopulationGroupIsAnAxis(): void
     {
         $normalized = $this->normalizer->normalize(new ExplorerEditFormData(
-            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'all'),
+            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'last_12_months'),
             dataSource: 'hospitals',
             rowDimension: 'hospital_population_group',
             rowGrain: 'total',
@@ -265,7 +265,7 @@ final class ExplorerEditFormNormalizerTest extends KernelTestCase
     public function testHospitalCompareStaysWithoutAColumn(): void
     {
         $normalized = $this->normalizer->normalize(new ExplorerEditFormData(
-            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'all'),
+            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'last_12_months'),
             dataSource: 'hospitals',
             rowDimension: 'hospital_tier',
             rowGrain: 'total',
@@ -281,7 +281,7 @@ final class ExplorerEditFormNormalizerTest extends KernelTestCase
     public function testHospitalCompareStaysWhenPopulationGroupIsTheColumn(): void
     {
         $normalized = $this->normalizer->normalize(new ExplorerEditFormData(
-            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'all'),
+            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'last_12_months'),
             dataSource: 'hospitals',
             rowDimension: 'hospital_tier',
             rowGrain: 'total',
@@ -303,7 +303,7 @@ final class ExplorerEditFormNormalizerTest extends KernelTestCase
         ?string $columnGrain = null,
     ): ExplorerEditFormData {
         return new ExplorerEditFormData(
-            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'all'),
+            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'last_12_months'),
             rowDimension: $rowDimension,
             rowGrain: $rowGrain,
             columnDimension: $columnDimension,

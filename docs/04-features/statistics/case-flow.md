@@ -43,16 +43,16 @@ Pipeline: **Population / Scope → Geographic aggregation → Map layers → Pre
 
 Layers (selected per mode):
 
-- Origin choropleth (Hessen dispatch-area GeoJSON): sequential blue scale with square-root contrast. **Relative (%)** (default) colours each region by its share of all mapped cases on a 0–100 % scale and labels the share. **Absolute** stretches colour to the highest case count in the current selection and labels the counts. Because share is count ÷ total, region ranking stays the same; the scale and labels are what change.
+- Origin choropleth (dispatch-area shapes from the database): sequential blue scale with square-root contrast. **Relative (%)** (default) colours each region by its share of all cases with an origin dispatch area on a 0–100 % scale and labels the share. Origins without a complete shape stay in that denominator but are not drawn, so the visible shares can add up to less than 100 %; the legend shows them as one chip (see below). **Absolute** stretches colour to the highest case count in the current selection and labels the counts. Because share is count ÷ total, region ranking stays the same; the scale and labels are what change.
 - Destination hospital pins (regional, expanded)
 - Hospital pin + isochrone bands (single-hospital scope). Compact and expanded views share origin/isochrone checkboxes when both layers are present; destination pins and the hospital pin stay overlay-only.
-- Observed transport-time intensity colours the isochrone rings. The compact legend puts share/count and travel-time scales on one row with pin keys and unmapped-count chips; method text (share vs count, estimated vs observed, omitted destinations) sits behind a **Notes** disclosure.
+- Observed transport-time intensity colours the isochrone rings. The compact legend puts share/count and travel-time scales on one row with pin keys and unmapped-count chips (isochrone: unknown time, beyond max; Case Flow: cases from areas without a map shape, `CaseFlowPrivacySuppressor::summarizeUnshapedOrigins()`, polygon check `CaseFlowGeoKeyResolver::hasMapShape()`); method text (share vs count, estimated vs observed, omitted destinations) sits behind a **Notes** disclosure.
 
 ## Components
 
 - **Service:** `CaseFlowDashboardService` orchestrates queries, destination pins, and isochrone assembly
 - **Queries:** `CaseFlowRegionalMetricsQuery`, `CaseFlowDestinationStructureQuery`, `GeographicDestinationHospitalQuery`, …
-- **Privacy:** `CaseFlowPrivacySuppressor` suppresses small-N cells and omits destination pins with n < 10 or without coordinates (grouped by hospital). Dispatch-area maps count omitted inside/outside destinations in the legend without naming them.
+- **Privacy:** `CaseFlowPrivacySuppressor` suppresses small-N cells and omits destination pins with n < 10 or without coordinates (grouped by hospital). Dispatch-area maps count omitted inside/outside destinations in the legend without naming them. The chip for origins without a map shape is one sum without origin names; below `MIN_CASES_PER_CELL` it reads "fewer than 10 cases" without count or share.
 - **Filters:** Scope, period, and the statistics drawer (`ProjectionDrawerFilterSql`) apply to map and charts together
 
 ## Geographic segment profile
@@ -67,8 +67,8 @@ The picker splits options into **Dispatch area** and **Travel time** `<optgroup>
 
 - Population: `CaseFlowSqlFilter` (scope, period, drawer) plus `GeographicSegmentSql`
 - Dispatch-area origin clicks use **Catchment** (`hospital` in the Leitstelle **and** `dispatch_area_id` of the clicked origin), same as the choropleth, not Related
-- Privacy: `CaseFlowPrivacyPolicy::MIN_CASES_PER_CELL` (n < 10). No second privacy engine
-- Age slices: `StatisticsAgeGroupBucketSql` (`0_17`, `18_29`, … — not Explorer `0_18`)
+- Privacy: `CaseFlowPrivacyPolicy::MIN_CASES_PER_CELL` (n < 10); destination pools also need at least 3 hospitals (`MIN_HOSPITALS_PER_DESTINATION_POOL`, from `ScopePrivacyPolicy::MIN_HOSPITALS`), smaller pools are merged into the suppressed pool. No second privacy engine
+- Age slices: `StatisticsAgeGroupBucketSql` (`0_17`, `18_29`, …), the same buckets as the Explorer
 - Travel bands: same exclusive 10-minute rings as the isochrone layer (`[0,10)`, `[10,20)`, … `[40,50)`, `≥50`). Allocations have no incident coordinates, so segments never intersect GeoJSON
 - UI: compact dimension tables like Top Lists (`table-sm` + share bar), tabs like Hospital Population, Turbo frame like Closed Department details
 - Reference population: the current Scope **AND** Period **AND** Drawer without the geographic segment. Dimension shares of a selected segment are compared with that parent population; Δ is the share difference, computed from unrounded shares and shown as a percent by [Directional indicators](directional-indicators.md)
@@ -133,15 +133,9 @@ Stimulus controllers:
 - `geo-map_controller.js` (shared geographic map)
 - `case-flow-charts_controller.js`
 
-GeoJSON: `assets/geo/hessen-landkreise.geojson`
+GeoJSON: `GET /statistics/geo/dispatch-areas.geojson` (`ROLE_USER`, private, ETag), built from the districts and geometries in the database. Features are keyed by dispatch area id. Areas without a hospital have `neighbour: true` and are drawn dashed. An area with a missing district geometry is not drawn, and its cases count towards the "cases without map area" hint (ADR 041).
 
-## GeoJSON build command
-
-```bash
-php bin/console app:statistics:case-flow:build-geojson
-```
-
-Merges Hessen dispatch-area GeoJSON from `config/case_flow/dispatch_area_geo_sources.yaml`.
+A new dispatch area gets its shape through data maintenance: [hospital-geodata.md](../../05-operations/hospital-geodata.md#districts-and-their-boundaries).
 
 ## Related
 

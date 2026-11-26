@@ -1,0 +1,54 @@
+{#
+    One KPI card. Variables: label, icon, value (null = no data), is_percent, detail (string or null),
+    change (KpiChangeDto or null = no comparison line), change_days (period of the comparison, default kpi_period),
+    url (or null), key (data attribute for tests).
+#}
+<div class="col-12 col-sm-6 col-xl-3 mb-3 ea-kpi-card" data-kpi-card="{{ key }}">
+    {% if url %}
+        <a href="{{ url }}" class="text-decoration-none text-body d-block h-100">
+    {% endif %}
+    <div class="card h-100">
+        <div class="card-body d-flex flex-column">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <i class="{{ icon }} fa-lg text-secondary" aria-hidden="true"></i>
+                <span class="text-secondary small mb-0">{{ label }}</span>
+            </div>
+            <p class="ea-kpi-value mb-1" data-kpi-value>
+                {%- if value is null -%}
+                    –
+                {%- elseif is_percent -%}
+                    {{ (value / 100)|format_percent_number({fraction_digit: 2}) }}
+                {%- else -%}
+                    {{ value|format_number }}
+                {%- endif -%}
+            </p>
+            {% if detail %}
+                <p class="small text-secondary mb-1" data-kpi-detail>{{ detail }}</p>
+            {% endif %}
+            {% if change %}
+                <p class="small mb-0 mt-auto" data-kpi-change>
+                    {% if change.delta is null %}
+                        <span class="text-secondary">{{ 'kpi.change.unavailable'|trans({}, 'admin') }}</span>
+                    {% else %}
+                        {% set sign = change.delta > 0 ? '+' : (change.delta < 0 ? '−' : '±') %}
+                        {% set amount = change.delta|abs %}
+                        <span class="fw-semibold text-{{ change.tone }}">
+                            {{- sign -}}
+                            {%- if change.unit == 'percent' -%}
+                                {{ (amount / 100)|format_percent_number({fraction_digit: 1}) }}
+                            {%- elseif change.unit == 'points' -%}
+                                {{ amount|format_number({fraction_digit: 2}) }} {{ 'kpi.change.unit.points'|trans({}, 'admin') }}
+                            {%- else -%}
+                                {{ amount|format_number }}
+                            {%- endif -%}
+                        </span>
+                        <span class="text-secondary">{{ 'kpi.change.previous_period'|trans({days: change_days ?? kpi_period}, 'admin') }}</span>
+                    {% endif %}
+                </p>
+            {% endif %}
+        </div>
+    </div>
+    {% if url %}
+        </a>
+    {% endif %}
+</div>

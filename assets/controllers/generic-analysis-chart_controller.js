@@ -1,4 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
+import { chartColors, LIGHT_CHART_COLORS } from '../lib/chart-colors.js';
+import { onThemeChange } from '../lib/chart-theme.js';
 import { loadApexCharts } from '../lib/load-apexcharts.js';
 import {
     buildAnalysisChartExportOptions,
@@ -19,6 +21,11 @@ export default class extends Controller {
     static targets = ['chart', 'typeButton'];
 
     connect() {
+        // The chart type the user picked stays; only the colours are rebuilt (#1320).
+        this.stopThemeWatch = onThemeChange(this.element, () => {
+            this._renderGeneration = (this._renderGeneration ?? 0) + 1;
+            void this.render(this._renderGeneration);
+        });
         this.instance = null;
         this._renderGeneration = (this._renderGeneration ?? 0) + 1;
         this.currentType = this.defaultTypeValue || '';
@@ -38,6 +45,8 @@ export default class extends Controller {
     }
 
     disconnect() {
+        this.stopThemeWatch?.();
+        this.stopThemeWatch = null;
         this._renderGeneration = (this._renderGeneration ?? 0) + 1;
         if (this.instance) {
             this.instance.destroy();
@@ -74,11 +83,11 @@ export default class extends Controller {
 
         const spec = this.currentSpec();
         const exportTitle = (this.exportFilenameValue || '').trim();
-        const exportOptions = buildAnalysisChartExportOptions(
-            spec ?? {},
-            exportTitle,
-            this.chartBuildOptions(),
-        );
+        // The PNG export is always light: it is shared outside the app, on white backgrounds.
+        const exportOptions = buildAnalysisChartExportOptions(spec ?? {}, exportTitle, {
+            ...this.chartBuildOptions(),
+            colors: LIGHT_CHART_COLORS,
+        });
         if (!exportOptions) {
             return;
         }
@@ -164,12 +173,13 @@ export default class extends Controller {
     }
 
     chartBuildOptions() {
+        const colors = chartColors(this.element);
         const profile = (this.chartHeightProfileValue || '').trim();
         if (profile === '') {
-            return {};
+            return { colors };
         }
 
-        return { chartHeightProfile: profile };
+        return { chartHeightProfile: profile, colors };
     }
 
     currentSpec() {

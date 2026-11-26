@@ -1,0 +1,101 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.settings.account'|trans({}, 'user') }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                { label: 'title.settings', path: path('app_settings_index') },
+                { label: 'label.settings.my_account', label_domain: 'user' },
+            ]"
+        />
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <h2 class="page-title">{{ 'title.settings.account'|trans({}, 'user') }}</h2>
+                    <div class="text-secondary mt-1">{{ 'text.settings.account_intro'|trans({}, 'messages') }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_body %}
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row row-cards">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="row g-0">
+                            {{ include('@User/settings/_sidebar.html.twig', {active: 'account'}) }}
+                            <div class="col-12 col-md-9 d-flex flex-column">
+                                <div class="card-header">
+                                    <h3 class="card-title">{{ 'label.settings.my_account'|trans({}, 'user') }}</h3>
+                                </div>
+                                {# One card body per section; Tabler draws a line between them (#1508). #}
+                                <div class="card-body" data-testid="settings-section-profile">
+                                    <h3 class="card-title">{{ 'label.settings.profile_details'|trans({}, 'user') }}</h3>
+                                    {{ form_start(profileForm, {attr: {id: 'settings-profile-form', 'data-testid': 'settings-profile-form'}}) }}
+                                        <div class="row g-3 align-items-start">
+                                            <div class="col-auto pt-4">
+                                                <twig:UserAvatar :user="app.user" size="md" data-testid="settings-profile-avatar" />
+                                            </div>
+                                            <div class="col">
+                                                {{ form_row(profileForm.displayName) }}
+                                            </div>
+                                            <div class="col-12 col-md-auto pt-md-4">
+                                                <button class="btn" type="submit">{{ 'label.settings.save_profile'|trans({}, 'user') }}</button>
+                                            </div>
+                                        </div>
+                                    {{ form_end(profileForm) }}
+                                </div>
+
+                                <div class="card-body" data-testid="settings-section-email">
+                                    <h3 class="card-title">{{ 'label.email'|trans({}, 'user') }}</h3>
+                                    <div class="row g-3 align-items-end mb-2">
+                                        <div class="col-md-8">
+                                            <label class="form-label" for="settings-email">{{ 'label.email_address'|trans({}, 'user') }}</label>
+                                            <input id="settings-email" class="form-control bg-surface-secondary text-secondary" value="{{ app.user.email }}" readonly />
+                                        </div>
+                                        <div class="col-md-4 d-grid">
+                                            <a class="btn" href="{{ path('app_settings_email') }}">{{ 'label.settings.change_email'|trans({}, 'user') }}</a>
+                                        </div>
+                                    </div>
+                                    <p class="form-hint mb-2" data-test="email-login-notice">{{ 'message.login.email_switch_notice'|trans({}, 'user') }}</p>
+                                    <small class="form-text d-flex align-items-center gap-2">
+                                        <span>{{ 'label.settings.verification_status'|trans({}, 'user') }}</span>
+                                        <span class="badge {{ app.user.isVerified ? 'bg-green text-green-fg' : 'bg-yellow text-yellow-fg' }}">
+                                            {{ app.user.isVerified ? 'label.verified'|trans({}, 'messages') : 'label.not_verified'|trans({}, 'messages') }}
+                                        </span>
+                                    </small>
+                                    {% if not app.user.isVerified %}
+                                        <form method="post" action="{{ path('app_settings_resend_verification') }}" class="mt-2">
+                                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('resend_verification_email') }}">
+                                            <button class="btn btn-outline-secondary" type="submit">{{ 'label.settings.resend_verification'|trans({}, 'user') }}</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+
+                                <div class="card-body flex-grow-1" data-testid="settings-section-language">
+                                    <h3 class="card-title">{{ 'label.settings.language'|trans({}, 'user') }}</h3>
+                                    <p class="card-subtitle">{{ 'help.settings.language'|trans({}, 'user') }}</p>
+                                    {{ form_start(localeForm, {attr: {id: 'settings-locale-form'}}) }}
+                                        <div class="row g-3 align-items-end">
+                                            <div class="col-md-8">
+                                                {{ form_row(localeForm.locale) }}
+                                            </div>
+                                            <div class="col-md-4 d-grid">
+                                                <button class="btn btn-primary" type="submit">{{ 'label.btn.save'|trans({}, 'messages') }}</button>
+                                            </div>
+                                        </div>
+                                    {{ form_end(localeForm) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

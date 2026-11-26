@@ -13,6 +13,7 @@
             {{ include('@Shared/components/data_table/_page_result_count.html.twig') }}
         </twig:block>
         <twig:block name="actions">
+            <twig:Content:HelpLink key="import.status" />
             {% if canImport %}
                 <a class="btn btn-primary" href="{{ path('app_import_new') }}">{{ 'label.import.new'|trans({}, 'import') }}</a>
             {% endif %}
@@ -163,12 +164,28 @@
                     <label class="form-label" for="import-filter-owner">{{ 'label.import.filter.owner'|trans({}, 'import') }}</label>
                     <select name="ownerId" id="import-filter-owner" class="form-select">
                         <option value="">{{ 'label.import.filter.all_owners'|trans({}, 'import') }}</option>
+                        {% import '@Shared/_macros/users.html.twig' as users %}
                         {% for owner in owners %}
                             <option
                                 value="{{ owner.id }}"
                                 {{ filters.ownerId == owner.id ? 'selected' }}
                             >
-                                {{ owner.username }}
+                                {{ users.label(owner.displayName, owner.username) }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="import-filter-type">{{ 'label.type'|trans({}, 'messages') }}</label>
+                    <select name="type" id="import-filter-type" class="form-select">
+                        <option value="">{{ 'label.import.filter.all_types'|trans({}, 'import') }}</option>
+                        {% for type in types %}
+                            <option
+                                value="{{ type.value }}"
+                                {{ filters.type == type.value ? 'selected' }}
+                            >
+                                {{ ('import.type.label.' ~ type.value|lower)|trans({}, 'import') }}
                             </option>
                         {% endfor %}
                     </select>
@@ -189,26 +206,50 @@
                     </select>
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label" for="import-filter-created-from">{{ 'label.import.filter.created_from'|trans({}, 'import') }}</label>
-                    <input
-                        type="date"
-                        name="createdFrom"
-                        id="import-filter-created-from"
-                        class="form-control"
-                        value="{{ filters.createdFrom }}"
-                    >
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label" for="import-filter-created-from">{{ 'label.import.filter.created_from'|trans({}, 'import') }}</label>
+                        <input
+                            type="date"
+                            name="createdFrom"
+                            id="import-filter-created-from"
+                            class="form-control"
+                            value="{{ filters.createdFrom }}"
+                        >
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" for="import-filter-created-until">{{ 'label.import.filter.created_until'|trans({}, 'import') }}</label>
+                        <input
+                            type="date"
+                            name="createdUntil"
+                            id="import-filter-created-until"
+                            class="form-control"
+                            value="{{ filters.createdUntil }}"
+                        >
+                    </div>
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label" for="import-filter-created-until">{{ 'label.import.filter.created_until'|trans({}, 'import') }}</label>
-                    <input
-                        type="date"
-                        name="createdUntil"
-                        id="import-filter-created-until"
-                        class="form-control"
-                        value="{{ filters.createdUntil }}"
-                    >
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label" for="import-filter-period-from">{{ 'label.import.filter.period_from'|trans({}, 'import') }}</label>
+                        <input
+                            type="date"
+                            name="periodFrom"
+                            id="import-filter-period-from"
+                            class="form-control"
+                            value="{{ filters.periodFrom }}"
+                        >
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" for="import-filter-period-until">{{ 'label.import.filter.period_until'|trans({}, 'import') }}</label>
+                        <input
+                            type="date"
+                            name="periodUntil"
+                            id="import-filter-period-until"
+                            class="form-control"
+                            value="{{ filters.periodUntil }}"
+                        >
+                    </div>
                 </div>
     </twig:FilterDrawer>
 {% endblock %}

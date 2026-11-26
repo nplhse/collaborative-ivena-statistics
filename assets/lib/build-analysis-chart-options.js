@@ -1,3 +1,5 @@
+import { LIGHT_CHART_COLORS } from './chart-colors.js';
+import { lineMarkers } from './chart-markers.js';
 import { buildAnalysisHeatmapOptions } from './build-analysis-heatmap-options.js';
 import { ANALYSIS_CHART_HEIGHT_PROFILE_EXPLORER } from './analysis-chart-height-profile.js';
 
@@ -40,7 +42,6 @@ function buildAxisTitleConfig(text, offsets = {}) {
             fontFamily: resolveAnalysisChartFontFamily(),
             fontSize: '12px',
             fontWeight: 500,
-            color: '#495057',
         },
     };
 }
@@ -114,7 +115,7 @@ function resolveChartHeightProfile(buildOptions) {
  * Builds ApexCharts options from the analysis chart spec payload.
  *
  * @param {Record<string, unknown>} data
- * @param {Record<string, unknown>} [buildOptions]
+ * @param {Record<string, unknown>} [buildOptions] `colors` (from chart-colors.js) defaults to the light colours
  * @returns {import('apexcharts').ApexOptions | null}
  */
 export function buildAnalysisChartOptions(data, buildOptions = {}) {
@@ -123,9 +124,10 @@ export function buildAnalysisChartOptions(data, buildOptions = {}) {
     }
 
     const chartHeightProfile = resolveChartHeightProfile(buildOptions);
+    const colors = buildOptions.colors ?? LIGHT_CHART_COLORS;
 
     if (data.chartType === 'heatmap') {
-        return buildAnalysisHeatmapOptions(data, { chartHeightProfile });
+        return buildAnalysisHeatmapOptions(data, { chartHeightProfile, colors });
     }
 
     if (data.chartType === 'boxPlot') {
@@ -210,7 +212,6 @@ export function buildAnalysisChartOptions(data, buildOptions = {}) {
             dataLabels: { enabled: false },
             grid: {
                 strokeDashArray: 4,
-                borderColor: 'rgba(0,0,0,0.04)',
                 padding: {
                     top: 8,
                     right: 12,
@@ -267,7 +268,9 @@ export function buildAnalysisChartOptions(data, buildOptions = {}) {
 
     const multi = series.length > 1;
     const percentScale = data.percentScale === true || data.valueFormat === 'percent';
-    const barGrouped = data.barGrouped === true && !percentScale;
+    // Shares within each series (reference comparison, #1346) add up per series, not per bar: never stack them.
+    const seriesShare = data.seriesShare === true;
+    const barGrouped = data.barGrouped === true && (!percentScale || seriesShare);
     const categoryAxisTitle =
         typeof data.xAxisLabel === 'string' && data.xAxisLabel !== '' ? data.xAxisLabel : undefined;
     const valueAxisTitle =
@@ -314,7 +317,7 @@ export function buildAnalysisChartOptions(data, buildOptions = {}) {
         !isLine &&
         multi &&
         chartType === 'bar' &&
-        (data.stacked === true || percentScale || !barGrouped);
+        (data.stacked === true || (percentScale && !seriesShare) || !barGrouped);
 
     let maxVal = 0;
     if (stackedBars) {
@@ -418,6 +421,7 @@ export function buildAnalysisChartOptions(data, buildOptions = {}) {
             axisTicks: { show: true },
         },
         plotOptions: barPlotOptions,
+        ...(isLine ? { markers: lineMarkers(labels.length) } : {}),
         stroke: isLine
             ? {
                   curve: 'smooth',
@@ -428,7 +432,7 @@ export function buildAnalysisChartOptions(data, buildOptions = {}) {
               ? {
                     show: true,
                     width: 1,
-                    colors: ['#fff'],
+                    colors: [colors.surface],
                 }
               : {},
         ...(multi
@@ -452,7 +456,6 @@ export function buildAnalysisChartOptions(data, buildOptions = {}) {
         dataLabels: { enabled: false },
         grid: {
             strokeDashArray: 4,
-            borderColor: 'rgba(0,0,0,0.04)',
             padding: {
                 top: 8,
                 right: 12,

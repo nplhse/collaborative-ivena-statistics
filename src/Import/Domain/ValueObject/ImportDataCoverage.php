@@ -12,6 +12,8 @@ namespace App\Import\Domain\ValueObject;
  *
  * - Allocation imports: `records` are allocations, `dailyCounts` allocations per `created_at` day.
  * - Closure imports: `records` are closure intervals, `dailyCounts` intervals active per day.
+ * - Encounter imports: `records` are the valid visits of the file (new and already known), `dailyCounts`
+ *   visits per day of their time anchor; calculated by the encounter import.
  *
  * Timestamps are naive wall-clock values as IVENA delivers them. Days are `Y-m-d` strings.
  *

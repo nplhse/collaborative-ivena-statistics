@@ -35,13 +35,11 @@ final readonly class AnalyticsScheduledAggregationService implements AnalyticsSc
         $dates = array_values($datesByKey);
 
         $totalRawRequests = 0;
-        $totalRawEvents = 0;
         $totalAggregateRows = 0;
 
         foreach ($dates as $date) {
             $result = $this->aggregationService->aggregateForDate($date);
             $totalRawRequests += $result->rawRequestCount;
-            $totalRawEvents += $result->rawEventCount;
             $totalAggregateRows += $result->aggregateRowsWritten;
         }
 
@@ -54,7 +52,6 @@ final readonly class AnalyticsScheduledAggregationService implements AnalyticsSc
             ),
             daysProcessed: \count($dates),
             totalRawRequests: $totalRawRequests,
-            totalRawEvents: $totalRawEvents,
             totalAggregateRows: $totalAggregateRows,
             rawRowsDeleted: $retention->rawRowsDeleted(),
         );

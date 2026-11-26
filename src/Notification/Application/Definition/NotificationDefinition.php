@@ -28,6 +28,8 @@ final readonly class NotificationDefinition
      *                                                     shown as one toast; texts: "notification.toast_group.{group}.title"
      * @param string|null               $toastGroupRoute   route (without parameters) the grouped toast links to; null links
      *                                                     to the unread notifications
+     * @param int                       $position          order within the category on the settings page; types with the
+     *                                                     same position keep the registry order (by type name)
      *
      * @psalm-suppress PossiblyUnusedMethod Instantiated through reflection from the attribute.
      */
@@ -45,6 +47,7 @@ final readonly class NotificationDefinition
         public ?string $requiredRole = null,
         public ?string $toastGroup = null,
         public ?string $toastGroupRoute = null,
+        public int $position = 0,
     ) {
     }
 

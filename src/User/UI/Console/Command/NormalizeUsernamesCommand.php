@@ -63,7 +63,8 @@ final readonly class NormalizeUsernamesCommand
                 continue;
             }
 
-            $claimedUsernames[$username] = $userId;
+            // Lowercased: usernames that differ only in case collide (#1353, unique index on LOWER(username)).
+            $claimedUsernames[mb_strtolower($username)] = $userId;
         }
 
         $inspected = 0;
@@ -104,7 +105,7 @@ final readonly class NormalizeUsernamesCommand
                 continue;
             }
 
-            $claimedBy = $claimedUsernames[$proposed] ?? null;
+            $claimedBy = $claimedUsernames[mb_strtolower($proposed)] ?? null;
             if (null !== $claimedBy && $claimedBy !== $userId) {
                 ++$collisions;
                 $rows[] = [
@@ -124,8 +125,8 @@ final readonly class NormalizeUsernamesCommand
                 'proposed' => $proposed,
                 'status' => $dryRun ? self::STATUS_WOULD_RENAME : self::STATUS_RENAMED,
             ];
-            unset($claimedUsernames[$current]);
-            $claimedUsernames[$proposed] = $userId;
+            unset($claimedUsernames[mb_strtolower($current)]);
+            $claimedUsernames[mb_strtolower($proposed)] = $userId;
             $updates[$userId] = $proposed;
         }
 

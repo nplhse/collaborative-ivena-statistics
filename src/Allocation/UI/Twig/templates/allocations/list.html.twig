@@ -7,7 +7,7 @@
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
         {% block header_after %}
-            {{ include(('@Shared/_includes/subnav_explore.html.twig')) }}
+            <twig:Navigation:Sidebar menu="explore" />
         {% endblock %}
     {% endembed %}
 {% endblock %}
@@ -39,10 +39,11 @@
         {% import '@Shared/_macros/filters.html.twig' as activeFilters %}
 
         {% if activeFilterCount > 0 %}
-            {{ activeFilters.allocation_filter_badges(filters, states, dispatchAreas, indications, secondaryTransports, infections, departments, specialities, transportTypes, assignments, occasions, hospitalScopeOptions) }}
+            {{ activeFilters.allocation_filter_badges(filters, states, dispatchAreas, indications, secondaryTransports, infections, departments, specialities, transportTypes, assignments, occasions, hospitalScopeOptions, listExtensionFilters|default([])) }}
         {% endif %}
 
         {% set listIsFiltered = activeFilterCount > 0 %}
+        {# Explore shows only the viewer's own hospitals (#1566); without one the list stays empty. #}
         <twig:DataTable
             mobileLayout="cards"
             mobilePrimaryColumn="indication"
@@ -53,15 +54,15 @@
             :paginationRoute="pagination_route"
             :sortBy="sortBy"
             :orderBy="orderBy"
-            emptyTitle="{{ (listIsFiltered ? 'empty.filtered.title' : (canImport ? 'empty.allocation.initial.title' : 'empty.allocation.no_permission.title'))|trans({}, listIsFiltered ? 'shared' : 'allocation') }}"
-            emptyDescription="{{ (listIsFiltered ? 'empty.filtered.description' : (canImport ? 'empty.allocation.initial.description' : 'empty.allocation.no_permission.description'))|trans({}, listIsFiltered ? 'shared' : 'allocation') }}"
-            emptyIcon="{{ listIsFiltered ? 'tabler:filter-off' : 'tabler:ambulance' }}"
+            emptyTitle="{{ (listIsFiltered ? 'empty.filtered.title' : (not hasOwnHospital ? 'empty.allocation.no_hospital.title' : (canImport ? 'empty.allocation.initial.title' : 'empty.allocation.no_permission.title')))|trans({}, listIsFiltered ? 'shared' : 'allocation') }}"
+            emptyDescription="{{ (listIsFiltered ? 'empty.filtered.description' : (not hasOwnHospital ? 'empty.allocation.no_hospital.description' : (canImport ? 'empty.allocation.initial.description' : 'empty.allocation.no_permission.description')))|trans({}, listIsFiltered ? 'shared' : 'allocation') }}"
+            emptyIcon="{{ listIsFiltered ? 'tabler:filter-off' : (not hasOwnHospital ? 'tabler:building-hospital' : 'tabler:ambulance') }}"
             rowClassProperty="departmentWasClosed"
             rowClass="allocation-row-department-closed"
             :columns="allocationColumns"
             columnVisibilityEnabled
             columnOrderingEnabled
-            :visibleColumnKeys="allocationPreferences.visibleColumns"
+            :visibleColumnKeys="allocationVisibleColumns"
             :columnOrder="allocationPreferences.columnOrder"
             :preferenceKey="allocationPreferencesPersisted ? allocationPreferenceKey : null"
             :preferenceSaveUrl="allocationPreferencesPersisted ? path('app_data_table_preferences_save') : null"
@@ -71,6 +72,8 @@
             <twig:block name="empty_actions">
                 {% if listIsFiltered %}
                     <a class="btn btn-primary" href="{{ path('app_explore_allocation_list', data_table_view_query()) }}">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</a>
+                {% elseif not hasOwnHospital %}
+                    <a class="btn btn-primary" href="{{ path('app_hospital_assignment_request_new') }}" target="_top">{{ 'empty.allocation.no_hospital.cta'|trans({}, 'allocation') }}</a>
                 {% elseif canImport %}
                     <a class="btn btn-primary" href="{{ path('app_import_new') }}" target="_top">{{ 'empty.allocation.initial.cta'|trans({}, 'allocation') }}</a>
                 {% else %}

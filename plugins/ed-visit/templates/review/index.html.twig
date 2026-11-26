@@ -1,0 +1,33 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% set page_title_key = validation ? 'encounter.validation.title' : 'encounter.review.title' %}
+
+{% block title %}{{ page_title_key|trans({}, 'encounter') }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <twig:PageHeader :title="page_title_key|trans({}, 'encounter')">
+        <twig:block name="breadcrumbs">
+            <twig:Breadcrumbs :items="[
+                { label: 'link.tools', label_domain: 'shared', path: path('app_tools_index') },
+                { label: page_title_key, label_domain: 'encounter', translatable: true }
+            ]" />
+        </twig:block>
+    </twig:PageHeader>
+{% endblock %}
+
+{% block page_content %}
+    <div class="card">
+        <div class="card-body">
+            <p class="text-secondary">{{ 'encounter.review.intro'|trans({}, 'encounter') }}</p>
+            {% if hospitals is empty %}
+                <p class="text-secondary mb-0" data-test="encounter-review-no-hospitals">{{ 'encounter.review.no_hospitals'|trans({}, 'encounter') }}</p>
+            {% else %}
+                <div class="list-group" data-test="encounter-review-hospitals">
+                    {% for id, name in hospitals %}
+                        <a class="list-group-item list-group-item-action" href="{{ path(target_route, {id: id}) }}">{{ name }}</a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

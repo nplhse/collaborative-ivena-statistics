@@ -1,69 +1,78 @@
+{# Help pages (#596): search, outline and the help navigation instead of the page tree and the latest posts. #}
+{% set help = help|default(false) %}
 <div class="row row-cards" data-testid="page-sidebar">
+    {# The help start page has its own search block. #}
+    {% if help and not (page is defined and page.key and page.key.value == 'help') %}
+        <div class="col-12">
+            {{ include('@Content/help/_search_form.html.twig', {query: help_query|default(''), variant: 'sidebar'}) }}
+        </div>
+    {% endif %}
     {% if toc is defined and toc is not empty %}
         <div class="col-12">
-            <div class="card" data-testid="page-toc">
-                <div class="card-header">
-                    <h3 class="card-title d-flex align-items-center gap-2">
-                        <twig:ux:icon name="tabler:list" class="w-4 h-4" />
+            {# Outline (#1590): rows like the page navigation below it; deeper headings are indented sub-rows. #}
+            {% set toc_base = min(toc|map(item => item.level)) %}
+            <twig:Card :body="false" class="page-navigation page-toc" data-testid="page-toc">
+                <twig:block name="header">
+                    <h3 class="card-title d-flex align-items-center gap-2" id="page-toc-heading">
+                        <twig:ux:icon name="tabler:list" class="w-4 h-4" aria-hidden="true" />
                         {{ 'page.toc.title'|trans({}, 'content') }}
                     </h3>
-                </div>
-                <div class="card-body py-2">
-                    <nav aria-label="{{ 'page.toc.title'|trans({}, 'content') }}">
-                        <ul class="list-unstyled mb-0 page-toc-list">
-                            {% for item in toc %}
-                                {% set level = item.level %}
-                                <li class="{% if level == 1 %}mb-2{% else %}mb-1{% endif %}{% if level == 2 %} ps-3 ms-1 border-start{% elseif level >= 3 %} ps-4 ms-2 border-start{% endif %}">
-                                    <a href="#{{ item.id }}"
-                                       class="{% if level == 1 %}text-body{% elseif level == 2 %}link-secondary{% else %}small link-secondary{% endif %}">
-                                        {{ item.text }}
-                                    </a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </nav>
-                </div>
-            </div>
+                </twig:block>
+                <nav aria-labelledby="page-toc-heading">
+                    <ul class="page-nav-list list-unstyled mb-0">
+                        {% for item in toc %}
+                            {% set depth = item.level - toc_base %}
+                            <li class="page-nav-item">
+                                <div class="page-nav-row{{ depth > 0 ? ' page-nav-row--sub' }}" style="--page-nav-depth: {{ depth }}">
+                                    <a href="#{{ item.id }}" class="page-nav-link">{{ item.text }}</a>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </nav>
+            </twig:Card>
         </div>
     {% endif %}
 
     <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title d-flex align-items-center gap-2">
-                    <twig:ux:icon name="tabler:sitemap" class="w-4 h-4" />
-                    {{ 'dashboard.pages.card_title'|trans({}, 'content') }}
-                </h3>
-            </div>
-            <div class="card-body">
-                {% if pageTree is empty %}
-                    <p class="text-secondary mb-0">{{ 'dashboard.pages.empty'|trans({}, 'content') }}</p>
-                {% else %}
-                    <ul class="list-unstyled mb-0">
-                        {{ include('@Content/page/_page_tree_nodes.html.twig', {nodes: pageTree, currentPage: currentPage|default(null)}, false) }}
-                    </ul>
-                {% endif %}
-            </div>
-        </div>
+        {% if help %}
+            <twig:Content:PageNavigation
+                :root="enum('App\\Content\\Domain\\Enum\\PageKey').Help"
+                title="{{ 'help.navigation.title'|trans({}, 'content') }}"
+                data-testid="help-navigation"
+            />
+        {% else %}
+            <twig:Content:PageNavigation />
+        {% endif %}
     </div>
 
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title d-flex align-items-center gap-2">
-                    <twig:ux:icon name="tabler:clock-hour-4" class="w-4 h-4" />
-                    {{ 'blog.sidebar.latest_posts'|trans({}, 'content') }}
-                </h3>
-            </div>
-            <div class="list-group list-group-flush">
-                {% for latest in latest_posts %}
-                    <a href="{{ path('app_blog_show', {slug: latest.slug}) }}" class="list-group-item list-group-item-action">
-                        {{ latest.title }}
-                    </a>
-                {% else %}
-                    <div class="list-group-item text-secondary">{{ 'blog.sidebar.no_latest_posts'|trans({}, 'content') }}</div>
-                {% endfor %}
+    {% if help %}
+        <twig:Content:HelpReference />
+        {# The other editorial pages (#1582), so they stay reachable from the help. #}
+        <div class="col-12">
+            <twig:Content:PageNavigation data-testid="help-page-navigation" />
+        </div>
+    {% endif %}
+
+    {% if not help %}
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title d-flex align-items-center gap-2">
+                        <twig:ux:icon name="tabler:clock-hour-4" class="w-4 h-4" />
+                        {{ 'blog.sidebar.latest_posts'|trans({}, 'content') }}
+                    </h3>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for latest in latest_posts %}
+                        <a href="{{ path('app_blog_show', {slug: latest.slug}) }}" class="list-group-item list-group-item-action">
+                            {{ latest.title }}
+                        </a>
+                    {% else %}
+                        <div class="list-group-item text-secondary">{{ 'blog.sidebar.no_latest_posts'|trans({}, 'content') }}</div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
-    </div>
+    {% endif %}
 </div>

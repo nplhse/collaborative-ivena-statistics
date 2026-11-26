@@ -1,0 +1,52 @@
+{
+    "id": "inpatient-poc",
+    "version": 1,
+    "label": "Stationäre Aufenthalte (Test-PoC)",
+    "schema": "inpatient_stay",
+    "schemaVersion": 1,
+    "source": {
+        "delimiter": ";",
+        "timestamp": "dd.mm.yyyy HH:MM:SS"
+    },
+    "detect": {
+        "requiredColumns": [
+            "Fallnummer",
+            "Aufnahme Station",
+            "Entlassdiagnose"
+        ]
+    },
+    "keys": {
+        "caseNumber": "Fallnummer",
+        "anchors": [
+            {
+                "source": "admission",
+                "column": "Aufnahme Station"
+            }
+        ]
+    },
+    "fields": {
+        "admitted_at": {
+            "type": "timestamp",
+            "column": "Aufnahme Station"
+        },
+        "discharge_diagnosis": {
+            "type": "code",
+            "column": "Entlassdiagnose",
+            "map": {
+                "I21.4": "I21.4",
+                "J18.9": "J18.9",
+                "S72.0": "S72.0"
+            }
+        },
+        "discharged_at": {
+            "type": "timestamp",
+            "column": "Entlassung Station"
+        }
+    },
+    "dropped": {
+        "identifying": [
+            "Patientenname",
+            "Geburtsdatum"
+        ]
+    }
+}

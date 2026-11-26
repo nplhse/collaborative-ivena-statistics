@@ -14,6 +14,7 @@ use App\Statistics\Application\Cohort\HospitalCohortLabelResolver;
 use App\Statistics\Application\Cohort\HospitalCohortResolver;
 use App\Statistics\Application\Contract\HospitalAccessInterface;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
+use App\Statistics\Application\ScopePrivacyPolicy;
 use App\Statistics\Application\StatisticsHospitalScopeLabelResolver;
 use App\Statistics\Application\StatisticsPeriodNavigation;
 use App\Statistics\Benchmarking\UI\Form\Data\BenchmarkSelectionSideFormData;
@@ -225,7 +226,7 @@ final class StatisticsFilterFormChoiceProvider
     {
         return [
             StatisticsFilterPeriod::AllTime->value => $this->translator->trans('stats.filter.period.all_time', [], 'statistics', $locale),
-            StatisticsFilterPeriod::All->value => $this->translator->trans('stats.filter.period.all', [], 'statistics', $locale),
+            StatisticsFilterPeriod::Last12Months->value => $this->translator->trans('stats.filter.period.last_12_months', [], 'statistics', $locale),
             StatisticsFilterPeriod::Year->value => $this->translator->trans('stats.filter.period.year', [], 'statistics', $locale),
             StatisticsFilterPeriod::Quarter->value => $this->translator->trans('stats.filter.period.quarter', [], 'statistics', $locale),
             StatisticsFilterPeriod::Month->value => $this->translator->trans('stats.filter.period.month', [], 'statistics', $locale),
@@ -474,8 +475,8 @@ final class StatisticsFilterFormChoiceProvider
     private function eligibleStateIds(StatisticsFilterScopeChoicePolicy $policy): array
     {
         return match ($policy) {
-            StatisticsFilterScopeChoicePolicy::RegisteredHospitals => ($this->eligibleStateIdsQuery)(2),
-            StatisticsFilterScopeChoicePolicy::AllocationStatistics => $this->projectionScopeQuery->stateIdsWithAtLeastDistinctHospitals(2),
+            StatisticsFilterScopeChoicePolicy::RegisteredHospitals => ($this->eligibleStateIdsQuery)(ScopePrivacyPolicy::MIN_HOSPITALS),
+            StatisticsFilterScopeChoicePolicy::AllocationStatistics => $this->projectionScopeQuery->stateIdsWithAtLeastDistinctHospitals(ScopePrivacyPolicy::MIN_HOSPITALS),
         };
     }
 
@@ -485,8 +486,8 @@ final class StatisticsFilterFormChoiceProvider
     private function eligibleDispatchAreaIds(StatisticsFilterScopeChoicePolicy $policy): array
     {
         return match ($policy) {
-            StatisticsFilterScopeChoicePolicy::RegisteredHospitals => ($this->eligibleDispatchAreaIdsQuery)(2),
-            StatisticsFilterScopeChoicePolicy::AllocationStatistics => $this->projectionScopeQuery->dispatchAreaIdsWithAtLeastDistinctHospitals(2),
+            StatisticsFilterScopeChoicePolicy::RegisteredHospitals => ($this->eligibleDispatchAreaIdsQuery)(ScopePrivacyPolicy::MIN_HOSPITALS),
+            StatisticsFilterScopeChoicePolicy::AllocationStatistics => $this->projectionScopeQuery->dispatchAreaIdsWithAtLeastDistinctHospitals(ScopePrivacyPolicy::MIN_HOSPITALS),
         };
     }
 

@@ -1,13 +1,14 @@
 {{ include('@Statistics/geographic_map/_map.html.twig', {
     payload: chartPayload.geographicMap|default(chartPayload),
     testId: 'stats-case-flow-map',
-    geoUrl: asset('geo/hessen-landkreise.geojson'),
+    geoUrl: path('app_stats_geo_dispatch_areas'),
     showValueModes: true,
     showExpand: true,
     showIsochroneLegend: dashboard.isochrone is not null,
     frameClass: 'case-flow-map-square',
     unknownCount: dashboard.isochrone ? dashboard.isochrone.unknownCount : 0,
     beyondMaxCount: dashboard.isochrone ? dashboard.isochrone.beyondMaxCount : 0,
+    unshapedOrigins: dashboard.unshapedOrigins,
     titleKey: dashboard.dispatchAreaFlow ? 'stats.case_flow.section.map.catchment' : 'stats.case_flow.section.map',
     showTitle: false,
 }) }}

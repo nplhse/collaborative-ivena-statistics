@@ -39,7 +39,7 @@ final class ClosureProfileControllerTest extends WebTestCase
         $client = self::createClient();
         $owner = $this->login($client);
         $seed = $this->seed($owner, 'Profile Page Hospital', 'profile-page-group');
-        $foreignOwner = UserFactory::createOne(['roles' => [UserRole::USER, UserRole::PARTICIPANT, UserRole::CLOSURE_BETA]]);
+        $foreignOwner = UserFactory::createOne(['roles' => [UserRole::USER, UserRole::PARTICIPANT]]);
         $foreign = $this->seed($foreignOwner, 'Foreign Profile Hospital', 'foreign-profile-group');
         $eventId = $this->closureEventId($seed['hospitalId'], 'profile-page-group');
         $links = self::getContainer()->get(ClosureProfileQuery::class)->linksForEvent($eventId, $seed['hospitalId']);
@@ -223,7 +223,7 @@ final class ClosureProfileControllerTest extends WebTestCase
 
     private function login(KernelBrowser $client): User
     {
-        $user = UserFactory::createOne(['roles' => [UserRole::USER, UserRole::PARTICIPANT, UserRole::CLOSURE_BETA]]);
+        $user = UserFactory::createOne(['roles' => [UserRole::USER, UserRole::PARTICIPANT]]);
         $client->followRedirects(true);
         $client->loginUser($user);
 

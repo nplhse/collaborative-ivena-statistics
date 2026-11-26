@@ -111,11 +111,11 @@
       </trans-unit>
       <trans-unit id="EmlWlcExpDDe" resname="email.welcome.next_steps.explore.description">
         <source>email.welcome.next_steps.explore.description</source>
-        <target>Erkunden Sie Zuweisungen und Stammdaten im Data Catalog.</target>
+        <target>Erkunden Sie Zuweisungen und Stammdaten.</target>
       </trans-unit>
       <trans-unit id="EmlWlcExpTDe" resname="email.welcome.next_steps.explore.title">
         <source>email.welcome.next_steps.explore.title</source>
-        <target>Datenkatalog öffnen</target>
+        <target>Daten erkunden</target>
       </trans-unit>
       <trans-unit id="EmlWlcHospADDe" resname="email.welcome.next_steps.hospitals.all.description">
         <source>email.welcome.next_steps.hospitals.all.description</source>
@@ -229,9 +229,21 @@
         <source>help.settings.notifications.monthly_reminder</source>
         <target>Erhalten Sie monatlich eine E-Mail mit Krankenhaus-Einblicken und einer Erinnerung, Ihre neuesten Daten hochzuladen.</target>
       </trans-unit>
-      <trans-unit id="HlpSetUnDe" resname="help.settings.username_fixed">
-        <source>help.settings.username_fixed</source>
-        <target>Der Benutzername ist festgelegt und kann nicht geändert werden.</target>
+      <trans-unit id="UsrDispNameDe" resname="label.display_name">
+        <source>label.display_name</source>
+        <target>Anzeigename</target>
+      </trans-unit>
+      <trans-unit id="UsrDispNameHelpDe" resname="help.settings.display_name">
+        <source>help.settings.display_name</source>
+        <target>Optional, zum Beispiel Ihr Vor- und Nachname. Andere angemeldete Nutzer sehen ihn neben Ihrem Avatar, Besucher ohne Anmeldung nur Ihren Benutzernamen.</target>
+      </trans-unit>
+      <trans-unit id="UsrSaveProfileDe" resname="label.settings.save_profile">
+        <source>label.settings.save_profile</source>
+        <target>Namen übernehmen</target>
+      </trans-unit>
+      <trans-unit id="UsrProfileSavedDe" resname="flash.settings.profile.updated">
+        <source>flash.settings.profile.updated</source>
+        <target>Anzeigename gespeichert.</target>
       </trans-unit>
       <trans-unit id="lblAuthenticatedDe" resname="label.authenticated">
         <source>label.authenticated</source>
@@ -329,6 +341,38 @@
         <source>label.settings.notifications</source>
         <target>Benachrichtigungen</target>
       </trans-unit>
+      <trans-unit id="setOv01" resname="label.settings.overview">
+        <source>label.settings.overview</source>
+        <target>Übersicht</target>
+      </trans-unit>
+      <trans-unit id="setOv02" resname="label.settings.back_to_overview">
+        <source>label.settings.back_to_overview</source>
+        <target>Alle Einstellungen</target>
+      </trans-unit>
+      <trans-unit id="setOv03" resname="label.settings.sections_nav">
+        <source>label.settings.sections_nav</source>
+        <target>Einstellungsbereiche</target>
+      </trans-unit>
+      <trans-unit id="setOv04" resname="text.settings.overview_intro">
+        <source>text.settings.overview_intro</source>
+        <target>Wählen Sie den Bereich, den Sie ansehen oder ändern möchten.</target>
+      </trans-unit>
+      <trans-unit id="setOv05" resname="text.settings.section.account">
+        <source>text.settings.section.account</source>
+        <target>Anzeigename, Status der E-Mail-Bestätigung und Sprache.</target>
+      </trans-unit>
+      <trans-unit id="setOv06" resname="text.settings.section.email">
+        <source>text.settings.section.email</source>
+        <target>Ändern Sie die E-Mail-Adresse Ihres Kontos.</target>
+      </trans-unit>
+      <trans-unit id="setOv07" resname="text.settings.section.password">
+        <source>text.settings.section.password</source>
+        <target>Wählen Sie ein neues Passwort für die Anmeldung.</target>
+      </trans-unit>
+      <trans-unit id="setOv08" resname="text.settings.section.notifications">
+        <source>text.settings.section.notifications</source>
+        <target>Legen Sie fest, welche Benachrichtigungen Sie wie erhalten.</target>
+      </trans-unit>
       <trans-unit id="Decbd56947" resname="label.settings.notifications.monthly_reminder">
         <source>label.settings.notifications.monthly_reminder</source>
         <target>Monatliche Erinnerung zur Dateneinreichung</target>
@@ -372,6 +416,18 @@
       <trans-unit id="DePwdSet05" resname="label.login.remember_me">
         <source>label.login.remember_me</source>
         <target>Angemeldet bleiben</target>
+      </trans-unit>
+      <trans-unit id="DeLoginId01" resname="label.login.identifier">
+        <source>label.login.identifier</source>
+        <target>Benutzername oder E-Mail</target>
+      </trans-unit>
+      <trans-unit id="DeLoginId02" resname="message.login.email_switch_notice">
+        <source>message.login.email_switch_notice</source>
+        <target>Ab Version 1.0 melden Sie sich nur noch mit Ihrer E-Mail-Adresse an. Sie können sie schon jetzt statt Ihres Benutzernamens verwenden.</target>
+      </trans-unit>
+      <trans-unit id="DeLoginId03" resname="message.login.email_switch_hint">
+        <source>message.login.email_switch_hint</source>
+        <target>Bitte beachten Sie, dass ab Version 1.0 nur noch die E-Mail-Adresse zum Anmelden verwendet werden kann.</target>
       </trans-unit>
       <trans-unit id="De01c17ebe" resname="label.settings.verification_status">
         <source>label.settings.verification_status</source>
@@ -495,7 +551,7 @@
       </trans-unit>
       <trans-unit id="usrLblBadgeAdminDe" resname="label.user.badge.admin">
         <source>label.user.badge.admin</source>
-        <target>Administrator</target>
+        <target>Administrator:in</target>
       </trans-unit>
       <trans-unit id="usrLblBadgeBoardDe" resname="label.user.badge.board_member">
         <source>label.user.badge.board_member</source>
@@ -581,10 +637,6 @@
         <source>label.user.activity.comment_created</source>
         <target>Kommentar geschrieben</target>
       </trans-unit>
-      <trans-unit id="usrLblActivityCommentOnDe" resname="label.user.activity.comment_on">
-        <source>label.user.activity.comment_on</source>
-        <target>Zu</target>
-      </trans-unit>
       <trans-unit id="usrLblActivityHospitalAssociatedDe" resname="label.user.activity.hospital_associated">
         <source>label.user.activity.hospital_associated</source>
         <target>Mit Klinik verknüpft</target>
@@ -600,6 +652,418 @@
       <trans-unit id="usrLblActivityHospitalOwnerRevokedDe" resname="label.user.activity.hospital_owner_revoked">
         <source>label.user.activity.hospital_owner_revoked</source>
         <target>Klinikverantwortung abgegeben</target>
+      </trans-unit>
+      <trans-unit id="actSentJoinedPlainDe" resname="label.user.activity.sentence.joined.plain">
+        <source>label.user.activity.sentence.joined.plain</source>
+        <target>{actor} ist der Plattform beigetreten.</target>
+      </trans-unit>
+      <trans-unit id="actSentFirstImportObjectDe" resname="label.user.activity.sentence.first_import.object">
+        <source>label.user.activity.sentence.first_import.object</source>
+        <target>{actor} hat erstmals Daten für {object} importiert.</target>
+      </trans-unit>
+      <trans-unit id="actSentFirstImportPlainDe" resname="label.user.activity.sentence.first_import.plain">
+        <source>label.user.activity.sentence.first_import.plain</source>
+        <target>{actor} hat erstmals Daten importiert.</target>
+      </trans-unit>
+      <trans-unit id="actSentImportMilestoneObjectDe" resname="label.user.activity.sentence.import_milestone.object">
+        <source>label.user.activity.sentence.import_milestone.object</source>
+        <target>{actor} hat insgesamt {count} Datenimporte abgeschlossen, zuletzt für {object}.</target>
+      </trans-unit>
+      <trans-unit id="actSentImportMilestonePlainDe" resname="label.user.activity.sentence.import_milestone.plain">
+        <source>label.user.activity.sentence.import_milestone.plain</source>
+        <target>{actor} hat insgesamt {count} Datenimporte abgeschlossen.</target>
+      </trans-unit>
+      <trans-unit id="actSentPostPublishedObjectDe" resname="label.user.activity.sentence.post_published.object">
+        <source>label.user.activity.sentence.post_published.object</source>
+        <target>{actor} hat den Beitrag „{object}“ veröffentlicht.</target>
+      </trans-unit>
+      <trans-unit id="actSentPostPublishedPlainDe" resname="label.user.activity.sentence.post_published.plain">
+        <source>label.user.activity.sentence.post_published.plain</source>
+        <target>{actor} hat einen Beitrag veröffentlicht.</target>
+      </trans-unit>
+      <trans-unit id="actSentCommentCreatedObjectDe" resname="label.user.activity.sentence.comment_created.object">
+        <source>label.user.activity.sentence.comment_created.object</source>
+        <target>{actor} hat „{object}“ kommentiert.</target>
+      </trans-unit>
+      <trans-unit id="actSentCommentCreatedPlainDe" resname="label.user.activity.sentence.comment_created.plain">
+        <source>label.user.activity.sentence.comment_created.plain</source>
+        <target>{actor} hat einen Beitrag kommentiert.</target>
+      </trans-unit>
+      <trans-unit id="actSentHospitalAssociatedObjectDe" resname="label.user.activity.sentence.hospital_associated.object">
+        <source>label.user.activity.sentence.hospital_associated.object</source>
+        <target>{actor} ist jetzt mit {object} verknüpft.</target>
+      </trans-unit>
+      <trans-unit id="actSentHospitalAssociatedPlainDe" resname="label.user.activity.sentence.hospital_associated.plain">
+        <source>label.user.activity.sentence.hospital_associated.plain</source>
+        <target>{actor} ist jetzt mit einer Klinik verknüpft.</target>
+      </trans-unit>
+      <trans-unit id="actSentHospitalDisassociatedObjectDe" resname="label.user.activity.sentence.hospital_disassociated.object">
+        <source>label.user.activity.sentence.hospital_disassociated.object</source>
+        <target>{actor} ist nicht mehr mit {object} verknüpft.</target>
+      </trans-unit>
+      <trans-unit id="actSentHospitalDisassociatedPlainDe" resname="label.user.activity.sentence.hospital_disassociated.plain">
+        <source>label.user.activity.sentence.hospital_disassociated.plain</source>
+        <target>{actor} ist nicht mehr mit einer Klinik verknüpft.</target>
+      </trans-unit>
+      <trans-unit id="actSentHospitalOwnerGrantedObjectDe" resname="label.user.activity.sentence.hospital_owner_granted.object">
+        <source>label.user.activity.sentence.hospital_owner_granted.object</source>
+        <target>{actor} ist jetzt verantwortlich für {object}.</target>
+      </trans-unit>
+      <trans-unit id="actSentHospitalOwnerGrantedPlainDe" resname="label.user.activity.sentence.hospital_owner_granted.plain">
+        <source>label.user.activity.sentence.hospital_owner_granted.plain</source>
+        <target>{actor} ist jetzt für eine Klinik verantwortlich.</target>
+      </trans-unit>
+      <trans-unit id="actSentHospitalOwnerRevokedObjectDe" resname="label.user.activity.sentence.hospital_owner_revoked.object">
+        <source>label.user.activity.sentence.hospital_owner_revoked.object</source>
+        <target>{actor} ist nicht mehr verantwortlich für {object}.</target>
+      </trans-unit>
+      <trans-unit id="actSentHospitalOwnerRevokedPlainDe" resname="label.user.activity.sentence.hospital_owner_revoked.plain">
+        <source>label.user.activity.sentence.hospital_owner_revoked.plain</source>
+        <target>{actor} ist nicht mehr für eine Klinik verantwortlich.</target>
+      </trans-unit>
+      <trans-unit id="DeLL00" resname="label.settings.login_link">
+        <source>label.settings.login_link</source>
+        <target>Anmelden per Link</target>
+      </trans-unit>
+      <trans-unit id="SEC01de" resname="title.settings.security">
+        <source>title.settings.security</source>
+        <target>Anmeldung &amp; Sicherheit</target>
+      </trans-unit>
+      <trans-unit id="SEC02de" resname="text.settings.section.security">
+        <source>text.settings.section.security</source>
+        <target>Passwort, Anmelden per Link und Zwei-Faktor-Authentifizierung.</target>
+      </trans-unit>
+      <trans-unit id="SEC03de" resname="text.settings.login_link.active">
+        <source>text.settings.login_link.active</source>
+        <target>Der Anmelde-Link ist aktiv.</target>
+      </trans-unit>
+      <trans-unit id="SEC04de" resname="text.settings.login_link.active_detail">
+        <source>text.settings.login_link.active_detail</source>
+        <target>Auf der Anmeldeseite können Sie sich einen Anmelde-Link an {email} schicken lassen.</target>
+      </trans-unit>
+      <trans-unit id="SEC05de" resname="text.settings.login_link.inactive">
+        <source>text.settings.login_link.inactive</source>
+        <target>Der Anmelde-Link ist deaktiviert.</target>
+      </trans-unit>
+      <trans-unit id="SEC06de" resname="text.settings.login_link.inactive_detail">
+        <source>text.settings.login_link.inactive_detail</source>
+        <target>Sie melden sich mit Ihrem Passwort an.</target>
+      </trans-unit>
+      <trans-unit id="SEC07de" resname="text.settings.section.login_link">
+        <source>text.settings.section.login_link</source>
+        <target>Anmelden mit einem einmaligen Link per E-Mail.</target>
+      </trans-unit>
+      <trans-unit id="SEC08de" resname="label.settings.password">
+        <source>label.settings.password</source>
+        <target>Passwort</target>
+      </trans-unit>
+      <trans-unit id="SEC10de" resname="label.settings.status_on">
+        <source>label.settings.status_on</source>
+        <target>Aktiv</target>
+      </trans-unit>
+      <trans-unit id="SEC11de" resname="label.settings.status_off">
+        <source>label.settings.status_off</source>
+        <target>Aus</target>
+      </trans-unit>
+      <trans-unit id="DeLL01" resname="help.settings.login_link">
+        <source>help.settings.login_link</source>
+        <target>Wenn aktiviert, können Sie sich auf der Anmeldeseite einen einmaligen Anmelde-Link an Ihre E-Mail-Adresse schicken lassen, statt Ihr Passwort einzugeben. Der Link ist 15 Minuten gültig.</target>
+      </trans-unit>
+      <trans-unit id="DeLL02" resname="help.settings.login_link_2fa">
+        <source>help.settings.login_link_2fa</source>
+        <target>Damit kann sich auch anmelden, wer Zugriff auf Ihr Postfach hat. Wir empfehlen, Ihr Konto zusätzlich mit der Zwei-Faktor-Authentifizierung zu schützen.</target>
+      </trans-unit>
+      <trans-unit id="DeLL03" resname="label.settings.login_link_on">
+        <source>label.settings.login_link_on</source>
+        <target>Aktiv</target>
+      </trans-unit>
+      <trans-unit id="DeLL04" resname="label.settings.login_link_off">
+        <source>label.settings.login_link_off</source>
+        <target>Aus</target>
+      </trans-unit>
+      <trans-unit id="DeLL05" resname="label.settings.login_link_enable">
+        <source>label.settings.login_link_enable</source>
+        <target>Aktivieren</target>
+      </trans-unit>
+      <trans-unit id="DeLL06" resname="label.settings.login_link_disable">
+        <source>label.settings.login_link_disable</source>
+        <target>Deaktivieren</target>
+      </trans-unit>
+      <trans-unit id="DeLL07" resname="flash.settings.login_link.enabled">
+        <source>flash.settings.login_link.enabled</source>
+        <target>Die Anmeldung per Link ist jetzt aktiviert.</target>
+      </trans-unit>
+      <trans-unit id="DeLL08" resname="flash.settings.login_link.disabled">
+        <source>flash.settings.login_link.disabled</source>
+        <target>Die Anmeldung per Link ist jetzt deaktiviert. Bereits verschickte Links funktionieren nicht mehr.</target>
+      </trans-unit>
+      <trans-unit id="DeLL09" resname="title.login_link.request">
+        <source>title.login_link.request</source>
+        <target>Anmelden per Link</target>
+      </trans-unit>
+      <trans-unit id="DeLL10" resname="text.login_link.request_intro">
+        <source>text.login_link.request_intro</source>
+        <target>Geben Sie Ihren Benutzernamen oder Ihre E-Mail-Adresse ein. Wenn die Anmeldung per Link für Ihr Konto aktiviert ist, schicken wir Ihnen einen Link, mit dem Sie sich einmal anmelden können.</target>
+      </trans-unit>
+      <trans-unit id="DeLL11" resname="label.login_link.send">
+        <source>label.login_link.send</source>
+        <target>Anmelde-Link per E-Mail senden</target>
+      </trans-unit>
+      <trans-unit id="DeLL12" resname="label.login_link.back_to_login">
+        <source>label.login_link.back_to_login</source>
+        <target>Zurück zur Anmeldung</target>
+      </trans-unit>
+      <trans-unit id="DeLL13" resname="title.login_link.sent">
+        <source>title.login_link.sent</source>
+        <target>Prüfen Sie Ihr Postfach</target>
+      </trans-unit>
+      <trans-unit id="DeLL14" resname="text.login_link.sent">
+        <source>text.login_link.sent</source>
+        <target>Wenn zu Ihrer Eingabe ein Konto mit aktivierter Anmeldung per Link existiert, haben wir einen Link an die hinterlegte E-Mail-Adresse geschickt. Der Link ist {minutes} Minuten gültig und funktioniert einmal.</target>
+      </trans-unit>
+      <trans-unit id="DeLL15" resname="text.login_link.sent_hint">
+        <source>text.login_link.sent_hint</source>
+        <target>Keine E-Mail erhalten? Prüfen Sie Ihren Spam-Ordner oder melden Sie sich mit Ihrem Passwort an. Die Anmeldung per Link können Sie in Ihren Kontoeinstellungen aktivieren.</target>
+      </trans-unit>
+      <trans-unit id="DeLL16" resname="label.login_link.request_again">
+        <source>label.login_link.request_again</source>
+        <target>Neuen Link anfordern</target>
+      </trans-unit>
+      <trans-unit id="DeLL17" resname="title.login_link.confirm">
+        <source>title.login_link.confirm</source>
+        <target>Anmeldung bestätigen</target>
+      </trans-unit>
+      <trans-unit id="DeLL18" resname="text.login_link.confirm_account">
+        <source>text.login_link.confirm_account</source>
+        <target>Als {username} anmelden?</target>
+      </trans-unit>
+      <trans-unit id="DeLL19" resname="label.login_link.not_you">
+        <source>label.login_link.not_you</source>
+        <target>Nicht Sie? Zurück zur Anmeldung</target>
+      </trans-unit>
+      <trans-unit id="DeLL20" resname="email.login_link.title">
+        <source>email.login_link.title</source>
+        <target>Ihr Anmelde-Link</target>
+      </trans-unit>
+      <trans-unit id="DeLL21" resname="email.login_link.preheader">
+        <source>email.login_link.preheader</source>
+        <target>Mit diesem Link melden Sie sich einmal an.</target>
+      </trans-unit>
+      <trans-unit id="DeLL22" resname="email.login_link.heading">
+        <source>email.login_link.heading</source>
+        <target>Ihr Anmelde-Link</target>
+      </trans-unit>
+      <trans-unit id="DeLL23" resname="email.login_link.intro">
+        <source>email.login_link.intro</source>
+        <target>Sie haben einen Link zur Anmeldung bei {app} angefordert. Melden Sie sich über den Button unten an.</target>
+      </trans-unit>
+      <trans-unit id="DeLL24" resname="email.login_link.expiry">
+        <source>email.login_link.expiry</source>
+        <target>Der Link ist {minutes} Minuten gültig und funktioniert einmal.</target>
+      </trans-unit>
+      <trans-unit id="DeLL25" resname="email.login_link.cta">
+        <source>email.login_link.cta</source>
+        <target>Anmelden</target>
+      </trans-unit>
+      <trans-unit id="DeLL26" resname="email.login_link.fallback_before_link">
+        <source>email.login_link.fallback_before_link</source>
+        <target>Probleme mit dem Button? Kopieren Sie diese URL in Ihren Browser: </target>
+      </trans-unit>
+      <trans-unit id="DeLL27" resname="email.login_link.fallback_after_link">
+        <source>email.login_link.fallback_after_link</source>
+        <target> Wenn Sie diesen Link nicht angefordert haben, können Sie diese E-Mail ignorieren.</target>
+      </trans-unit>
+      <trans-unit id="DeLL28" resname="text.login_link.confirm_question">
+        <source>text.login_link.confirm_question</source>
+        <target>Möchten Sie sich mit diesem Konto anmelden?</target>
+      </trans-unit>
+      <trans-unit id="DeTF00" resname="title.two_factor.login">
+        <source>title.two_factor.login</source>
+        <target>Zwei-Faktor-Authentifizierung</target>
+      </trans-unit>
+      <trans-unit id="DeTF01" resname="text.two_factor.login">
+        <source>text.two_factor.login</source>
+        <target>Geben Sie den sechsstelligen Code aus Ihrer Authenticator-App ein.</target>
+      </trans-unit>
+      <trans-unit id="DeTF02" resname="label.two_factor.code">
+        <source>label.two_factor.code</source>
+        <target>Code</target>
+      </trans-unit>
+      <trans-unit id="DeTF03" resname="help.two_factor.backup_code">
+        <source>help.two_factor.backup_code</source>
+        <target>Kein Zugriff auf Ihre App? Geben Sie stattdessen einen Ihrer Backup-Codes ein.</target>
+      </trans-unit>
+      <trans-unit id="DeTF04" resname="label.two_factor.verify">
+        <source>label.two_factor.verify</source>
+        <target>Bestätigen</target>
+      </trans-unit>
+      <trans-unit id="DeTF05" resname="label.two_factor.cancel">
+        <source>label.two_factor.cancel</source>
+        <target>Abbrechen und abmelden</target>
+      </trans-unit>
+      <trans-unit id="DeTF06" resname="flash.two_factor.code_invalid">
+        <source>flash.two_factor.code_invalid</source>
+        <target>Der Code ist nicht korrekt.</target>
+      </trans-unit>
+      <trans-unit id="DeTF07" resname="flash.two_factor.code_reused">
+        <source>flash.two_factor.code_reused</source>
+        <target>Dieser Code wurde bereits verwendet. Bitte warten Sie auf den nächsten Code Ihrer App.</target>
+      </trans-unit>
+      <trans-unit id="DeTF08" resname="title.settings.two_factor">
+        <source>title.settings.two_factor</source>
+        <target>Zwei-Faktor-Authentifizierung</target>
+      </trans-unit>
+      <trans-unit id="DeTF09" resname="text.settings.section.two_factor">
+        <source>text.settings.section.two_factor</source>
+        <target>Schützen Sie Ihre Anmeldung mit einem Code aus einer Authenticator-App.</target>
+      </trans-unit>
+      <trans-unit id="DeTF10" resname="label.settings.two_factor_on">
+        <source>label.settings.two_factor_on</source>
+        <target>Aktiv</target>
+      </trans-unit>
+      <trans-unit id="DeTF11" resname="label.settings.two_factor_off">
+        <source>label.settings.two_factor_off</source>
+        <target>Aus</target>
+      </trans-unit>
+      <trans-unit id="DeTF12" resname="help.settings.two_factor">
+        <source>help.settings.two_factor</source>
+        <target>Nach Ihrem Passwort oder einem Anmeldelink geben Sie zusätzlich einen sechsstelligen Code aus einer Authenticator-App wie Aegis, 2FAS oder 1Password ein.</target>
+      </trans-unit>
+      <trans-unit id="DeTF13" resname="text.settings.two_factor.enabled_since">
+        <source>text.settings.two_factor.enabled_since</source>
+        <target>Eingeschaltet seit {date}.</target>
+      </trans-unit>
+      <trans-unit id="DeTF14" resname="text.settings.two_factor.backup_codes_left">
+        <source>text.settings.two_factor.backup_codes_left</source>
+        <target>{left} von {total} Backup-Codes übrig.</target>
+      </trans-unit>
+      <trans-unit id="DeTF15" resname="label.settings.two_factor_current_code">
+        <source>label.settings.two_factor_current_code</source>
+        <target>Aktueller Code oder Backup-Code</target>
+      </trans-unit>
+      <trans-unit id="DeTF16" resname="label.settings.two_factor_renew_backup_codes">
+        <source>label.settings.two_factor_renew_backup_codes</source>
+        <target>Neue Backup-Codes erstellen</target>
+      </trans-unit>
+      <trans-unit id="DeTF17" resname="label.settings.two_factor_disable">
+        <source>label.settings.two_factor_disable</source>
+        <target>Ausschalten</target>
+      </trans-unit>
+      <trans-unit id="DeTF18" resname="label.settings.two_factor_qr_code">
+        <source>label.settings.two_factor_qr_code</source>
+        <target>QR-Code für Ihre Authenticator-App</target>
+      </trans-unit>
+      <trans-unit id="DeTF19" resname="text.settings.two_factor.scan">
+        <source>text.settings.two_factor.scan</source>
+        <target>Scannen Sie diesen QR-Code mit Ihrer Authenticator-App. Wenn Sie mehrere Geräte nutzen möchten, scannen Sie ihn jetzt mit jedem davon.</target>
+      </trans-unit>
+      <trans-unit id="DeTF20" resname="text.settings.two_factor.manual_key">
+        <source>text.settings.two_factor.manual_key</source>
+        <target>Oder geben Sie diesen Schlüssel in der App ein:</target>
+      </trans-unit>
+      <trans-unit id="DeTF21" resname="label.settings.two_factor_first_code">
+        <source>label.settings.two_factor_first_code</source>
+        <target>Code aus der App</target>
+      </trans-unit>
+      <trans-unit id="DeTF22" resname="label.settings.two_factor_enable">
+        <source>label.settings.two_factor_enable</source>
+        <target>Einschalten</target>
+      </trans-unit>
+      <trans-unit id="DeTF23" resname="title.settings.two_factor_backup_codes">
+        <source>title.settings.two_factor_backup_codes</source>
+        <target>Backup-Codes</target>
+      </trans-unit>
+      <trans-unit id="DeTF24" resname="text.settings.two_factor.backup_codes_once">
+        <source>text.settings.two_factor.backup_codes_once</source>
+        <target>Speichern Sie diese Codes jetzt, zum Beispiel in Ihrem Passwort-Manager. Sie werden nur einmal angezeigt. Jeder Code funktioniert einmal, wenn Sie Ihre Authenticator-App nicht nutzen können.</target>
+      </trans-unit>
+      <trans-unit id="DeTF25" resname="label.settings.two_factor_codes_saved">
+        <source>label.settings.two_factor_codes_saved</source>
+        <target>Ich habe die Codes gespeichert</target>
+      </trans-unit>
+      <trans-unit id="DeTF26" resname="label.settings.two_factor_set_up">
+        <source>label.settings.two_factor_set_up</source>
+        <target>Zwei-Faktor-Authentifizierung einrichten</target>
+      </trans-unit>
+      <trans-unit id="DeTF27" resname="flash.settings.two_factor.code_invalid">
+        <source>flash.settings.two_factor.code_invalid</source>
+        <target>Der Code ist nicht korrekt. Bitte versuchen Sie es erneut.</target>
+      </trans-unit>
+      <trans-unit id="DeTF28" resname="flash.settings.two_factor.too_many_attempts">
+        <source>flash.settings.two_factor.too_many_attempts</source>
+        <target>Zu viele Versuche. Bitte versuchen Sie es in 15 Minuten erneut.</target>
+      </trans-unit>
+      <trans-unit id="DeTF29" resname="flash.settings.two_factor.enabled">
+        <source>flash.settings.two_factor.enabled</source>
+        <target>Die Zwei-Faktor-Authentifizierung ist eingeschaltet.</target>
+      </trans-unit>
+      <trans-unit id="DeTF30" resname="flash.settings.two_factor.disabled">
+        <source>flash.settings.two_factor.disabled</source>
+        <target>Die Zwei-Faktor-Authentifizierung ist ausgeschaltet.</target>
+      </trans-unit>
+      <trans-unit id="DeTF31" resname="text.settings.two_factor.active">
+        <source>text.settings.two_factor.active</source>
+        <target>Ihr Konto ist mit einer Authenticator-App geschützt.</target>
+      </trans-unit>
+      <trans-unit id="DeTF32" resname="help.settings.two_factor_renew">
+        <source>help.settings.two_factor_renew</source>
+        <target>Neue Codes ersetzen alle bisherigen.</target>
+      </trans-unit>
+      <trans-unit id="DeTF33" resname="label.settings.two_factor_disable_heading">
+        <source>label.settings.two_factor_disable_heading</source>
+        <target>Zwei-Faktor-Authentifizierung ausschalten</target>
+      </trans-unit>
+      <trans-unit id="DeTF34" resname="help.settings.two_factor_disable">
+        <source>help.settings.two_factor_disable</source>
+        <target>Danach genügt zum Anmelden wieder Ihr Passwort oder ein Anmeldelink.</target>
+      </trans-unit>
+      <trans-unit id="DeTF35" resname="label.settings.two_factor_copy_codes">
+        <source>label.settings.two_factor_copy_codes</source>
+        <target>Alle Codes kopieren</target>
+      </trans-unit>
+      <trans-unit id="DeTF36" resname="flash.settings.two_factor.required">
+        <source>flash.settings.two_factor.required</source>
+        <target>Administrator:innen müssen die Zwei-Faktor-Authentifizierung einrichten, bevor sie fortfahren können.</target>
+      </trans-unit>
+      <trans-unit id="DeTF37" resname="text.settings.two_factor.required">
+        <source>text.settings.two_factor.required</source>
+        <target>Für Administrator:innen ist die Zwei-Faktor-Authentifizierung vorgeschrieben. Richten Sie sie ein, um fortzufahren.</target>
+      </trans-unit>
+      <trans-unit id="DeTF38" resname="label.settings.two_factor_recommended">
+        <source>label.settings.two_factor_recommended</source>
+        <target>Empfohlen</target>
+      </trans-unit>
+      <trans-unit id="termsAccept00De" resname="title.terms.accept">
+        <source>title.terms.accept</source>
+        <target>Nutzungsbedingungen zustimmen</target>
+      </trans-unit>
+      <trans-unit id="termsAccept01De" resname="text.terms.accept_intro">
+        <source>text.terms.accept_intro</source>
+        <target>Die Nutzungsbedingungen haben sich geändert. Bitte lesen Sie die Fassung {version} und stimmen Sie ihr zu, um die Plattform weiter zu nutzen.</target>
+      </trans-unit>
+      <trans-unit id="termsAccept02De" resname="link.terms.read">
+        <source>link.terms.read</source>
+        <target>Nutzungsbedingungen lesen (öffnet in neuem Tab)</target>
+      </trans-unit>
+      <trans-unit id="termsAccept03De" resname="label.terms.accept">
+        <source>label.terms.accept</source>
+        <target>Ich habe die Nutzungsbedingungen gelesen und stimme ihnen zu.</target>
+      </trans-unit>
+      <trans-unit id="termsAccept04De" resname="label.terms.submit">
+        <source>label.terms.submit</source>
+        <target>Zustimmen und weiter</target>
+      </trans-unit>
+      <trans-unit id="termsAccept05De" resname="text.terms.decline">
+        <source>text.terms.decline</source>
+        <target>Ohne Ihre Zustimmung ruht Ihr Zugang.</target>
+      </trans-unit>
+      <trans-unit id="termsAcceptAuthority0De" resname="label.terms.upload_authority">
+        <source>label.terms.upload_authority</source>
+        <target>Ich bin weiterhin berechtigt, für {hospitals} Daten hochzuladen.</target>
+      </trans-unit>
+      <trans-unit id="termsAcceptAuthority1De" resname="help.terms.upload_authority">
+        <source>help.terms.upload_authority</source>
+        <target>Andernfalls bestätigen Sie es vor Ihrem nächsten Upload erneut.</target>
       </trans-unit>
     </body>
   </file>

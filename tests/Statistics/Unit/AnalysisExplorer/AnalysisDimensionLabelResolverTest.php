@@ -79,7 +79,8 @@ final class AnalysisDimensionLabelResolverTest extends TestCase
         $ageGroup = new DimensionRegistry()->get('age_group');
 
         self::assertSame('Unbekannt', $resolver->labelFor($ageGroup, 'unknown'));
-        self::assertSame('0–18', $resolver->labelFor($ageGroup, '0_18'));
+        self::assertSame('0–17', $resolver->labelFor($ageGroup, '0_17'));
+        self::assertSame('18–29', $resolver->labelFor($ageGroup, '18_29'));
     }
 
     public function testNullBucketUsesUnknownTranslation(): void

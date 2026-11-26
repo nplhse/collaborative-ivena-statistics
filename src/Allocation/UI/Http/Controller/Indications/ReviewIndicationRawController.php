@@ -7,8 +7,10 @@ namespace App\Allocation\UI\Http\Controller\Indications;
 use App\Allocation\Application\Indication\IndicationMatchSuggestionService;
 use App\Allocation\Application\Indication\IndicationRawReviewNavigator;
 use App\Allocation\Application\Indication\IndicationRawReviewService;
+use App\Allocation\Application\Service\HospitalPermissionAccess;
 use App\Allocation\Domain\Entity\IndicationNormalized;
 use App\Allocation\Domain\Entity\IndicationRaw;
+use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Domain\Enum\IndicationRawReviewStatus;
 use App\Allocation\Domain\Enum\IndicationRawReviewWorklistSegment;
 use App\Allocation\Infrastructure\Query\IndicationRawOccurrenceQuery;
@@ -39,12 +41,13 @@ final class ReviewIndicationRawController extends AbstractController
         private readonly IndicationRawOccurrenceQuery $occurrenceQuery,
         private readonly IndicationMatchSuggestionService $suggestionService,
         private readonly TranslatorInterface $translator,
+        private readonly HospitalPermissionAccess $hospitalPermissionAccess,
     ) {
     }
 
     #[Route(
-        '/explore/indication/raw/review/{publicId}',
-        name: 'app_explore_indication_raw_review',
+        '/tools/indication-review/{publicId}',
+        name: 'app_tools_indication_review_item',
         requirements: ['publicId' => Requirement::UUID],
         methods: ['GET', 'POST'],
     )]
@@ -71,7 +74,7 @@ final class ReviewIndicationRawController extends AbstractController
             } catch (\InvalidArgumentException $exception) {
                 $this->addFlash('danger', $exception->getMessage());
 
-                return $this->redirectToRoute('app_explore_indication_raw_review', [
+                return $this->redirectToRoute('app_tools_indication_review_item', [
                     'publicId' => $raw->getPublicIdString(),
                     ...$this->contextQueryParams($context),
                 ]);
@@ -89,7 +92,7 @@ final class ReviewIndicationRawController extends AbstractController
             'initial_label' => $initialLabel,
             'context' => $context,
             'occurrence_count' => $this->occurrenceQuery->fetchOccurrenceCount((int) $raw->getId()),
-            'sample_allocations' => $this->occurrenceQuery->fetchSampleAllocations((int) $raw->getId()),
+            'sample_allocations' => $this->occurrenceQuery->fetchSampleAllocations((int) $raw->getId(), $user instanceof User ? $this->sampleHospitalIds($user) : []),
             'suggestions' => $this->suggestionService->suggest($raw),
             'other_user_activities' => $this->resolveOtherUserActivities(
                 $raw,
@@ -102,8 +105,8 @@ final class ReviewIndicationRawController extends AbstractController
     }
 
     #[Route(
-        '/explore/indication/raw/review/{publicId}/skip',
-        name: 'app_explore_indication_raw_review_skip',
+        '/tools/indication-review/{publicId}/skip',
+        name: 'app_tools_indication_review_skip',
         requirements: ['publicId' => Requirement::UUID],
         methods: ['GET'],
     )]
@@ -117,23 +120,23 @@ final class ReviewIndicationRawController extends AbstractController
         if (!$next instanceof IndicationRaw || null === $next->getId()) {
             $this->addFlash('info', $this->translator->trans('flash.indication.review.no_more_open', [], 'allocation'));
 
-            return $this->redirectToRoute('app_explore_indication_raw_review_worklist', $this->contextQueryParams($context));
+            return $this->redirectToRoute('app_tools_indication_review', $this->contextQueryParams($context));
         }
 
-        return $this->redirectToRoute('app_explore_indication_raw_review', [
+        return $this->redirectToRoute('app_tools_indication_review_item', [
             'publicId' => $next->getPublicIdString(),
             ...$this->contextQueryParams($context),
         ]);
     }
 
-    #[Route('/explore/indication/raw/review/start/matching', name: 'app_explore_indication_raw_review_start_matching', methods: ['GET'])]
+    #[Route('/tools/indication-review/start/matching', name: 'app_tools_indication_review_start_matching', methods: ['GET'])]
     #[IsGranted(IndicationRawReviewVoter::EDIT_MATCH)]
     public function startMatching(): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         return $this->redirectToFirstInSegment(IndicationRawReviewWorklistSegment::Unreviewed);
     }
 
-    #[Route('/explore/indication/raw/review/start/reviewing', name: 'app_explore_indication_raw_review_start_reviewing', methods: ['GET'])]
+    #[Route('/tools/indication-review/start/reviewing', name: 'app_tools_indication_review_start_reviewing', methods: ['GET'])]
     #[IsGranted(IndicationRawReviewVoter::REVIEW)]
     public function startReviewing(): \Symfony\Component\HttpFoundation\RedirectResponse
     {
@@ -148,12 +151,12 @@ final class ReviewIndicationRawController extends AbstractController
         if (!$first instanceof IndicationRaw || null === $first->getId()) {
             $this->addFlash('info', $this->translator->trans('flash.indication.review.no_more_open', [], 'allocation'));
 
-            return $this->redirectToRoute('app_explore_indication_raw_review_worklist', [
+            return $this->redirectToRoute('app_tools_indication_review', [
                 'segment' => $segment->value,
             ]);
         }
 
-        return $this->redirectToRoute('app_explore_indication_raw_review', [
+        return $this->redirectToRoute('app_tools_indication_review_item', [
             'publicId' => $first->getPublicIdString(),
             'segment' => $segment->value,
         ]);
@@ -224,7 +227,7 @@ final class ReviewIndicationRawController extends AbstractController
             $this->reviewService->reopenForReview($raw, $user, $comment);
             $this->addFlash('success', $this->translator->trans('flash.indication.review.reopened', [], 'allocation'));
 
-            return $this->redirectToRoute('app_explore_indication_raw_review', [
+            return $this->redirectToRoute('app_tools_indication_review_item', [
                 'publicId' => $raw->getPublicIdString(),
                 ...$this->contextQueryParams($context),
             ]);
@@ -234,13 +237,13 @@ final class ReviewIndicationRawController extends AbstractController
             $this->reviewService->saveComment($raw, $comment);
             $this->addFlash('success', $this->translator->trans('flash.indication.review.comment_saved', [], 'allocation'));
 
-            return $this->redirectToRoute('app_explore_indication_raw_review', [
+            return $this->redirectToRoute('app_tools_indication_review_item', [
                 'publicId' => $raw->getPublicIdString(),
                 ...$this->contextQueryParams($context),
             ]);
         }
 
-        return $this->redirectToRoute('app_explore_indication_raw_review', [
+        return $this->redirectToRoute('app_tools_indication_review_item', [
             'publicId' => $raw->getPublicIdString(),
             ...$this->contextQueryParams($context),
         ]);
@@ -252,10 +255,10 @@ final class ReviewIndicationRawController extends AbstractController
         if (!$next instanceof IndicationRaw || null === $next->getId()) {
             $this->addFlash('info', $this->translator->trans('flash.indication.review.no_more_open', [], 'allocation'));
 
-            return $this->redirectToRoute('app_explore_indication_raw_review_worklist', $this->contextQueryParams($context));
+            return $this->redirectToRoute('app_tools_indication_review', $this->contextQueryParams($context));
         }
 
-        return $this->redirectToRoute('app_explore_indication_raw_review', [
+        return $this->redirectToRoute('app_tools_indication_review_item', [
             'publicId' => $next->getPublicIdString(),
             ...$this->contextQueryParams($context),
         ]);
@@ -308,7 +311,7 @@ final class ReviewIndicationRawController extends AbstractController
     }
 
     /**
-     * @return list<array{label: string, user: string, at: \DateTimeImmutable}>
+     * @return list<array{label: string, user: User, at: \DateTimeImmutable}>
      */
     private function resolveOtherUserActivities(IndicationRaw $raw, ?User $currentUser): array
     {
@@ -332,7 +335,7 @@ final class ReviewIndicationRawController extends AbstractController
         ) {
             $activities[] = [
                 'label' => 'label.indication.match_proposed_by',
-                'user' => (string) $firstMatcher,
+                'user' => $firstMatcher,
                 'at' => $firstMatchedAt,
             ];
         }
@@ -351,7 +354,7 @@ final class ReviewIndicationRawController extends AbstractController
 
             $activities[] = [
                 'label' => $label,
-                'user' => (string) $reviewer,
+                'user' => $reviewer,
                 'at' => $reviewedAt,
             ];
         }
@@ -367,5 +370,19 @@ final class ReviewIndicationRawController extends AbstractController
         $button = $form->get($name);
 
         return $button instanceof ClickableInterface && $button->isClicked();
+    }
+
+    /**
+     * Sample allocations link to Explore, which shows only the viewer's own hospitals (#1566).
+     *
+     * @return list<int>|null null = all hospitals
+     */
+    private function sampleHospitalIds(User $user): ?array
+    {
+        if ($this->hospitalPermissionAccess->isAdministrator($user)) {
+            return null;
+        }
+
+        return $this->hospitalPermissionAccess->resolveHospitalIdsWithPermission($user, HospitalPermission::View);
     }
 }

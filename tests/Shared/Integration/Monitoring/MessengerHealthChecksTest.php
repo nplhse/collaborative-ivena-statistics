@@ -24,6 +24,13 @@ final class MessengerHealthChecksTest extends KernelTestCase
 {
     private const string NOW = '2026-10-26 12:00:00';
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // The test database was migrated on the real clock; put the last migration well before NOW and the run logs.
+        $this->migratedAt('-90 days');
+    }
+
     public function testTheBacklogFollowsTheOldestReadyMessage(): void
     {
         self::assertSame([HealthCheckStatus::Healthy, 'ok'], $this->outcome($this->backlog()), 'an empty queue is healthy');
@@ -89,6 +96,48 @@ final class MessengerHealthChecksTest extends KernelTestCase
 
         $this->finishedRun('daily_job', 'failed', '-1 hour');
         self::assertSame([HealthCheckStatus::Degraded, 'last run failed: daily_job'], $this->outcome($this->jobs($config)));
+    }
+
+    public function testAJobAddedByARecentDeployCountsFromTheLastMigration(): void
+    {
+        $config = new JobRunThresholdConfig([
+            'old_job' => ['slow_seconds' => null, 'long_seconds' => null, 'memory_mb' => null, 'overdue_after_minutes' => 120],
+            'new_job' => ['slow_seconds' => null, 'long_seconds' => null, 'memory_mb' => null, 'overdue_after_minutes' => 1500],
+        ]);
+        // The run log starts 30 days ago; old_job ran recently, new_job never ran.
+        $this->finishedRun('old_job', 'succeeded', '-30 days');
+        $this->finishedRun('old_job', 'succeeded', '-30 minutes');
+
+        $this->migratedAt('-2 hours');
+        self::assertSame([HealthCheckStatus::Healthy, 'ok'], $this->outcome($this->jobs($config)), 'deployed 2 h ago: within the daily interval');
+
+        $this->migratedAt('-26 hours');
+        self::assertSame([HealthCheckStatus::Degraded, 'overdue: new_job (26 h)'], $this->outcome($this->jobs($config)), 'one interval after the deploy');
+
+        $this->migratedAt('-51 hours');
+        self::assertSame([HealthCheckStatus::Unhealthy, 'overdue: new_job (51 h)'], $this->outcome($this->jobs($config)), 'more than twice the interval after the deploy');
+
+        $this->migratedAt('-40 days');
+        self::assertSame([HealthCheckStatus::Unhealthy, 'overdue: new_job (720 h)'], $this->outcome($this->jobs($config)), 'a migration before the run log started does not count');
+    }
+
+    public function testTheLastMigrationIsReadFromTheMigrationsTable(): void
+    {
+        $this->migratedAt('-3 hours');
+
+        self::assertEquals($this->at('-3 hours'), $this->query()->lastMigrationAt());
+    }
+
+    public function testWithoutTheMigrationsTableTheJobsCountFromTheRunLog(): void
+    {
+        // DDL is transactional in PostgreSQL, so the rollback after the test restores the table.
+        $this->connection()->executeStatement('ALTER TABLE doctrine_migration_versions RENAME TO doctrine_migration_versions_hidden');
+        $this->finishedRun('old_job', 'succeeded', '-30 hours');
+
+        self::assertNull($this->query()->lastMigrationAt());
+        self::assertSame([HealthCheckStatus::Degraded, 'overdue: new_job (30 h)'], $this->outcome($this->jobs(new JobRunThresholdConfig([
+            'new_job' => ['slow_seconds' => null, 'long_seconds' => null, 'memory_mb' => null, 'overdue_after_minutes' => 1500],
+        ]))));
     }
 
     public function testEnoughAttemptsWithFewRetriesAreHealthy(): void
@@ -229,6 +278,15 @@ SQL,
             'started_at' => $finished->modify('-1 minute')->format('Y-m-d H:i:sP'),
             'finished_at' => $finished->format('Y-m-d H:i:sP'),
         ]);
+    }
+
+    /** Doctrine Migrations stores executed_at without a zone in PHP's default time zone (UTC here). */
+    private function migratedAt(string $relative): void
+    {
+        $this->connection()->executeStatement(
+            'UPDATE doctrine_migration_versions SET executed_at = :at',
+            ['at' => $this->at($relative)->setTimezone(new \DateTimeZone(date_default_timezone_get()))->format('Y-m-d H:i:s')],
+        );
     }
 
     private function query(): MessengerHealthQuery

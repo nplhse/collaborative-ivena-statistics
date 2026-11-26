@@ -30,6 +30,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\NumericFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\ComparisonType;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Twig\Component\Option\BadgeVariant;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
@@ -150,7 +151,8 @@ final class JobRunCrudController extends AbstractCrudController
             ->renderAsBadges(JobRunCatalog::TRIGGER_BADGES);
         yield ChoiceField::new('status', $this->t('field.status'))
             ->setTranslatableChoices(static fn (?JobRun $run): array => JobRunCatalog::statusChoices($run?->getStatus()))
-            ->renderAsBadges(JobRunCatalog::STATUSES);
+            ->renderAsBadges(JobRunCatalog::STATUSES)
+            ->setBadgeVariant(BadgeVariant::Dot);
         yield IntegerField::new('attempt', $this->t('field.attempt'))
             ->onlyOnDetail();
         yield TextField::new('id', $this->t('field.id'))
@@ -158,7 +160,7 @@ final class JobRunCrudController extends AbstractCrudController
 
         yield FormField::addFieldset($this->t('fieldset.scope'));
         yield IntegerField::new('hospitalId', $this->t('field.hospital'))
-            ->formatValue(fn (?int $id): string => $this->formatter->hospital($id))
+            ->formatValue(fn (?int $id): string => htmlspecialchars($this->formatter->hospital($id), \ENT_QUOTES))
             ->onlyOnDetail();
         yield IntegerField::new('importId', $this->t('field.import'))
             ->setTemplatePath('@Admin/crud/field/job_run_import.html.twig')

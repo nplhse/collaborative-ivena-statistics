@@ -16,6 +16,7 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Allocation\Infrastructure\Query\ListAllocationsQuery;
 use App\Allocation\UI\Http\DTO\AllocationQueryParametersDTO;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -25,6 +26,7 @@ use Zenstruck\Foundry\Test\Factories;
 final class ListAllocationsUrgencyFilterTest extends KernelTestCase
 {
     use Factories;
+    private ?User $administrator = null;
 
     private ListAllocationsQuery $query;
 
@@ -45,7 +47,7 @@ final class ListAllocationsUrgencyFilterTest extends KernelTestCase
 
         $paginator = $this->query->getPaginator(new AllocationQueryParametersDTO(
             urgency: (string) AllocationUrgency::INPATIENT->value,
-        ));
+        ), $this->administrator());
 
         self::assertCount(1, $paginator->getItems());
     }
@@ -58,7 +60,7 @@ final class ListAllocationsUrgencyFilterTest extends KernelTestCase
 
         $paginator = $this->query->getPaginator(new AllocationQueryParametersDTO(
             urgency: 'not-a-urgency',
-        ));
+        ), $this->administrator());
 
         self::assertCount(2, $paginator->getItems());
     }
@@ -84,5 +86,13 @@ final class ListAllocationsUrgencyFilterTest extends KernelTestCase
             'state' => $state,
             'dispatchArea' => $dispatchArea,
         ];
+    }
+
+    /**
+     * Explore lists only the viewer's own hospitals (#1566); an administrator sees all of them.
+     */
+    private function administrator(): User
+    {
+        return $this->administrator ??= UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
     }
 }

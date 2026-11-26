@@ -6,6 +6,7 @@ namespace App\Allocation\UI\Http\Controller\Glossary;
 
 use App\Allocation\Application\Explore\Catalog\CatalogGlossaryFactory;
 use App\Allocation\Application\Explore\Catalog\CatalogGlossarySlug;
+use App\Allocation\Application\Explore\DataCatalog\DataCatalog;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -15,12 +16,13 @@ final class ShowCatalogGlossaryController extends AbstractController
 {
     public function __construct(
         private readonly CatalogGlossaryFactory $glossaryFactory,
+        private readonly DataCatalog $dataCatalog,
     ) {
     }
 
     #[Route(
-        '/explore/glossary/{slug}',
-        name: 'app_explore_glossary_show',
+        '/help/glossary/{slug}',
+        name: 'app_help_glossary_show',
         requirements: ['slug' => 'urgency|transport-type|hospital-classifications|clinical-indicators'],
         methods: ['GET'],
         priority: 10,
@@ -36,6 +38,7 @@ final class ShowCatalogGlossaryController extends AbstractController
 
         return $this->render('@Allocation/glossary/show.html.twig', [
             'page' => $page,
+            'catalogUsages' => $this->dataCatalog->glossaryUsages('app_help_glossary_show', ['slug' => $glossarySlug->value]),
         ]);
     }
 }

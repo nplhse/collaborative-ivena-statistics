@@ -1,0 +1,38 @@
+{% set statusColor = {healthy: 'success', degraded: 'warning', unhealthy: 'danger'}[ops_messenger.status.value] %}
+<div class="card h-100 ea-messenger-card" data-messenger-status="{{ ops_messenger.status.value }}">
+    <div class="card-body">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fas fa-tower-broadcast fa-lg text-secondary" aria-hidden="true"></i>
+                <span class="text-secondary small">{{ 'ops.messenger.card.title'|trans({}, 'admin') }}</span>
+                <twig:ea:Badge color="{{ statusColor }}">{{ ('ops.health.status.' ~ ops_messenger.status.value)|trans({}, 'admin') }}</twig:ea:Badge>
+            </div>
+            <twig:ea:Button htmlElement="a" href="{{ ops_messenger.detailUrl }}" size="sm" icon="fas fa-arrow-right" withTrailingIcon>
+                {{ 'ops.messenger.card.details'|trans({}, 'admin') }}
+            </twig:ea:Button>
+        </div>
+
+        <div class="d-flex flex-wrap align-items-baseline gap-2 mb-2">
+            <span class="ea-kpi-value" data-messenger-card="pending">{{ ops_messenger.pendingTotal|number_format(0, ',', '.') }}</span>
+            <span class="text-secondary">{{ 'ops.messenger.card.pending'|trans({count: ops_messenger.pendingTotal}, 'admin') }}</span>
+        </div>
+
+        <ul class="list-inline small text-secondary mb-2" data-messenger-card="queues">
+            {% for queue, pending in ops_messenger.pendingByQueue %}
+                <li class="list-inline-item" data-queue="{{ queue }}"><code>{{ queue }}</code> {{ pending|number_format(0, ',', '.') }}</li>
+            {% endfor %}
+        </ul>
+
+        <div class="small d-flex flex-wrap align-items-center gap-1">
+            {% if ops_messenger.failedCount > 0 %}
+                <a class="text-decoration-none" href="{{ ops_messenger.failedMessagesUrl }}" data-messenger-card="failed"><twig:ea:Badge color="danger">{{ 'ops.messenger.kpi.failed_queue'|trans({count: ops_messenger.failedCount}, 'admin') }}</twig:ea:Badge></a>
+            {% else %}
+                <span class="text-secondary" data-messenger-card="failed">{{ 'ops.messenger.kpi.failed_queue'|trans({count: 0}, 'admin') }}</span>
+            {% endif %}
+            {% if ops_messenger.oldestPendingAt is not null %}
+                <span class="text-secondary" aria-hidden="true">·</span>
+                <span class="text-secondary" data-messenger-card="oldest">{{ 'ops.messenger.card.oldest'|trans({date: ops_messenger.oldestPendingAt|date('d.m.Y H:i', 'Europe/Berlin')}, 'admin') }}</span>
+            {% endif %}
+        </div>
+    </div>
+</div>

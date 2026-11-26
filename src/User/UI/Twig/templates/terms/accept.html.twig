@@ -1,0 +1,33 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.terms.accept'|trans({}, 'user') }} - {{ parent() }}{% endblock %}
+
+{% block page_body %}
+    <div class="container container-tight py-4">
+        <twig:Card size="md">
+            <h2 class="text-center mb-3">{{ 'title.terms.accept'|trans({}, 'user') }}</h2>
+            <p class="text-secondary mb-3">
+                {{ 'text.terms.accept_intro'|trans({version: version}, 'user') }}
+            </p>
+            {% set termsPageUrl = page_url_by_key('terms') %}
+            {% if termsPageUrl %}
+                <p class="mb-4">
+                    <a href="{{ termsPageUrl }}" class="link-primary" target="_blank" rel="noopener">{{ 'link.terms.read'|trans({}, 'user') }}</a>
+                </p>
+            {% endif %}
+            {{ form_start(form) }}
+                {{ form_row(form.accept) }}
+                {% if form.uploadAuthority is defined %}
+                    {{ form_row(form.uploadAuthority) }}
+                {% endif %}
+                <div class="form-footer">
+                    <button class="btn btn-primary w-100" type="submit">{{ 'label.terms.submit'|trans({}, 'user') }}</button>
+                </div>
+            {{ form_end(form) }}
+            <p class="text-secondary text-center mt-3 mb-0">
+                {{ 'text.terms.decline'|trans({}, 'user') }}
+                <a href="{{ path('app_logout') }}">{{ 'label.logout'|trans({}, 'messages') }}</a>
+            </p>
+        </twig:Card>
+    </div>
+{% endblock %}

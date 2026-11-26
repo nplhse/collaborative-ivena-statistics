@@ -34,7 +34,7 @@ final class HospitalAccessGrantRepository extends ServiceEntityRepository
             ->addSelect('u')
             ->andWhere('IDENTITY(g.hospital) = :hospitalId')
             ->setParameter('hospitalId', $hospital->getId(), Types::INTEGER)
-            ->orderBy('u.username', 'ASC')
+            ->orderBy('u.username', \SortDirection::Ascending)
             ->getQuery()
             ->getResult();
 
@@ -57,7 +57,7 @@ final class HospitalAccessGrantRepository extends ServiceEntityRepository
             ->addSelect('h')
             ->andWhere('IDENTITY(g.user) = :userId')
             ->setParameter('userId', $userId, Types::INTEGER)
-            ->orderBy('h.name', 'ASC')
+            ->orderBy('h.name', \SortDirection::Ascending)
             ->getQuery()
             ->getResult();
 

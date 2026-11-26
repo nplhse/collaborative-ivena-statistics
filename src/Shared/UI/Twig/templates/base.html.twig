@@ -1,12 +1,13 @@
 {% set cookie_consent = app.request.attributes.get('cookie_consent') %}
 
 <!DOCTYPE html>
-<html lang="{{ app.request.locale }}">
+<html lang="{{ app.request.locale }}" data-bs-navbar-position="combined">
 <head>
     {{ include('@Shared/_includes/color_scheme.html.twig') }}
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    {% block meta_description %}{% endblock %}
     <title>{% if app_demo_mode %}{{ 'demo.title_prefix'|trans({}, 'shared') }} · {% endif %}{% block title %}{{ app_title }}{% endblock %}</title>
 
     {% if 'html' == app.request.getRequestFormat() %}
@@ -33,6 +34,7 @@
 {% if app_demo_mode %}
     {{ include('@Shared/_includes/demo_banner.html.twig') }}
 {% endif %}
+{{ include('@Shared/_includes/maintenance_banner.html.twig') }}
 {% block body %}
     {% block page %}
         <div class="page">
@@ -50,6 +52,9 @@
         </div>
     {% endblock %}
 {% endblock %}
+<div class="print-meta d-none d-print-block" data-testid="print-meta">
+    {{ app_title }} {{ app_version }} · {{ 'print.printed_at'|trans({date: '<time data-print-time>' ~ (clock_now()|format_datetime('medium', 'long')|e) ~ '</time>'}, 'shared')|raw }}
+</div>
 {% if cookie_consent is not null and not cookie_consent.decided %}
     {{ include('@Shared/_includes/cookie_banner.html.twig') }}
 {% endif %}

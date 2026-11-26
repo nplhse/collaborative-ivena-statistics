@@ -30,7 +30,7 @@ trait EligibleBenchmarkScopeTrait
     use Factories;
 
     /**
-     * @return array{state: State, dispatchArea: DispatchArea, hospitalA: Hospital, hospitalB: Hospital}
+     * @return array{state: State, dispatchArea: DispatchArea, hospitalA: Hospital, hospitalB: Hospital, hospitalC: Hospital}
      */
     protected function seedEligibleBenchmarkScope(User $user, string $namePrefix = 'BenchmarkScope'): array
     {
@@ -52,6 +52,15 @@ trait EligibleBenchmarkScopeTrait
             'location' => HospitalLocation::URBAN,
             'owner' => $user,
         ]);
+        // Third hospital: state, dispatch area and cohort scopes need ScopePrivacyPolicy::MIN_HOSPITALS (3).
+        $hospitalC = HospitalFactory::createOne([
+            'name' => $namePrefix.'HospitalC',
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
+            'owner' => $user,
+        ]);
 
         SpecialityFactory::createOne(['name' => $namePrefix.'Speciality']);
         DepartmentFactory::createOne(['name' => $namePrefix.'Department']);
@@ -60,6 +69,7 @@ trait EligibleBenchmarkScopeTrait
 
         $importA = ImportFactory::createOne(['name' => $namePrefix.'ImportA', 'hospital' => $hospitalA, 'createdBy' => $user]);
         $importB = ImportFactory::createOne(['name' => $namePrefix.'ImportB', 'hospital' => $hospitalB, 'createdBy' => $user]);
+        $importC = ImportFactory::createOne(['name' => $namePrefix.'ImportC', 'hospital' => $hospitalC, 'createdBy' => $user]);
 
         AllocationFactory::createOne([
             'import' => $importA,
@@ -81,16 +91,28 @@ trait EligibleBenchmarkScopeTrait
             'createdAt' => new \DateTimeImmutable('2025-06-02 11:00:00'),
             'arrivalAt' => new \DateTimeImmutable('2025-06-02 11:20:00'),
         ]);
+        AllocationFactory::createOne([
+            'import' => $importC,
+            'hospital' => $hospitalC,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'gender' => AllocationGender::MALE,
+            'urgency' => AllocationUrgency::INPATIENT,
+            'createdAt' => new \DateTimeImmutable('2025-06-03 12:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2025-06-03 12:20:00'),
+        ]);
 
         $rebuilder = self::getContainer()->get(RebuildAllocationStatsProjectionHandler::class);
         $rebuilder(new RebuildAllocationStatsProjection($importA->getId()));
         $rebuilder(new RebuildAllocationStatsProjection($importB->getId()));
+        $rebuilder(new RebuildAllocationStatsProjection($importC->getId()));
 
         return [
             'state' => $state,
             'dispatchArea' => $dispatchArea,
             'hospitalA' => $hospitalA,
             'hospitalB' => $hospitalB,
+            'hospitalC' => $hospitalC,
         ];
     }
 }

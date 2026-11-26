@@ -27,6 +27,7 @@
 | `SYMFONY_TRUSTED_PROXIES` | Reverse proxies whose `X-Forwarded-*` headers are trusted | only behind a proxy that sets these headers: its address or range, for example `127.0.0.1`. Without it, client IPs (rate limits, audit log) are the proxy's address. Never `REMOTE_ADDR` or `0.0.0.0/0` unless only the proxy can reach the server |
 | `APP_TITLE` | Application display title | overrides `app.title` in `app.yaml` |
 | `APP_CONTENT_DEFAULT_LOCALE` | CMS page content fallback locale | default `en`; set `de` in production |
+| `APP_UBERSPACE_CREDIT` | "Hosted on Uberspace" in the footer | default `true`; set `false` when the installation is not hosted on Uberspace (the project recommends Uberspace, see [deployment](../05-operations/deployment.md)) |
 | `SENTRY_DSN` | Sentry DSN | empty = disabled |
 | `SENTRY_ENVIRONMENT` | Sentry environment | falls back to `APP_ENV` |
 | `SENTRY_RELEASE` | Sentry release | optional; falls back to `App\Kernel::APP_VERSION` |
@@ -34,10 +35,15 @@
 | `SENTRY_ENABLE_LOGS` | Structured logs | `true` / `false` |
 | `SENTRY_CSP_REPORT_URI` | Sentry CSP report endpoint | optional; prod only; adds `report-uri` when set (see [content-security-policy.md](../05-operations/content-security-policy.md)) |
 | `ANALYTICS_RAW_RETENTION_DAYS` | Days of detailed usage-analytics rows to keep | default `30`; see [../04-features/analytics/aggregation-and-retention.md](../04-features/analytics/aggregation-and-retention.md) |
+| `APP_TWO_FACTOR_KEY` | Key that encrypts the TOTP secrets of two-factor authentication | optional; 64 hex characters (`php -r 'echo bin2hex(random_bytes(32)), PHP_EOL;'`). Empty: two-factor authentication is not offered. Back it up with the other secrets; without it, existing setups only accept backup codes. See [authentication.md](../04-features/user/authentication.md#two-factor-authentication), ADR 040 |
+| `RESEARCH_DATABASE_URL` | Export connection of data extract requests: the hosting's read-only database user | optional; on Uberspace `<account>_ro` with its password from `~/.pgpass`, locally `app_ro` (`make db-readonly-role`). Empty: queries of data extract requests are not checked or run, no export starts; nothing falls back to the application user. See [data extract requests](../04-features/research/README.md#export-connection), ADR 045 |
+| `RESEARCH_EXPECT_READ_ONLY` | Whether Application Health expects the export connection to be read-only | default `1`: a connection that could write is `degraded` (`research_export`). Only the test environment sets `0`, because the tests share the application user |
+| `APP_TERMS_VERSION` | Current version of the terms of use | optional; for example `2026-12`, 1 to 32 letters, digits, dots, dashes or underscores. Raise it after a material change of the terms page; it takes effect with the next request: users without an acceptance of this version accept it on `/terms/accept` before they continue. Editorial edits need no new version. Empty: nobody is asked, and registrations store their acceptance without a version. Never asked in demo and test. See [authentication.md](../04-features/user/authentication.md#terms-of-use-acceptance), ADR 043 |
 | `OPENROUTESERVICE_API_KEY` | OpenRouteService key for `app:geo:geocode-hospitals` and `app:geo:fetch-isochrones` | optional; empty skips both commands. Maps read stored GeoJSON only. See [../05-operations/hospital-geodata.md](../05-operations/hospital-geodata.md). Also used by `app:geo:prepare-location`. |
 | `MAP_TILE_URL` | Leaflet tile URL template of all maps | default OpenStreetMap (`https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png`). Empty: no basemap (manual switch). If the tile server is unreachable, maps drop the basemap on their own. See [../05-operations/hospital-geodata.md](../05-operations/hospital-geodata.md#map-tiles-and-offline-use). |
 | `MAP_TILE_ATTRIBUTION` | Attribution HTML shown on the maps | default OpenStreetMap; set it to match the tile source |
 | `MAP_TILE_MAX_ZOOM` | Highest zoom level of the maps | default `18`; match it to the tile server |
+| `DEMO_MAIL` | Mail of the demo environment | `mailpit` (default, local Mailpit) or `off` (discard all mail); no other value; demo only, see [../05-operations/demo-environment.md](../05-operations/demo-environment.md#preview-demo-emails) |
 | `FIXTURES_PROFILE` | Which hospitals get synthetic allocations | `single`, `minimal`, `medium`, `realistic`, `large`; default `medium` in `dev`, `minimal` in `test`, `large` in `demo`; see [../03-development/fixtures.md](../03-development/fixtures.md#profiles) |
 | `FIXTURES_SCALE` | Factor on the synthetic allocations per day | `0.01`–`10`, default `1` (close to real volumes); see [../03-development/fixtures.md](../03-development/fixtures.md) |
 | `FIXTURES_UNTIL` | Last day of the synthetic data | `Y-m-d`, default empty (yesterday); a fixed date gives the same data on every day; see [../03-development/fixtures.md](../03-development/fixtures.md) |
@@ -47,6 +53,8 @@
 | `FIXTURES_CATALOG_MAPPING` | Mapping file (JSON) that binds the generator's names to another catalog | default empty; see [../03-development/synthetic-data-generator.md](../03-development/synthetic-data-generator.md#mapping-file) |
 | `STORAGE_BUDGET_BYTES` | Storage budget in bytes, the default capacity reference | empty or `0` = no budget (level `unknown`); falls back to the former `APP_ADMIN_STORAGE_LIMIT_BYTES`. See [Storage monitoring](#storage-monitoring) |
 | `STORAGE_CAPACITY_SOURCE` | Capacity reference: `budget` or `filesystem` | default `budget`; `filesystem` only on a dedicated server or VPS |
+| `BACKUP_DIR` | Default target directory of `app:backup:create` | default `var/backups`; on a Deployer host set a directory outside the deploy path, e.g. `~/backups`. See [../05-operations/backup-restore.md](../05-operations/backup-restore.md) |
+| `BACKUP_PG_TOOLS` | Where the PostgreSQL client tools run for backups | `local` (default, `pg_dump` on `PATH`) or `docker` (Compose service `database`, local development); ADR 038 |
 
 ## Application configuration (`app.yaml`)
 
@@ -61,10 +69,16 @@ Custom app settings in `config/packages/app.yaml` (via `AppExtension`):
 | `app.blog.title` / `app.blog.description` | — | Blog metadata |
 | `app.import.reject_writer` | `db` | Reject persistence: `db` or `csv` |
 | `app.import.csv_reject_dir` | `var/import_rejects` | CSV reject output directory |
+| `app.encounter.data_prep.min_version` | `1.0.0` | Lowest data preparation tool version whose encounter files are accepted; older files are rejected as a whole ([encounter import](../04-features/encounter/README.md#import)) |
+| `app.security.two_factor.required_for_admins` | `true` | Administrators must set up two-factor authentication before they can use the application and cannot switch it off (#1357, #1567, ADR 040). Always off in dev, demo and test; has no effect without `APP_TWO_FACTOR_KEY` |
 | `app.registration.blocked_email_domains` | `.ru` | Domain suffixes that silently suppress registration (exact domain or TLD; case-insensitive, label-based; UI matches a successful registration) |
-| `app.feedback.spam.*` | — | Feedback spam detection thresholds |
+| `app.feedback.spam.*` | — | Feedback spam check: thresholds, limits, keywords ([feedback](../04-features/feedback/README.md#score)) |
+| `app.feedback.spam.blocked_link_domains` | `telegra.ph` | Link hosts (and subdomains) that send a guest submission into quarantine on their own |
+| `app.feedback.spam.patterns` | one pattern for "earn $… per month" | PCRE patterns with delimiters for clear spam; a match sends a guest submission into quarantine on its own (checked at container build) |
+| `app.feedback.spam.history_days` | `30` | Window for repeated guest emails and repeated messages |
+| `app.feedback.quarantine.retention_days` | `30` | Days after going into quarantine until quarantined feedback is deleted ([feedback](../04-features/feedback/README.md#retention-and-stored-data)) |
 | `app.meta.copyright_start_year` | `2025` | Start year for footer copyright range (`© 2025–{current year}`) |
-| `app.meta.hoster.name` / `app.meta.hoster.url` | `Uberspace` / `https://uberspace.de` | Optional hosting provider shown in the footer meta line |
+| `app.meta.uberspace_credit` | `true` (`APP_UBERSPACE_CREDIT`) | Shows "Hosted on Uberspace" with a link in the footer meta line; off leaves the item out. There is no setting for other hosters |
 | `app.storage.thresholds.notice_percent` / `warning_percent` / `critical_percent` | `80` / `90` / `99` | Storage levels in percent of the capacity reference; must increase strictly and stay below 100 (checked at container build) |
 | `app.storage.measurement_max_age_hours` | `36` | A storage measurement older than this is `stale` for Application Health |
 

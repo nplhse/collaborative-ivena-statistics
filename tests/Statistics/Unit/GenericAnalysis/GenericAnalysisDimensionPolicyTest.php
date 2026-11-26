@@ -44,11 +44,11 @@ final class GenericAnalysisDimensionPolicyTest extends TestCase
      */
     public static function nonPublicScopes(): iterable
     {
-        yield 'my hospitals' => [new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::All)];
-        yield 'hospital' => [new StatisticsFilter(StatisticsFilterScope::Hospital, 1, null, StatisticsFilterPeriod::All)];
-        yield 'state' => [new StatisticsFilter(StatisticsFilterScope::State, null, null, StatisticsFilterPeriod::All, stateId: 1)];
-        yield 'dispatch area' => [new StatisticsFilter(StatisticsFilterScope::DispatchArea, null, null, StatisticsFilterPeriod::All, dispatchAreaId: 1)];
-        yield 'hospital cohort' => [new StatisticsFilter(StatisticsFilterScope::HospitalCohort, null, new HospitalCohortKey(\App\Allocation\Domain\Enum\HospitalLocation::RURAL, \App\Allocation\Domain\Enum\HospitalTier::BASIC), StatisticsFilterPeriod::All)];
+        yield 'my hospitals' => [new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::Last12Months)];
+        yield 'hospital' => [new StatisticsFilter(StatisticsFilterScope::Hospital, 1, null, StatisticsFilterPeriod::Last12Months)];
+        yield 'state' => [new StatisticsFilter(StatisticsFilterScope::State, null, null, StatisticsFilterPeriod::Last12Months, stateId: 1)];
+        yield 'dispatch area' => [new StatisticsFilter(StatisticsFilterScope::DispatchArea, null, null, StatisticsFilterPeriod::Last12Months, dispatchAreaId: 1)];
+        yield 'hospital cohort' => [new StatisticsFilter(StatisticsFilterScope::HospitalCohort, null, new HospitalCohortKey(\App\Allocation\Domain\Enum\HospitalLocation::RURAL, \App\Allocation\Domain\Enum\HospitalTier::BASIC), StatisticsFilterPeriod::Last12Months)];
     }
 
     #[DataProvider('nonPublicScopes')]
@@ -141,7 +141,7 @@ final class GenericAnalysisDimensionPolicyTest extends TestCase
             $scope,
             null,
             $cohortType,
-            StatisticsFilterPeriod::All,
+            StatisticsFilterPeriod::Last12Months,
             stateId: $stateId,
             dispatchAreaId: $dispatchAreaId,
         );

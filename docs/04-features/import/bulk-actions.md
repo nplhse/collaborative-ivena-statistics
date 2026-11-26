@@ -18,7 +18,7 @@ The confirmation names the current count ("Reprocess these 7 imports?"). `Import
 | skipped: without permission | the user may not change it, or the id does not exist (not told apart) |
 | skipped: already queued or processing | status `Pending` or `Running`; it is not queued again |
 | skipped: without source file | the stored file is gone |
-| skipped: creator may no longer import | the run is processed as the creator, who lost the import permission or the closure beta role |
+| skipped: creator may no longer import | the run is processed as the creator, who lost the import permission |
 | skipped: could not be queued | the dispatch failed; the other imports are still queued |
 | queued | everything else, allocation and closure imports alike |
 

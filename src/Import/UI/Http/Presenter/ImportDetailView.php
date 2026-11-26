@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Import\UI\Http\Presenter;
 
+use App\Import\Application\DTO\ImportTypeDetailSection;
 use App\Import\UI\Http\Presenter\Coverage\ImportCoverageView;
 
 /** @psalm-suppress PossiblyUnusedProperty Consumed by the import detail template. */
@@ -20,6 +21,12 @@ final readonly class ImportDetailView
         public string $reprocessConfirmation,
         public array $recordActions,
         public ImportCoverageView $coverage,
+        public ?ImportTypeDetailSection $typeSection = null,
+        /**
+         * Whether duplicates were discarded or replaced an earlier row; only allocation imports decide that per row.
+         * Encounter imports skip known visits, so they show only the number of duplicates (#1418).
+         */
+        public bool $showsDeduplicationBreakdown = false,
     ) {
     }
 }

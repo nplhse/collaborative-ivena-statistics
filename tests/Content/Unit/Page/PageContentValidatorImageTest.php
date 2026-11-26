@@ -165,7 +165,7 @@ final class PageContentValidatorImageTest extends PageContentValidatorTestCase
     public function testImageAcceptsMediaEntityReference(): void
     {
         $validator = new PageContentValidator($this->translator());
-        $media = $this->createMock(Media::class);
+        $media = $this->createStub(Media::class);
         $media->method('getId')->willReturn(7);
 
         $errors = $validator->validate([

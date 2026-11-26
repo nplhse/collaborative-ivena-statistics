@@ -4,6 +4,10 @@ imports:
 deptrac:
     paths:
         - ./src
+        # Encounter schema plugins shipped for tests (ADR 037); they may only use Encounter_Contract.
+        - ./tests/Fixtures/Plugin
+        # Shipped encounter schema plugins (ADR 037, #1300), the same rule.
+        - ./plugins
     exclude_files:
         - '#src/DataFixtures/.*#'
         - '#.*/Infrastructure/Factory/.*#'
@@ -68,8 +72,15 @@ deptrac:
             name: Statistics_Application
             collectors:
                 -
-                    type: directory
-                    value: src/Statistics/Application/.*
+                    type: bool
+                    must:
+                        -
+                            type: directory
+                            value: src/Statistics/Application/.*
+                    must_not:
+                        -
+                            type: classNameRegex
+                            value: '#^App\\Statistics\\Application\\(DTO\\StatisticsFilter|DTO\\StatisticsFilterScope|StatisticsPeriodResolver|TimeSeries\\TimeSeriesAxisFiller|TimeSeries\\TimeSeriesGrainResolver)$#'
         -
             name: Statistics_Infrastructure
             collectors:
@@ -80,8 +91,29 @@ deptrac:
             name: Statistics_UI
             collectors:
                 -
-                    type: directory
-                    value: src/Statistics/UI/.*
+                    type: bool
+                    must:
+                        -
+                            type: directory
+                            value: src/Statistics/UI/.*
+                    must_not:
+                        -
+                            type: classNameRegex
+                            value: '#^App\\Statistics\\UI\\Http\\(Controller\\(AnalysisContextScopeMode|AnalysisContextViewModelFactory|OverviewPeriodViewModelFactory|StatisticsFilterValueResolver)|Navigation\\StatisticsQueryKeys)$#'
+        # Statistics page API (extension point "Statistics pages", #1300): what a plugin's statistics page may use,
+        # split by the folder its classes live in so that the Statistics layers keep their own rules.
+        -
+            name: Statistics_PageApiApplication
+            collectors:
+                -
+                    type: classNameRegex
+                    value: '#^App\\Statistics\\Application\\(DTO\\StatisticsFilter|DTO\\StatisticsFilterScope|StatisticsPeriodResolver|TimeSeries\\TimeSeriesAxisFiller|TimeSeries\\TimeSeriesGrainResolver)$#'
+        -
+            name: Statistics_PageApiUi
+            collectors:
+                -
+                    type: classNameRegex
+                    value: '#^App\\Statistics\\UI\\Http\\(Controller\\(AnalysisContextScopeMode|AnalysisContextViewModelFactory|OverviewPeriodViewModelFactory|StatisticsFilterValueResolver)|Navigation\\StatisticsQueryKeys)$#'
         -
             name: User_Domain
             collectors:
@@ -275,6 +307,30 @@ deptrac:
                     type: directory
                     value: src/Feedback/UI/.*
         -
+            name: Research_Domain
+            collectors:
+                -
+                    type: directory
+                    value: src/Research/Domain/.*
+        -
+            name: Research_Application
+            collectors:
+                -
+                    type: directory
+                    value: src/Research/Application/.*
+        -
+            name: Research_Infrastructure
+            collectors:
+                -
+                    type: directory
+                    value: src/Research/Infrastructure/.*
+        -
+            name: Research_UI
+            collectors:
+                -
+                    type: directory
+                    value: src/Research/UI/.*
+        -
             name: Shared_Domain
             collectors:
                 -
@@ -352,6 +408,81 @@ deptrac:
                 -
                     type: directory
                     value: src/Install/UI/.*
+        -
+            name: Encounter_Domain
+            collectors:
+                -
+                    type: bool
+                    must:
+                        -
+                            type: directory
+                            value: src/Encounter/Domain/.*
+                    must_not:
+                        -
+                            type: classNameRegex
+                            value: '#^App\\Encounter\\(Domain\\Entity\\Encounter|Application\\Security\\EncounterAttribute|Domain\\Enum\\(AnchorSource|CaseStatus|EncounterGrantAction|EncounterInsertOutcome|Sex)|Application\\Contract\\(DepartmentCatalogInterface|EncounterAccessGrantRepositoryInterface)|Application\\Event\\EncountersImported)$#'
+        -
+            name: Encounter_Application
+            collectors:
+                -
+                    type: bool
+                    must:
+                        -
+                            type: directory
+                            value: src/Encounter/Application/.*
+                    must_not:
+                        -
+                            type: classNameRegex
+                            value: '#^App\\Encounter\\(Domain\\Entity\\Encounter|Application\\Security\\EncounterAttribute|Domain\\Enum\\(AnchorSource|CaseStatus|EncounterGrantAction|EncounterInsertOutcome|Sex)|Application\\Contract\\(DepartmentCatalogInterface|EncounterAccessGrantRepositoryInterface)|Application\\Event\\EncountersImported)$#'
+        -
+            name: Encounter_Infrastructure
+            collectors:
+                -
+                    type: bool
+                    must:
+                        -
+                            type: directory
+                            value: src/Encounter/Infrastructure/.*
+                    must_not:
+                        -
+                            type: classNameRegex
+                            value: '#^App\\Encounter\\(Domain\\Entity\\Encounter|Application\\Security\\EncounterAttribute|Domain\\Enum\\(AnchorSource|CaseStatus|EncounterGrantAction|EncounterInsertOutcome|Sex)|Application\\Contract\\(DepartmentCatalogInterface|EncounterAccessGrantRepositoryInterface)|Application\\Event\\EncountersImported)$#'
+        -
+            name: Encounter_UI
+            collectors:
+                -
+                    type: bool
+                    must:
+                        -
+                            type: directory
+                            value: src/Encounter/UI/.*
+                    must_not:
+                        -
+                            type: classNameRegex
+                            value: '#^App\\Encounter\\(Domain\\Entity\\Encounter|Application\\Security\\EncounterAttribute|Domain\\Enum\\(AnchorSource|CaseStatus|EncounterGrantAction|EncounterInsertOutcome|Sex)|Application\\Contract\\(DepartmentCatalogInterface|EncounterAccessGrantRepositoryInterface)|Application\\Event\\EncountersImported)$#'
+        # Public contract for schema plugins (ADR 037): plugins may only use this layer of Encounter.
+        -
+            name: Encounter_Contract
+            collectors:
+                -
+                    type: directory
+                    value: src/Encounter/Contract/.*
+        # The Encounter classes besides the contract that plugins may use (PluginBoundaryTest::ALLOWED, #1300).
+        -
+            name: Encounter_PluginApi
+            collectors:
+                -
+                    type: classNameRegex
+                    value: '#^App\\Encounter\\(Domain\\Entity\\Encounter|Application\\Security\\EncounterAttribute|Domain\\Enum\\(AnchorSource|CaseStatus|EncounterGrantAction|EncounterInsertOutcome|Sex)|Application\\Contract\\(DepartmentCatalogInterface|EncounterAccessGrantRepositoryInterface)|Application\\Event\\EncountersImported)$#'
+        -
+            name: Encounter_Plugin
+            collectors:
+                -
+                    type: directory
+                    value: tests/Fixtures/Plugin/.*
+                -
+                    type: directory
+                    value: plugins/[^/]+/src/.*
     ruleset:
         Admin_Application:
             - Admin_Application
@@ -396,9 +527,11 @@ deptrac:
             - Shared_Infrastructure
             - Shared_UI
             - Statistics_Application
+            - Statistics_PageApiApplication
             - Statistics_Domain
             - Statistics_Infrastructure
             - Statistics_UI
+            - Statistics_PageApiUi
             - Storage_Application
             - Storage_Domain
             - Storage_Infrastructure
@@ -450,9 +583,11 @@ deptrac:
             - Shared_Infrastructure
             - Shared_UI
             - Statistics_Application
+            - Statistics_PageApiApplication
             - Statistics_Domain
             - Statistics_Infrastructure
             - Statistics_UI
+            - Statistics_PageApiUi
             - Storage_Application
             - Storage_Domain
             - Storage_Infrastructure
@@ -504,9 +639,11 @@ deptrac:
             - Shared_Infrastructure
             - Shared_UI
             - Statistics_Application
+            - Statistics_PageApiApplication
             - Statistics_Domain
             - Statistics_Infrastructure
             - Statistics_UI
+            - Statistics_PageApiUi
             - Storage_Application
             - Storage_Domain
             - Storage_Infrastructure
@@ -523,6 +660,7 @@ deptrac:
             - Shared_Infrastructure
             - Shared_UI
             - Statistics_Application
+            - Statistics_PageApiApplication
             - User_Application
             - User_Domain
             - User_Infrastructure
@@ -542,11 +680,14 @@ deptrac:
             - Allocation_Domain
             - Import_Domain
             - Notification_Application
+            # Notification definitions of hospital assignment requests (#975) use its enums.
+            - Notification_Domain
             - Shared_Application
             - Shared_Domain
             - Shared_Infrastructure
             - Shared_UI
             - Statistics_Application
+            - Statistics_PageApiApplication
             - User_Application
             - User_Domain
             - User_Infrastructure
@@ -590,6 +731,9 @@ deptrac:
         Content_Infrastructure:
             - Content_Application
             - Content_Domain
+            # Admin notification about missing or damaged media files (ADR 039), as Encounter does (ADR 027).
+            - Notification_Application
+            - Notification_Domain
             - Shared_Application
             - Shared_Domain
             - Shared_Infrastructure
@@ -631,9 +775,100 @@ deptrac:
             - Shared_Infrastructure
             - Shared_UI
             - Statistics_Application
+            - Statistics_PageApiApplication
             - Statistics_Domain
             - Statistics_Infrastructure
             - Statistics_UI
+            - Statistics_PageApiUi
+        # Encounter (ADR 025, 027) may use Allocation, Import, Shared and User, its infrastructure also Notification
+        # (admin notification of a key change, ADR 026); no context may use Encounter. Every Encounter layer may use
+        # Encounter_Contract, which itself depends on nothing of the application (ADR 037).
+        Encounter_Contract: []
+        # Plugins (ADR 037, #1300): the contract, the Encounter plugin API, the entities and enums of other contexts and
+        # their documented extension points (PluginBoundaryTest::ALLOWED is the exact list and fails CI).
+        # Same dependencies as Encounter_Application, which the plugin API classes belong to by folder.
+        Encounter_PluginApi:
+            - Encounter_Contract
+            - Encounter_Domain
+            - Allocation_Application
+            - Allocation_Domain
+            - Import_Application
+            - Import_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+        Encounter_Plugin:
+            - Encounter_Contract
+            - Encounter_PluginApi
+            - Statistics_PageApiApplication
+            - Statistics_PageApiUi
+            - Allocation_Domain
+            - Allocation_Application
+            - Import_Domain
+            - Import_Application
+            - User_Domain
+            - Shared_Application
+            - Shared_Infrastructure
+            - Shared_UI
+        Encounter_Domain:
+            - Encounter_Contract
+            - Encounter_PluginApi
+            - Allocation_Domain
+            - Import_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Domain
+        Encounter_Application:
+            - Encounter_Contract
+            - Encounter_PluginApi
+            - Allocation_Application
+            - Allocation_Domain
+            - Encounter_Domain
+            - Import_Application
+            - Import_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+        Encounter_Infrastructure:
+            - Encounter_Contract
+            - Encounter_PluginApi
+            - Allocation_Application
+            - Allocation_Domain
+            - Encounter_Application
+            - Encounter_Domain
+            - Import_Application
+            - Import_Domain
+            - Notification_Application
+            - Notification_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+        Encounter_UI:
+            - Encounter_Contract
+            - Encounter_PluginApi
+            - Allocation_Application
+            - Allocation_Domain
+            - Encounter_Application
+            - Encounter_Domain
+            - Import_Application
+            - Import_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
         Engagement_Domain:
             - Allocation_Application
             - Allocation_Domain
@@ -644,9 +879,11 @@ deptrac:
             - Shared_Infrastructure
             - Shared_UI
             - Statistics_Application
+            - Statistics_PageApiApplication
             - Statistics_Domain
             - Statistics_Infrastructure
             - Statistics_UI
+            - Statistics_PageApiUi
         Engagement_Infrastructure:
             - Allocation_Application
             - Allocation_Domain
@@ -661,9 +898,11 @@ deptrac:
             - Shared_Infrastructure
             - Shared_UI
             - Statistics_Application
+            - Statistics_PageApiApplication
             - Statistics_Domain
             - Statistics_Infrastructure
             - Statistics_UI
+            - Statistics_PageApiUi
         Engagement_UI:
             - Allocation_Application
             - Allocation_Domain
@@ -676,9 +915,11 @@ deptrac:
             - Shared_Infrastructure
             - Shared_UI
             - Statistics_Application
+            - Statistics_PageApiApplication
             - Statistics_Domain
             - Statistics_Infrastructure
             - Statistics_UI
+            - Statistics_PageApiUi
         Feedback_Application:
             - Feedback_Domain
             - Shared_Application
@@ -699,6 +940,8 @@ deptrac:
             - User_Infrastructure
             - User_UI
         Feedback_Infrastructure:
+            # Comments on unhelpful help articles (#596) arrive as a Content event and go to the feedback inbox.
+            - Content_Application
             - Feedback_Application
             - Feedback_Domain
             - Notification_Application
@@ -733,6 +976,7 @@ deptrac:
             - Shared_Infrastructure
             - Shared_UI
             - Statistics_Application
+            - Statistics_PageApiApplication
         Import_Domain:
             - Allocation_Application
             - Allocation_Domain
@@ -756,6 +1000,7 @@ deptrac:
             - Shared_Infrastructure
             - Shared_UI
             - Statistics_Application
+            - Statistics_PageApiApplication
             - User_Application
             - User_Domain
         Import_UI:
@@ -953,6 +1198,51 @@ deptrac:
             - User_Domain
             - User_Infrastructure
             - User_UI
+        Research_Application:
+            - Research_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Research_Domain:
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Research_Infrastructure:
+            - Notification_Application
+            # Notification definitions of data extract requests (#1635) use its enums.
+            - Notification_Domain
+            - Research_Application
+            - Research_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Research_UI:
+            - Research_Application
+            - Research_Domain
+            - Research_Infrastructure
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
         Shared_Application:
             - Shared_Application
             - Shared_Domain
@@ -1009,6 +1299,7 @@ deptrac:
             - User_Domain
             - User_Infrastructure
             - User_UI
+            - Statistics_PageApiApplication
         Statistics_Domain:
             - Allocation_Application
             - Allocation_Domain
@@ -1036,7 +1327,49 @@ deptrac:
             - Shared_Infrastructure
             - Shared_UI
             - Statistics_Application
+            - Statistics_PageApiApplication
             - Statistics_Domain
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        # Same rules as the Statistics layer each part belongs to by folder.
+        Statistics_PageApiApplication:
+            - Allocation_Application
+            - Allocation_Domain
+            - Allocation_Infrastructure
+            - Allocation_UI
+            - Analytics_Application
+            - Analytics_Domain
+            - Import_Application
+            - Import_Domain
+            - Import_Infrastructure
+            - Import_UI
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - Statistics_Application
+            - Statistics_Domain
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Statistics_PageApiUi:
+            - Allocation_Application
+            - Allocation_Domain
+            - Allocation_Infrastructure
+            - Allocation_UI
+            - Analytics_Application
+            - Analytics_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - Statistics_Application
+            - Statistics_Domain
+            - Statistics_PageApiApplication
+            - Statistics_UI
             - User_Application
             - User_Domain
             - User_Infrastructure
@@ -1053,11 +1386,13 @@ deptrac:
             - Shared_Infrastructure
             - Shared_UI
             - Statistics_Application
+            - Statistics_PageApiApplication
             - Statistics_Domain
             - User_Application
             - User_Domain
             - User_Infrastructure
             - User_UI
+            - Statistics_PageApiUi
         Storage_Application:
             - Notification_Application
             - Notification_Domain

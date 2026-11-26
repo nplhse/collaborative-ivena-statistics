@@ -1,0 +1,241 @@
+{
+    "schema": "ed_visit",
+    "version": 1,
+    "fields": [
+        {
+            "name": "visit_fingerprint",
+            "type": "hmac",
+            "required": true
+        },
+        {
+            "name": "case_key",
+            "type": "hmac",
+            "required": true
+        },
+        {
+            "name": "age",
+            "type": "integer",
+            "required": true,
+            "min": 1,
+            "max": 99
+        },
+        {
+            "name": "sex",
+            "type": "code",
+            "required": true,
+            "values": ["M", "F", "X"]
+        },
+        {
+            "name": "arrival_mode",
+            "type": "code",
+            "values": ["self", "ambulance", "patient_transport", "physician_vehicle", "other"]
+        },
+        {
+            "name": "referral_source",
+            "type": "code",
+            "values": [
+                "self",
+                "ems",
+                "emergency_physician",
+                "hospital_transfer",
+                "physician",
+                "kv_practice",
+                "other"
+            ]
+        },
+        {
+            "name": "admission_type",
+            "type": "code",
+            "values": ["emergency", "elective"]
+        },
+        {
+            "name": "case_status",
+            "type": "code",
+            "values": ["outpatient", "inpatient", "pre_inpatient", "post_inpatient"]
+        },
+        {
+            "name": "ed_admission_at",
+            "type": "timestamp"
+        },
+        {
+            "name": "first_assessment_contact_at",
+            "type": "timestamp"
+        },
+        {
+            "name": "assessment_start_at",
+            "type": "timestamp"
+        },
+        {
+            "name": "assessment_end_at",
+            "type": "timestamp"
+        },
+        {
+            "name": "physician_target_at",
+            "type": "timestamp"
+        },
+        {
+            "name": "first_physician_at",
+            "type": "timestamp"
+        },
+        {
+            "name": "treatment_end_at",
+            "type": "timestamp"
+        },
+        {
+            "name": "ed_discharge_at",
+            "type": "timestamp"
+        },
+        {
+            "name": "admin_admission_at",
+            "type": "timestamp"
+        },
+        {
+            "name": "admin_discharge_at",
+            "type": "timestamp"
+        },
+        {
+            "name": "pre_inpatient_admission_at",
+            "type": "timestamp"
+        },
+        {
+            "name": "mts_category",
+            "type": "code",
+            "values": ["red", "orange", "yellow", "green", "blue"]
+        },
+        {
+            "name": "mts_diagram",
+            "type": "catalog_code"
+        },
+        {
+            "name": "mts_indicator",
+            "type": "catalog_code"
+        },
+        {
+            "name": "pain_score",
+            "type": "integer",
+            "min": 0,
+            "max": 10
+        },
+        {
+            "name": "retriage_category",
+            "type": "code",
+            "values": ["red", "orange", "yellow", "green", "blue"]
+        },
+        {
+            "name": "retriage_diagram",
+            "type": "catalog_code"
+        },
+        {
+            "name": "retriage_indicator",
+            "type": "catalog_code"
+        },
+        {
+            "name": "retriage_at",
+            "type": "timestamp"
+        },
+        {
+            "name": "disposition",
+            "type": "code",
+            "values": [
+                "home",
+                "to_physician",
+                "kv_practice",
+                "against_advice",
+                "left_before_completion",
+                "admitted",
+                "transferred_external",
+                "died",
+                "other"
+            ]
+        },
+        {
+            "name": "care_level",
+            "type": "code",
+            "values": ["ward", "monitoring", "icu", "or", "unknown"]
+        },
+        {
+            "name": "admitting_department",
+            "type": "catalog_code"
+        },
+        {
+            "name": "vitals_reference",
+            "type": "code",
+            "values": ["admission_measurement", "documented_initial"]
+        },
+        {
+            "name": "vitals_measured_at",
+            "type": "timestamp"
+        },
+        {
+            "name": "bp_systolic",
+            "type": "integer",
+            "min": 40,
+            "max": 300
+        },
+        {
+            "name": "bp_diastolic",
+            "type": "integer",
+            "min": 20,
+            "max": 200
+        },
+        {
+            "name": "heart_rate",
+            "type": "integer",
+            "min": 20,
+            "max": 300
+        },
+        {
+            "name": "temperature",
+            "type": "decimal",
+            "min": 25.0,
+            "max": 45.0
+        },
+        {
+            "name": "respiratory_rate",
+            "type": "integer",
+            "min": 3,
+            "max": 80
+        },
+        {
+            "name": "glucose",
+            "type": "integer",
+            "min": 10,
+            "max": 1500
+        },
+        {
+            "name": "spo2",
+            "type": "integer",
+            "min": 30,
+            "max": 100
+        },
+        {
+            "name": "gcs",
+            "type": "integer",
+            "min": 3,
+            "max": 15
+        },
+        {
+            "name": "work_accident",
+            "type": "flag"
+        },
+        {
+            "name": "tetanus_protected",
+            "type": "flag"
+        },
+        {
+            "name": "isolation",
+            "type": "code_set",
+            "values": [
+                "gastroenteritis",
+                "clostridioides",
+                "covid19",
+                "mdro",
+                "mrsa",
+                "esbl",
+                "pseudomonas",
+                "tb",
+                "other"
+            ]
+        }
+    ]
+}

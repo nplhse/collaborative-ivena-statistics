@@ -80,7 +80,10 @@ final readonly class DataSourceCapabilities
             AnalysisShape::TimeSeries => $this->usesMultiSeriesChart($config)
                 ? ChartPresentationType::GroupedBar
                 : ChartPresentationType::Bar,
-            AnalysisShape::Distribution => ChartPresentationType::Bar,
+            // A breakdown with a series but no column axis (the reference comparison, #1346) needs a multi-series chart.
+            AnalysisShape::Distribution => $this->usesMultiSeriesChart($config)
+                ? ChartPresentationType::GroupedBar
+                : ChartPresentationType::Bar,
         };
     }
 
@@ -113,7 +116,7 @@ final readonly class DataSourceCapabilities
 
     public function usesMultiSeriesChart(AnalysisViewConfig $config): bool
     {
-        if ($config->hasColumnAxis()) {
+        if ($config->hasColumnAxis() || $config->hasReferenceComparison()) {
             return true;
         }
 

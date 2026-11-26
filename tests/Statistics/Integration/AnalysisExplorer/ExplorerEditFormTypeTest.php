@@ -155,7 +155,7 @@ final class ExplorerEditFormTypeTest extends KernelTestCase
         $form->submit([
             'scopePeriod' => [
                 'scopeGroup' => 'public',
-                'period' => 'all',
+                'period' => 'last_12_months',
             ],
             'dataSource' => 'hospitals',
             'rowDimension' => 'hospital_tier',
@@ -223,7 +223,7 @@ final class ExplorerEditFormTypeTest extends KernelTestCase
         string $metric = 'allocation_count',
     ): ExplorerEditFormData {
         return new ExplorerEditFormData(
-            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'all'),
+            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'last_12_months'),
             dataSource: $dataSource,
             rowDimension: $rowDimension,
             rowGrain: $rowGrain,
@@ -238,7 +238,7 @@ final class ExplorerEditFormTypeTest extends KernelTestCase
         string $chartType = 'bar',
     ): ExplorerEditFormData {
         return new ExplorerEditFormData(
-            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'all'),
+            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'last_12_months'),
             dataSource: 'hospitals',
             rowDimension: 'hospital_tier',
             rowGrain: 'total',

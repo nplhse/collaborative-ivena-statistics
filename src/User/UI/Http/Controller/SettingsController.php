@@ -9,11 +9,15 @@ use App\Shared\Application\Locale\SupportedLocales;
 use App\Shared\Application\Locale\UserLocalePreferenceUpdater;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
+use App\User\Domain\Security\UserRole;
+use App\User\Infrastructure\Query\TwoFactorRecommendationQuery;
 use App\User\Infrastructure\Security\EmailVerifier;
+use App\User\Infrastructure\Security\TwoFactor\TwoFactorAvailability;
 use App\User\UI\Form\ForceChangePasswordType;
 use App\User\UI\Form\SettingsEmailType;
 use App\User\UI\Form\SettingsLocaleType;
 use App\User\UI\Form\SettingsPasswordType;
+use App\User\UI\Form\SettingsProfileType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -36,11 +40,26 @@ final class SettingsController extends AbstractController
         private readonly AuditContext $auditContext,
         private readonly UserLocalePreferenceUpdater $userLocalePreferenceUpdater,
         private readonly LocaleResolver $localeResolver,
+        private readonly TwoFactorAvailability $twoFactorAvailability,
+        private readonly TwoFactorRecommendationQuery $twoFactorRecommendation,
     ) {
     }
 
-    #[Route('/settings', name: 'app_settings_index', methods: ['GET', 'POST'])]
-    public function index(Request $request): Response
+    #[Route('/settings', name: 'app_settings_index', methods: ['GET'])]
+    public function index(): Response
+    {
+        $user = $this->requireUser();
+
+        return $this->render('@User/settings/index.html.twig', [
+            // Hospital owners and import grantees (#1357): the two-factor tile says it is recommended.
+            'twoFactorRecommended' => $this->twoFactorAvailability->isAvailable()
+                && !$user->isTotpAuthenticationEnabled()
+                && $this->twoFactorRecommendation->isRecommendedFor($user),
+        ]);
+    }
+
+    #[Route('/settings/account', name: 'app_settings_account', methods: ['GET', 'POST'])]
+    public function account(Request $request): Response
     {
         $user = $this->requireUser();
         $automaticDefaultLocale = $this->localeResolver->resolveAutomaticDefault($request);
@@ -50,6 +69,26 @@ final class SettingsController extends AbstractController
             : $automaticDefaultLocale;
         if (!SupportedLocales::isSupported($currentLocale)) {
             $currentLocale = SupportedLocales::DEFAULT;
+        }
+
+        $profileForm = $this->createForm(SettingsProfileType::class, ['displayName' => $user->getDisplayName()]);
+        $profileForm->handleRequest($request);
+
+        if ($profileForm->isSubmitted() && $profileForm->isValid()) {
+            /** @var array{displayName: ?string} $data */
+            $data = $profileForm->getData();
+            $user->setDisplayName($data['displayName']);
+
+            $this->auditContext->beginIntent('user.settings.profile_updated', []);
+            try {
+                $this->entityManager->flush();
+            } finally {
+                $this->auditContext->endIntent();
+            }
+
+            $this->addFlash('success', new TranslatableMessage('flash.settings.profile.updated', domain: 'user'));
+
+            return $this->redirectToRoute('app_settings_account');
         }
 
         $localeForm = $this->createForm(SettingsLocaleType::class, ['locale' => $currentLocale], [
@@ -70,13 +109,14 @@ final class SettingsController extends AbstractController
 
             $this->addFlash('success', new TranslatableMessage('flash.settings.locale.updated', domain: 'user'));
 
-            $response = $this->redirectToRoute('app_settings_index');
+            $response = $this->redirectToRoute('app_settings_account');
             $response->headers->setCookie($cookie);
 
             return $response;
         }
 
-        return $this->render('@User/settings/index.html.twig', [
+        return $this->render('@User/settings/account.html.twig', [
+            'profileForm' => $profileForm,
             'localeForm' => $localeForm,
         ]);
     }
@@ -95,7 +135,7 @@ final class SettingsController extends AbstractController
         if ($user->isVerified()) {
             $this->addFlash('info', new TranslatableMessage('flash.settings.email.already_verified', domain: 'user'));
 
-            return $this->redirectToRoute('app_settings_index');
+            return $this->redirectToRoute('app_settings_account');
         }
 
         $limiterKey = sprintf(
@@ -109,13 +149,83 @@ final class SettingsController extends AbstractController
         if (!$limit->isAccepted()) {
             $this->addFlash('warning', new TranslatableMessage('flash.settings.email.resend_rate_limited', domain: 'user'));
 
-            return $this->redirectToRoute('app_settings_index');
+            return $this->redirectToRoute('app_settings_account');
         }
 
         $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user);
         $this->addFlash('success', new TranslatableMessage('flash.settings.email.verification_resent', domain: 'user'));
 
-        return $this->redirectToRoute('app_settings_index');
+        return $this->redirectToRoute('app_settings_account');
+    }
+
+    /**
+     * "Sign-in & security" (#1508): the status of the password, the login link and two-factor authentication, each
+     * with a link to its own page.
+     */
+    #[Route('/settings/security', name: 'app_settings_security', methods: ['GET'])]
+    public function security(): Response
+    {
+        $user = $this->requireUser();
+        $twoFactorAvailable = $this->twoFactorAvailability->isAvailable();
+
+        return $this->render('@User/settings/security.html.twig', [
+            'loginLinkAvailable' => !$this->isGranted(UserRole::ADMIN),
+            'twoFactorAvailable' => $twoFactorAvailable,
+            'twoFactorRecommended' => $twoFactorAvailable
+                && !$user->isTotpAuthenticationEnabled()
+                && $this->twoFactorRecommendation->isRecommendedFor($user),
+        ]);
+    }
+
+    /**
+     * The login link page (#1355, #1508): its status and the switch. Not offered to administrators; they sign in with
+     * their password only.
+     */
+    #[Route('/settings/login-link', name: 'app_settings_login_link_show', methods: ['GET'])]
+    public function loginLinkSettings(): Response
+    {
+        $this->requireUser();
+        if ($this->isGranted(UserRole::ADMIN)) {
+            throw $this->createNotFoundException('Administrators sign in with their password only.');
+        }
+
+        return $this->render('@User/settings/login_link.html.twig');
+    }
+
+    /**
+     * Opt-in for the login link (#1355). Not offered to administrators; they sign in with their password only.
+     */
+    #[Route('/settings/login-link', name: 'app_settings_login_link', methods: ['POST'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function loginLink(Request $request): RedirectResponse
+    {
+        $user = $this->requireUser();
+
+        if (!$this->isCsrfTokenValid('settings_login_link', (string) $request->request->get('_csrf_token'))) {
+            throw $this->createAccessDeniedException('flash.security.invalid_csrf');
+        }
+
+        if ($this->isGranted(UserRole::ADMIN)) {
+            throw $this->createAccessDeniedException('Administrators sign in with their password only.');
+        }
+
+        $enabled = '1' === $request->request->getString('enabled');
+        if ($enabled !== $user->isLoginLinkEnabled()) {
+            $user->setLoginLinkEnabled($enabled);
+            $this->auditContext->beginIntent('user.settings.login_link_changed', []);
+            try {
+                $this->entityManager->flush();
+            } finally {
+                $this->auditContext->endIntent();
+            }
+        }
+
+        $this->addFlash('success', new TranslatableMessage(
+            $enabled ? 'flash.settings.login_link.enabled' : 'flash.settings.login_link.disabled',
+            domain: 'user',
+        ));
+
+        return $this->redirectToRoute('app_settings_login_link_show');
     }
 
     #[Route('/settings/email', name: 'app_settings_email')]
@@ -148,7 +258,7 @@ final class SettingsController extends AbstractController
 
             $this->addFlash('success', new TranslatableMessage('flash.settings.email.updated_verify_required', domain: 'user'));
 
-            return $this->redirectToRoute('app_settings_index');
+            return $this->redirectToRoute('app_settings_account');
         }
 
         return $this->render('@User/settings/email.html.twig', [
@@ -190,7 +300,7 @@ final class SettingsController extends AbstractController
 
             $this->addFlash('success', new TranslatableMessage('flash.settings.password.updated', domain: 'user'));
 
-            return $this->redirectToRoute('app_settings_index');
+            return $this->redirectToRoute('app_settings_account');
         }
 
         return $this->render('@User/settings/password.html.twig', [

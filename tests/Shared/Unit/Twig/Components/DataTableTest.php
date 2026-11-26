@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Shared\Unit\Twig\Components;
 
 use App\Shared\Infrastructure\Pagination\CursorPaginator;
+use App\Shared\Infrastructure\Pagination\ResultCount;
 use App\Shared\UI\Twig\Components\DataTable;
 use App\Shared\UI\Twig\DataTable\BadgePalette;
 use App\Shared\UI\Twig\DataTable\DataTableColumn;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\UX\Pagination\Test\PaginatorFactory;
 
 final class DataTableTest extends TestCase
@@ -287,7 +289,7 @@ final class DataTableTest extends TestCase
             25,
             'next-cursor',
             'prev-cursor',
-            1200,
+            ResultCount::exact(1200),
         );
         $table->columns = [DataTableColumn::fromArray(['key' => 'name', 'label' => 'Name'])];
 
@@ -345,7 +347,7 @@ final class DataTableTest extends TestCase
         ])));
         self::assertSame(12, $table->badgeNumber(['beds' => 12], $beds));
         self::assertNull($table->badgeNumber(['beds' => 12], DataTableColumn::fromArray(['key' => 'size'])));
-        self::assertSame('Urban', $table->badgeView(['location' => 'Urban'], DataTableColumn::fromArray([
+        self::assertEquals(new TranslatableMessage('hospital.badge.location.Urban', domain: 'allocation'), $table->badgeView(['location' => 'Urban'], DataTableColumn::fromArray([
             'key' => 'location',
             'badgePalette' => 'hospital_location',
         ]))->label);

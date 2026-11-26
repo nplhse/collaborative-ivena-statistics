@@ -12,6 +12,7 @@ use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerAssistantGoal;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerQueryKeys;
+use App\Statistics\Application\Mapping\StatisticsAgeGroupFilter;
 use Symfony\Component\HttpFoundation\Request;
 
 final class ExplorerAssistantQueryFactory
@@ -75,7 +76,7 @@ final class ExplorerAssistantQueryFactory
             urgency: $this->optionalInt($request, 'urgency', $malformed),
             transportType: $this->optionalInt($request, 'transport_type', $malformed),
             gender: $this->optionalInt($request, 'gender', $malformed),
-            ageGroup: $this->optionalString($request, 'age_group'),
+            ageGroup: $this->optionalAgeGroup($request),
             resus: $this->optionalBool($request, 'resus', $malformed),
             cpr: $this->optionalBool($request, 'cpr', $malformed),
             ventilation: $this->optionalBool($request, 'ventilation', $malformed),
@@ -104,6 +105,13 @@ final class ExplorerAssistantQueryFactory
         }
 
         return (int) $raw;
+    }
+
+    private function optionalAgeGroup(Request $request): ?string
+    {
+        $ageGroup = $this->optionalString($request, 'age_group');
+
+        return null === $ageGroup ? null : StatisticsAgeGroupFilter::normalizeKey($ageGroup);
     }
 
     private function optionalString(Request $request, string $key): ?string

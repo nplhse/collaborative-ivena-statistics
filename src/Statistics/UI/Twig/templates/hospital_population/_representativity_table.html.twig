@@ -29,7 +29,8 @@
                         <td class="text-end">
                             <twig:Statistics:DeltaIndicator
                                 :value="row.deltaPercentPoints"
-                                unit="percent"
+                                :colorizeTrend="false"
+                                unit="pp"
                                 display="text"
                                 whenZero="neutral"
                                 ariaKey="stats.hospital_population.representativity.delta.aria"

@@ -21,9 +21,10 @@ final class LoginType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            // Username or email (#1355); the field keeps its name so existing clients and the failure log still work.
             ->add('username', TextType::class, [
-                'label' => 'label.username',
-                'translation_domain' => 'messages',
+                'label' => 'label.login.identifier',
+                'help' => 'message.login.email_switch_hint',
             ])
             ->add('password', PasswordType::class, [
                 'label' => 'label.password',

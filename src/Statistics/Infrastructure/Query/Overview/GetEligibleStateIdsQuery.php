@@ -18,7 +18,7 @@ final readonly class GetEligibleStateIdsQuery
     /**
      * @return list<int>
      */
-    public function __invoke(int $minimumParticipants = 2): array
+    public function __invoke(int $minimumParticipants): array
     {
         $this->materializedViewsInstaller->ensureInstalled();
 
@@ -27,7 +27,7 @@ final readonly class GetEligibleStateIdsQuery
             ->from(ProjectionStateHospitalCount::class, 's')
             ->select('s.stateId')
             ->andWhere('s.hospitalCount >= :min')
-            ->orderBy('s.stateId', 'ASC')
+            ->orderBy('s.stateId', \SortDirection::Ascending)
             ->setParameter('min', $minimumParticipants)
             ->getQuery()
             ->getSingleColumnResult();

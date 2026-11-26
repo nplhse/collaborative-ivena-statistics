@@ -33,7 +33,7 @@ final class EstimateAllocationsExportController extends AbstractController
     ) {
     }
 
-    #[Route('/hospitals/export/allocations/estimate', name: 'app_hospitals_export_allocations_estimate', methods: ['POST'])]
+    #[Route('/tools/allocation-export/estimate', name: 'app_tools_allocation_export_estimate', methods: ['POST'])]
     public function __invoke(
         Request $request,
         #[CurrentUser] User $user,

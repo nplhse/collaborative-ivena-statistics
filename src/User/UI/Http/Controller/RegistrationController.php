@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace App\User\UI\Http\Controller;
 
-use App\Analytics\Application\UsageEvents\UsageAnalytics;
-use App\Analytics\Domain\Enum\FeatureArea;
-use App\Analytics\Domain\UsageEventName;
 use App\Shared\Application\Locale\LocaleResolver;
 use App\Shared\Application\RateLimit\ClientRateLimit;
 use App\Shared\Infrastructure\Audit\AuditContext;
+use App\Shared\Infrastructure\Audit\Entity\AuditEntry;
 use App\User\Application\Event\UserRegistered;
 use App\User\Application\Registration\RegistrationEmailSuppressionLogger;
 use App\User\Application\Registration\RegistrationEmailSuppressionPolicy;
+use App\User\Application\Terms\TermsAcceptanceFactory;
 use App\User\Domain\Entity\User;
 use App\User\Infrastructure\Registration\RegistrationIdentityGuard;
 use App\User\Infrastructure\Security\EmailVerifier;
@@ -43,9 +42,9 @@ final class RegistrationController extends AbstractController
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly LocaleResolver $localeResolver,
         private readonly RegistrationIdentityGuard $registrationIdentityChecker,
-        private readonly UsageAnalytics $usageAnalytics,
         private readonly RegistrationEmailSuppressionPolicy $registrationEmailSuppressionPolicy,
         private readonly RegistrationEmailSuppressionLogger $registrationEmailSuppressionLogger,
+        private readonly TermsAcceptanceFactory $termsAcceptanceFactory,
     ) {
     }
 
@@ -98,7 +97,9 @@ final class RegistrationController extends AbstractController
             $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
 
             $this->entityManager->persist($user);
-            $this->auditContext->beginIntent('user.registered', []);
+            // The form requires the terms checkbox; store that acceptance with the account (#1564).
+            $this->entityManager->persist($this->termsAcceptanceFactory->forCurrentTerms($user, $request->getLocale()));
+            $this->auditContext->beginIntent(AuditEntry::INTENT_USER_REGISTERED, []);
             try {
                 $this->entityManager->flush();
             } catch (UniqueConstraintViolationException) {
@@ -168,8 +169,6 @@ final class RegistrationController extends AbstractController
         } finally {
             $this->auditContext->endIntent();
         }
-
-        $this->usageAnalytics->record(UsageEventName::USER_EMAIL_CONFIRMED, FeatureArea::Other);
 
         $this->addFlash('success', new TranslatableMessage('flash.registration.verify.success', domain: 'user'));
 

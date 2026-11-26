@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Tests\Feedback\Integration\Infrastructure\EventSubscriber;
 
 use App\Feedback\Application\Event\FeedbackReceived;
+use App\Feedback\Application\FeedbackSpamCheckResult;
+use App\Feedback\Application\FeedbackSpamVerdict;
 use App\Feedback\Application\RecordFeedbackHandler;
 use App\Feedback\Domain\Enum\FeedbackCategory;
 use App\Notification\Application\Contract\NotificationPublisherInterface;
@@ -100,7 +102,39 @@ final class FeedbackReceivedNotificationSubscriberTest extends DatabaseKernelTes
         self::assertEmailCount(0);
     }
 
-    private function record(?User $sender, FeedbackCategory $category, string $message): void
+    public function testQuarantinedFeedbackIsStoredWithoutNotification(): void
+    {
+        UserFactory::new()->asAdmin()->create(['email' => 'admin-quarantine@example.test']);
+
+        $this->record(null, FeedbackCategory::BUG, 'Read the news https://telegra.ph/x', new FeedbackSpamCheckResult(
+            FeedbackSpamVerdict::QUARANTINE,
+            14,
+            ['missing_page_context', 'contains_url', 'blocked_link_domain'],
+        ));
+
+        $row = $this->connection()->fetchAssociative('SELECT classification, classification_reasons, spam_score, classified_by_id, quarantine_reported_at FROM feedback');
+        self::assertIsArray($row);
+        self::assertSame('quarantined', $row['classification']);
+        self::assertSame(['missing_page_context', 'contains_url', 'blocked_link_domain'], json_decode((string) $row['classification_reasons'], true));
+        self::assertSame(14, (int) $row['spam_score']);
+        self::assertNull($row['classified_by_id'], 'automatic quarantine');
+        self::assertNull($row['quarantine_reported_at'], 'waits for the weekly summary');
+        self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM notification'));
+        self::assertEmailCount(0);
+    }
+
+    public function testAcceptedFeedbackStoresTheMessageFingerprint(): void
+    {
+        $this->record(null, FeedbackCategory::QUESTION, 'How do I import 2026 data?');
+
+        self::assertSame(
+            hash('sha256', 'how do i import data?'),
+            $this->connection()->fetchOne('SELECT message_fingerprint FROM feedback'),
+        );
+        self::assertSame('normal', $this->connection()->fetchOne('SELECT classification FROM feedback'));
+    }
+
+    private function record(?User $sender, FeedbackCategory $category, string $message, ?FeedbackSpamCheckResult $spamCheck = null): void
     {
         self::getContainer()->get(RecordFeedbackHandler::class)->execute(
             category: $category,
@@ -112,6 +146,7 @@ final class FeedbackReceivedNotificationSubscriberTest extends DatabaseKernelTes
             context: ['viewport' => '1280x800'],
             userAgent: 'Mozilla/5.0 (Test)',
             appVersion: '1.2.3',
+            spamCheck: $spamCheck ?? new FeedbackSpamCheckResult(FeedbackSpamVerdict::ACCEPT, 0),
         );
     }
 

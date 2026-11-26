@@ -24,6 +24,7 @@ use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Allocation\Infrastructure\Geo\HospitalIsochroneFileStore;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Tests\Support\Geo\DispatchAreaShapes;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector;
@@ -35,11 +36,16 @@ use Zenstruck\Foundry\Test\Factories;
 #[ResetDatabase]
 final class ShowAllocationControllerTest extends WebTestCase
 {
+    use DispatchAreaShapes;
     use Factories;
     use InteractsWithAuthenticatedUser;
 
-    /** Baseline with eager-loaded allocation graph: ~12 queries (1 allocation + shared layout); pre-fix N+1 path was 27+. */
-    private const int MAX_QUERIES = 15;
+    /**
+     * Baseline with eager-loaded allocation graph: ~12 queries (1 allocation + shared layout); pre-fix N+1 path was 27+.
+     * Plus, since Symfony 8.1.10 collects profiler data after kernel.terminate, the 3 queries of
+     * AnalyticsRequestSubscriber::onKernelTerminate() (START TRANSACTION, INSERT analytics_request, COMMIT; the consent is reused from kernel.response).
+     */
+    private const int MAX_QUERIES = 18;
 
     public function testShowUsesBoundedQueryCount(): void
     {
@@ -102,7 +108,7 @@ final class ShowAllocationControllerTest extends WebTestCase
 
         self::ensureKernelShutdown();
 
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         // Count only the request: the profiler would otherwise include creating the logged-in user.
         $client->getContainer()->get('doctrine.debug_data_holder')->reset();
         $client->enableProfiler();
@@ -127,7 +133,7 @@ final class ShowAllocationControllerTest extends WebTestCase
     public function testShowDisplaysHospitalDetails(): void
     {
         // Arrange
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
 
         $owner = UserFactory::createOne(['username' => 'owner-user']);
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
@@ -198,6 +204,8 @@ final class ShowAllocationControllerTest extends WebTestCase
         self::assertSelectorTextContains('#allocation-gender', 'Male');
         self::assertSelectorTextContains('.department-line', 'Test Department');
         self::assertSelectorTextContains('.department-line', 'Test Speciality');
+        // No closure import covers the allocation (#571).
+        self::assertSelectorExists('[data-testid="closure-at-assignment"][data-closure-at-assignment="unknown"]');
         self::assertSelectorNotExists('[data-testid="allocation-insight-department"]');
         self::assertSelectorNotExists('[data-testid="allocation-insight-speciality"]');
         self::assertSelectorNotExists('[data-testid="allocation-insight-indication"]');
@@ -220,6 +228,7 @@ final class ShowAllocationControllerTest extends WebTestCase
         self::assertSelectorTextContains('[data-testid="allocation-destination-profile"]', HospitalTier::cases()[0]->value);
         self::assertSelectorTextContains('[data-testid="allocation-destination-profile"]', HospitalSize::cases()[0]->value);
         self::assertSelectorTextContains('[data-testid="allocation-destination-profile"]', '321');
+        self::assertSelectorTextSame('[data-testid="allocation-destination-address"]', 'Fake Street 123, 12345 Teststadt · DE');
         self::assertSelectorNotExists('[data-testid="catalog-orientation-map"]');
         self::assertSelectorNotExists('[data-testid="allocation-origin-district"]');
         self::assertSelectorNotExists('[data-testid="allocation-cross-district"]');
@@ -235,11 +244,12 @@ final class ShowAllocationControllerTest extends WebTestCase
         self::assertNotNull($occasion);
         self::assertSelectorExists('a[href="/explore/occasion/'.$occasion->getPublicIdString().'"]');
         self::assertSelectorNotExists('a[href*="/explore/indication/raw/"]');
+        self::assertSelectorNotExists('a[href*="/tools/indication-review"]');
     }
 
     public function testShowLinksOptionalRelatedExplorerEntities(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
 
         $owner = UserFactory::createOne(['username' => 'owner-user']);
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
@@ -282,11 +292,12 @@ final class ShowAllocationControllerTest extends WebTestCase
         self::assertSelectorExists('a[href="/explore/secondary_transport/'.$secondaryTransport->getPublicIdString().'"]');
         self::assertSelectorExists('a[href="/explore/infection/'.$infection->getPublicIdString().'"]');
         self::assertSelectorNotExists('a[href*="/explore/indication/raw/"]');
+        self::assertSelectorNotExists('a[href*="/tools/indication-review"]');
     }
 
     public function testShowDisplaysDepartmentWasClosedIndicator(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
 
         $owner = UserFactory::createOne(['username' => 'owner-user']);
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
@@ -330,7 +341,7 @@ final class ShowAllocationControllerTest extends WebTestCase
 
     public function testShowHandlesMissingTransportType(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
 
         $owner = UserFactory::createOne(['username' => 'owner-user']);
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
@@ -364,6 +375,73 @@ final class ShowAllocationControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('[data-testid="allocation-transport-type"]', 'Unknown');
+    }
+
+    public function testShowOmitsDestinationAddressLineWhenHospitalHasNoAddress(): void
+    {
+        $client = $this->createClientAsAdministrator();
+
+        $createdBy = UserFactory::createOne(['username' => 'area-user']);
+        $state = StateFactory::createOne(['name' => 'Hessen']);
+        $dispatch = DispatchAreaFactory::createOne(['name' => 'Dispatch Area', 'state' => $state]);
+        $address = AddressFactory::new(['street' => '', 'postalCode' => '', 'city' => '', 'state' => '', 'country' => ''])->create();
+        $hospital = HospitalFactory::createOne([
+            'address' => $address,
+            'state' => $state,
+            'dispatchArea' => $dispatch,
+            'createdBy' => $createdBy,
+        ]);
+        $allocation = AllocationFactory::createOne([
+            'import' => ImportFactory::createOne(['hospital' => $hospital, 'createdBy' => $createdBy]),
+            'hospital' => $hospital,
+            'dispatchArea' => $dispatch,
+            'state' => $state,
+            'assignment' => AssignmentFactory::createOne(),
+            'department' => DepartmentFactory::createOne(),
+            'speciality' => SpecialityFactory::createOne(),
+            'indicationRaw' => IndicationRawFactory::createOne(),
+            'indicationNormalized' => IndicationNormalizedFactory::createOne(),
+            'occasion' => OccasionFactory::createOne(),
+        ]);
+
+        $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocation->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="allocation-destination"]');
+        self::assertSelectorNotExists('[data-testid="allocation-destination-address"]');
+    }
+
+    public function testShowOnlyJoinsPresentAddressParts(): void
+    {
+        $client = $this->createClientAsAdministrator();
+
+        $createdBy = UserFactory::createOne(['username' => 'area-user']);
+        $state = StateFactory::createOne(['name' => 'Hessen']);
+        $dispatch = DispatchAreaFactory::createOne(['name' => 'Dispatch Area', 'state' => $state]);
+        $address = AddressFactory::new(['street' => '', 'postalCode' => '', 'city' => 'Teststadt', 'state' => '', 'country' => 'DE'])->create();
+        $hospital = HospitalFactory::createOne([
+            'address' => $address,
+            'state' => $state,
+            'dispatchArea' => $dispatch,
+            'createdBy' => $createdBy,
+        ]);
+        $allocation = AllocationFactory::createOne([
+            'import' => ImportFactory::createOne(['hospital' => $hospital, 'createdBy' => $createdBy]),
+            'hospital' => $hospital,
+            'dispatchArea' => $dispatch,
+            'state' => $state,
+            'assignment' => AssignmentFactory::createOne(),
+            'department' => DepartmentFactory::createOne(),
+            'speciality' => SpecialityFactory::createOne(),
+            'indicationRaw' => IndicationRawFactory::createOne(),
+            'indicationNormalized' => IndicationNormalizedFactory::createOne(),
+            'occasion' => OccasionFactory::createOne(),
+        ]);
+
+        $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocation->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextSame('[data-testid="allocation-destination-address"]', 'Teststadt · DE');
     }
 
     public function testShowReturns403ForRoleUserWithoutParticipantRole(): void
@@ -409,7 +487,7 @@ final class ShowAllocationControllerTest extends WebTestCase
 
     public function testShowRejectsPostMethod(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $client->request(Request::METHOD_POST, '/explore/allocation/00000000-0000-4000-8000-000000000000');
 
         self::assertResponseStatusCodeSame(405);
@@ -417,7 +495,7 @@ final class ShowAllocationControllerTest extends WebTestCase
 
     public function testShowDisplaysOriginDestinationMapForMappedHessenDispatchArea(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
 
         $owner = UserFactory::createOne(['username' => 'owner-user']);
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
@@ -449,6 +527,7 @@ final class ShowAllocationControllerTest extends WebTestCase
             'occasion' => OccasionFactory::createOne(),
         ]);
 
+        $this->giveDispatchAreasShapes();
         $crawler = $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocation->getPublicIdString());
 
         self::assertResponseIsSuccessful();
@@ -458,7 +537,7 @@ final class ShowAllocationControllerTest extends WebTestCase
         self::assertSelectorNotExists('[data-testid="allocation-cross-district"]');
 
         $map = $crawler->filter('[data-testid="catalog-orientation-map"]');
-        self::assertSame('frankfurt', $map->attr('data-catalog-orientation-map-highlight-key-value'));
+        self::assertSame($this->dispatchAreaKey('Frankfurt'), $map->attr('data-catalog-orientation-map-highlight-key-value'));
         self::assertSame('50.1109', $map->attr('data-catalog-orientation-map-marker-lat-value'));
         self::assertSame('8.6821', $map->attr('data-catalog-orientation-map-marker-lng-value'));
         self::assertSame('true', $map->attr('data-catalog-orientation-map-show-route-value'));
@@ -475,7 +554,7 @@ final class ShowAllocationControllerTest extends WebTestCase
 
     public function testShowDisplaysOtherHospitalsOnMapForSecondaryTransport(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
 
         $owner = UserFactory::createOne(['username' => 'owner-user']);
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
@@ -535,6 +614,7 @@ final class ShowAllocationControllerTest extends WebTestCase
             'secondaryTransport' => SecondaryTransportFactory::createOne(),
         ]);
 
+        $this->giveDispatchAreasShapes();
         $crawler = $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocation->getPublicIdString());
 
         self::assertResponseIsSuccessful();
@@ -554,7 +634,7 @@ final class ShowAllocationControllerTest extends WebTestCase
 
     public function testShowDisplaysOriginMapWithoutRouteWhenHospitalHasNoCoordinates(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
 
         $owner = UserFactory::createOne(['username' => 'owner-user']);
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
@@ -585,6 +665,7 @@ final class ShowAllocationControllerTest extends WebTestCase
             'occasion' => OccasionFactory::createOne(),
         ]);
 
+        $this->giveDispatchAreasShapes();
         $crawler = $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocation->getPublicIdString());
 
         self::assertResponseIsSuccessful();
@@ -593,7 +674,7 @@ final class ShowAllocationControllerTest extends WebTestCase
         self::assertSelectorNotExists('.catalog-orientation-map-legend');
 
         $map = $crawler->filter('[data-testid="catalog-orientation-map"]');
-        self::assertSame('frankfurt', $map->attr('data-catalog-orientation-map-highlight-key-value'));
+        self::assertSame($this->dispatchAreaKey('Frankfurt'), $map->attr('data-catalog-orientation-map-highlight-key-value'));
         self::assertSame('false', $map->attr('data-catalog-orientation-map-show-route-value'));
         self::assertNull($map->attr('data-catalog-orientation-map-marker-lat-value'));
         self::assertNull($map->attr('data-catalog-orientation-map-destination-highlight-key-value'));
@@ -602,7 +683,7 @@ final class ShowAllocationControllerTest extends WebTestCase
 
     public function testShowOmitsOrientationMapWhenOriginDispatchAreaIsUnmapped(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
 
         $owner = UserFactory::createOne(['username' => 'owner-user']);
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
@@ -643,7 +724,7 @@ final class ShowAllocationControllerTest extends WebTestCase
 
     public function testShowHighlightsCrossDistrictOriginOnOrientationMap(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
 
         $owner = UserFactory::createOne(['username' => 'owner-user']);
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
@@ -675,6 +756,7 @@ final class ShowAllocationControllerTest extends WebTestCase
             'occasion' => OccasionFactory::createOne(),
         ]);
 
+        $this->giveDispatchAreasShapes();
         $crawler = $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocation->getPublicIdString());
 
         self::assertResponseIsSuccessful();
@@ -683,15 +765,15 @@ final class ShowAllocationControllerTest extends WebTestCase
         self::assertSelectorExists('a[href="/explore/dispatch_area/'.$hospitalArea->getPublicIdString().'"]');
 
         $map = $crawler->filter('[data-testid="catalog-orientation-map"]');
-        self::assertSame('frankfurt', $map->attr('data-catalog-orientation-map-highlight-key-value'));
-        self::assertSame('offenbach', $map->attr('data-catalog-orientation-map-destination-highlight-key-value'));
+        self::assertSame($this->dispatchAreaKey('Frankfurt'), $map->attr('data-catalog-orientation-map-highlight-key-value'));
+        self::assertSame($this->dispatchAreaKey('Offenbach'), $map->attr('data-catalog-orientation-map-destination-highlight-key-value'));
         self::assertSame('true', $map->attr('data-catalog-orientation-map-show-route-value'));
         self::assertNull($map->attr('data-catalog-orientation-map-isochrones-value'));
     }
 
     public function testShowRendersIsochroneBandFromStoredFileForRecordedDuration(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
 
         $geojson = [
             'type' => 'FeatureCollection',
@@ -749,6 +831,7 @@ final class ShowAllocationControllerTest extends WebTestCase
         ]);
 
         try {
+            $this->giveDispatchAreasShapes();
             $crawler = $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocation->getPublicIdString());
 
             self::assertResponseIsSuccessful();
@@ -774,7 +857,7 @@ final class ShowAllocationControllerTest extends WebTestCase
 
     public function testShow404ForUnknownAllocation(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $client->request(Request::METHOD_GET, '/explore/allocation/00000000-0000-4000-8000-000000000000');
         self::assertResponseStatusCodeSame(404);
     }

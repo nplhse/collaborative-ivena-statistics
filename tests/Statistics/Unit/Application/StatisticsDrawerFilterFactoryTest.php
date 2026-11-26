@@ -126,6 +126,12 @@ final class StatisticsDrawerFilterFactoryTest extends TestCase
         self::assertSame(StatisticsAgeGroupFilter::OVER_80, $filter->ageGroup);
     }
 
+    public function testMapsPre1040AgeGroupKeysToTheCurrentBuckets(): void
+    {
+        self::assertSame('0_17', $this->factory->fromQuery($this->queryBag(['age_group' => '0_18']))->ageGroup);
+        self::assertSame('18_29', $this->factory->fromQuery($this->queryBag(['age_group' => '19_29']))->ageGroup);
+    }
+
     /**
      * @param array<string, string> $parameters
      *

@@ -40,8 +40,9 @@ final class ClosureHospitalGuard
     /**
      * @param array<int, string> $hospitalNames      hospital id => catalog name
      * @param list<string>       $distinctShortNames
+     * @param bool               $hospitalOverride   development-only override of a conflicting single file label (#878)
      */
-    public function profile(int $selectedHospitalId, array $hospitalNames, array $distinctShortNames): ClosureHospitalProfile
+    public function profile(int $selectedHospitalId, array $hospitalNames, array $distinctShortNames, bool $hospitalOverride = false): ClosureHospitalProfile
     {
         if (!isset($hospitalNames[$selectedHospitalId])) {
             throw new \InvalidArgumentException('Selected hospital is missing from the catalog.');
@@ -83,6 +84,14 @@ final class ClosureHospitalGuard
             ? $distinctDisplays[0]
             : null;
 
+        $overriddenFileLabel = null;
+        if ($hospitalOverride && !$multiple && 1 === \count($normalized)) {
+            $ids = $idsByName[$normalized[0]] ?? [];
+            if (1 === \count($ids) && $ids[0] !== $selectedHospitalId) {
+                $overriddenFileLabel = $distinctDisplays[0];
+            }
+        }
+
         return new ClosureHospitalProfile(
             selectedHospitalId: $selectedHospitalId,
             selectedDisplayName: $selectedDisplay,
@@ -93,6 +102,8 @@ final class ClosureHospitalGuard
             hospitalIdsByNormalizedName: $idsByName,
             catalogDisplayByNormalized: $catalogDisplay,
             differingFileLabel: $differingFileLabel,
+            hospitalOverride: $hospitalOverride,
+            overriddenFileLabel: $overriddenFileLabel,
         );
     }
 
@@ -114,7 +125,7 @@ final class ClosureHospitalGuard
 
     private function assertSingleDesignation(ClosureHospitalProfile $profile, ?string $shortName): void
     {
-        if (1 !== \count($profile->normalizedShortNames)) {
+        if ($profile->hospitalOverride || 1 !== \count($profile->normalizedShortNames)) {
             return;
         }
 

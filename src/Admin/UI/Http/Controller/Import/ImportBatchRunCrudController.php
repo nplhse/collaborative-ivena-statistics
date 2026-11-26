@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Http\Controller\Import;
 
+use App\Admin\UI\Http\Controller\TranslatedEnumChoices;
 use App\Import\Domain\Entity\ImportBatchRun;
+use App\Import\Domain\Enum\ImportBatchRunStatus;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -14,7 +16,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Twig\Component\Option\BadgeVariant;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 
 /**
  * @extends AbstractCrudController<ImportBatchRun>
@@ -32,8 +36,8 @@ final class ImportBatchRunCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('Import batch run')
-            ->setEntityLabelInPlural('Import batch runs')
+            ->setEntityLabelInSingular(new TranslatableMessage('admin.import_batch_run.entity.singular', domain: 'admin'))
+            ->setEntityLabelInPlural(new TranslatableMessage('admin.import_batch_run.entity.plural', domain: 'admin'))
             ->setDefaultSort(['startedAt' => 'DESC']);
     }
 
@@ -50,15 +54,22 @@ final class ImportBatchRunCrudController extends AbstractCrudController
     {
         yield IdField::new('id')
             ->onlyOnDetail();
-        yield ChoiceField::new('status', 'Status')
-            ->renderAsBadges();
-        yield DateTimeField::new('startedAt', 'Started')
+        yield ChoiceField::new('status', new TranslatableMessage('label.status', domain: 'messages'))
+            ->setTranslatableChoices(TranslatedEnumChoices::choices(ImportBatchRunStatus::cases(), static fn (ImportBatchRunStatus $status): string => 'import.batch_run.status.'.$status->value, 'import'))
+            ->renderAsBadges([
+                ImportBatchRunStatus::Running->value => 'info',
+                ImportBatchRunStatus::Finished->value => 'success',
+                ImportBatchRunStatus::Interrupted->value => 'warning',
+                ImportBatchRunStatus::Failed->value => 'danger',
+            ])
+            ->setBadgeVariant(BadgeVariant::Dot);
+        yield DateTimeField::new('startedAt', new TranslatableMessage('admin.job_run.field.started_at', domain: 'admin'))
             ->setFormat('dd.MM.yyyy HH:mm');
-        yield DateTimeField::new('finishedAt', 'Finished')
+        yield DateTimeField::new('finishedAt', new TranslatableMessage('admin.job_run.field.finished_at', domain: 'admin'))
             ->setFormat('dd.MM.yyyy HH:mm');
-        yield DateTimeField::new('createdAt', 'Created')
+        yield DateTimeField::new('createdAt', new TranslatableMessage('label.created', domain: 'messages'))
             ->onlyOnDetail();
-        yield TextField::new('optionsPreview', 'Options')
+        yield TextField::new('optionsPreview', new TranslatableMessage('admin.import_batch_run.field.options', domain: 'admin'))
             ->onlyOnDetail()
             ->setValue('')
             ->formatValue(static function (mixed $_, ImportBatchRun $run): string {
@@ -67,9 +78,10 @@ final class ImportBatchRunCrudController extends AbstractCrudController
                     JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE,
                 );
 
-                return \is_string($encoded) ? $encoded : '';
+                // formatValue() output is rendered unescaped.
+                return \is_string($encoded) ? htmlspecialchars($encoded, \ENT_QUOTES) : '';
             });
-        yield AssociationField::new('items', 'Items')
+        yield AssociationField::new('items', new TranslatableMessage('admin.import_batch_run.field.items', domain: 'admin'))
             ->onlyOnDetail();
     }
 }

@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Tests\Import\Unit\Application\Service;
 
+use App\Import\Application\Contracts\ImportTypeWorkflowDispatcherInterface;
 use App\Import\Application\Contracts\ImportWorkflowDispatcherInterface;
 use App\Import\Application\Exception\ImportNotFoundException;
 use App\Import\Application\Exception\UnsupportedImportTypeException;
 use App\Import\Application\Service\ImportStartDispatcher;
 use App\Import\Domain\Entity\Import;
+use App\Import\Domain\Entity\ImportBatchRunItem;
 use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Domain\Enum\ImportType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -88,6 +90,35 @@ final class ImportStartDispatcherTest extends TestCase
         $this->dispatcher($entityManager, $allocations, $closures)->dispatch(7);
     }
 
+    public function testEncounterImportDelegatesToTheTaggedDispatcherOfItsType(): void
+    {
+        $import = new Import();
+        $import->setType(ImportType::ENCOUNTER);
+        $entityManager = $this->entityManagerReturning(11, $import);
+        $allocations = $this->createMock(ImportWorkflowDispatcherInterface::class);
+        $allocations->expects($this->never())->method('dispatch');
+        $closures = $this->createMock(ImportWorkflowDispatcherInterface::class);
+        $closures->expects($this->never())->method('dispatch');
+        $encounters = new RecordingEncounterDispatcher();
+
+        $type = new ImportStartDispatcher($entityManager, $allocations, $closures, [$encounters])->dispatch(11, 3, ImportRunTrigger::Reprocess);
+
+        self::assertSame(ImportType::ENCOUNTER, $type);
+        self::assertSame([[11, ImportRunTrigger::Reprocess, 3]], $encounters->calls);
+    }
+
+    public function testTypeWithoutRegisteredDispatcherThrowsUnsupportedImportType(): void
+    {
+        $import = new Import();
+        $import->setType(ImportType::ENCOUNTER);
+        $entityManager = $this->entityManagerReturning(12, $import);
+
+        $this->expectException(UnsupportedImportTypeException::class);
+        $this->expectExceptionMessage('Import #12 has type "Encounter", but no workflow dispatcher is registered for it.');
+
+        $this->dispatcher($entityManager, $this->createStub(ImportWorkflowDispatcherInterface::class), $this->createStub(ImportWorkflowDispatcherInterface::class))->dispatch(12);
+    }
+
     private function entityManagerReturning(int $importId, Import $import): EntityManagerInterface
     {
         $entityManager = $this->createMock(EntityManagerInterface::class);
@@ -102,5 +133,23 @@ final class ImportStartDispatcherTest extends TestCase
         ImportWorkflowDispatcherInterface $closures,
     ): ImportStartDispatcher {
         return new ImportStartDispatcher($entityManager, $allocations, $closures);
+    }
+}
+
+final class RecordingEncounterDispatcher implements ImportTypeWorkflowDispatcherInterface
+{
+    /** @var list<array{int, ImportRunTrigger, int|null}> */
+    public array $calls = [];
+
+    #[\Override]
+    public static function importType(): ImportType
+    {
+        return ImportType::ENCOUNTER;
+    }
+
+    #[\Override]
+    public function dispatch(int $importId, ImportRunTrigger $trigger, ?int $initiatedByUserId = null, ?ImportBatchRunItem $batchRunItem = null): void
+    {
+        $this->calls[] = [$importId, $trigger, $initiatedByUserId];
     }
 }

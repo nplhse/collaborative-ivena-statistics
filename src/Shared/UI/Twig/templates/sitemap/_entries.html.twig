@@ -1,0 +1,21 @@
+{# Entries of a sitemap group, nested by their children. An entry without URL only heads its children. #}
+<ul class="sitemap-tile__list{{ depth|default(0) > 0 ? ' sitemap-tile__list--nested' }}">
+    {% for entry in entries %}
+        <li class="sitemap-tile__item">
+            {% if entry.url %}
+                <a href="{{ entry.url }}" class="sitemap-tile__link">
+                    <span class="sitemap-tile__link-label">{{ entry.label }}</span>
+                    {% if entry.badge %}<span class="badge badge-sm {{ entry.badge.color.cssClass }}">{{ entry.badge.label|trans }}</span>{% endif %}
+                </a>
+            {% else %}
+                <span class="sitemap-tile__heading">
+                    {{ entry.label }}
+                    {% if entry.badge %}<span class="badge badge-sm {{ entry.badge.color.cssClass }}">{{ entry.badge.label|trans }}</span>{% endif %}
+                </span>
+            {% endif %}
+            {% if entry.children is not empty %}
+                {{ include('@Shared/sitemap/_entries.html.twig', {entries: entry.children, depth: depth|default(0) + 1}) }}
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>

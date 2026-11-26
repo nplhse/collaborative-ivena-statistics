@@ -29,10 +29,17 @@ final class JobRunCatalog
     public const string FORMAT_HOSPITALS = 'hospitals';
     public const string FORMAT_TEXT = 'text';
 
+    /** Job of the media integrity check (Content, ContentScheduleContribution::JOB_MEDIA_INTEGRITY, ADR 039). */
+    public const string JOB_MEDIA_INTEGRITY = 'media_integrity_check';
+
+    /** Job of the reaction cleanup (Content, ContentScheduleContribution::JOB_REACTION_CLEANUP, #467). */
+    public const string JOB_REACTION_CLEANUP = 'reaction_cleanup';
+
     /** @var list<string> */
     public const array JOBS = [
         ImportRunTelemetry::JOB_ALLOCATIONS,
         ImportRunTelemetry::JOB_CLOSURES,
+        ImportRunTelemetry::JOB_ENCOUNTERS,
         AllocationProjectionRunTelemetry::JOB,
         AllocationProjectionRunTelemetry::JOB_FULL,
         ClosureRebuildTelemetry::JOB,
@@ -42,6 +49,8 @@ final class JobRunCatalog
         NotificationScheduleContribution::JOB_CLEANUP,
         NotificationScheduleContribution::JOB_RECONCILE,
         StorageScheduleContribution::JOB,
+        self::JOB_MEDIA_INTEGRITY,
+        self::JOB_REACTION_CLEANUP,
         MonitoringScheduleContribution::JOB_QUEUE_SAMPLE,
         MonitoringScheduleContribution::JOB_RETENTION,
     ];
@@ -98,6 +107,12 @@ final class JobRunCatalog
             'map_ms' => self::FORMAT_MS,
             'persist_ms' => self::FORMAT_MS,
         ],
+        ImportRunTelemetry::JOB_ENCOUNTERS => [
+            'rows_total' => self::FORMAT_COUNT,
+            'rows_ok' => self::FORMAT_COUNT,
+            'rows_rejected' => self::FORMAT_COUNT,
+            'rows_deduplicated' => self::FORMAT_COUNT,
+        ],
         AllocationProjectionRunTelemetry::JOB => [
             'imports' => self::FORMAT_COUNT,
             'rows_deleted' => self::FORMAT_COUNT,
@@ -147,6 +162,7 @@ final class JobRunCatalog
             'skip_reason' => self::FORMAT_TEXT,
             'days_processed' => self::FORMAT_COUNT,
             'raw_requests' => self::FORMAT_COUNT,
+            // No longer recorded since #989; kept so that older job runs keep their format and label.
             'raw_events' => self::FORMAT_COUNT,
             'aggregate_rows' => self::FORMAT_COUNT,
             'raw_rows_deleted' => self::FORMAT_COUNT,
@@ -166,6 +182,20 @@ final class JobRunCatalog
             'skip_reason' => self::FORMAT_TEXT,
             'level' => self::FORMAT_TEXT,
             'failures' => self::FORMAT_COUNT,
+        ],
+        self::JOB_MEDIA_INTEGRITY => [
+            'skip_reason' => self::FORMAT_TEXT,
+            'files' => self::FORMAT_COUNT,
+            'hashed' => self::FORMAT_COUNT,
+            'missing' => self::FORMAT_COUNT,
+            'damaged' => self::FORMAT_COUNT,
+            'orphans_deleted' => self::FORMAT_COUNT,
+            'orphans_kept' => self::FORMAT_COUNT,
+            'leftovers_deleted' => self::FORMAT_COUNT,
+            'unexpected' => self::FORMAT_COUNT,
+        ],
+        self::JOB_REACTION_CLEANUP => [
+            'reactions_deleted' => self::FORMAT_COUNT,
         ],
         MonitoringScheduleContribution::JOB_QUEUE_SAMPLE => [
             'pending' => self::FORMAT_COUNT,

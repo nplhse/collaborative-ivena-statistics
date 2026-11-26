@@ -1,0 +1,14 @@
+{% use 'form_div_layout.html.twig' with form_widget_simple as media_file_input %}
+
+{# File input of the media library without inline onchange / style (CSP nonce disables 'unsafe-inline'). #}
+{% block media_file_widget %}
+    <div class="ea-media-file" data-controller="file-input-preview">
+        <div class="ea-media-file-actions">
+            <div class="btn btn-secondary input-file-container">
+                <twig:ea:Icon name="internal:upload" /> {{ 'action.choose_file'|trans({}, 'EasyAdminBundle') }}
+                {{ block('media_file_input') }}
+            </div>
+        </div>
+        <div class="small" id="{{ id }}_new_file_name" data-file-input-preview-target="name"></div>
+    </div>
+{% endblock %}

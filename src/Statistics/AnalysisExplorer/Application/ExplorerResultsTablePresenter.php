@@ -52,15 +52,21 @@ final readonly class ExplorerResultsTablePresenter
 
     private function createFlatTable(AnalysisViewConfig $viewConfig, AnalysisRunResult $result): ExplorerResultsTableViewModel
     {
-        $showPercentOfTotal = $viewConfig->showsPercentOfTotal();
+        // The reference comparison (#1346) shows its groups as a column and the share within each group.
+        $comparesReferences = $viewConfig->hasReferenceComparison();
+        $showsSeriesShare = $viewConfig->showsPercentOfSeries();
+        $showPercentOfTotal = $viewConfig->showsPercentOfTotal() || $showsSeriesShare;
         $visibleMetricKeys = $this->visibleMetricKeys($result->metricKeys, $showPercentOfTotal);
         $seriesAxis = $viewConfig->columnAxis ?? $result->columnAxis;
-        $hasCombinationColumn = $seriesAxis instanceof AnalysisAxisRef;
+        $hasCombinationColumn = $seriesAxis instanceof AnalysisAxisRef || $comparesReferences;
+        $seriesColumnLabel = $comparesReferences
+            ? $this->translator->trans('stats.analysis_explorer.reference_comparison.group', [], 'statistics')
+            : ($seriesAxis instanceof AnalysisAxisRef ? $this->axisLabel($seriesAxis) : '');
         $metricColumns = $this->metricColumns($visibleMetricKeys);
-        if ($seriesAxis instanceof AnalysisAxisRef) {
+        if ($hasCombinationColumn) {
             array_unshift($metricColumns, new ExplorerResultsTableMetricColumn(
                 key: 'series',
-                label: $this->axisLabel($seriesAxis),
+                label: $seriesColumnLabel,
             ));
         }
         $rows = [];
@@ -74,7 +80,9 @@ final readonly class ExplorerResultsTablePresenter
                     }
 
                     $formattedMetricPercentValues[$metricKey->value] = $this->percentHelper->formatPercent(
-                        $this->resolveFlatPercentShare($row, $metricKey, $result),
+                        $showsSeriesShare
+                            ? $this->seriesShare($row, $metricKey, $result)
+                            : $this->resolveFlatPercentShare($row, $metricKey, $result),
                     );
                 }
             }
@@ -95,7 +103,8 @@ final readonly class ExplorerResultsTablePresenter
         }
 
         $formattedTotalsPercentValues = [];
-        if ($showPercentOfTotal) {
+        // Shares within each group add up to 100 % per group, not over all rows: no footer share then.
+        if ($showPercentOfTotal && !$showsSeriesShare) {
             foreach ($visibleMetricKeys as $metricKey) {
                 if (!$this->summabilityPolicy->supportsPercentShare($metricKey)) {
                     continue;
@@ -117,7 +126,7 @@ final readonly class ExplorerResultsTablePresenter
             formattedTotals: $formattedTotals,
             tableLayout: TableLayout::Flat,
             rowAxisLabel: $this->axisLabel($viewConfig->rowAxis),
-            columnAxisLabel: $seriesAxis instanceof AnalysisAxisRef ? $this->axisLabel($seriesAxis) : '',
+            columnAxisLabel: $seriesColumnLabel,
             showPercentOfTotal: $showPercentOfTotal,
             formattedTotalsPercentValues: $formattedTotalsPercentValues,
             footerRowLabel: $this->footerRowLabel($visibleMetricKeys),
@@ -388,7 +397,7 @@ final readonly class ExplorerResultsTablePresenter
 
         return array_values(array_filter(
             $metricKeys,
-            static fn (AnalysisMetricKey $metricKey): bool => AnalysisMetricKey::PercentOfTotal !== $metricKey,
+            static fn (AnalysisMetricKey $metricKey): bool => !$metricKey->isShareDisplay(),
         ));
     }
 
@@ -540,6 +549,21 @@ final readonly class ExplorerResultsTablePresenter
         }
 
         return null;
+    }
+
+    /**
+     * Share of the row within its series, computed on the full result before display limits (#1346). Only the count
+     * distribution carries it; null for a series without cases.
+     */
+    private function seriesShare(AnalysisResultRow $row, AnalysisMetricKey $metricKey, AnalysisRunResult $result): ?float
+    {
+        if ($metricKey !== $this->countMetricForPercent($result)) {
+            return null;
+        }
+
+        $share = $row->valueFor(AnalysisMetricKey::PercentOfSeries);
+
+        return null === $share ? null : (float) $share;
     }
 
     private function resolveFlatPercentShare(

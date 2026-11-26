@@ -58,6 +58,9 @@ final readonly class IndicationGroupMemberCompareService
             ];
         }
 
+        // The query orders by total only; equal totals would come back in any order.
+        usort($result, $this->compareByTotalThenLabel(...));
+
         return $result;
     }
 
@@ -90,18 +93,29 @@ final readonly class IndicationGroupMemberCompareService
             ];
         }
 
-        usort(
-            $rows,
-            static function (array $a, array $b): int {
-                $byTotal = $b['total'] <=> $a['total'];
-                if (0 !== $byTotal) {
-                    return $byTotal;
-                }
-
-                return strcmp($a['label'], $b['label']);
-            },
-        );
+        usort($rows, $this->compareByTotalThenLabel(...));
 
         return $rows;
+    }
+
+    /**
+     * Highest total first; equal totals by label, then by id, so the order never depends on the database.
+     *
+     * @param array{indicationId: int, label: string, total: int, ...} $a
+     * @param array{indicationId: int, label: string, total: int, ...} $b
+     */
+    private function compareByTotalThenLabel(array $a, array $b): int
+    {
+        $byTotal = $b['total'] <=> $a['total'];
+        if (0 !== $byTotal) {
+            return $byTotal;
+        }
+
+        $byLabel = strcmp($a['label'], $b['label']);
+        if (0 !== $byLabel) {
+            return $byLabel;
+        }
+
+        return $a['indicationId'] <=> $b['indicationId'];
     }
 }

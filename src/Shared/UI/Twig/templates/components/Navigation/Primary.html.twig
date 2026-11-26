@@ -1,0 +1,14 @@
+{% set primary_menu = this.menu %}
+{% for section in primary_menu.sections %}
+    {% for node in section.nodes %}
+        {% set item = node.item %}
+        <li class="nav-item {{ node.onActivePath ? 'active' : '' }}" data-testid="nav-{{ item.id }}">
+            <a class="nav-link" href="{{ item.url ?? path(item.route, item.routeParameters) }}"{% if node.onActivePath %} aria-current="page"{% endif %}>
+                <span class="nav-link-title">
+                    {% if item.icon %}<twig:ux:icon name="{{ item.icon }}" style="height: 1.5em;" />{% endif %}
+                    {{ item.label|trans }}
+                </span>
+            </a>
+        </li>
+    {% endfor %}
+{% endfor %}

@@ -76,7 +76,8 @@ With Sentry configured, check **Issues** (not Logs) within a few minutes. In **N
 
 ### Automated test
 
-[`tests/Shared/Functional/Security/ContentSecurityPolicyTest.php`](../../tests/Shared/Functional/Security/ContentSecurityPolicyTest.php) asserts the prod header and smoke-loads `/explore/allocation` and `/statistics/`.
+- [`bin/check-prod-csp`](../../bin/check-prod-csp) checks the prod header, with `SENTRY_CSP_REPORT_URI` empty and set. CI runs it in the **Prod kernel smoke** job; locally: `APP_ENV=prod APP_DEBUG=0 php bin/check-prod-csp`.
+- [`tests/Shared/Functional/Security/ContentSecurityPolicyTest.php`](../../tests/Shared/Functional/Security/ContentSecurityPolicyTest.php) asserts that the test environment sends no CSP header and smoke-loads `/explore/allocation` and `/statistics/`.
 
 ## Sentry integration
 
@@ -147,12 +148,12 @@ Mitigations already in place for the known Failed Messages / dashboard KPI noise
 - Inline layout styles → CSS classes in `admin-kpi.css`
 - ApexCharts injected styles → `chart.nonce` from `<meta name="csp-nonce">` via `applyChartNonce()` in `assets/lib/load-apexcharts.js`
 
-Further admin surfaces (media, import reject, feedback context, audit log):
+Further admin surfaces (media, import reject, feedback context, audit timeline):
 
 - Media snippet copy → Stimulus (`copy-to-clipboard`)
-- Vich upload filename preview → Stimulus (`vich-file-preview`) instead of EasyAdmin `onchange`
+- Media upload filename preview → Stimulus (`file-input-preview`) instead of EasyAdmin `onchange`
 - Import Reject / Feedback JSON → `<pre class="ea-json-pre">` (no CodeMirror `CodeEditorField`)
-- Audit log letter-spacing / JSON max-height → CSS classes in `admin-kpi.css`
+- Audit timeline: details load through the Stimulus controller `timeline-details`, the new-entries notice through `audit-new-entries`; JSON max-height and layout are CSS classes in `admin-kpi.css` (`.timeline-*`, `.ea-audit-*`)
 
 Resolve matching Sentry CSP issues as `policy-gap` after deploy if they stop recurring.
 

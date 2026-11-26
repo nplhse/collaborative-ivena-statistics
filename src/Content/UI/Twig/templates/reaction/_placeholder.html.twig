@@ -1,0 +1,14 @@
+{#
+    Placeholder of a reaction bar (#467). The page does not wait for reactions: once the placeholder is in view, the
+    reactions-loader controller loads the bars of all placeholders in view with one request and replaces them.
+
+    Parameters: target_type (post, comment, activity), target_id.
+#}
+<div
+    id="reactions-{{ target_type }}-{{ target_id }}"
+    class="reaction-bar reaction-bar--pending"
+    data-controller="reactions-loader"
+    data-reactions-loader-target-value="{{ target_type }}:{{ target_id }}"
+    data-reactions-loader-url-value="{{ path('app_reactions_show') }}"
+    data-testid="reaction-placeholder"
+></div>

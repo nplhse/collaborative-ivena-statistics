@@ -94,7 +94,7 @@ final class HospitalVoterTest extends KernelTestCase
     public function testDeniedForAnonymousUser(): void
     {
         [, $hospital] = $this->createOwnedHospital();
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn(null);
 
         self::assertSame(
@@ -106,7 +106,7 @@ final class HospitalVoterTest extends KernelTestCase
     public function testAccessDeniedWhenHospitalHasNoId(): void
     {
         $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
-        $hospital = $this->createMock(Hospital::class);
+        $hospital = $this->createStub(Hospital::class);
         $hospital->method('getId')->willReturn(null);
 
         self::assertSame(

@@ -8,6 +8,7 @@
 >
     <projectFiles>
         <directory name="src"/>
+        <directory name="plugins/ed-visit/src"/>
         <ignoreFiles>
             <directory name="vendor"/>
         </ignoreFiles>
@@ -25,6 +26,7 @@
         <ClassMustBeFinal>
             <errorLevel type="suppress">
                 <directory name="src/*/Domain/Entity"/>
+                <directory name="plugins/ed-visit/src/Domain/Entity"/>
                 <directory name="src/Shared/Application/Export/"/>
             </errorLevel>
         </ClassMustBeFinal>
@@ -42,18 +44,26 @@
                 <directory name="src/*/Application/Sitemap/" />
                 <directory name="src/*/Application/Exception/" />
                 <directory name="src/*/Domain/Entity/" />
+                <directory name="plugins/ed-visit/src/Domain/Entity/"/>
                 <directory name="src/*/Domain/Enum/" />
+                <directory name="plugins/ed-visit/src/Domain/Enum/"/>
                 <directory name="src/*/Domain/Validation/" />
                 <directory name="src/*/Infrastructure/Repository/" />
+                <directory name="plugins/ed-visit/src/Infrastructure/Repository/"/>
                 <directory name="src/*/Infrastructure/Query/" />
+                <directory name="plugins/ed-visit/src/Infrastructure/Query/"/>
                 <directory name="src/*/UI/Console/Command/" />
+                <directory name="plugins/ed-visit/src/UI/Console/Command/"/>
                 <directory name="src/*/UI/Http/Controller" />
+                <directory name="plugins/ed-visit/src/UI/Http/Controller"/>
                 <directory name="src/*/UI/Http/DTO/" />
                 <directory name="src/Allocation/Application/" />
                 <directory name="src/*/Infrastructure/Security/Voter/" />
                 <directory name="src/*/UI/Form/" />
+                <directory name="plugins/ed-visit/src/UI/Form/"/>
                 <directory name="src/Allocation/Infrastructure/Faker/Provider/" />
                 <directory name="src/DataFixtures"/>
+                <directory name="plugins/ed-visit/src/DataFixtures"/>
                 <directory name="src/Import/Application/Factory" />
                 <directory name="src/Import/Application/Service/" />
                 <directory name="src/Import/Application/Analysis/" />
@@ -94,11 +104,19 @@
                 <directory name="src/*/Infrastructure/Factory/" />
                 <directory name="src/*/UI/Twig/Components" />
                 <directory name="src/*/UI/Form/" />
+                <directory name="plugins/ed-visit/src/UI/Form/"/>
                 <directory name="src/Allocation/Application/ReferenceCatalog/Package/Validation/" />
                 <directory name="src/*/UI/Twig" />
+                <directory name="plugins/ed-visit/src/UI/Twig"/>
                 <directory name="src/*/UI/Http/Controller" />
+                <!-- Data catalog contributors are only wired through the allocation.data_catalog_object tag (#1415). -->
+                <directory name="src/*/Application/DataCatalog/" />
+                <directory name="plugins/ed-visit/src/Application/DataCatalog/" />
+                <directory name="plugins/ed-visit/src/UI/Http/Controller"/>
                 <directory name="src/*/UI/Console/Command" />
+                <directory name="plugins/ed-visit/src/UI/Console/Command"/>
                 <directory name="src/DataFixtures" />
+                <directory name="plugins/ed-visit/src/DataFixtures" />
                 <directory name="src/Import/Infrastructure/Adapter/" />
                 <directory name="src/Import/Infrastructure/Mapping/" />
                 <directory name="src/Import/Infrastructure/Resolver/" />
@@ -122,7 +140,6 @@
         </UnusedProperty>
         <UnusedConstructor>
             <errorLevel type="suppress">
-                <file name="src/Analytics/Domain/UsageEventName.php" />
                 <file name="src/Import/Application/ImportDispatchExitCode.php" />
                 <file name="src/Import/Application/ImportAllowedFileTypes.php" />
                 <file name="src/Shared/Application/PublicId/PublicIdBackfillExitCode.php" />

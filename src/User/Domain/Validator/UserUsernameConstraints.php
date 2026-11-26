@@ -17,6 +17,12 @@ final class UserUsernameConstraints
     public const string PATTERN = '/^[\p{L}\p{N}._-]+$/u';
 
     /**
+     * Digits only are reserved for internal IDs: administrators open objects by ID under the same
+     * path as the profile (/explore/user/{id}, #1354).
+     */
+    public const string DIGITS_ONLY_PATTERN = '/^\d+$/';
+
+    /**
      * @return list<NotBlank|Length|Regex>
      */
     public static function forUsername(): array
@@ -27,6 +33,11 @@ final class UserUsernameConstraints
             new Regex(
                 pattern: self::PATTERN,
                 message: 'validation.username.format',
+            ),
+            new Regex(
+                pattern: self::DIGITS_ONLY_PATTERN,
+                message: 'validation.username.digits_only',
+                match: false,
             ),
         ];
     }
@@ -56,6 +67,7 @@ final class UserUsernameConstraints
             return false;
         }
 
-        return 1 === preg_match(self::PATTERN, $username);
+        return 1 === preg_match(self::PATTERN, $username)
+            && 1 !== preg_match(self::DIGITS_ONLY_PATTERN, $username);
     }
 }

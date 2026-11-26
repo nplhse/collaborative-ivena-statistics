@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Statistics\Infrastructure\Query\Overview;
 
+use App\Statistics\Application\DTO\StatisticsDrawerFilter;
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\TimeSeries\TimeSeriesGrain;
 
 final readonly class OverviewQueryCriteria
 {
     /**
-     * @param list<int>|null $hospitalIds null = no hospital filter; empty list = no matching rows
+     * @param list<int>|null              $hospitalIds  null = no hospital filter; empty list = no matching rows
+     * @param StatisticsDrawerFilter|null $drawerFilter filter drawer of the page; null = no drawer filter (#1039)
      */
     public function __construct(
         public ?\DateTimeImmutable $from,
@@ -18,6 +20,7 @@ final readonly class OverviewQueryCriteria
         public ?array $hospitalIds,
         public ?int $dispatchAreaId = null,
         public TimeSeriesGrain $timeSeriesGrain = TimeSeriesGrain::Month,
+        public ?StatisticsDrawerFilter $drawerFilter = null,
     ) {
     }
 
@@ -29,8 +32,9 @@ final readonly class OverviewQueryCriteria
         ?array $hospitalIds,
         ?int $dispatchAreaId = null,
         TimeSeriesGrain $timeSeriesGrain = TimeSeriesGrain::Month,
+        ?StatisticsDrawerFilter $drawerFilter = null,
     ): self {
-        return new self($bounds->from, $bounds->toExclusive, $hospitalIds, $dispatchAreaId, $timeSeriesGrain);
+        return new self($bounds->from, $bounds->toExclusive, $hospitalIds, $dispatchAreaId, $timeSeriesGrain, $drawerFilter);
     }
 
     public function hasEmptyHospitalScope(): bool

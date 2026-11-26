@@ -55,7 +55,7 @@ The first paint loads KPIs (`ClosedDepartmentMetricsQuery::fetchKpis`: counts, d
 
 ## Monthly Report
 
-The Monthly Report (`/statistics/reports/monthly`) includes a compact summary of the same metrics: closed count, share of all assignments, month-over-month change, affected departments, and urgency of closed assignments. It reuses `ClosedDepartmentMetricsQuery` and `DepartmentWasClosedSql` rather than a second definition. A link forwards the report's Hospital Scope and month to this detailed analysis. Months with allocations but no closed cases still show the section with zeros.
+The Monthly Report (`/statistics/reports/monthly`) includes a compact summary of the same metrics: closed count, share of all assignments, month-over-month change, affected departments, and urgency of closed assignments. It reuses `ClosedDepartmentMetricsQuery` and `DepartmentWasClosedSql` rather than a second definition. A link forwards the report's Hospital Scope and month to this detailed analysis. Months with allocations but no closed cases still show the section with zeros. Drawer filters of the report apply to the summary as well ([statistics-filter-and-scope.md](statistics-filter-and-scope.md)).
 
 Personalized monthly submission reminder emails include a compact count/share/MoM card in the clinical profile (not among the headline KPIs) and link to the Monthly Report for the same reporting month.
 
@@ -65,7 +65,9 @@ The existing hospital-scope isochrone widget is reused with `departmentWasClosed
 
 ## Limitations
 
-- The flag is source data, not an independent availability check.
+- The flag is source data, not an independent availability check. The closure
+  imports give a second signal per allocation, which this page does not use:
+  [closed at assignment](closure-architecture.md#closed-at-assignment).
 - Case Complexity Score does not exist and is not shown.
 - Heatmap cells (weekday × 2-hour slot) do not drill down to Explore.
 - Public scope shows aggregates only.

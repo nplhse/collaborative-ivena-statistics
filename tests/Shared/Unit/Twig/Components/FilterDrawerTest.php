@@ -138,7 +138,7 @@ final class FilterDrawerTest extends TestCase
     {
         $component = $this->drawer(new Request([
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
             'gender' => '2',
             'page' => '2',
             'cursor' => 'xyz',
@@ -150,7 +150,7 @@ final class FilterDrawerTest extends TestCase
 
         self::assertSame([
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
         ], $component->getPreservedQueryFields());
     }
 

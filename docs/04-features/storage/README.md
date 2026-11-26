@@ -21,7 +21,7 @@ The layout is read from disk, not from `deploy.php`:
 | `deployer` | the project runs from `<deploy_path>/releases/<name>`, `<deploy_path>/current` resolves to it and `<deploy_path>/shared` exists | `<deploy_path>` |
 | `standalone` | otherwise (local, CI, other hosting) | project directory |
 
-In `deployer` mode the shared paths are the symlinks of the current release that point into `shared/` (e.g. `var/imports`, `public/uploads/media`, `var/geo/hospital-isochrones`, `.env.local`). Release dates come from `.dep/releases_log`. The walk order decides which location owns an inode: `shared/` → current release → previous releases (newest first) → rest of the deploy root.
+In `deployer` mode the shared paths are the symlinks of the current release that point into `shared/` (e.g. `var/imports`, `var/media`, `var/geo/hospital-isochrones`, `.env.local`). Release dates come from `.dep/releases_log`. The walk order decides which location owns an inode: `shared/` → current release → previous releases (newest first) → rest of the deploy root.
 
 Hints on items:
 
@@ -39,7 +39,7 @@ Every item has a category (what) and a location (where):
 |---|---|
 | Database | PostgreSQL database |
 | Imports | `var/imports`, `var/import_rejects` |
-| Media | `public/uploads/media`, demo uploads (`public/uploads/demo`) |
+| Media | `var/media` and `var/demo/media` ([media storage](../content/media-storage.md)); until v0.4 also the old upload directories `public/uploads/media` and `public/uploads/demo` |
 | Application | source, `vendor/`, `public/build` / `public/assets`, `node_modules/`, `.git/` |
 | Temporary | `var/cache`, `var/log`, other `var/` content |
 | Other | geodata (`var/geo`), demo files (`var/demo`), `.env.local`, `.dep`, unused shared paths, unclassified files |

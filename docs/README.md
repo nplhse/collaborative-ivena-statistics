@@ -31,6 +31,7 @@ Entry point for project documentation.
 | Upgrading an installation | [05-operations/upgrading.md](05-operations/upgrading.md) |
 | Backups | [05-operations/backup-restore.md](05-operations/backup-restore.md) |
 | Troubleshooting | [05-operations/troubleshooting.md](05-operations/troubleshooting.md) |
+| Audit log | [05-operations/audit-log.md](05-operations/audit-log.md) |
 | Audit log maintenance | [05-operations/audit-log-maintenance.md](05-operations/audit-log-maintenance.md) |
 | Hospital geodata (geocode + isochrones) | [05-operations/hospital-geodata.md](05-operations/hospital-geodata.md) |
 | Glossary | [06-reference/glossary.md](06-reference/glossary.md) |
@@ -59,6 +60,7 @@ Role-based reading orders live in each section's README:
 - [Data quality indicator](04-features/statistics/data-quality-indicator.md)
 - [Analysis Explorer](04-features/statistics/analysis-explorer.md)
 - [Participant onboarding](04-features/onboarding/participant-onboarding.md)
+- [What's new for you](04-features/onboarding/whats-new.md)
 - [Explore allocation list](04-features/allocation/explore-allocation-list.md)
 - [Explore MCI cases](04-features/allocation/explore-mci-cases.md)
 - [Allocation orientation map](04-features/allocation/orientation-map.md)

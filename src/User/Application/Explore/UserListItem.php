@@ -11,7 +11,6 @@ final readonly class UserListItem
      * @param list<UserHospitalSummary> $hospitals
      */
     public function __construct(
-        public string $publicId,
         public string $username,
         public bool $isAdmin,
         public bool $isParticipant,
@@ -19,6 +18,8 @@ final readonly class UserListItem
         public bool $isUserOnly,
         public array $hospitals,
         public \DateTimeImmutable $createdAt,
+        public ?int $userId = null,
+        public ?string $displayName = null,
     ) {
     }
 }

@@ -15,12 +15,14 @@ use App\Statistics\Application\Mapping\AllocationStatsTransportTypeProjectionCod
 use App\Statistics\Application\Mapping\AllocationStatsUrgencyProjectionCode;
 use App\Statistics\Application\Mapping\ClinicalIndicatorDefinition;
 use App\Statistics\Application\Mapping\ClinicalIndicatorDefinitions;
+use App\Statistics\Application\Mapping\StatisticsAgeGroupBucketSql;
 use App\Statistics\Application\Mapping\StatisticsTransportTimeBucketSql;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisDimension;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDataSource;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDimensionType;
 use App\Statistics\GenericAnalysis\Domain\Exception\UnknownAnalysisDimensionException;
 use App\Statistics\GenericAnalysis\Domain\HospitalAnalysisConstants;
+use App\Statistics\GenericAnalysis\Domain\ReferenceComparison;
 
 final class DimensionRegistry
 {
@@ -68,22 +70,6 @@ final class DimensionRegistry
 
     private function registerDefaults(): void
     {
-        $ageBucketSql = <<<'SQL'
-CASE
-    WHEN age IS NULL THEN 'unknown'
-    WHEN age <= 18 THEN '0_18'
-    WHEN age <= 29 THEN '19_29'
-    WHEN age <= 39 THEN '30_39'
-    WHEN age <= 49 THEN '40_49'
-    WHEN age <= 59 THEN '50_59'
-    WHEN age <= 69 THEN '60_69'
-    WHEN age <= 79 THEN '70_79'
-    WHEN age <= 89 THEN '80_89'
-    WHEN age <= 99 THEN '90_99'
-    ELSE 'unknown'
-END
-SQL;
-
         $this->register($this->temporalDimension('year', 'created_year', 'Year', range(2000, 2100), 'line'));
         $this->register($this->temporalDimension('quarter', 'created_quarter', 'Quarter', [1, 2, 3, 4]));
         $this->register($this->temporalDimension('month', 'created_month', 'Month', range(1, 12)));
@@ -164,11 +150,12 @@ SQL;
             label: 'Age group',
             type: AnalysisDimensionType::Categorical,
             recommendedChartType: 'bar',
-            sqlExpression: $ageBucketSql,
-            fixedBuckets: ['0_18', '19_29', '30_39', '40_49', '50_59', '60_69', '70_79', '80_89', '90_99', 'unknown'],
+            // Same buckets as Benchmarking, Insights and Overview: adults from 18 (#181).
+            sqlExpression: StatisticsAgeGroupBucketSql::CASE_EXPRESSION,
+            fixedBuckets: [...StatisticsAgeGroupBucketSql::DISPLAY_BUCKET_KEYS, 'unknown'],
             valueLabels: [
-                '0_18' => '0–18',
-                '19_29' => '19–29',
+                '0_17' => '0–17',
+                '18_29' => '18–29',
                 '30_39' => '30–39',
                 '40_49' => '40–49',
                 '50_59' => '50–59',
@@ -213,6 +200,22 @@ SQL;
         $this->register($categorical('secondary_indication', 'secondary_indication_normalized_id', 'Secondary indication'));
         $this->register($categorical('infection', 'infection_id', 'Infection'));
         $this->register($categorical('hospital', 'hospital_id', 'Hospital'));
+        // Synthetic series of the reference comparison (#1346); only set by ReferenceComparisonModifier, never chosen
+        // as an axis. Buckets: the reference hospital ids and the pooled rest.
+        $this->register(new AnalysisDimension(
+            key: ReferenceComparison::DIMENSION_KEY,
+            column: 'hospital_id',
+            label: 'Reference comparison',
+            type: AnalysisDimensionType::Categorical,
+            sqlExpression: sprintf(
+                "CASE WHEN hospital_id IN (:%s) THEN hospital_id::text ELSE '%s' END",
+                ReferenceComparison::PARAMETER,
+                ReferenceComparison::OTHERS_BUCKET,
+            ),
+            valueLabelTranslationKeys: [
+                ReferenceComparison::OTHERS_BUCKET => 'stats.analysis_explorer.reference_comparison.others',
+            ],
+        ));
         $this->register($categorical('dispatchArea', 'dispatch_area_id', 'Dispatch area'));
         $this->register($categorical('state', 'state_id', 'State'));
 

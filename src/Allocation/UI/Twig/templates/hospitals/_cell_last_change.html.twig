@@ -1,3 +1,9 @@
 {% import '@Shared/_macros/users.html.twig' as users %}
-{{ row.updatedAt ? row.updatedAt|date('d.m.Y H:i') : row.createdAt|date('d.m.Y H:i') }}<br/>
-{{ users.link(row.updatedBy ?? row.createdBy) }}
+{% set changedBy = row.updatedBy ?? row.createdBy %}
+<span class="text-nowrap">{{ row.updatedAt ? row.updatedAt|date('d.m.Y H:i') : row.createdAt|date('d.m.Y H:i') }}</span>
+{% if changedBy %}
+    {# Avatar and name below the date, in table and card (#1666), like the generic user column. #}
+    <div data-testid="hospital-last-change-user">{{ users.link(changedBy, {avatar: 'xs'}) }}</div>
+{% else %}
+    <br/>—
+{% endif %}

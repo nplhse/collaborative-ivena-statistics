@@ -1,0 +1,34 @@
+{# Help topics block (#596): one card per main topic of the help with its first articles, from the help tree. #}
+{% set topics = help_topics() %}
+{% set max_articles = 5 %}
+{% if topics is not empty %}
+    <div class="row row-cards help-topics" data-testid="help-topics">
+        {% for topic in topics %}
+            <div class="col-sm-6 col-xl-4">
+                <div class="card h-100" data-testid="help-topic">
+                    <div class="card-body">
+                        {% if topic.icon %}
+                            <span class="avatar bg-primary-lt mb-3" aria-hidden="true" data-testid="help-topic-icon">
+                                <twig:ux:icon name="{{ topic.icon }}" class="w-4 h-4" />
+                            </span>
+                        {% endif %}
+                        <h3 class="card-title mb-2"><a href="{{ topic.url }}">{{ topic.title }}</a></h3>
+                        {% if topic.summary %}
+                            <p class="text-secondary small mb-2">{{ topic.summary }}</p>
+                        {% endif %}
+                        {% if topic.children is not empty %}
+                            <ul class="list-unstyled mb-0">
+                                {% for article in topic.children|slice(0, max_articles) %}
+                                    <li class="mb-1"><a class="link-secondary" href="{{ article.url }}">{{ article.title }}</a></li>
+                                {% endfor %}
+                            </ul>
+                            {% if topic.children|length > max_articles %}
+                                <a class="d-inline-block mt-2 small" href="{{ topic.url }}">{{ 'help.topics.all'|trans({count: topic.children|length}, 'content') }} →</a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

@@ -1,0 +1,15 @@
+{
+    "format": "encounter-local-map",
+    "version": 1,
+    "profile": "orbis-mts",
+    "hospital": "Synthetic test hospital",
+    "departments": {
+        "INN TEST": "Innere Medizin",
+        "UCH TEST": "Unfallchirurgie"
+    },
+    "stations": {
+        "ITS TEST": "icu",
+        "S1 TEST": "ward"
+    },
+    "dispositions": {}
+}

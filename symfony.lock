@@ -107,6 +107,9 @@
             "config/packages/nelmio_security.yaml"
         ]
     },
+    "nplhse/cois-ed-visit": {
+        "version": "dev-main"
+    },
     "phpstan/phpstan": {
         "version": "2.1",
         "recipe": {
@@ -132,6 +135,19 @@
             "phpunit.dist.xml",
             "tests/bootstrap.php",
             "bin/phpunit"
+        ]
+    },
+    "scheb/2fa-bundle": {
+        "version": "8.8",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "6.0",
+            "ref": "1e6f68089146853a790b5da9946fc5974f6fcd49"
+        },
+        "files": [
+            "config/packages/scheb_2fa.yaml",
+            "config/routes/scheb_2fa.yaml"
         ]
     },
     "sentry/sentry-symfony": {
@@ -486,6 +502,18 @@
             "config/packages/messenger.yaml"
         ]
     },
+    "symfony/workflow": {
+        "version": "8.1",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "3.3",
+            "ref": "3b2f8ca32a07fcb00f899649053943fa3d8bbfb6"
+        },
+        "files": [
+            "config/packages/workflow.yaml"
+        ]
+    },
     "symfonycasts/reset-password-bundle": {
         "version": "1.24",
         "recipe": {
@@ -503,18 +531,6 @@
     },
     "twig/extra-bundle": {
         "version": "v3.21.0"
-    },
-    "vich/uploader-bundle": {
-        "version": "2.9",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "main",
-            "version": "1.13",
-            "ref": "1b3064c2f6b255c2bc2f56461aaeb76b11e07e36"
-        },
-        "files": [
-            "config/packages/vich_uploader.yaml"
-        ]
     },
     "vincentlanglet/twig-cs-fixer": {
         "version": "3.8",

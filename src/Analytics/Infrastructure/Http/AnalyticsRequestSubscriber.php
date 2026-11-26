@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace App\Analytics\Infrastructure\Http;
 
 use App\Analytics\Application\RequestTracking\AnalyticsUserKeyGenerator;
+use App\Analytics\Application\RequestTracking\CountedAccessClassifier;
 use App\Analytics\Application\RequestTracking\FeatureAreaResolver;
-use App\Analytics\Application\RequestTracking\QueryParameterNameExtractor;
 use App\Analytics\Application\RequestTracking\RequestAnalyticsRecorder;
 use App\Analytics\Application\RequestTracking\UserAgentNormalizer;
-use App\Analytics\Infrastructure\Doctrine\AnalyticsQueryCounter;
-use App\Shared\Domain\Entity\CookieConsent;
 use App\Shared\Infrastructure\Consent\CookieConsentService;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
@@ -31,9 +29,10 @@ use Symfony\Component\HttpKernel\KernelEvents;
  */
 final readonly class AnalyticsRequestSubscriber
 {
-    private const string ATTR_STARTED_AT = '_analytics_started_at';
-
     private const string ATTR_TRACK = '_analytics_track';
+
+    /** Analytics consent resolved on kernel.response, reused on kernel.terminate after the EntityManager clear. */
+    private const string ATTR_ANALYTICS_CONSENT = '_analytics_consent';
 
     /** @var list<string> */
     private const array SKIP_ROUTE_PREFIXES = [
@@ -47,14 +46,13 @@ final readonly class AnalyticsRequestSubscriber
 
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
-        private AnalyticsQueryCounter $queryCounter,
         private AnalyticsCookieManager $cookieManager,
         private CookieConsentService $cookieConsentService,
         private FeatureAreaResolver $featureAreaResolver,
         private UserAgentNormalizer $userAgentNormalizer,
-        private QueryParameterNameExtractor $queryParameterNameExtractor,
         private AnalyticsUserKeyGenerator $analyticsUserKeyGenerator,
         private RequestAnalyticsRecorder $recorder,
+        private CountedAccessClassifier $countedAccessClassifier,
         private Security $security,
         private LoggerInterface $logger,
         private ManagerRegistry $doctrine,
@@ -77,8 +75,6 @@ final readonly class AnalyticsRequestSubscriber
         }
 
         $request->attributes->set(self::ATTR_TRACK, true);
-        $request->attributes->set(self::ATTR_STARTED_AT, hrtime(true));
-        $this->queryCounter->reset();
     }
 
     #[AsEventListener(event: KernelEvents::RESPONSE, priority: -64)]
@@ -93,12 +89,9 @@ final readonly class AnalyticsRequestSubscriber
             return;
         }
 
-        $consent = $this->resolveConsent($request);
-        $this->cookieManager->applyCookies(
-            $request,
-            $event->getResponse(),
-            $this->cookieConsentService->hasAnalyticsConsent($consent),
-        );
+        $analyticsConsent = $this->resolveAnalyticsConsent($request);
+        $request->attributes->set(self::ATTR_ANALYTICS_CONSENT, $analyticsConsent);
+        $this->cookieManager->applyCookies($request, $event->getResponse(), $analyticsConsent);
     }
 
     #[AsEventListener(event: KernelEvents::TERMINATE)]
@@ -128,19 +121,11 @@ final readonly class AnalyticsRequestSubscriber
 
     private function recordRequest(Request $request, int $statusCode): void
     {
-        $startedAt = $request->attributes->get(self::ATTR_STARTED_AT);
-        $durationMs = 0;
-        if (\is_int($startedAt) || \is_float($startedAt)) {
-            $elapsedNs = (float) hrtime(true) - (float) $startedAt;
-            $durationMs = (int) round($elapsedNs / 1_000_000.0);
+        $analyticsConsent = $request->attributes->get(self::ATTR_ANALYTICS_CONSENT);
+        if (!\is_bool($analyticsConsent)) {
+            $analyticsConsent = $this->resolveAnalyticsConsent($request);
         }
 
-        $dbQueryCount = $this->queryCounter->getCount();
-        $dbTimeMs = $this->queryCounter->getTimeMs();
-        $this->queryCounter->disable();
-
-        $consent = $this->resolveConsent($request);
-        $analyticsConsent = $this->cookieConsentService->hasAnalyticsConsent($consent);
         $keys = $this->cookieManager->resolveKeys($request, $analyticsConsent);
 
         $securityUser = $this->security->getUser();
@@ -164,9 +149,6 @@ final readonly class AnalyticsRequestSubscriber
             routeName: $routeName,
             featureArea: $this->featureAreaResolver->resolve($routeName),
             httpStatus: $statusCode,
-            durationMs: max(0, $durationMs),
-            dbQueryCount: $dbQueryCount,
-            dbTimeMs: $dbTimeMs,
             isAuthenticated: $isAuthenticated,
             userRole: $userRole,
             analyticsUserKey: $analyticsUserKey,
@@ -174,18 +156,38 @@ final readonly class AnalyticsRequestSubscriber
             sessionKey: $keys['sessionKey'],
             browserFamily: $ua['browserFamily'],
             deviceType: $ua['deviceType'],
-            queryParamNames: $this->queryParameterNameExtractor->extract($request->query->all()),
+            countedAccess: $this->countedAccessClassifier->isCountedAccess(
+                method: $request->getMethod(),
+                httpStatus: $statusCode,
+                routeName: $routeName,
+                deviceType: $ua['deviceType'],
+                isFrameRequest: $request->headers->has('Turbo-Frame'),
+                isBackgroundRequest: $this->isBackgroundRequest($request),
+            ),
         );
     }
 
-    private function resolveConsent(Request $request): CookieConsent
+    /**
+     * XHR/fetch calls and browser or Turbo prefetches are no page views.
+     */
+    private function isBackgroundRequest(Request $request): bool
+    {
+        if ($request->isXmlHttpRequest()) {
+            return true;
+        }
+
+        return array_any(['Sec-Purpose', 'Purpose', 'X-Sec-Purpose', 'X-Purpose'], fn (string $header): bool => str_contains(strtolower((string) $request->headers->get($header)), 'prefetch'));
+    }
+
+    private function resolveAnalyticsConsent(Request $request): bool
     {
         $user = $this->security->getUser();
-
-        return $this->cookieConsentService->resolveForRequest(
+        $consent = $this->cookieConsentService->resolveForRequest(
             $request,
             $user instanceof User ? $user : null,
         );
+
+        return $this->cookieConsentService->hasAnalyticsConsent($consent);
     }
 
     private function resolvePrimaryRole(User $user): string
@@ -202,6 +204,12 @@ final readonly class AnalyticsRequestSubscriber
 
     private function shouldSkip(Request $request): bool
     {
+        // Stateless routes (for example the public update check of the data preparation tool) need no
+        // session or consent cookie, so they are not tracked.
+        if (true === $request->attributes->get('_stateless')) {
+            return true;
+        }
+
         $route = $request->attributes->get('_route');
         if (\is_string($route)) {
             if (str_starts_with($route, 'app_admin_')) {

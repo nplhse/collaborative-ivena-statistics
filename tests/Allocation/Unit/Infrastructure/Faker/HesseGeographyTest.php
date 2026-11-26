@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Allocation\Unit\Infrastructure\Faker;
 
+use App\Allocation\Application\Geo\DistrictGeometryValidator;
 use App\Allocation\Infrastructure\Faker\Provider\Area;
 use App\Allocation\Infrastructure\Faker\Provider\HesseDistrictPolygons;
 use App\Allocation\Infrastructure\Faker\Provider\HesseDistricts;
@@ -13,35 +14,46 @@ use Faker\Factory;
 use Faker\Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Yaml\Yaml;
 
 final class HesseGeographyTest extends TestCase
 {
     private const string PROJECT = __DIR__.'/../../../../..';
 
-    public function testDistrictsAreExactlyTheDispatchAreasOfTheGeoMap(): void
+    public function testEveryDistrictHasADemoShape(): void
     {
-        /** @var array{dispatch_area_geo_map: array<string, string>} $config */
-        $config = Yaml::parseFile(self::PROJECT.'/config/case_flow/dispatch_area_geo_map.yaml');
+        /** @var array{features: list<array{properties: array{ags: string, name: string, kind: string}, geometry: array<array-key, mixed>}>} $geojson */
+        $geojson = json_decode((string) file_get_contents(self::PROJECT.'/'.HesseDistrictPolygons::GEOJSON), true, 512, \JSON_THROW_ON_ERROR);
+        $shapes = [];
+        foreach ($geojson['features'] as $feature) {
+            self::assertTrue(DistrictGeometryValidator::isUsable($feature['geometry']), $feature['properties']['ags']);
+            $shapes[$feature['properties']['ags']] = $feature['properties'];
+        }
 
-        $fromProvider = array_map(static fn (array $district): string => $district['geo_key'], HesseDistricts::DISTRICTS);
-
-        self::assertSame($config['dispatch_area_geo_map'], $fromProvider);
+        self::assertSame(array_keys(HesseDistricts::DISTRICTS), array_keys(HesseDistricts::OFFICIAL_DISTRICTS));
+        $expected = [];
+        foreach (HesseDistricts::OFFICIAL_DISTRICTS as $districts) {
+            foreach ($districts as $district) {
+                $expected[$district['ags']] = $district;
+                self::assertSame($district['name'], $shapes[$district['ags']]['name'] ?? null);
+                self::assertSame($district['kind'], $shapes[$district['ags']]['kind'] ?? null);
+            }
+        }
+        self::assertCount(26, $expected);
+        self::assertCount(26, $shapes);
     }
 
-    public function testEveryDistrictHasAShapeOnTheMap(): void
+    public function testNeighbouringDemoShapesShareTheirBorder(): void
     {
-        /** @var array{features: list<array{properties: array{key: string, name: string}}>} $geojson */
+        /** @var array{features: list<array{properties: array{ags: string}, geometry: array{coordinates: list<list<array{0: float, 1: float}>>}}>} $geojson */
         $geojson = json_decode((string) file_get_contents(self::PROJECT.'/'.HesseDistrictPolygons::GEOJSON), true, 512, \JSON_THROW_ON_ERROR);
-        $names = [];
+        $points = [];
         foreach ($geojson['features'] as $feature) {
-            $names[$feature['properties']['key']] = $feature['properties']['name'];
+            $points[$feature['properties']['ags']] = array_map(static fn (array $point): string => $point[0].'|'.$point[1], $feature['geometry']['coordinates'][0]);
         }
 
-        foreach (HesseDistricts::DISTRICTS as $name => $district) {
-            self::assertSame($name, $names[$district['geo_key']] ?? null, sprintf('%s has no feature on the map', $name));
-        }
-        self::assertCount(\count($names), HesseDistricts::DISTRICTS);
+        // Darmstadt / Darmstadt-Dieburg and Frankfurt / Offenbach am Main.
+        self::assertGreaterThanOrEqual(2, \count(array_intersect($points['06411'], $points['06432'])));
+        self::assertGreaterThanOrEqual(2, \count(array_intersect($points['06412'], $points['06413'])));
     }
 
     public function testTownsHaveAPostalCodeAndALocation(): void
@@ -57,11 +69,10 @@ final class HesseGeographyTest extends TestCase
     public function testCoordinatesLieInsideTheirDistrict(string $dispatchArea): void
     {
         $this->faker(7);
-        $geoKey = HesseDistricts::DISTRICTS[$dispatchArea]['geo_key'];
 
         for ($i = 0; $i < 10; ++$i) {
             $point = Area::coordinatesIn($dispatchArea);
-            self::assertTrue(HesseDistrictPolygons::contains($geoKey, $point['lat'], $point['lng']), sprintf('%s: %F, %F', $dispatchArea, $point['lat'], $point['lng']));
+            self::assertTrue(HesseDistrictPolygons::contains($dispatchArea, $point['lat'], $point['lng']), sprintf('%s: %F, %F', $dispatchArea, $point['lat'], $point['lng']));
         }
     }
 
@@ -77,8 +88,8 @@ final class HesseGeographyTest extends TestCase
 
     public function testAPointOutsideHesseIsInNoDistrict(): void
     {
-        foreach (HesseDistrictPolygons::geoKeys() as $geoKey) {
-            self::assertFalse(HesseDistrictPolygons::contains($geoKey, 48.137, 11.575), 'Munich is not in '.$geoKey);
+        foreach (HesseDistrictPolygons::areas() as $area) {
+            self::assertFalse(HesseDistrictPolygons::contains($area, 48.137, 11.575), 'Munich is not in '.$area);
         }
     }
 
@@ -94,7 +105,7 @@ final class HesseGeographyTest extends TestCase
             $postalCodes = array_column(HesseDistricts::DISTRICTS[$area]['towns'], 'postal_code');
             self::assertContains($hospital['address']['postal_code'], $postalCodes);
             self::assertSame('Hessen', $hospital['address']['state']);
-            self::assertTrue(HesseDistrictPolygons::contains(HesseDistricts::DISTRICTS[$area]['geo_key'], $hospital['coordinates']['lat'], $hospital['coordinates']['lng']));
+            self::assertTrue(HesseDistrictPolygons::contains($area, $hospital['coordinates']['lat'], $hospital['coordinates']['lng']));
             [$min, $max] = match ($hospital['size']) {
                 'Small' => [80, 299],
                 'Medium' => [300, 599],

@@ -17,7 +17,7 @@ final class ListAllocationsDataTableTest extends ListAllocationsControllerTestCa
 {
     public function testDefaultViewKeepsTheColumnsAndOffersTheOptionalOnes(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
         AllocationFactory::createOne();
 
@@ -34,7 +34,7 @@ final class ListAllocationsDataTableTest extends ListAllocationsControllerTestCa
 
     public function testListUsesMobileCardsWithTheIndicationAsTitleAndADetailLink(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
         AllocationFactory::createOne();
 
@@ -55,7 +55,7 @@ final class ListAllocationsDataTableTest extends ListAllocationsControllerTestCa
 
     public function testOptionalColumnsShowNamesAndKeepTheRowActionLast(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
         AllocationFactory::createOne([
             'gender' => AllocationGender::MALE,
@@ -87,7 +87,7 @@ final class ListAllocationsDataTableTest extends ListAllocationsControllerTestCa
 
     public function testSavedPageSizeAppliesUnlessTheUrlHasALimit(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
         AllocationFactory::createMany(60);
 
@@ -115,7 +115,7 @@ final class ListAllocationsDataTableTest extends ListAllocationsControllerTestCa
 
     public function testFilterAndResetKeepTheViewButDropTheCursor(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
         AllocationFactory::createMany(3);
 

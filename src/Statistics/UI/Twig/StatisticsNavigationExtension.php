@@ -67,7 +67,6 @@ final readonly class StatisticsNavigationExtension
             [StatisticWidgetType::SimpleChart, true] => '@Statistics/dashboard/components/_widget_simple_chart_component.html.twig',
             [StatisticWidgetType::SummaryDeck, false] => '@Statistics/dashboard/_hospital_summary_deck.html.twig',
             [StatisticWidgetType::Section, false] => '@Statistics/dashboard/_section_card.html.twig',
-            [StatisticWidgetType::Kpi, false] => '@Statistics/dashboard/_kpi_card.html.twig',
             [StatisticWidgetType::ChartPair, false] => '@Statistics/dashboard/_chart_pair_row.html.twig',
             [StatisticWidgetType::Distribution, false] => '@Statistics/dashboard/_distribution_card.html.twig',
             [StatisticWidgetType::SimpleChart, false] => '@Statistics/dashboard/_simple_chart_card.html.twig',

@@ -1,0 +1,10 @@
+{# One triage value of an ED visit in the Explore allocation list (#1203): the MTS category as a badge in its colour
+   with its name, the presentation diagram and the indicator by their catalog names, like on the visit list. #}
+{% set d = 'encounter' %}
+{% if field == 'category' %}
+    <span class="badge bg-{{ value }} text-{{ value }}-fg" data-testid="allocation-list-triage-category">{{ ('encounter.mts.category.' ~ value ~ '.name')|trans({}, d) }}</span>
+{% elseif field == 'diagram' %}
+    <span data-testid="allocation-list-triage-diagram">{{ encounter_mts_diagram_name(value) }}</span>
+{% else %}
+    <span data-testid="allocation-list-triage-indicator">{{ encounter_mts_indicator_name(value) }}</span>
+{% endif %}

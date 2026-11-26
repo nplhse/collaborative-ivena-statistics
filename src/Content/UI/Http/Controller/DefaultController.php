@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Content\UI\Http\Controller;
 
 use App\Content\Application\Dashboard\DashboardMetricsService;
-use App\Content\Application\Page\PageSidebarDataProvider;
 use App\Content\Infrastructure\Repository\PostRepository;
 use App\Onboarding\Application\OnboardingProgressService;
+use App\Onboarding\Application\OnboardingStepCatalog;
+use App\Onboarding\Application\WhatsNew\WhatsNewService;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,8 +19,9 @@ final class DefaultController extends AbstractController
     public function __construct(
         private readonly DashboardMetricsService $dashboardMetricsService,
         private readonly PostRepository $postRepository,
-        private readonly PageSidebarDataProvider $pageSidebarDataProvider,
         private readonly OnboardingProgressService $onboardingProgressService,
+        private readonly OnboardingStepCatalog $onboardingStepCatalog,
+        private readonly WhatsNewService $whatsNewService,
     ) {
     }
 
@@ -33,12 +35,18 @@ final class DefaultController extends AbstractController
             $onboardingCard = $user instanceof User
                 ? $this->onboardingProgressService->buildCardForUser($user)
                 : null;
+            // Decides the first action tile for participants (#1483).
+            $clinicAccess = $user instanceof User && $this->isGranted('ROLE_PARTICIPANT')
+                ? $this->onboardingStepCatalog->resolveClinicAccessState($user)
+                : null;
 
             return $this->render('@Content/dashboard/dashboard.html.twig', [
                 'metrics' => $metrics,
-                'recentPosts' => $this->postRepository->findPublishedForIndex(5),
+                'recentPosts' => $this->postRepository->findPublishedForIndex(5, pinnedFirst: true),
                 'onboardingCard' => $onboardingCard,
-                'pageTree' => $this->pageSidebarDataProvider->getPageTree(),
+                'clinicAccess' => $clinicAccess,
+                // What a release brings for accounts older than the update (#1485).
+                'whatsNewCard' => $user instanceof User ? $this->whatsNewService->buildCardForUser($user) : null,
             ]);
         }
 

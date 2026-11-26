@@ -7,12 +7,14 @@ namespace App\Statistics\AnalysisExplorer\Application;
 use App\Statistics\AnalysisExplorer\Application\Contract\ExplorerAnalysisQueryMapperInterface;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisQuery;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
+use App\Statistics\GenericAnalysis\Application\ReferenceComparisonModifier;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery as GenericAnalysisQuery;
 
 final readonly class ExplorerAllocationQueryMapper implements ExplorerAnalysisQueryMapperInterface
 {
     public function __construct(
         private ExplorerMetricKeyMapper $metricKeyMapper,
+        private ReferenceComparisonModifier $referenceComparisonModifier,
     ) {
     }
 
@@ -28,7 +30,7 @@ final readonly class ExplorerAllocationQueryMapper implements ExplorerAnalysisQu
         $metricKeys = $this->metricKeyMapper->toRegistryKeys($query->metricKeys);
         $visualMetricKey = $query->visualMetricKey->registryKey();
 
-        return new GenericAnalysisQuery(
+        $gaQuery = new GenericAnalysisQuery(
             primaryDimensionKey: $query->rowAxis->toRegistryKey(),
             scopeCriteria: $query->scopeCriteria,
             periodBounds: $query->periodBounds,
@@ -36,6 +38,12 @@ final readonly class ExplorerAllocationQueryMapper implements ExplorerAnalysisQu
             metricKeys: $metricKeys,
             visualMetricKey: $visualMetricKey,
             filters: $query->filters,
+            referenceHospitalIds: $query->referenceHospitalIds,
         );
+
+        // The comparison (#1346) takes the series slot; the policy has already reduced it to the effective references.
+        $this->referenceComparisonModifier->validate($gaQuery);
+
+        return $this->referenceComparisonModifier->prepareForExecution($gaQuery);
     }
 }

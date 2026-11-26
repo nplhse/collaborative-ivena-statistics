@@ -28,6 +28,8 @@ return [
     'admin-page-form' => ['path' => './assets/admin-page-form.js', 'entrypoint' => true],
     'admin-trix-media' => ['path' => './assets/admin-trix-media.js', 'entrypoint' => true],
     'error_page' => ['path' => './assets/error-page.js', 'entrypoint' => true],
+    // Shared chart loader for Stimulus controllers of plugins (plugins/*/assets), which cannot import it by a relative path.
+    'app/lib/load-apexcharts' => ['path' => './assets/lib/load-apexcharts.js'],
     '@symfony/stimulus-bundle' => ['path' => './vendor/symfony/stimulus-bundle/assets/dist/loader.js'],
     '@symfony/ux-live-component' => ['path' => './vendor/symfony/ux-live-component/assets/dist/live_controller.js'],
     '@hotwired/stimulus' => ['version' => '3.2.2'],
@@ -49,7 +51,7 @@ return [
     'bignumber.js' => ['version' => '9.1.2'],
     'splaytree-ts' => ['version' => '1.0.2'],
     'es-module-shims' => ['version' => '2.8.4'],
-    '@tabler/core' => ['version' => '1.6.1'],
-    '@tabler/core/dist/css/tabler.min.css' => ['version' => '1.6.1', 'type' => 'css'],
+    '@tabler/core' => ['version' => '1.7.5'],
+    '@tabler/core/dist/css/tabler.min.css' => ['version' => '1.7.5', 'type' => 'css'],
     'apexcharts/core' => ['version' => '7.6.1'],
 ];

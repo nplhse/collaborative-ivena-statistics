@@ -35,7 +35,7 @@ final class AnalysisExplorerShellHappyPathTest extends AnalysisExplorerShellTest
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
         $result = $loader->load('gender-over-time', $filter, null);
 
@@ -61,7 +61,7 @@ final class AnalysisExplorerShellHappyPathTest extends AnalysisExplorerShellTest
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
         $result = $loader->load('gender-over-time', $filter, null);
 

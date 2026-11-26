@@ -1,31 +1,10 @@
 <footer class="footer site-footer d-print-none mt-auto">
     <div class="container-xl">
-        {% set footer_columns = footer_nav_columns() %}
-        {% set activity_url = is_granted('ROLE_USER') ? path('app_activity_timeline') : null %}
-        {% if footer_columns is not empty %}
-            <div class="row py-4">
-                {% for column in footer_columns %}
-                    <div class="col-6 col-md-3 mb-3 mb-md-0" data-testid="footer-nav-column-{{ column.key }}">
-                        <div class="subheader fw-semibold text-body mb-2">{{ column.labelKey|trans({}, 'shared') }}</div>
-                        <ul class="list-unstyled mb-0 lh-lg">
-                            {% for link in column.links %}
-                                <li>
-                                    <a
-                                        href="{{ link.url }}"
-                                        class="link-secondary site-footer__link"
-                                        {% if activity_url and link.url == activity_url %}data-testid="footer-nav-activity"{% endif %}
-                                    >{{ link.label }}</a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
+        <twig:Navigation:Footer />
 
         <div class="row border-top py-3 text-center text-lg-start">
             <div class="col-12">
-                {% set copyright_end_year = 'now'|date('Y') %}
+                {% set copyright_end_year = clock_now()|date('Y') %}
                 <ul class="list-inline list-inline-dots mb-0">
                     <li class="list-inline-item" data-testid="footer-meta-copyright">
                         &copy; {{ app_copyright_start_year }}{% if app_copyright_start_year != copyright_end_year %}&ndash;{{ copyright_end_year }}{% endif %}
@@ -36,16 +15,12 @@
                             collaborative-ivena-statistics
                         </a>
                     </li>
-                    {% if app_hoster_name %}
+                    {% if app_uberspace_credit %}
                         <li class="list-inline-item" data-testid="footer-meta-hoster">
                             <twig:ux:icon name="game-icons:asteroid" style="height: 1em;" />
-                            {% if app_hoster_url %}
-                                <a href="{{ app_hoster_url }}" class="link-secondary">
-                                    {{ 'footer.hoster'|trans({hoster: app_hoster_name}, 'shared') }}
-                                </a>
-                            {% else %}
-                                {{ 'footer.hoster'|trans({hoster: app_hoster_name}, 'shared') }}
-                            {% endif %}
+                            <a href="https://uberspace.de" class="link-secondary">
+                                {{ 'footer.uberspace_credit'|trans({}, 'shared') }}
+                            </a>
                         </li>
                     {% endif %}
                     <li class="list-inline-item" data-testid="footer-meta-version">

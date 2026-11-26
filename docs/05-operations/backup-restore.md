@@ -1,6 +1,6 @@
 # Backup & restore
 
-Operational guide for PostgreSQL, import files, and media uploads.
+Operational guide for PostgreSQL, import files, and media files.
 
 ## Scope
 
@@ -8,13 +8,146 @@ Operational guide for PostgreSQL, import files, and media uploads.
 |-------|----------------------|------------------------------|
 | PostgreSQL database | from `DATABASE_URL` | from `shared/.env.local` → `DATABASE_URL` |
 | Import uploads | `var/imports/` | `<deploy_path>/shared/var/imports/` ([paths on the server](deployment.md#paths-on-the-server)) |
-| Media uploads | `public/uploads/media/` | `<deploy_path>/shared/public/uploads/media/` |
+| Media files | `var/media/` ([media storage](../04-features/content/media-storage.md)) | `<deploy_path>/shared/var/media/`; before v0.3 `shared/public/uploads/media/`, kept until v0.4 and not backed up any more |
+| Hospital isochrones | `var/geo/hospital-isochrones/` | `<deploy_path>/shared/var/geo/hospital-isochrones/` |
 | Reference catalog packages | `var/reference/` | `<deploy_path>/shared/var/reference/` — private; keep copies in the private data repository, not in these backups only ([ADR 020](../02-architecture/decisions/020-portable-reference-catalog.md)) |
+| Encounter curation packages | `var/encounter/` | copied in by hand for an import; not a backup of the catalog or the plausibility table, which are in the database dump ([curation package](../04-features/encounter/curation-package.md)) |
 | Secrets | `.env.local` | `<deploy_path>/shared/.env.local` — **back up separately**, never inside DB dumps |
 
 Backups are written to `var/backups/` locally (override with `BACKUP_DIR`).
 
-## Scripts
+## Backup command
+
+`app:backup:create` writes a full backup (database and all file components) with a manifest and checksums
+([ADR 038](../02-architecture/decisions/038-verified-backup-format.md)):
+
+```bash
+php bin/console app:backup:create                        # shows the plan, asks, then runs
+php bin/console app:backup:create --no-interaction       # unattended (cron)
+php bin/console app:backup:create --target-dir=$HOME/backups # other directory than BACKUP_DIR
+make backup                                              # unattended, Docker database when it runs
+```
+
+Each run creates one directory, for example `var/backups/ivena-stats-full-20261120T030000Z/`:
+
+| File | Content |
+|------|---------|
+| `manifest.json` | format version, time (UTC), app version, executed migrations, rows per table, files and bytes per component, size and SHA-256 of every payload |
+| `database.dump` | `pg_dump` custom format, schema `public` without PostGIS tables and without the rows of `lock_keys` (runtime locks, #1452) |
+| `files/<component>.tar.gz` | regular files of `imports` (without `pending/`), `media` (without `variants/` and `.tmp/`), `geo`, `reference`; paths relative to the component directory |
+| `files/<component>.sha256` | SHA-256 of every file in that archive (`sha256sum -c` format) |
+
+How it behaves:
+
+- **Consistent while the app runs.** Dump, row counts and migration list come from one exported database
+  snapshot. A file that changes while it is packed fails the run; start it again when imports are done.
+- **Complete or nothing.** The backup is written as `.<name>.partial` and renamed at the end. A failed run removes
+  its partial directory and exits with `1`; existing backups are never overwritten. A `.partial` directory left
+  over from a killed run is not a backup: remove it.
+- **Private.** Directories `0700`, files `0600`. Targets below `public/` are refused; a target inside a Deployer
+  release gets a warning, because releases are deleted.
+- **No secrets.** `.env.local` is not included (see the table above). The manifest holds counts and
+  checksums only.
+- **Tools.** Needs `tar` and the PostgreSQL client tools of the server's major version or newer.
+  `BACKUP_PG_TOOLS=local` (default) uses `pg_dump` on `PATH`; `BACKUP_PG_TOOLS=docker` runs it in the Compose
+  service `database` (from a git worktree also set `COMPOSE_PROJECT_NAME` to the main checkout's project).
+  `make backup` picks `docker` when that service is running.
+
+## Verify command
+
+`app:backup:verify` checks a backup without restoring it and without changing anything:
+
+```bash
+php bin/console app:backup:verify                                     # newest backup in BACKUP_DIR
+php bin/console app:backup:verify ivena-stats-full-20261120T030000Z   # by name in BACKUP_DIR
+php bin/console app:backup:verify ~/backups/ivena-stats-full-20261120T030000Z # by path, e.g. a copied backup
+make backup-verify                                                    # newest; BACKUP=<directory> for another
+```
+
+| Step | Checks |
+|------|--------|
+| Manifest | present, a known format version (a backup of a newer format is refused), every field typed |
+| Payload checksums | every listed file exists with the recorded size and SHA-256; files that are not part of the backup are shown as warnings |
+| Database dump | `pg_restore --list` reads the dump, and every table of the manifest has data in it |
+| File archives | every entry is a regular file with a relative path (no `..`, links or devices); each file matches its line in `<component>.sha256`; number of files and bytes match the manifest |
+
+The archives are read and hashed in PHP while they are streamed; nothing is extracted. All checks run even when
+one fails, and the command lists every problem at the end. It exits with `1` when the backup has a problem or
+cannot be read, so it can follow the backup in cron (see [scheduled backups](#scheduled-backups)). It needs
+`pg_restore` (same `BACKUP_PG_TOOLS` switch as the backup) but no database connection.
+
+## Restore command
+
+`app:backup:restore` replaces the database and the file directories with a backup:
+
+```bash
+php bin/console app:backup:restore                                    # newest backup in BACKUP_DIR; shows the plan, asks
+php bin/console app:backup:restore ivena-stats-full-20261120T030000Z  # by name or path, as for verify
+php bin/console app:backup:restore <backup> --no-interaction --confirm-destructive # unattended
+php bin/console app:backup:restore <backup> --keep-previous           # with a way back (needs space for a second copy)
+make backup-restore                                                   # newest; BACKUP=<directory> for another
+```
+
+Before anything is replaced, the command shows the plan (backup, target database, every target directory) and
+asks; unattended runs must pass `--confirm-destructive`. It then runs these steps:
+
+| Step | What happens |
+|------|--------------|
+| Preflight | lock (no backup or restore at the same time), `pg_restore` available, no messages waiting in the queues (`failed` does not count), target directories writable |
+| Backup verification | the complete check of `app:backup:verify`; any problem stops the restore |
+| File staging | each archive is extracted next to its target directory (`.<dir>.restore-<time>`) and checked file by file against its checksum list |
+| Database restore | schema `public` is dropped and recreated (with `--keep-previous`: renamed to `pre_restore_<time>`), the dump is restored into the new `public` in one transaction (PostGIS objects and the rows of `lock_keys` skipped), and the row count of every table must match the manifest (`lock_keys` is not counted) |
+| File switch | each target directory is renamed to `<dir>.pre-restore-<time>`, the staged directory takes its place |
+| Completion | the replaced directories are removed (with `--keep-previous`: the previous schema is dropped, the directories are kept) |
+
+How it behaves:
+
+- **Checks first.** Verify, queue check and file staging run before the database is touched; a failure there
+  changes nothing.
+- **Default: the current database is dropped before the restore.** This needs no space for a second copy of the
+  database. If the restore fails after that, the database is empty (or differs from the backup) and the error
+  says so: fix the cause and restore again. **Create a backup before a restore** if you may need the current
+  state again.
+- **`--keep-previous`: a way back.** The current schema is renamed instead and moved back on any failure, and the
+  replaced directories are kept as `<dir>.pre-restore-<time>` for you to remove once the application works. This
+  needs free space for a second copy of the database.
+- **Files.** The staged files need space for a second copy of the file components until the switch. A failure
+  while switching switches the directories back (with `--keep-previous` also the database). The error says what
+  the failure left behind, for example "The database and the files were not changed."
+- **Older backups** (fewer migrations than the application) are restored; the command then asks you to run
+  `php bin/console doctrine:migrations:migrate`. **Newer backups** (migrations this application does not know)
+  are refused: restore them with the version that made them.
+- **Deployer links** are followed: the shared directory is replaced, the link in the release stays.
+- A component whose directory was **missing when the backup was made** is left unchanged (warning in the plan).
+- Messages that were waiting in the queues when the backup was made are restored with the database and are
+  handled again once the worker runs.
+- The database user must own schema `public` (as for `restore-database.sh`).
+- **Media variants** are derived and not part of a backup; the restore replaces `var/media` with the backed-up
+  originals.
+
+Afterwards: run the migrations if the command asks for it, `php bin/console cache:clear`, start the Messenger
+worker, and check the application (see [Restore runbook](#restore-runbook)).
+
+### Backups from before v0.3
+
+A backup made before the media storage (ADR 039) holds the media as flat files (`files/media.tar.gz` without
+`originals/`) and a database without storage keys. After restoring it into v0.3, run the migrations as the restore
+asks, then move the flat files into the storage layout:
+
+```bash
+php bin/console doctrine:migrations:migrate
+php bin/console app:media:migrate-storage --legacy-dir=var/media     # on the server: --legacy-dir=<deploy_path>/shared/var/media
+php bin/console app:media:rewrite-content-urls --apply
+php bin/console app:media:check --full
+```
+
+`app:media:migrate-storage` removes each flat file once it is moved, because it was given the storage root itself.
+
+## Scripts (legacy)
+
+Not to be confused with `bin/ops/scheduled-backup.sh` and `bin/ops/pull-backups.sh`, which run the backup command
+on a schedule ([scheduled backups](#scheduled-backups)). The scripts below predate the backup command. `backup-database.sh` and `backup-files.sh` write backups without
+a manifest; `restore-database.sh` restores any custom-format dump, including `database.dump` of the new format.
 
 | Script | Purpose |
 |--------|---------|
@@ -26,9 +159,11 @@ Backups are written to `var/backups/` locally (override with `BACKUP_DIR`).
 ### Make targets
 
 ```bash
-make backup-db      # database only
-make backup-files   # imports + media only
-make backup         # both
+make backup         # full backup with manifest (app:backup:create)
+make backup-verify  # verify the newest backup (app:backup:verify)
+make backup-restore # restore the newest backup, asks first (app:backup:restore)
+make backup-db      # legacy: database only
+make backup-files   # legacy: imports + media only
 make restore-db BACKUP_FILE=var/backups/ivena-stats-db-....dump RESTORE_CONFIRM=yes
 make verify-restore-baseline   # save metrics snapshot
 make verify-restore            # compare after restore
@@ -38,7 +173,22 @@ make verify-restore            # compare after restore
 
 ### Restore drill (recommended)
 
-Use `verify-restore.sh` to prove backup + restore round-trip without hand-written SQL.
+With the backup commands the drill is short; the restore itself compares every table with the manifest:
+
+```bash
+docker compose up -d database
+make backup                     # full backup of database and files
+make backup-verify
+make backup-restore             # shows the plan, asks, restores the newest backup
+php bin/console cache:clear
+```
+
+Change some data between backup and restore (for example delete an import) to see it come back. To try the way
+back, run the restore with `--keep-previous` and remove the `*.pre-restore-*` directories afterwards.
+
+#### Legacy drill (scripts)
+
+Use `verify-restore.sh` to prove a round-trip of the legacy scripts without hand-written SQL.
 Symfony provides `dbal:run-sql` (not `doctrine:query:sql`) if you need ad-hoc queries.
 
 1. Start the database:
@@ -135,23 +285,16 @@ Deployer keeps persistent data outside release directories ([deployment.md](depl
 - `shared/.env.local`
 - `shared/var/imports`
 - `shared/var/reference` (reference catalog packages, ADR 020)
-- `shared/public/uploads/media`
+- `shared/var/media` (media storage, ADR 039; `shared/public/uploads/media` of releases before v0.3 stays until v0.4)
 
 ### Manual backup commands
 
 From the current release on the server (`<deploy_path>/current`):
 
 ```bash
-# Database (requires pg_dump on PATH and DATABASE_URL in environment)
+# Database and files with manifest (requires pg_dump and tar on PATH; the paths follow the shared links)
 cd <deploy_path>/current
-set -a && source ../shared/.env.local && set +a
-BACKUP_DIR=~/backups ./bin/ops/backup-database.sh
-
-# Files (shared paths)
-BACKUP_DIR=~/backups \
-  IMPORTS_DIR=<deploy_path>/shared/var/imports \
-  MEDIA_DIR=<deploy_path>/shared/public/uploads/media \
-  ./bin/ops/backup-files.sh
+php bin/console app:backup:create --target-dir=$HOME/backups --env=prod
 
 # Secrets (store encrypted or offline — not in the git repo)
 cp <deploy_path>/shared/.env.local ~/backups/env-local-$(date -u +%Y%m%d).bak
@@ -160,33 +303,160 @@ chmod 600 ~/backups/env-local-*.bak
 
 Store backups **outside** the Deployer `releases/` tree (for example `~/backups/`) so deploys cannot delete them.
 
-### Cron (operator-managed)
+### Scheduled backups
 
-Schedule regular backups on the server (example — adjust paths and times):
+The policy (#1568):
 
-```cron
-# Daily database dump at 03:00 UTC
-0 3 * * * cd <deploy_path>/current && set -a && source ../shared/.env.local && set +a && BACKUP_DIR=~/backups ./bin/ops/backup-database.sh >> ~/backups/backup.log 2>&1
+- **Server:** one full backup **every Wednesday at 03:00 UTC**. The server keeps only the newest backup, and the
+  off-site copy deletes it there once it is copied and checked. So the server holds at most one backup, for a
+  few hours.
+- **Off-site:** the copies are kept for at most **90 days**, about 13 weekly backups. With the current size of
+  about 300 MB per backup this is roughly 4 GB.
+- **Data loss:** a week of uploads can be lost when the server fails between two backups. Participants keep their
+  export files, so imports can be repeated.
 
-# Weekly file archive on Sunday 04:00 UTC
-0 4 * * 0 BACKUP_DIR=~/backups IMPORTS_DIR=<deploy_path>/shared/var/imports MEDIA_DIR=<deploy_path>/shared/public/uploads/media <deploy_path>/current/bin/ops/backup-files.sh >> ~/backups/backup.log 2>&1
+`bin/ops/scheduled-backup.sh` runs on the server:
 
-# Retention: delete dumps older than 30 days
-15 5 * * * find ~/backups -name 'ivena-stats-*' -mtime +30 -delete
+1. It runs `app:backup:create`, then `app:backup:verify` on the new backup.
+2. Only after both succeed does it delete older backups, so that only the newest `--keep` backups stay (default 1:
+   the new one).
+3. It deletes only directories named like a finished backup (`ivena-stats-full-<UTC time>`). `.partial`
+   directories and files of the legacy scripts stay.
+4. Any failure ends it with a non-zero exit code, so cron mails the output.
+
+```bash
+bin/ops/scheduled-backup.sh --dry-run                  # what it would run and delete
+bin/ops/scheduled-backup.sh --target-dir $HOME/backups # default: BACKUP_DIR, else $HOME/backups
+bin/ops/scheduled-backup.sh --keep 2                   # keep the two newest backups instead of one
 ```
 
-Cron is configured on Uberspace outside this repository.
+Crontab on the server (`crontab -e` on Uberspace; cron is configured there, not in this repository):
 
-### Suggested retention
+```cron
+MAILTO=<operator mail address>
+# Weekly full backup, Wednesdays 03:00 UTC: create, verify, then delete all older backups
+0 3 * * 3 cd <deploy_path>/current && bin/ops/scheduled-backup.sh --target-dir $HOME/backups >> $HOME/backups/backup.log 2>&1
+```
 
-| Type | Suggestion |
-|------|------------|
-| Daily DB dumps | keep 7 |
-| Weekly DB dumps | keep 4 |
-| Weekly file archives | keep 4 |
-| `.env.local` copies | keep 4 (secure storage) |
+Cron runs in the server's time zone; on Uberspace that is UTC. The script uses `bin/console` of the current release
+with `APP_ENV=prod`, and needs `pg_dump` and `pg_restore` on cron's `PATH`.
+
+The `.env.local` secrets are not part of the backup (see [scope](#scope)). Copy them by hand after every change,
+store them encrypted or offline, and keep the last four copies.
+
+### Off-site copy
+
+`bin/ops/pull-backups.sh` runs on the operator's machine:
+
+1. It copies the finished full backups from the server with `rsync` over SSH.
+2. It checks every new copy against the sizes and SHA-256 checksums in its manifest. This is the first part of
+   `app:backup:verify`, and it needs `php` but no database. With `--delete-from-server` it also checks every
+   backup that is still on the server, including one copied in an earlier run.
+3. Only if all these checks pass does it delete anything. With `--delete-from-server` it first deletes those
+   backups on the server.
+4. Then it deletes local copies older than `--retention-days` (default 90) and, with `--keep N`, all but the newest
+   N copies. The newest local copy always stays.
+
+```bash
+bin/ops/pull-backups.sh --from <user>@<host>:backups --to ~/Backups/ivena-stats --delete-from-server --dry-run
+bin/ops/pull-backups.sh --from <user>@<host>:backups --to ~/Backups/ivena-stats --delete-from-server
+bin/ops/pull-backups.sh --from <user>@<host>:backups --to ~/Backups/ivena-stats --keep 4   # at most four local copies
+```
+
+Write the server path relative to the home directory (`backups`) or absolute, not with `~`.
+
+On macOS, a `launchd` job can run it weekly, a few hours after the server backup. If the machine sleeps at that
+time, `launchd` runs the job when it wakes. The repository does not install this job. Save the following as
+`~/Library/LaunchAgents/io.versorgungsforschung.pull-backups.plist`, adjust the paths, then run
+`launchctl load ~/Library/LaunchAgents/io.versorgungsforschung.pull-backups.plist`:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>io.versorgungsforschung.pull-backups</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/path/to/collaborative-ivena-statistics/bin/ops/pull-backups.sh</string>
+        <string>--from</string>
+        <string>user@host:backups</string>
+        <string>--to</string>
+        <string>/Users/you/Backups/ivena-stats</string>
+        <string>--delete-from-server</string>
+    </array>
+    <!-- Wednesdays 09:00 local time, after the server backup at 03:00 UTC -->
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Weekday</key>
+        <integer>3</integer>
+        <key>Hour</key>
+        <integer>9</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    </dict>
+    <key>StandardOutPath</key>
+    <string>/Users/you/Backups/ivena-stats/pull.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/you/Backups/ivena-stats/pull.log</string>
+</dict>
+</plist>
+```
+
+The SSH key for the server must work without a prompt (an agent or a key without a passphrase that is limited to
+this host). Check `pull.log` from time to time, or after a failed run, which `launchd` does not report.
 
 ## Restore runbook
+
+### Backups with a manifest (app:backup:create)
+
+1. Stop the Messenger worker to avoid writes during restore:
+
+   ```bash
+   systemctl --user stop messenger
+   ```
+
+2. If you may need the current state again (for example a restore after a bad import, not after a lost
+   database), back it up first; the restore drops the current database:
+
+   ```bash
+   cd <deploy_path>/current
+   php bin/console app:backup:create --no-interaction --env=prod
+   ```
+
+3. Restore database and files (shows the plan and asks before it changes anything). Add `--keep-previous` only
+   when there is free space for a second copy of the database:
+
+   ```bash
+   php bin/console app:backup:restore ~/backups/ivena-stats-full-YYYYMMDDTHHMMSSZ --env=prod
+   ```
+
+4. If the command says the backup is behind the application, run the migrations:
+
+   ```bash
+   php bin/console doctrine:migrations:migrate --env=prod
+   ```
+
+5. Clear cache and restart the worker:
+
+   ```bash
+   php bin/console cache:clear --env=prod
+   systemctl --user start messenger
+   ```
+
+6. Smoke test: `curl -sS https://<host>/health | jq` (expect HTTP 200, `checks.database: ok`), then login, import
+   list, statistics dashboard. With `--keep-previous`, then remove the `*.pre-restore-*` directories the command
+   listed.
+
+Restore `.env.local` separately if needed ([3. Secrets](#3-secrets-envlocal)).
+
+The manual steps below are for legacy backups and for a restore without the command.
 
 ### 1. Database
 
@@ -215,15 +485,41 @@ Cron is configured on Uberspace outside this repository.
 
 `restore-database.sh` drops and recreates schema `public` (`DROP SCHEMA public CASCADE`), then restores from the dump without `--clean`. The `SCHEMA - public` TOC entry is skipped because the script already created that schema. PostGIS extensions and tables (`spatial_ref_sys`, …) listed in the dump TOC are skipped so restores work on plain Postgres (e.g. local Docker) even when the dump came from a host with PostGIS. Schema drift after restore is unlikely if the dump matches the deployed code version; if not, run `php bin/console doctrine:migrations:status`.
 
+For a backup of the new format run `app:backup:verify` on it first, then use its `database.dump` as `BACKUP_FILE`. Afterwards compare the row counts
+with `table_rows` in its `manifest.json`.
+
 ### 2. Import and media files
 
+Backups of the new format hold one archive per component, with paths relative to the component directory.
+Check the archive against the manifest first (`sha256sum`), then extract it into the shared directory:
+
 ```bash
-cd <deploy_path>
-tar -xzf ~/backups/ivena-stats-files-YYYYMMDD-HHMMSS.tar.gz -C <deploy_path>/shared
-# archives contain paths relative to their source roots (var/imports, public/uploads/media)
+cd ~/backups/ivena-stats-full-YYYYMMDDTHHMMSSZ
+sha256sum files/media.tar.gz          # compare with payloads in manifest.json
+tar -xzf files/media.tar.gz -C <deploy_path>/shared/var/media
+(cd <deploy_path>/shared/var/media && sha256sum -c ~/backups/ivena-stats-full-YYYYMMDDTHHMMSSZ/files/media.sha256)
 ```
 
-Verify permissions on `shared/var/imports` and `shared/public/uploads/media` (writable by the web user).
+Do the same for `imports` (`shared/var/imports`), `geo` (`shared/var/geo/hospital-isochrones`) and `reference`
+(`shared/var/reference`). Legacy file archives of `bin/ops/backup-files.sh` hold the two directories by their last path component only:
+`imports/` and `media/`. Extract them into an empty directory and copy each one to its place:
+
+```bash
+mkdir -p ~/restore-files && tar -xzf ~/backups/ivena-stats-files-YYYYMMDD-HHMMSS.tar.gz -C ~/restore-files
+rsync -a ~/restore-files/imports/ <deploy_path>/shared/var/imports/
+rsync -a ~/restore-files/media/ <deploy_path>/shared/var/media/   # archive made with v0.3 or later
+```
+
+An archive made before v0.3 holds the media of `public/uploads/media` as flat files in `media/`. On v0.3 or later,
+copy them to `<deploy_path>/shared/public/uploads/media/` instead and move them into the media storage:
+
+```bash
+rsync -a ~/restore-files/media/ <deploy_path>/shared/public/uploads/media/
+php bin/console app:media:migrate-storage --legacy-dir=<deploy_path>/shared/public/uploads/media
+php bin/console app:media:rewrite-content-urls --apply
+```
+
+Verify permissions on `shared/var/imports` and `shared/var/media` (writable by the web user). A media archive of the backup command from before v0.3 needs the extra step in [Backups from before v0.3](#backups-from-before-v03).
 
 ### 3. Secrets (`.env.local`)
 

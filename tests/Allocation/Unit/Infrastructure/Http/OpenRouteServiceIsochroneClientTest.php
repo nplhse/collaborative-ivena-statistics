@@ -35,7 +35,7 @@ final class OpenRouteServiceIsochroneClientTest extends TestCase
         $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use (&$requests): MockResponse {
             ++$requests;
             self::assertSame('POST', $method);
-            self::assertStringContainsString('/v2/isochrones/driving-car', $url);
+            self::assertStringContainsString('https://api.heigit.org/openrouteservice/v2/isochrones/driving-car', $url);
             $body = (string) ($options['body'] ?? '');
             self::assertStringContainsString('destination', $body);
             self::assertStringContainsString('3000', $body);

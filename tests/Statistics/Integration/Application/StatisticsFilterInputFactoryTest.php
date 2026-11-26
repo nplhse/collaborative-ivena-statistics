@@ -30,7 +30,7 @@ final class StatisticsFilterInputFactoryTest extends DatabaseKernelTestCase
         $input = $this->factory->fromQuery($this->queryBag([]), $user);
 
         self::assertSame('public', $input->scope);
-        self::assertSame('all', $input->period);
+        self::assertSame('last_12_months', $input->period);
         self::assertFalse($input->hasScopeQueryParameter);
     }
 
@@ -44,7 +44,7 @@ final class StatisticsFilterInputFactoryTest extends DatabaseKernelTestCase
         $input = $this->factory->fromQuery($this->queryBag([]), $user);
 
         self::assertSame('my_hospitals', $input->scope);
-        self::assertSame('all', $input->period);
+        self::assertSame('last_12_months', $input->period);
     }
 
     public function testDefaultScopeIsPublicForAdmin(): void
@@ -53,7 +53,7 @@ final class StatisticsFilterInputFactoryTest extends DatabaseKernelTestCase
         $input = $this->factory->fromQuery($this->queryBag([]), $user);
 
         self::assertSame('public', $input->scope);
-        self::assertSame('all', $input->period);
+        self::assertSame('last_12_months', $input->period);
         self::assertFalse($input->hasScopeQueryParameter);
     }
 

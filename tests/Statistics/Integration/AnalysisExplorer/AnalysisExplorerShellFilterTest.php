@@ -106,7 +106,7 @@ final class AnalysisExplorerShellFilterTest extends AnalysisExplorerShellTestCas
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
         $defaultConfig = $viewFactory->createDefault($filter);
         $stateId = $scope['state']->getId();
@@ -127,7 +127,7 @@ final class AnalysisExplorerShellFilterTest extends AnalysisExplorerShellTestCas
                     'scopePeriod' => [
                         'scopeGroup' => 'state',
                         'scopeDetail' => (string) $stateId,
-                        'period' => 'all',
+                        'period' => 'last_12_months',
                     ],
                     'rowDimension' => 'time',
                     'rowGrain' => 'month',

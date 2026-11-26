@@ -1,0 +1,32 @@
+{% set item = node.item %}
+{% if node.children is not empty and item.route is null and item.url is null %}
+    {% set children_id = 'site-sidebar-group-' ~ item.id %}
+    <li class="nav-item{{ node.onActivePath ? ' site-sidebar__on-path' }}" data-testid="sidebar-group-{{ item.id }}"
+        data-nav-id="{{ item.id }}" data-nav-label="{{ item.label|trans }}" data-nav-section="{{ section }}">
+        <button class="nav-link site-sidebar__group{{ node.onActivePath ? '' : ' collapsed' }}" type="button"
+                data-bs-toggle="collapse" data-bs-target="#{{ children_id }}" aria-controls="{{ children_id }}"
+                aria-expanded="{{ node.onActivePath ? 'true' : 'false' }}"
+                title="{{ item.label|trans }}">
+            {% if depth == 0 and item.icon %}<span class="nav-link-icon"><twig:ux:icon name="{{ item.icon }}" /></span>{% endif %}
+            <span class="nav-link-title">{{ item.label|trans }}</span>
+            {% if item.badge %}<span class="badge badge-sm {{ item.badge.color.cssClass }} ms-auto site-sidebar__badge">{{ item.badge.label|trans }}</span>{% endif %}
+            <span class="site-sidebar__group-chevron"><twig:ux:icon name="tabler:chevron-right" /></span>
+        </button>
+        <div class="collapse site-sidebar__children{{ node.onActivePath ? ' show' }}" id="{{ children_id }}">
+            <ul class="navbar-nav site-sidebar__tree">
+                {% for child in node.children %}
+                    {{ include('@Shared/components/Navigation/_sidebar_node.html.twig', {node: child, depth: depth + 1, sidebar: sidebar, section: section}) }}
+                {% endfor %}
+            </ul>
+        </div>
+    </li>
+{% else %}
+    <li class="nav-item{{ node.active ? ' active' }}" data-testid="sidebar-entry-{{ item.id }}"
+        data-nav-id="{{ item.id }}" data-nav-label="{{ item.label|trans }}" data-nav-section="{{ section }}">
+        <a class="nav-link" href="{{ sidebar.href(item) }}" title="{{ item.label|trans }}"{% if node.active %} aria-current="page"{% endif %}>
+            {% if depth == 0 and item.icon %}<span class="nav-link-icon"><twig:ux:icon name="{{ item.icon }}" /></span>{% endif %}
+            <span class="nav-link-title">{{ item.label|trans }}</span>
+            {% if item.badge %}<span class="badge badge-sm {{ item.badge.color.cssClass }} ms-auto site-sidebar__badge">{{ item.badge.label|trans }}</span>{% endif %}
+        </a>
+    </li>
+{% endif %}

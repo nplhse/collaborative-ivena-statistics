@@ -10,9 +10,11 @@ use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Engagement\Application\Dto\MonthlyReminderTrigger;
 use App\Engagement\Application\MonthlyReminderSender;
+use App\Engagement\Domain\Entity\MonthlyReminderDispatch;
 use App\Engagement\Domain\Enum\MonthlyReminderDispatchStatus;
 use App\Engagement\Infrastructure\Repository\MonthlyReminderDispatchRepository;
 use App\Notification\Infrastructure\Delivery\NotificationEmailFactory;
+use App\Shared\Infrastructure\Audit\Entity\AuditEntry;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
@@ -264,6 +266,40 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
         self::assertSame(MonthlyReminderTrigger::Admin->value, $dispatch->getTrigger());
         self::assertSame(MonthlyReminderDispatchStatus::Sent, $dispatch->getStatus());
         self::assertNotNull($dispatch->getDeliveredAt());
+    }
+
+    public function testSendWritesAnAuditEntryForTheReminder(): void
+    {
+        $hospital = $this->createHospital(optedOut: false);
+
+        self::assertSame([], $this->sender->sendForHospital(
+            $hospital,
+            MonthlyReminderTrigger::Scheduler,
+            $this->frozenReferenceDate(),
+        ));
+
+        $dispatch = self::getContainer()->get(MonthlyReminderDispatchRepository::class)->findForHospitalPeriodAndTrigger(
+            (int) $hospital->getId(),
+            '2026-06',
+            MonthlyReminderTrigger::Scheduler->value,
+        );
+        self::assertNotNull($dispatch);
+
+        /** @var list<array{action: string, entity_class: string, entity_id: ?string, metadata: string}> $entries */
+        $entries = self::getContainer()->get(Connection::class)->fetchAllAssociative(
+            'SELECT action, entity_class, entity_id, metadata FROM audit_log WHERE intent = :intent ORDER BY id',
+            ['intent' => AuditEntry::INTENT_HOSPITAL_REMINDER_SENT],
+        );
+
+        self::assertNotEmpty($entries, 'an intent alone writes nothing; the audited dispatch must be saved inside it');
+        self::assertSame('create', $entries[0]['action']);
+        self::assertSame(MonthlyReminderDispatch::class, $entries[0]['entity_class']);
+        self::assertSame((string) $dispatch->getId(), $entries[0]['entity_id']);
+
+        /** @var array{intent_metadata: array<string, mixed>} $metadata */
+        $metadata = json_decode($entries[0]['metadata'], true, flags: \JSON_THROW_ON_ERROR);
+        self::assertSame((int) $hospital->getId(), $metadata['intent_metadata']['hospital_id']);
+        self::assertSame('2026-05', $metadata['intent_metadata']['reporting_period']);
     }
 
     public function testSchedulerRetryReusesFailedDispatchRecord(): void

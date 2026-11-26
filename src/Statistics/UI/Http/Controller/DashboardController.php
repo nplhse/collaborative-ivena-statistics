@@ -66,9 +66,9 @@ final class DashboardController extends AbstractController
         if (!$request->query->has('period')) {
             $contextForPeriod = $this->statisticsContextFactory->create($user, $filter);
             $defaultPeriod = $this->overviewDefaultPeriodResolver->resolveDefaultPeriod($contextForPeriod);
-            if (StatisticsFilterPeriod::All === $defaultPeriod) {
+            if (StatisticsFilterPeriod::Last12Months === $defaultPeriod) {
                 $query = $request->query->all();
-                $query['period'] = StatisticsFilterPeriod::All->value;
+                $query['period'] = StatisticsFilterPeriod::Last12Months->value;
 
                 return $this->redirectToRoute('app_stats_dashboard', $query);
             }

@@ -6,6 +6,7 @@
     <div class="container-xl">
         <twig:Breadcrumbs
             :items="[
+                { label: 'link.tools', label_domain: 'shared', path: path('app_tools_index') },
                 { label: 'title.export.allocations' }
             ]"
         />
@@ -24,30 +25,28 @@
 {% endblock %}
 
 {% block page_content %}
-    <div class="container-xl">
-        <div class="card">
-            <div class="card-body">
-                {{ form_start(form, {
-                    action: path('app_hospitals_export_allocations_estimate'),
-                    method: 'POST',
-                    attr: {
-                        id: 'export-allocations-form',
-                        'data-turbo-frame': 'export-estimate',
-                    },
-                }) }}
-                    {{ include('@Allocation/export/_export_allocation_filters.html.twig') }}
-                {{ form_end(form) }}
-            </div>
-            <div class="card-footer d-flex align-items-center gap-2">
-                <button type="submit"
-                        class="btn btn-primary flex-shrink-0 d-inline-flex align-items-center gap-1"
-                        form="export-allocations-form"
-                        data-testid="export-allocations-prepare">
-                    <twig:ux:icon name="tabler:calculator" style="height: 1.1em;" aria-hidden="true" />
-                    {{ 'action.export.prepare'|trans({}, 'messages') }}
-                </button>
-                {{ include('@Allocation/export/_export_estimate_result.html.twig', {estimate: null, error: false}, false) }}
-            </div>
+    <div class="card">
+        <div class="card-body">
+            {{ form_start(form, {
+                action: path('app_tools_allocation_export_estimate'),
+                method: 'POST',
+                attr: {
+                    id: 'export-allocations-form',
+                    'data-turbo-frame': 'export-estimate',
+                },
+            }) }}
+                {{ include('@Allocation/export/_export_allocation_filters.html.twig') }}
+            {{ form_end(form) }}
+        </div>
+        <div class="card-footer d-flex align-items-center gap-2">
+            <button type="submit"
+                    class="btn btn-primary flex-shrink-0 d-inline-flex align-items-center gap-1"
+                    form="export-allocations-form"
+                    data-testid="export-allocations-prepare">
+                <twig:ux:icon name="tabler:calculator" style="height: 1.1em;" aria-hidden="true" />
+                {{ 'action.export.prepare'|trans({}, 'messages') }}
+            </button>
+            {{ include('@Allocation/export/_export_estimate_result.html.twig', {estimate: null, error: false}, false) }}
         </div>
     </div>
 {% endblock %}

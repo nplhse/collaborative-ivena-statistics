@@ -1,0 +1,34 @@
+{# Case card "Hospital course" on the allocation case file (#1055), contributed by Encounter; the course comes from its schema (ED visit). #}
+{% set d = 'encounter' %}
+<div class="card" id="encounter-hospital-course" data-testid="encounter-hospital-course">
+    <div class="card-header">
+        <h3 class="card-title mb-0">{{ 'encounter.course.title'|trans({}, d) }}</h3>
+        <div class="card-actions">
+            <span class="badge bg-azure-lt">{{ 'encounter.course.beta'|trans({}, d) }}</span>
+        </div>
+    </div>
+    {% if course is null %}
+        {% if record_sections is empty %}
+            <div class="card-body" data-testid="encounter-hospital-course-none">
+                <p class="text-secondary mb-0">{{ 'encounter.course.no_link'|trans({}, d) }}</p>
+            </div>
+        {% endif %}
+    {% else %}
+        {{ include(course.template, course.context) }}
+    {% endif %}
+    {# Records of other encounter schemas at the allocation's encounter (ADR 037), also without ED visit. #}
+    {% for section in record_sections %}
+        <div class="card-body{{ course is not null or not loop.first ? ' border-top' }}" data-record-section="{{ section.key }}">
+            {{ include(section.template, section.context) }}
+        </div>
+    {% endfor %}
+    {% if can_unassign|default(false) %}
+        <div class="card-footer d-flex flex-wrap align-items-center gap-2" data-testid="encounter-course-unassign">
+            <span class="text-secondary small">{{ 'encounter.course.unassign.hint'|trans({}, d) }}</span>
+            <form method="post" action="{{ path('app_explore_allocation_encounter_unassign', {publicId: allocation_public_id}) }}" class="ms-auto">
+                <input type="hidden" name="_token" value="{{ csrf_token('encounter_unassign_' ~ allocation_id) }}">
+                <button type="submit" class="btn btn-sm btn-outline-danger">{{ 'encounter.course.unassign.action'|trans({}, d) }}</button>
+            </form>
+        </div>
+    {% endif %}
+</div>

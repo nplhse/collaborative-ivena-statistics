@@ -9,7 +9,6 @@ use App\Statistics\Domain\Entity\SavedExplorerView;
 use App\User\Domain\Entity\User;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Uid\Uuid;
 
 final class ExplorerViewAuthorPresenterTest extends TestCase
 {
@@ -17,9 +16,9 @@ final class ExplorerViewAuthorPresenterTest extends TestCase
     {
         $presenter = $this->presenter();
 
-        self::assertSame(['name' => null, 'url' => null], $presenter->present(null));
+        self::assertSame(['name' => null, 'displayName' => null, 'userId' => null, 'url' => null], $presenter->present(null));
         self::assertSame(
-            ['name' => null, 'url' => null],
+            ['name' => null, 'displayName' => null, 'userId' => null, 'url' => null],
             $presenter->present(new SavedExplorerView('allocations-over-time', 'System', 'Allocations', [], null, true)),
         );
     }
@@ -31,43 +30,26 @@ final class ExplorerViewAuthorPresenterTest extends TestCase
         $withoutUsername = new SavedExplorerView(null, 'Nameless', 'My views', []);
         $withoutUsername->setCreatedBy(new User());
 
-        self::assertSame(['name' => null, 'url' => null], $presenter->present($withoutCreator));
-        self::assertSame(['name' => null, 'url' => null], $presenter->present($withoutUsername));
+        self::assertSame(['name' => null, 'displayName' => null, 'userId' => null, 'url' => null], $presenter->present($withoutCreator));
+        self::assertSame(['name' => null, 'displayName' => null, 'userId' => null, 'url' => null], $presenter->present($withoutUsername));
     }
 
     public function testLinksANamedCreatorToTheirProfile(): void
     {
-        $publicId = Uuid::v4();
         $user = new User();
         $user->setUsername('ada');
-        $user->setPublicId($publicId);
+        $user->setDisplayName('Ada Lovelace');
         $view = new SavedExplorerView(null, 'Shared', 'My views', []);
         $view->setCreatedBy($user);
 
         $urls = $this->createMock(UrlGeneratorInterface::class);
         $urls->expects(self::once())
             ->method('generate')
-            ->with('app_explore_user_show', ['publicId' => $publicId->toRfc4122()])
-            ->willReturn('/explore/users/'.$publicId->toRfc4122());
+            ->with('app_explore_user_show', ['username' => 'ada'])
+            ->willReturn('/explore/user/ada');
 
         self::assertSame(
-            ['name' => 'ada', 'url' => '/explore/users/'.$publicId->toRfc4122()],
-            new ExplorerViewAuthorPresenter($urls)->present($view),
-        );
-    }
-
-    public function testKeepsTheNameWhenTheCreatorHasNoPublicId(): void
-    {
-        $user = new User();
-        $user->setUsername('ada');
-        $view = new SavedExplorerView(null, 'Shared', 'My views', []);
-        $view->setCreatedBy($user);
-
-        $urls = $this->createMock(UrlGeneratorInterface::class);
-        $urls->expects(self::never())->method('generate');
-
-        self::assertSame(
-            ['name' => 'ada', 'url' => null],
+            ['name' => 'ada', 'displayName' => 'Ada Lovelace', 'userId' => null, 'url' => '/explore/user/ada'],
             new ExplorerViewAuthorPresenter($urls)->present($view),
         );
     }

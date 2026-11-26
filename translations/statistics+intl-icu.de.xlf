@@ -41,9 +41,13 @@
         <source>statistics.distribution.age.over_80</source>
         <target>80 und älter</target>
       </trans-unit>
+      <trans-unit id="statsAgeAdults" resname="statistics.distribution.age.adults">
+        <source>statistics.distribution.age.adults</source>
+        <target>Erwachsene (ab 18)</target>
+      </trans-unit>
       <trans-unit id="KtY8Hdy" resname="statistics.distribution.age.under_18">
         <source>statistics.distribution.age.under_18</source>
-        <target>Unter 18</target>
+        <target>Kinder &amp; Jugendliche (unter 18)</target>
       </trans-unit>
       <trans-unit id="De2c576d9f" resname="statistics.distribution.age.unknown">
         <source>statistics.distribution.age.unknown</source>
@@ -1645,6 +1649,10 @@
         <source>stats.analysis_explorer.metric.percent_of_total</source>
         <target>Anteil am Gesamt</target>
       </trans-unit>
+      <trans-unit id="statsAexM01b" resname="stats.analysis_explorer.metric.percent_of_series">
+        <source>stats.analysis_explorer.metric.percent_of_series</source>
+        <target>Anteil innerhalb der Gruppe</target>
+      </trans-unit>
       <trans-unit id="statsAexM07" resname="stats.analysis_explorer.metric.pregnancy_rate">
         <source>stats.analysis_explorer.metric.pregnancy_rate</source>
         <target>Schwangerschaftsrate</target>
@@ -2417,6 +2425,10 @@
         <source>stats.benchmark.kpi.ratio</source>
         <target>Verhältnis</target>
       </trans-unit>
+      <trans-unit id="statsBm23rDe" resname="stats.benchmark.kpi.ratio_unavailable">
+        <source>stats.benchmark.kpi.ratio_unavailable</source>
+        <target>Verhältnis nicht berechenbar: Vergleichswert ist 0</target>
+      </trans-unit>
       <trans-unit id="De24d32e35" resname="stats.benchmark.metric.age_80_plus">
         <source>stats.benchmark.metric.age_80_plus</source>
         <target>Anteil ab 80 Jahren</target>
@@ -2735,7 +2747,7 @@
       </trans-unit>
       <trans-unit id="De06abf92a" resname="stats.case_flow.section.map">
         <source>stats.case_flow.section.map</source>
-        <target>Leitstellenkarte Hessen</target>
+        <target>Leitstellenkarte</target>
       </trans-unit>
       <trans-unit id="De10f7b020" resname="stats.case_flow.section.origin_distribution">
         <source>stats.case_flow.section.origin_distribution</source>
@@ -2860,6 +2872,10 @@
       <trans-unit id="CdaDe22" resname="stats.closed_department.table.department">
         <source>stats.closed_department.table.department</source>
         <target>Fachbereich</target>
+      </trans-unit>
+      <trans-unit id="statsChartSeriesCasesDe" resname="stats.chart.series.cases">
+        <source>stats.chart.series.cases</source>
+        <target>Fälle</target>
       </trans-unit>
       <trans-unit id="CdaDe23" resname="stats.closed_department.table.count">
         <source>stats.closed_department.table.count</source>
@@ -3261,8 +3277,8 @@
         <source>stats.filter.hospital_label</source>
         <target>Krankenhaus</target>
       </trans-unit>
-      <trans-unit id="De9d5693b1" resname="stats.filter.period.all">
-        <source>stats.filter.period.all</source>
+      <trans-unit id="De9d5693b1" resname="stats.filter.period.last_12_months">
+        <source>stats.filter.period.last_12_months</source>
         <target>Letzte 12 Monate</target>
       </trans-unit>
       <trans-unit id="De1c3d21e5" resname="stats.filter.period.all_time">
@@ -3299,7 +3315,7 @@
       </trans-unit>
       <trans-unit id="De45f6dc1e" resname="stats.filter.scope.cohort_too_small">
         <source>stats.filter.scope.cohort_too_small</source>
-        <target>Die gewählte Kohorte umfasst weniger als 2 teilnehmende Krankenhäuser. Es werden stattdessen alle Zuweisungen angezeigt.</target>
+        <target>Die gewählte Kohorte umfasst weniger als 3 teilnehmende Krankenhäuser. Es werden stattdessen alle Zuweisungen angezeigt.</target>
       </trans-unit>
       <trans-unit id="De6ed671b9" resname="stats.filter.scope.dispatch_area">
         <source>stats.filter.scope.dispatch_area</source>
@@ -3336,6 +3352,10 @@
       <trans-unit id="De470b0b8a" resname="stats.filter.scope.state_invalid">
         <source>stats.filter.scope.state_invalid</source>
         <target>Das gewählte Bundesland hat nicht genügend Krankenhäuser in den Statistikdaten. Es werden stattdessen alle Zuweisungen angezeigt.</target>
+      </trans-unit>
+      <trans-unit id="statsFltAgeHint" resname="stats.filter.age_group.missing_age_hint">
+        <source>stats.filter.age_group.missing_age_hint</source>
+        <target>Fälle ohne erfasstes Alter werden bei Auswahl einer Altersgruppe nicht mitgezählt.</target>
       </trans-unit>
       <trans-unit id="Deb3d8bb5d" resname="stats.filter.scope_label">
         <source>stats.filter.scope_label</source>
@@ -4383,7 +4403,7 @@
       </trans-unit>
       <trans-unit id="De8773fe41" resname="stats.indication.group.picker_empty">
         <source>stats.indication.group.picker_empty</source>
-        <target>Es wurden noch keine Indikationsgruppen eingerichtet. Administratoren können Gruppen im Admin-Bereich anlegen.</target>
+        <target>Es wurden noch keine Indikationsgruppen eingerichtet. Administrator:innen können Gruppen im Admin-Bereich anlegen.</target>
       </trans-unit>
       <trans-unit id="Dee113936d" resname="stats.indication.group.picker_label">
         <source>stats.indication.group.picker_label</source>
@@ -4943,7 +4963,51 @@
       </trans-unit>
       <trans-unit id="De7f52ba1f" resname="stats.overview.kpi.base_short">
         <source>stats.overview.kpi.base_short</source>
-        <target>Basis</target>
+        <target>Vorperiode</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpKpiComparisonPeriodDe" resname="stats.overview.kpi.comparison_period">
+        <source>stats.overview.kpi.comparison_period</source>
+        <target>Vergleichszeitraum: {from} – {to}</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpKpiNoComparisonDe" resname="stats.overview.kpi.no_comparison">
+        <source>stats.overview.kpi.no_comparison</source>
+        <target>Für den gesamten Zeitraum gibt es keinen früheren Zeitraum zum Vergleich.</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpComparisonLast12MonthsDe" resname="stats.overview.comparison.last_12_months">
+        <source>stats.overview.comparison.last_12_months</source>
+        <target>die 12 Monate davor</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpComparisonYearDe" resname="stats.overview.comparison.year">
+        <source>stats.overview.comparison.year</source>
+        <target>das Vorjahr</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpComparisonQuarterDe" resname="stats.overview.comparison.quarter">
+        <source>stats.overview.comparison.quarter</source>
+        <target>das Vorquartal</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpComparisonMonthDe" resname="stats.overview.comparison.month">
+        <source>stats.overview.comparison.month</source>
+        <target>den Vormonat</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpComparisonYearToDateDe" resname="stats.overview.comparison.year_to_date">
+        <source>stats.overview.comparison.year_to_date</source>
+        <target>denselben Zeitraum im Vorjahr</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpComparisonQuarterToDateDe" resname="stats.overview.comparison.quarter_to_date">
+        <source>stats.overview.comparison.quarter_to_date</source>
+        <target>denselben Zeitraum im Vorquartal</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpComparisonMonthToDateDe" resname="stats.overview.comparison.month_to_date">
+        <source>stats.overview.comparison.month_to_date</source>
+        <target>dieselben Tage im Vormonat</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpInsightVolumeTitleDe" resname="stats.overview.insight.volume.title">
+        <source>stats.overview.insight.volume.title</source>
+        <target>Zuweisungsvolumen</target>
+      </trans-unit>
+      <trans-unit id="statsOvCmpInsightVolumeBodyDe" resname="stats.overview.insight.volume.body">
+        <source>stats.overview.insight.volume.body</source>
+        <target>{percent} Zuweisungen bezogen auf {comparison}.</target>
       </trans-unit>
       <trans-unit id="Defc86bd93" resname="stats.overview.kpi.cases_per_day">
         <source>stats.overview.kpi.cases_per_day</source>
@@ -5077,6 +5141,10 @@
         <source>stats.reports.monthly.empty.body</source>
         <target>Für {period} liegen im gewählten Vergleich noch keine Zuweisungsdaten vor.</target>
       </trans-unit>
+      <trans-unit id="A7d9b784a1" resname="stats.reports.monthly.insights.rejection_rate_unfiltered">
+        <source>stats.reports.monthly.insights.rejection_rate_unfiltered</source>
+        <target>Gilt für alle Importzeilen, unabhängig vom Filter.</target>
+      </trans-unit>
       <trans-unit id="Af8b7a092b" resname="stats.reports.monthly.empty.cta_import">
         <source>stats.reports.monthly.empty.cta_import</source>
         <target>Daten hochladen</target>
@@ -5093,9 +5161,13 @@
         <source>stats.reports.monthly.kpi.mom</source>
         <target>ggü. Vormonat</target>
       </trans-unit>
-      <trans-unit id="Ae98dca1ef" resname="stats.reports.monthly.kpi.yoy">
-        <source>stats.reports.monthly.kpi.yoy</source>
-        <target>ggü. Vorjahresmonat</target>
+      <trans-unit id="StatsUnitPpDe1" resname="stats.unit.percentage_points.short">
+        <source>stats.unit.percentage_points.short</source>
+        <target>%-Punkte</target>
+      </trans-unit>
+      <trans-unit id="StatsUnitPpDe2" resname="stats.unit.percentage_points.long">
+        <source>stats.unit.percentage_points.long</source>
+        <target>Prozentpunkte (Differenz zweier Anteile)</target>
       </trans-unit>
       <trans-unit id="Ad20358b7a" resname="stats.reports.monthly.kpi.with_physician">
         <source>stats.reports.monthly.kpi.with_physician</source>
@@ -6345,6 +6417,18 @@
         <source>stats.case_flow.map.chip.beyond_max</source>
         <target>{count, plural, one {# ≥ 50 Min.} other {# ≥ 50 Min.}}</target>
       </trans-unit>
+      <trans-unit id="GeoFlowDe38a" resname="stats.case_flow.map.chip.unshaped">
+        <source>stats.case_flow.map.chip.unshaped</source>
+        <target>{count, plural, one {# Fall ({share, number} %) aus Gebieten ohne Kartenfläche} other {# Fälle ({share, number} %) aus Gebieten ohne Kartenfläche}}</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe38b" resname="stats.case_flow.map.chip.unshaped_suppressed">
+        <source>stats.case_flow.map.chip.unshaped_suppressed</source>
+        <target>Weniger als {min, number} Fälle aus Gebieten ohne Kartenfläche</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe38c" resname="stats.case_flow.map.chip.unshaped_hint">
+        <source>stats.case_flow.map.chip.unshaped_hint</source>
+        <target>Diese Fälle zählen bei den Anteilen mit, haben aber keine Fläche auf der Karte. Die sichtbaren Anteile ergeben deshalb weniger als 100 %.</target>
+      </trans-unit>
       <trans-unit id="GeoSegDe01" resname="stats.case_flow.segment.title">
         <source>stats.case_flow.segment.title</source>
         <target>Geografisches Segmentprofil</target>
@@ -7516,6 +7600,266 @@
       <trans-unit id="statsClosureCoverage09" resname="stats.closure.coverage.no_gaps"><source>stats.closure.coverage.no_gaps</source><target>Keine Lücken zwischen den Importen.</target></trans-unit>
       <trans-unit id="statsClosureCoverage10" resname="stats.closure.coverage.gaps"><source>stats.closure.coverage.gaps</source><target>{count, plural, one {# Lücke} other {# Lücken}}</target></trans-unit>
       <trans-unit id="statsClosureCoverage11" resname="stats.closure.coverage.gap_days"><source>stats.closure.coverage.gap_days</source><target>{count, plural, one {# Tag} other {# Tage}}</target></trans-unit>
+      <trans-unit id="statsEnce745af45" resname="stats.encounter.coverage.visits">
+        <source>stats.encounter.coverage.visits</source>
+        <target>Besuche</target>
+      </trans-unit>
+      <trans-unit id="statsEncc1585a2c" resname="stats.encounter.coverage.days">
+        <source>stats.encounter.coverage.days</source>
+        <target>Tage mit Besuchen</target>
+      </trans-unit>
+      <trans-unit id="statsEnc6da22cae" resname="stats.encounter.coverage.imports">
+        <source>stats.encounter.coverage.imports</source>
+        <target>Importe</target>
+      </trans-unit>
+      <trans-unit id="statsEnc746920d9" resname="stats.encounter.coverage.range">
+        <source>stats.encounter.coverage.range</source>
+        <target>Erster – letzter Besuch</target>
+      </trans-unit>
+      <trans-unit id="statsEnc84cd29d5" resname="stats.encounter.empty">
+        <source>stats.encounter.empty</source>
+        <target>Keine Besuche in diesem Zeitraum.</target>
+      </trans-unit>
+      <trans-unit id="statsEnc94300e15" resname="stats.encounter.total">
+        <source>stats.encounter.total</source>
+        <target>Gesamt</target>
+      </trans-unit>
+      <trans-unit id="statsEnc581d7b14" resname="stats.encounter.not_documented">
+        <source>stats.encounter.not_documented</source>
+        <target>Nicht dokumentiert</target>
+      </trans-unit>
+      <trans-unit id="statsEnc27bc9f25" resname="stats.encounter.route_link.title">
+        <source>stats.encounter.route_link.title</source>
+        <target>Ankunftsart und IVENA-Verknüpfung</target>
+      </trans-unit>
+      <trans-unit id="statsEnc9955c799" resname="stats.encounter.route_link.bonus_decided">
+        <source>stats.encounter.route_link.bonus_decided</source>
+        <target>davon durch den Plausibilitätsbonus entschieden</target>
+      </trans-unit>
+      <trans-unit id="statsEnc399b8a87" resname="stats.encounter.column.arrival_route">
+        <source>stats.encounter.column.arrival_route</source>
+        <target>Ankunftsart</target>
+      </trans-unit>
+      <trans-unit id="statsEnc1178e4d4" resname="stats.encounter.column.visits">
+        <source>stats.encounter.column.visits</source>
+        <target>Besuche</target>
+      </trans-unit>
+      <trans-unit id="statsEnc0ccecc16" resname="stats.encounter.column.share">
+        <source>stats.encounter.column.share</source>
+        <target>Anteil</target>
+      </trans-unit>
+      <trans-unit id="statsEnce909d361" resname="stats.encounter.mts.categories">
+        <source>stats.encounter.mts.categories</source>
+        <target>MTS-Kategorien</target>
+      </trans-unit>
+      <trans-unit id="statsEnc220ce29f" resname="stats.encounter.mts.diagrams">
+        <source>stats.encounter.mts.diagrams</source>
+        <target>Top {top, number} Präsentationen (MTS-Diagramme)</target>
+      </trans-unit>
+      <trans-unit id="statsEnc3e8e22da" resname="stats.encounter.mts.other_diagrams">
+        <source>stats.encounter.mts.other_diagrams</source>
+        <target>Weitere Diagramme</target>
+      </trans-unit>
+      <trans-unit id="statsEncd06aff0c" resname="stats.encounter.process.title">
+        <source>stats.encounter.process.title</source>
+        <target>Prozesszeiten</target>
+      </trans-unit>
+      <trans-unit id="statsEnc11d09eb6" resname="stats.encounter.process.interval">
+        <source>stats.encounter.process.interval</source>
+        <target>Intervall</target>
+      </trans-unit>
+      <trans-unit id="statsEnc75a80866" resname="stats.encounter.process.median">
+        <source>stats.encounter.process.median</source>
+        <target>Median</target>
+      </trans-unit>
+      <trans-unit id="statsEnc7e24f58c" resname="stats.encounter.process.iqr">
+        <source>stats.encounter.process.iqr</source>
+        <target>IQR (Q1 – Q3)</target>
+      </trans-unit>
+      <trans-unit id="statsEnc91f2ea44" resname="stats.encounter.process.valid">
+        <source>stats.encounter.process.valid</source>
+        <target>Gezählt</target>
+      </trans-unit>
+      <trans-unit id="statsEnc94dcb238" resname="stats.encounter.process.missing">
+        <source>stats.encounter.process.missing</source>
+        <target>Zeit fehlt</target>
+      </trans-unit>
+      <trans-unit id="statsEncca3302f0" resname="stats.encounter.process.negative">
+        <source>stats.encounter.process.negative</source>
+        <target>Negativ</target>
+      </trans-unit>
+      <trans-unit id="statsEnc7c03b00c" resname="stats.encounter.process.implausible">
+        <source>stats.encounter.process.implausible</source>
+        <target>Über {hours, number} h</target>
+      </trans-unit>
+      <trans-unit id="statsEnc47e96e8c" resname="stats.encounter.process.suppressed">
+        <source>stats.encounter.process.suppressed</source>
+        <target>weniger als {threshold, number} Besuche</target>
+      </trans-unit>
+      <trans-unit id="statsEncd48befc1" resname="stats.encounter.disposition.title">
+        <source>stats.encounter.disposition.title</source>
+        <target>Verbleib</target>
+      </trans-unit>
+      <trans-unit id="statsEnc0c8c93a2" resname="stats.encounter.care_level.title">
+        <source>stats.encounter.care_level.title</source>
+        <target>Versorgungsstufe nach Aufnahme oder Verlegung</target>
+      </trans-unit>
+      <trans-unit id="statsEncdfc19f88" resname="stats.encounter.pretitle">
+        <source>stats.encounter.pretitle</source>
+        <target>Behandlungsdaten (Beta)</target>
+      </trans-unit>
+      <trans-unit id="statsEnc0b5ad20b" resname="stats.encounter.tabs.label">
+        <source>stats.encounter.tabs.label</source>
+        <target>Bereiche der Behandlungsdaten</target>
+      </trans-unit>
+      <trans-unit id="statsEnc95f2e4f9" resname="stats.encounter.tabs.overview">
+        <source>stats.encounter.tabs.overview</source>
+        <target>Übersicht</target>
+      </trans-unit>
+      <trans-unit id="statsEnccce53098" resname="stats.encounter.tabs.process">
+        <source>stats.encounter.tabs.process</source>
+        <target>Prozesszeiten</target>
+      </trans-unit>
+      <trans-unit id="statsEnca02d85d0" resname="stats.encounter.tabs.link">
+        <source>stats.encounter.tabs.link</source>
+        <target>IVENA-Verknüpfung</target>
+      </trans-unit>
+      <trans-unit id="statsEnc83a8cdbe" resname="stats.encounter.tabs.distributions">
+        <source>stats.encounter.tabs.distributions</source>
+        <target>Verteilungen</target>
+      </trans-unit>
+      <trans-unit id="statsEncb4e4d393" resname="stats.encounter.kpi.visits">
+        <source>stats.encounter.kpi.visits</source>
+        <target>Besuche</target>
+      </trans-unit>
+      <trans-unit id="statsEncfd22bfbd" resname="stats.encounter.kpi.physician">
+        <source>stats.encounter.kpi.physician</source>
+        <target>Median Ankunft → Arzt</target>
+      </trans-unit>
+      <trans-unit id="statsEnc05dc8c38" resname="stats.encounter.kpi.length_of_stay">
+        <source>stats.encounter.kpi.length_of_stay</source>
+        <target>Median Verweildauer ZNA</target>
+      </trans-unit>
+      <trans-unit id="statsEnc759cc0e1" resname="stats.encounter.kpi.admitted">
+        <source>stats.encounter.kpi.admitted</source>
+        <target>Stationäre Aufnahme im Haus</target>
+      </trans-unit>
+      <trans-unit id="statsEnccc6c49f0" resname="stats.encounter.kpi.iqr">
+        <source>stats.encounter.kpi.iqr</source>
+        <target>IQR {q1, number} – {q3, number} min</target>
+      </trans-unit>
+      <trans-unit id="statsEncc55f030b" resname="stats.encounter.show_all">
+        <source>stats.encounter.show_all</source>
+        <target>Alle anzeigen</target>
+      </trans-unit>
+      <trans-unit id="statsEnc20967f62" resname="stats.encounter.coverage.title">
+        <source>stats.encounter.coverage.title</source>
+        <target>Datenabdeckung</target>
+      </trans-unit>
+      <trans-unit id="statsEnce111bd86" resname="stats.encounter.coverage.in_period">
+        <source>stats.encounter.coverage.in_period</source>
+        <target>Gewählter Zeitraum</target>
+      </trans-unit>
+      <trans-unit id="statsEnc5db449af" resname="stats.encounter.coverage.all_data">
+        <source>stats.encounter.coverage.all_data</source>
+        <target>Alle gespeicherten Daten</target>
+      </trans-unit>
+      <trans-unit id="statsEncf7545ea4" resname="stats.encounter.heading">
+        <source>stats.encounter.heading</source>
+        <target>Auswertung</target>
+      </trans-unit>
+      <trans-unit id="statsEnc78bada98" resname="stats.encounter.no_access">
+        <source>stats.encounter.no_access</source>
+        <target>Sie dürfen für kein Krankenhaus Behandlungsdaten sehen. Dafür sind eine Behandlungsdaten-Freigabe und die Krankenhausberechtigung „Statistik“ nötig.</target>
+      </trans-unit>
+      <trans-unit id="statsEncc5bacfe7" resname="stats.encounter.kpi.admitted_detail">
+        <source>stats.encounter.kpi.admitted_detail</source>
+        <target>{admitted, number} von {visits, number} Besuchen</target>
+      </trans-unit>
+      <trans-unit id="statsEnc6e8c587b" resname="stats.encounter.time_series.title_day">
+        <source>stats.encounter.time_series.title_day</source>
+        <target>Besuche je Tag</target>
+      </trans-unit>
+      <trans-unit id="statsEnc470299be" resname="stats.encounter.time_series.title_month">
+        <source>stats.encounter.time_series.title_month</source>
+        <target>Besuche je Monat</target>
+      </trans-unit>
+      <trans-unit id="statsEnc07e64cb9" resname="stats.encounter.time_series.empty">
+        <source>stats.encounter.time_series.empty</source>
+        <target>In diesem Zeitraum gibt es noch keinen abgeschlossenen Monat.</target>
+      </trans-unit>
+      <trans-unit id="StatsNav01De" resname="stats.nav.group.allocations">
+        <source>stats.nav.group.allocations</source>
+        <target>Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="StatsNav02De" resname="stats.nav.group.comparisons">
+        <source>stats.nav.group.comparisons</source>
+        <target>Vergleiche</target>
+      </trans-unit>
+      <trans-unit id="StatsNav03De" resname="stats.nav.group.capacity">
+        <source>stats.nav.group.capacity</source>
+        <target>Kapazität &amp; Schließungen</target>
+      </trans-unit>
+      <trans-unit id="StatsNav04De" resname="stats.nav.group.clinical">
+        <source>stats.nav.group.clinical</source>
+        <target>Klinische Daten</target>
+      </trans-unit>
+      <trans-unit id="StatsNav05De" resname="stats.nav.group.own">
+        <source>stats.nav.group.own</source>
+        <target>Eigene Analysen</target>
+      </trans-unit>
+      <trans-unit id="StatsNav06De" resname="stats.nav.insights_dimensions">
+        <source>stats.nav.insights_dimensions</source>
+        <target>Dimensionen</target>
+      </trans-unit>
+      <trans-unit id="StatsNav07De" resname="stats.nav.insights_compare">
+        <source>stats.nav.insights_compare</source>
+        <target>Vergleich</target>
+      </trans-unit>
+      <trans-unit id="StatsNav08De" resname="stats.nav.encounter">
+        <source>stats.nav.encounter</source>
+        <target>Behandlungsdaten</target>
+      </trans-unit>
+      <trans-unit id="StatsNav09De" resname="stats.nav.badge.beta">
+        <source>stats.nav.badge.beta</source>
+        <target>Beta</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefOthersDE" resname="stats.analysis_explorer.reference_comparison.others">
+        <source>stats.analysis_explorer.reference_comparison.others</source>
+        <target>Andere Kliniken im Scope</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefUnavailableDE" resname="stats.analysis_explorer.reference_comparison.unavailable">
+        <source>stats.analysis_explorer.reference_comparison.unavailable</source>
+        <target>Der Vergleich mit Referenzkliniken ist in dieser Ansicht nicht verfügbar.</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefGroupDE" resname="stats.analysis_explorer.reference_comparison.group">
+        <source>stats.analysis_explorer.reference_comparison.group</source>
+        <target>Gruppe</target>
+      </trans-unit>
+      <trans-unit id="statsAeExportPctSeriesDE" resname="stats.analysis_explorer.export.percent_of_series">
+        <source>stats.analysis_explorer.export.percent_of_series</source>
+        <target>Anteil innerhalb der Gruppe</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefEdit0DE" resname="stats.analysis_explorer.edit.reference_hospitals">
+        <source>stats.analysis_explorer.edit.reference_hospitals</source>
+        <target>Referenzkliniken</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefEdit1DE" resname="stats.analysis_explorer.edit.reference_hospitals_help">
+        <source>stats.analysis_explorer.edit.reference_hospitals_help</source>
+        <target>{count, plural, one {Vergleicht Ihre Klinik mit den anderen Kliniken im Scope.} other {Vergleicht bis zu {max} Ihrer Kliniken mit den anderen Kliniken im Scope.}}</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefEdit2DE" resname="stats.analysis_explorer.edit.column_dimension_reference_help">
+        <source>stats.analysis_explorer.edit.column_dimension_reference_help</source>
+        <target>Beim Vergleich mit Referenzkliniken sind keine Spalten verfügbar: Die Gruppen nehmen diesen Platz ein.</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefEdit5DE" resname="stats.analysis_explorer.edit.section.own_hospitals_comparison">
+        <source>stats.analysis_explorer.edit.section.own_hospitals_comparison</source>
+        <target>{count, plural, one {Meine Klinik im Vergleich} other {Meine Kliniken im Vergleich}}</target>
+      </trans-unit>
+      <trans-unit id="statsAeRefEdit3DE" resname="stats.analysis_explorer.edit.section.reference_comparison">
+        <source>stats.analysis_explorer.edit.section.reference_comparison</source>
+        <target>Mit den anderen Kliniken im Scope vergleichen</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

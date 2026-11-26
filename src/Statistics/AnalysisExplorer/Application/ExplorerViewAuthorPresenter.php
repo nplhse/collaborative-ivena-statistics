@@ -7,7 +7,6 @@ namespace App\Statistics\AnalysisExplorer\Application;
 use App\Statistics\Domain\Entity\SavedExplorerView;
 use App\User\Domain\Entity\User;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Uid\Uuid;
 
 final readonly class ExplorerViewAuthorPresenter
 {
@@ -16,32 +15,35 @@ final readonly class ExplorerViewAuthorPresenter
     ) {
     }
 
+    private const array NONE = ['name' => null, 'displayName' => null, 'userId' => null, 'url' => null];
+
     /**
-     * @return array{name: string|null, url: string|null}
+     * name is the username; displayName and userId feed user_display_name() and UserAvatar in the
+     * template, which apply the visibility rule (#1240).
+     *
+     * @return array{name: string|null, displayName: string|null, userId: int|null, url: string|null}
      */
     public function present(?SavedExplorerView $view): array
     {
         if (!$view instanceof SavedExplorerView || $view->isSystem()) {
-            return ['name' => null, 'url' => null];
+            return self::NONE;
         }
 
         $creator = $view->getCreatedBy();
         if (!$creator instanceof User) {
-            return ['name' => null, 'url' => null];
+            return self::NONE;
         }
 
         $name = $creator->getUsername();
         if (null === $name || '' === $name) {
-            return ['name' => null, 'url' => null];
+            return self::NONE;
         }
-
-        $publicId = $creator->getPublicId();
 
         return [
             'name' => $name,
-            'url' => $publicId instanceof Uuid
-                ? $this->urlGenerator->generate('app_explore_user_show', ['publicId' => $publicId->toRfc4122()])
-                : null,
+            'displayName' => $creator->getDisplayName(),
+            'userId' => $creator->getId(),
+            'url' => $this->urlGenerator->generate('app_explore_user_show', ['username' => $name]),
         ];
     }
 }

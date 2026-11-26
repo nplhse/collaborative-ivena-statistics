@@ -18,7 +18,7 @@ final readonly class GetEligibleDispatchAreaIdsQuery
     /**
      * @return list<int>
      */
-    public function __invoke(int $minimumParticipants = 2): array
+    public function __invoke(int $minimumParticipants): array
     {
         $this->materializedViewsInstaller->ensureInstalled();
 
@@ -27,7 +27,7 @@ final readonly class GetEligibleDispatchAreaIdsQuery
             ->from(ProjectionDispatchAreaHospitalCount::class, 'd')
             ->select('d.dispatchAreaId')
             ->andWhere('d.hospitalCount >= :min')
-            ->orderBy('d.dispatchAreaId', 'ASC')
+            ->orderBy('d.dispatchAreaId', \SortDirection::Ascending)
             ->setParameter('min', $minimumParticipants)
             ->getQuery()
             ->getSingleColumnResult();

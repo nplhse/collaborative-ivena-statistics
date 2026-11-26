@@ -88,10 +88,14 @@ final readonly class MonthlyReminderChartBuilder
         return 'monthly_reminder.trend.stable';
     }
 
+    /**
+     * Relative change in percent, or null when it is undefined: a change from 0 has no percentage
+     * (it used to be reported as +100 %).
+     */
     public function percentChange(int $current, int $previous): ?float
     {
         if ($previous <= 0) {
-            return $current > 0 ? 100.0 : null;
+            return null;
         }
 
         return round(((float) ($current - $previous) / (float) $previous) * 100.0, 1);

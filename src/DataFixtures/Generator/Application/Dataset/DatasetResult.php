@@ -26,6 +26,6 @@ final readonly class DatasetResult
 
     public function hasFailures(): bool
     {
-        return array_any($this->run->hospitals ?? [], fn ($hospital): bool => \App\DataFixtures\Generator\Application\Run\GenerationRunHospitalStatus::Failed === $hospital->status);
+        return array_any($this->run->hospitals ?? [], fn (\App\DataFixtures\Generator\Application\Run\GenerationRunHospitalView $hospital): bool => \App\DataFixtures\Generator\Application\Run\GenerationRunHospitalStatus::Failed === $hospital->status);
     }
 }

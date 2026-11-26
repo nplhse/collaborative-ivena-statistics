@@ -24,9 +24,14 @@ return [
     SymfonyCasts\Bundle\VerifyEmail\SymfonyCastsVerifyEmailBundle::class => ['all' => true],
     Symfony\UX\LiveComponent\LiveComponentBundle::class => ['all' => true],
     Sentry\SentryBundle\SentryBundle::class => ['all' => true],
-    Vich\UploaderBundle\VichUploaderBundle::class => ['all' => true],
     DAMA\DoctrineTestBundle\DAMADoctrineTestBundle::class => ['test' => true],
     Nelmio\SecurityBundle\NelmioSecurityBundle::class => ['all' => true],
     Symfony\UX\Pagination\UXPaginationBundle::class => ['all' => true],
     Symfony\UX\Inspector\UXInspectorBundle::class => ['dev' => true],
+    // Test-only encounter schema plugin `inpatient_stay` (ADR 037, #1274).
+    App\Tests\Fixtures\Plugin\InpatientStay\InpatientStayTestBundle::class => ['test' => true],
+    // Encounter schema plugin `ed_visit`: ED visits with MTS (ADR 037, #1300), Composer path package in plugins/ed-visit.
+    Cois\Plugin\EdVisit\EdVisitBundle::class => ['all' => true],
+    // Second factor with an authenticator app (#1357, ADR 040).
+    Scheb\TwoFactorBundle\SchebTwoFactorBundle::class => ['all' => true],
 ];

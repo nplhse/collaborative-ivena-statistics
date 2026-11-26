@@ -7,6 +7,7 @@ namespace App\DataFixtures\Content;
 use App\Content\Domain\Entity\Page;
 use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Domain\Enum\PageKey;
+use App\Content\Domain\Enum\PageType;
 use App\Content\Domain\Enum\PostStatus;
 use App\Content\Infrastructure\Factory\PageFactory;
 use App\Content\Infrastructure\Factory\PostCategoryFactory;
@@ -18,6 +19,9 @@ use Symfony\Component\Clock\Clock;
 
 final class DemoContentLoader
 {
+    /** @var array<int, string> path of each help page by object id, to build the paths of its articles */
+    private array $helpPaths = [];
+
     public function load(): void
     {
         $this->loadPages();
@@ -69,7 +73,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
                         'html' => '<p>Use of this platform requires acceptance of the collaborative IVENA statistics participation terms.</p>'
                             .'<h2>Goals</h2><ul>'
                             .'<li>Operate a shared platform for emergency care research based on IVENA allocation data.</li>'
-                            .'<li>Enable benchmarking against anonymised hospital clusters.</li>'
+                            .'<li>Enable benchmarking against aggregated hospital clusters.</li>'
                             .'<li>Support quality assurance within participating hospitals.</li></ul>'
                             .'<h2>Participation</h2><p>Participating hospitals import their own IVENA exports. '
                             .'Direct access to raw database exports is not provided. Competitive comparisons between named competitors are not permitted.</p>',
@@ -78,7 +82,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
             ],
         ]);
 
-        PageFactory::new()->withoutAutorefresh()->create([
+        $about = $this->createPage([
             'title' => 'About us',
             'slug' => 'about-us',
             'path' => '/about-us',
@@ -98,7 +102,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
                     'data' => [
                         'html' => '<p>Emergency medical services are among the largest referrers to emergency departments, yet large-scale analyses of EMS patient characteristics remain rare. '
                             .'Since 2017, the web-based IVENA system has been used to register EMS patients digitally at acute care hospitals across Germany.</p>'
-                            .'<p>Each allocation produces an anonymised dataset with age, urgency, speciality, clinical flags, and requested resources such as resuscitation room or cath lab capacity.</p>',
+                            .'<p>Each allocation produces a pseudonymised dataset without patient names or identifiers, with age, urgency, speciality, clinical flags, and requested resources such as resuscitation room or cath lab capacity.</p>',
                     ],
                 ],
                 [
@@ -202,6 +206,158 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
                 ],
             ],
         ]);
+
+        $this->subpage($about, 'Participating hospitals', 'participating-hospitals', 0, Page::VISIBILITY_AUTHENTICATED,
+            '<p>Hospitals that share their IVENA allocation data with the platform. Visible to signed-in users only.</p>');
+
+        $this->loadGuidePages();
+        $this->loadHelpPages();
+    }
+
+    /**
+     * The help section (#596): start page with search and topics, main topics and articles with headings for the
+     * outline. Some articles have a help key for links from the application.
+     */
+    private function loadHelpPages(): void
+    {
+        $help = $this->createPage([
+            'title' => 'Help',
+            'slug' => 'help',
+            'path' => '/help',
+            'key' => PageKey::Help,
+            'status' => PageTranslation::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+            'sortOrder' => 40,
+            'content' => [
+                ...$this->richtext('<p>Guides and answers for working with Collaborative IVENA Statistics, from your first import to the benchmark charts.</p>'),
+                ['type' => 'help_search', 'enabled' => true, 'data' => []],
+                ['type' => 'help_topics', 'enabled' => true, 'data' => []],
+            ],
+        ]);
+
+        $start = $this->helpArticle($help, 'Getting started', 'getting-started', 0, null,
+            '<p>Everything you need before your first import.</p>', 'tabler:compass');
+        $this->helpArticle($start, 'Creating your account', 'creating-your-account', 0, 'start.account',
+            '<h2>Register</h2><p>Open the registration page, enter your work email address and choose a password. Confirm the email we send you.</p>'
+            .'<h2>Complete your profile</h2><p>Add your name and your role in the emergency department so other participants know who you are.</p>');
+        $this->helpArticle($start, 'Requesting access to your hospital', 'hospital-access', 1, 'start.hospital_access',
+            '<h2>Send a request</h2><p>Open <strong>My hospitals</strong> and choose <strong>Request hospital assignment</strong>. Pick your hospital and tell us your relation to it.</p>'
+            .'<h2>What happens next</h2><p>An administrator reviews the request and grants access or ownership. You get a notification with the decision.</p>');
+
+        $import = $this->helpArticle($help, 'Importing data', 'importing-data', 1, null,
+            '<p>How IVENA exports become statistics.</p>', 'tabler:file-import');
+        $this->helpArticle($import, 'Preparing the IVENA export', 'preparing-the-export', 0, 'import.export',
+            '<h2>Choose the period</h2><p>Export one quarter at a time; larger periods may time out in IVENA.</p>'
+            .'<h2>Keep the default columns</h2><p>The import expects the default column set of the IVENA allocation export as a CSV file.</p>');
+        $this->helpArticle($import, 'Understanding rejected rows', 'rejected-rows', 1, 'import.rejects',
+            '<h2>Why rows are rejected</h2><p>Rows that fail the plausibility checks are rejected, for example a missing arrival time or an unknown department code.</p>'
+            .'<h2>Fixing rejected rows</h2><p>Correct the rows in IVENA and import the file again. The import report lists every rejected row with its reason.</p>',
+            readMore: ['/help/importing-data/preparing-the-export', '/help/statistics/analysis-explorer']);
+
+        $statistics = $this->helpArticle($help, 'Statistics and benchmarking', 'statistics', 2, null,
+            '<p>Explore your allocations and compare them with aggregated peer groups.</p>', 'tabler:chart-bar');
+        $this->helpArticle($statistics, 'Using the analysis explorer', 'analysis-explorer', 0, 'statistics.explorer',
+            '<h2>Filters and scope</h2><p>Choose the period, the hospitals and the dimension you want to analyse. Saved views keep your settings.</p>'
+            .'<h2>Reading the results</h2><p>Tables and charts show counts and shares; missing values are listed separately.</p>');
+        $this->helpArticle($statistics, 'Reading the benchmark charts', 'benchmark-charts', 1, 'statistics.benchmarks',
+            '<h2>Comparison groups</h2><p>Each chart shows your hospital next to the median of its comparison group by state, dispatch area or cohort.</p>');
+    }
+
+    /**
+     * @param list<string> $readMore paths for a "Learn more" block at the end (#1590)
+     */
+    private function helpArticle(Page $parent, string $title, string $slug, int $sortOrder, ?string $helpKey, string $html, ?string $icon = null, array $readMore = []): Page
+    {
+        $parentPath = $this->helpPaths[spl_object_id($parent)] ?? '/help';
+        $path = $parentPath.'/'.$slug;
+
+        $article = $this->createPage([
+            'title' => $title,
+            'slug' => $slug,
+            'path' => $path,
+            'parent' => $parent,
+            'type' => PageType::Help,
+            'helpKey' => $helpKey,
+            'icon' => $icon,
+            'status' => PageTranslation::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+            'sortOrder' => $sortOrder,
+            'content' => [] === $readMore ? $this->richtext($html) : [...$this->richtext($html), [
+                'type' => 'read_more',
+                'enabled' => true,
+                'data' => ['items' => array_map(static fn (string $url): array => ['linkUrl' => $url], $readMore)],
+            ]],
+        ]);
+        $this->helpPaths[spl_object_id($article)] = $path;
+
+        return $article;
+    }
+
+    /**
+     * A nested user guide, so the page navigation shows several levels.
+     */
+    private function loadGuidePages(): void
+    {
+        $guide = $this->createPage([
+            'title' => 'User guide',
+            'slug' => 'guide',
+            'path' => '/guide',
+            'status' => PageTranslation::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+            'sortOrder' => 30,
+            'content' => $this->richtext('<p>How to work with Collaborative IVENA Statistics, from the first import to the benchmark charts.</p>'),
+        ]);
+
+        $this->subpage($guide, 'Getting started', 'getting-started', 0, Page::VISIBILITY_PUBLIC,
+            '<p>Request an account, ask your hospital owner for access, and open the statistics dashboard.</p>');
+
+        $import = $this->subpage($guide, 'Importing data', 'importing-data', 1, Page::VISIBILITY_PUBLIC,
+            '<p>Upload IVENA allocation exports as CSV files and follow their processing on the import page.</p>');
+        $this->subpage($import, 'Preparing the IVENA export', 'preparing-the-export', 0, Page::VISIBILITY_PUBLIC,
+            '<p>Export one quarter at a time and keep the default column set of the IVENA allocation export.</p>');
+        $rejects = $this->subpage($import, 'Handling rejected rows', 'rejected-rows', 1, Page::VISIBILITY_PUBLIC,
+            '<p>Rows that fail the plausibility checks are listed in the import report. Fix them in IVENA and import the file again.</p>');
+        $this->subpage($rejects, 'Common rejection reasons', 'rejection-reasons', 0, Page::VISIBILITY_PUBLIC,
+            '<p>Missing arrival time, unknown department code, or an age outside the plausible range.</p>');
+
+        $statistics = $this->subpage($guide, 'Statistics and benchmarking', 'statistics', 2, Page::VISIBILITY_PUBLIC,
+            '<p>Compare your allocations with aggregated peer groups by state, dispatch area or hospital cohort.</p>');
+        $this->subpage($statistics, 'Reading the benchmark charts', 'benchmark-charts', 0, Page::VISIBILITY_AUTHENTICATED,
+            '<p>Each chart shows your hospital next to the median of its comparison group. Visible to signed-in users only.</p>');
+    }
+
+    private function subpage(Page $parent, string $title, string $slug, int $sortOrder, string $visibility, string $html): Page
+    {
+        return $this->createPage([
+            'title' => $title,
+            'slug' => $slug,
+            'parent' => $parent,
+            'status' => PageTranslation::STATUS_PUBLISHED,
+            'visibility' => $visibility,
+            'sortOrder' => $sortOrder,
+            'content' => $this->richtext($html),
+        ]);
+    }
+
+    /**
+     * @param array<string, mixed> $attributes
+     */
+    private function createPage(array $attributes): Page
+    {
+        $page = PageFactory::new()->withoutAutorefresh()->create($attributes);
+        if (!$page instanceof Page) {
+            throw new \LogicException('PageFactory did not create a page.');
+        }
+
+        return $page;
+    }
+
+    /**
+     * @return list<array{type: string, enabled: bool, data: array{html: string}}>
+     */
+    private function richtext(string $html): array
+    {
+        return [['type' => 'richtext', 'enabled' => true, 'data' => ['html' => $html]]];
     }
 
     private function loadBlog(): void
@@ -273,9 +429,9 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
                 'title' => 'There is a particular quiet in cities just before sunrise.',
                 'slug' => 'quiet-in-cities-before-sunrise',
                 'content' => '<p>Benchmarking has been one of the most requested capabilities since the project started. '
-                    .'Hospitals want to understand how their allocation patterns compare to anonymised peer groups without exposing identifiable competitor data.</p>'
+                    .'Hospitals want to understand how their allocation patterns compare to aggregated peer groups without exposing identifiable competitor data.</p>'
                     .'<p>The new statistics explorer adds configurable analyses with saved scopes, filters for urgency and speciality, and first benchmarking views that compare a hospital against size-based clusters.</p>'
-                    .'<p>All comparisons remain aggregated and anonymised. Named hospitals outside a user\'s own organisation are never shown side by side in a competitive layout.</p>'
+                    .'<p>Benchmarks compare a hospital with aggregated peer groups. Explore still shows individual pseudonymised allocations of all participating hospitals, and a named reference hospital appears only where its owner has granted benchmarking access.</p>'
                     .'<p>Early testers used the explorer to review seasonal shifts in paediatric transfers and to monitor how often specific clinical flags appear in high-urgency cases. '
                     .'Those workflows informed default chart presets and the layout of the filter panel.</p>'
                     .'<p>We plan to extend benchmarking with additional cluster dimensions and export options for research working groups. '
@@ -291,7 +447,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
                 'slug' => 'old-map-folded-in-coat-pocket',
                 'content' => '<p>In early 2021, members of a regional emergency medicine working group began discussing how rarely EMS allocation data is analysed at scale. '
                     .'Individual hospitals held rich IVENA exports, but there was no infrastructure to combine them responsibly for collaborative research.</p>'
-                    .'<p>The idea behind Collaborative IVENA Statistics grew out of those conversations: a shared platform where participating hospitals retain control over their own data while contributing to anonymised aggregate analyses.</p>'
+                    .'<p>The idea behind Collaborative IVENA Statistics grew out of those conversations: a shared platform where participating hospitals retain control over their own data while contributing to shared aggregate analyses.</p>'
                     .'<p>Initial prototypes focused on import mechanics and reference data alignment across sites with different IVENA configuration histories. '
                     .'Even simple questions, such as comparing urgency distributions between urban and rural catchment areas, required substantial normalisation work.</p>'
                     .'<p>Today the project spans multiple hospitals and continues to be shaped by clinicians, coordinators, and data staff who use the platform in parallel with their daily operations.</p>'

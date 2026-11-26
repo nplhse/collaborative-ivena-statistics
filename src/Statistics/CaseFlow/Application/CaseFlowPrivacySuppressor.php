@@ -7,6 +7,7 @@ namespace App\Statistics\CaseFlow\Application;
 use App\Statistics\CaseFlow\Application\DTO\CaseFlowDestinationPoolSlice;
 use App\Statistics\CaseFlow\Application\DTO\CaseFlowMapFeature;
 use App\Statistics\CaseFlow\Application\DTO\CaseFlowOriginSlice;
+use App\Statistics\CaseFlow\Application\DTO\CaseFlowUnshapedOrigins;
 use App\Statistics\CaseFlow\Infrastructure\Query\Dto\CaseFlowDestinationPoolRow;
 use App\Statistics\CaseFlow\Infrastructure\Query\Dto\CaseFlowOriginRow;
 use App\Statistics\GeographicMap\Application\DTO\GeographicHospitalPin;
@@ -93,6 +94,46 @@ final class CaseFlowPrivacySuppressor
         }
 
         return $features;
+    }
+
+    /**
+     * Sums the cases of origins without a map polygon. They stay in the share denominator of the map features,
+     * so this is the part of 100 % that the map cannot draw. No origin is named; a total below
+     * MIN_CASES_PER_CELL is reported as suppressed without count or share.
+     *
+     * @param list<CaseFlowOriginRow>       $rows           same rows and total as buildMapFeatures()
+     * @param callable(int, string): string $geoKeyResolver
+     * @param callable(string): bool        $hasMapShape
+     */
+    public function summarizeUnshapedOrigins(
+        array $rows,
+        int $totalCases,
+        callable $geoKeyResolver,
+        callable $hasMapShape,
+    ): CaseFlowUnshapedOrigins {
+        if ($totalCases <= 0) {
+            return new CaseFlowUnshapedOrigins();
+        }
+
+        $caseCount = 0;
+        foreach ($rows as $row) {
+            if (!$hasMapShape($geoKeyResolver($row->dispatchAreaId, $row->originName))) {
+                $caseCount += $row->caseCount;
+            }
+        }
+
+        if (0 === $caseCount) {
+            return new CaseFlowUnshapedOrigins();
+        }
+
+        if ($caseCount < CaseFlowPrivacyPolicy::MIN_CASES_PER_CELL) {
+            return new CaseFlowUnshapedOrigins(suppressed: true);
+        }
+
+        return new CaseFlowUnshapedOrigins(
+            $caseCount,
+            round(((float) $caseCount / (float) $totalCases) * 100.0, 1),
+        );
     }
 
     /**

@@ -17,7 +17,8 @@ final class BadgeComponentTest extends KernelTestCase
             'label' => 'Pending',
         ]);
 
-        self::assertStringContainsString('badge bg-secondary-lt text-secondary-lt-fg', $html);
+        self::assertStringContainsString('badge bg-secondary-lt', $html);
+        self::assertStringNotContainsString('-lt-fg', $html);
         self::assertStringContainsString('Pending', $html);
     }
 
@@ -35,7 +36,7 @@ final class BadgeComponentTest extends KernelTestCase
 
         $html = (string) $rendered;
 
-        self::assertStringContainsString('badge bg-green-lt text-green-lt-fg', $html);
+        self::assertStringContainsString('badge bg-green-lt', $html);
         self::assertStringContainsString('text-nowrap', $html);
         self::assertStringContainsString('You', $html);
         self::assertStringNotContainsString('Pending', $html);
@@ -52,7 +53,7 @@ final class BadgeComponentTest extends KernelTestCase
             'label' => 'Other',
         ]);
 
-        self::assertStringContainsString('badge bg-secondary-lt text-secondary-lt-fg', $html);
+        self::assertStringContainsString('badge bg-secondary-lt', $html);
         self::assertStringNotContainsString('bg-notice-lt', $html);
         self::assertStringContainsString('Other', $html);
     }

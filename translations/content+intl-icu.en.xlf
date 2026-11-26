@@ -13,14 +13,6 @@
         <source>dashboard.next_steps.hospitals.owned.description</source>
         <target>Review participating hospitals and jump into their latest allocation details.</target>
       </trans-unit>
-      <trans-unit id="dshNxtHospAllTit" resname="dashboard.next_steps.hospitals.all.title">
-        <source>dashboard.next_steps.hospitals.all.title</source>
-        <target>View all Hospitals</target>
-      </trans-unit>
-      <trans-unit id="dshNxtHospAllDesc" resname="dashboard.next_steps.hospitals.all.description">
-        <source>dashboard.next_steps.hospitals.all.description</source>
-        <target>Browse the full hospital directory and discover participating facilities.</target>
-      </trans-unit>
       <trans-unit id="dshNxtExplTit" resname="dashboard.next_steps.explore.title">
         <source>dashboard.next_steps.explore.title</source>
         <target>Explore our Data</target>
@@ -101,14 +93,6 @@
         <source>dashboard.participant_access.contact_feedback</source>
         <target>Send a message via feedback</target>
       </trans-unit>
-      <trans-unit id="dshPgTit" resname="dashboard.pages.card_title">
-        <source>dashboard.pages.card_title</source>
-        <target>Pages</target>
-      </trans-unit>
-      <trans-unit id="dshPgEmp" resname="dashboard.pages.empty">
-        <source>dashboard.pages.empty</source>
-        <target>No pages available.</target>
-      </trans-unit>
       <trans-unit id="dshBlgTit" resname="dashboard.blog.recent_title">
         <source>dashboard.blog.recent_title</source>
         <target>Latest blog posts</target>
@@ -183,7 +167,7 @@
       </trans-unit>
       <trans-unit id="aJrjagd" resname="public.home.about.p2">
         <source>public.home.about.p2</source>
-        <target>For every allocation, an anonymized dataset is created and stored, including variables such as age, sex, coded suspected diagnosis, urgency, assignment pathway, physician accompaniment, CPR, ventilation, infection status, pregnancy, and requested resources like resuscitation room or cath lab.</target>
+        <target>For every allocation, a pseudonymized dataset without patient names or identifiers is created and stored, including variables such as age, sex, coded suspected diagnosis, urgency, assignment pathway, physician accompaniment, CPR, ventilation, infection status, pregnancy, and requested resources like resuscitation room or cath lab.</target>
       </trans-unit>
       <trans-unit id="DF5.wOi" resname="public.home.about.p3">
         <source>public.home.about.p3</source>
@@ -251,7 +235,7 @@
       </trans-unit>
       <trans-unit id=".YOlX__" resname="public.home.features.detail.statistics.text">
         <source>public.home.features.detail.statistics.text</source>
-        <target>Create focused analyses for specific research questions and compare institutional patterns with anonymized clusters.</target>
+        <target>Create focused analyses for specific research questions and compare institutional patterns with aggregated comparison groups.</target>
       </trans-unit>
       <trans-unit id="VF9iPLp" resname="public.home.features.detail.statistics.title">
         <source>public.home.features.detail.statistics.title</source>
@@ -275,7 +259,7 @@
       </trans-unit>
       <trans-unit id="o35EWat" resname="public.home.hero.preview_text">
         <source>public.home.hero.preview_text</source>
-        <target>Participating hospitals can combine IVENA allocation data, run shared analyses, and compare anonymized benchmarks in one place.</target>
+        <target>Participating hospitals can combine IVENA allocation data, run shared analyses, and compare aggregated benchmarks in one place.</target>
       </trans-unit>
       <trans-unit id="EFn3O.C" resname="public.home.hero.preview_title">
         <source>public.home.hero.preview_title</source>
@@ -315,15 +299,15 @@
       </trans-unit>
       <trans-unit id="HpScrn01" resname="public.home.screenshots.analytics.alt">
         <source>public.home.screenshots.analytics.alt</source>
-        <target>Custom analytics view showing gender distribution by urgency with analysis options</target>
+        <target>Analysis explorer with the monthly allocations of one year</target>
       </trans-unit>
       <trans-unit id="HpScrn01c" resname="public.home.screenshots.analytics.caption">
         <source>public.home.screenshots.analytics.caption</source>
-        <target>Customize analyses by urgency, gender and other clinical dimensions.</target>
+        <target>Build your own analyses from rows, columns and metrics.</target>
       </trans-unit>
       <trans-unit id="HpScrn02" resname="public.home.screenshots.benchmarking.alt">
         <source>public.home.screenshots.benchmarking.alt</source>
-        <target>Benchmarking view comparing primary and comparison cohorts across key metrics</target>
+        <target>Benchmarking: your own hospitals compared with a comparison group in the same year</target>
       </trans-unit>
       <trans-unit id="HpScrn02c" resname="public.home.screenshots.benchmarking.caption">
         <source>public.home.screenshots.benchmarking.caption</source>
@@ -335,19 +319,19 @@
       </trans-unit>
       <trans-unit id="HpScrn04" resname="public.home.screenshots.dashboard.alt">
         <source>public.home.screenshots.dashboard.alt</source>
-        <target>Statistics overview dashboard with allocation trends and clinical distributions</target>
+        <target>Statistics overview with key figures, distributions and two years of allocations over time</target>
       </trans-unit>
       <trans-unit id="HpScrn04c" resname="public.home.screenshots.dashboard.caption">
         <source>public.home.screenshots.dashboard.caption</source>
         <target>Shared overview of allocations, trends and clinical distributions across the network.</target>
       </trans-unit>
-      <trans-unit id="HpScrn05" resname="public.home.screenshots.indication_insights.alt">
-        <source>public.home.screenshots.indication_insights.alt</source>
-        <target>Indication profile with cases over time, distribution heatmap and clinical features</target>
+      <trans-unit id="HpScrn05" resname="public.home.screenshots.closure_analysis.alt">
+        <source>public.home.screenshots.closure_analysis.alt</source>
+        <target>Closure analytics with closure time over the year, event types and reasons</target>
       </trans-unit>
-      <trans-unit id="HpScrn05c" resname="public.home.screenshots.indication_insights.caption">
-        <source>public.home.screenshots.indication_insights.caption</source>
-        <target>Explore indication profiles with time trends and case distributions.</target>
+      <trans-unit id="HpScrn05c" resname="public.home.screenshots.closure_analysis.caption">
+        <source>public.home.screenshots.closure_analysis.caption</source>
+        <target>See when and why departments were closed in IVENA.</target>
       </trans-unit>
       <trans-unit id="HpScrn06" resname="public.home.screenshots.next">
         <source>public.home.screenshots.next</source>
@@ -1065,6 +1049,14 @@
         <source>page.toc.title</source>
         <target>On this page</target>
       </trans-unit>
+      <trans-unit id="pageNav001" resname="page.navigation.title">
+        <source>page.navigation.title</source>
+        <target>Pages</target>
+      </trans-unit>
+      <trans-unit id="pageNav002" resname="page.navigation.toggle">
+        <source>page.navigation.toggle</source>
+        <target>Subpages of {title}</target>
+      </trans-unit>
       <trans-unit id="actTitleEn" resname="title.activity">
         <source>title.activity</source>
         <target>Activity</target>
@@ -1144,6 +1136,490 @@
       <trans-unit id="actLoadingEn" resname="activity.timeline.loading">
         <source>activity.timeline.loading</source>
         <target>Loading activity…</target>
+      </trans-unit>
+      <trans-unit id="pgEdit01En" resname="label.accordion_item_title">
+        <source>label.accordion_item_title</source>
+        <target>Item title</target>
+      </trans-unit>
+      <trans-unit id="pgEdit02En" resname="label.accordion_items">
+        <source>label.accordion_items</source>
+        <target>Accordion items</target>
+      </trans-unit>
+      <trans-unit id="pgEdit03En" resname="label.accordion_open_by_default">
+        <source>label.accordion_open_by_default</source>
+        <target>Open by default</target>
+      </trans-unit>
+      <trans-unit id="pgEdit04En" resname="label.button_label">
+        <source>label.button_label</source>
+        <target>Button label</target>
+      </trans-unit>
+      <trans-unit id="pgEdit05En" resname="label.button_url">
+        <source>label.button_url</source>
+        <target>Button URL</target>
+      </trans-unit>
+      <trans-unit id="pgEdit06En" resname="label.html">
+        <source>label.html</source>
+        <target>HTML</target>
+      </trans-unit>
+      <trans-unit id="pgEdit07En" resname="label.open_in_new_tab">
+        <source>label.open_in_new_tab</source>
+        <target>Open in new tab</target>
+      </trans-unit>
+      <trans-unit id="pgEdit08En" resname="label.quote_text">
+        <source>label.quote_text</source>
+        <target>Quote text</target>
+      </trans-unit>
+      <trans-unit id="pgType01En" resname="page.editor.type_change_refused">
+        <source>page.editor.type_change_refused</source>
+        <target>The block type was not changed because content would be lost ({fields}). Change the type in the editor and confirm the loss.</target>
+      </trans-unit>
+      <trans-unit id="pgType02En" resname="page.editor.type_change_confirm">
+        <source>page.editor.type_change_confirm</source>
+        <target>Changing to “{type}” discards content of this block: {fields}. Change anyway?</target>
+      </trans-unit>
+      <trans-unit id="pgType03En" resname="page.editor.accordion_item_fallback">
+        <source>page.editor.accordion_item_fallback</source>
+        <target>Item {number}</target>
+      </trans-unit>
+      <trans-unit id="pgOrder01En" resname="page.editor.block_moved">
+        <source>page.editor.block_moved</source>
+        <target>Block moved to position {position} of {count}.</target>
+      </trans-unit>
+      <trans-unit id="pgDraft01En" resname="page.editor.draft.unsaved">
+        <source>page.editor.draft.unsaved</source>
+        <target>Unsaved changes</target>
+      </trans-unit>
+      <trans-unit id="pgDraft02En" resname="page.editor.draft.saving">
+        <source>page.editor.draft.saving</source>
+        <target>Saving draft …</target>
+      </trans-unit>
+      <trans-unit id="pgDraft03En" resname="page.editor.draft.saved">
+        <source>page.editor.draft.saved</source>
+        <target>Draft saved at {time}. The saved version stays public until “Save changes”.</target>
+      </trans-unit>
+      <trans-unit id="pgDraft04En" resname="page.editor.draft.failed">
+        <source>page.editor.draft.failed</source>
+        <target>The draft could not be saved. Your input stays in the editor.</target>
+      </trans-unit>
+      <trans-unit id="pgDraft05En" resname="page.editor.draft.retry">
+        <source>page.editor.draft.retry</source>
+        <target>Retry</target>
+      </trans-unit>
+      <trans-unit id="pgDraft06En" resname="page.editor.draft.conflict">
+        <source>page.editor.draft.conflict</source>
+        <target>The draft was changed, saved or discarded elsewhere in the meantime. Reload the page to see the current state.</target>
+      </trans-unit>
+      <trans-unit id="pgDraft07En" resname="page.editor.draft.restored">
+        <source>page.editor.draft.restored</source>
+        <target>Unsaved draft from {time} restored. The saved version stays public until “Save changes”.</target>
+      </trans-unit>
+      <trans-unit id="pgDraft08En" resname="page.editor.draft.discard">
+        <source>page.editor.draft.discard</source>
+        <target>Discard draft</target>
+      </trans-unit>
+      <trans-unit id="pgDraft09En" resname="page.editor.draft.discard_confirm">
+        <source>page.editor.draft.discard_confirm</source>
+        <target>Discard the draft and return to the saved version?</target>
+      </trans-unit>
+      <trans-unit id="pgDraft10En" resname="page.editor.draft.leave_warning">
+        <source>page.editor.draft.leave_warning</source>
+        <target>There are changes that have not been saved yet.</target>
+      </trans-unit>
+      <trans-unit id="pgDraftBadgeEn" resname="page.editor.draft.badge">
+        <source>page.editor.draft.badge</source>
+        <target>Unsaved draft</target>
+      </trans-unit>
+      <trans-unit id="actHospEmptyEn" resname="activity.hospital.empty">
+        <source>activity.hospital.empty</source>
+        <target>No activity yet</target>
+      </trans-unit>
+      <trans-unit id="actHospEmptyDescEn" resname="activity.hospital.empty_description">
+        <source>activity.hospital.empty_description</source>
+        <target>Changes to access and ownership of this hospital and import milestones appear here.</target>
+      </trans-unit>
+      <trans-unit id="reactNotifUnavailEn" resname="reaction.notification.unavailable">
+        <source>reaction.notification.unavailable</source>
+        <target>This content is no longer available.</target>
+      </trans-unit>
+      <trans-unit id="reactTypeLike" resname="reaction.type.like">
+        <source>reaction.type.like</source>
+        <target>Like</target>
+      </trans-unit>
+      <trans-unit id="reactTypeLove" resname="reaction.type.love">
+        <source>reaction.type.love</source>
+        <target>Love</target>
+      </trans-unit>
+      <trans-unit id="reactTypeHooray" resname="reaction.type.hooray">
+        <source>reaction.type.hooray</source>
+        <target>Hooray</target>
+      </trans-unit>
+      <trans-unit id="reactTypeRocket" resname="reaction.type.rocket">
+        <source>reaction.type.rocket</source>
+        <target>Rocket</target>
+      </trans-unit>
+      <trans-unit id="reactTypeInsightful" resname="reaction.type.insightful">
+        <source>reaction.type.insightful</source>
+        <target>Insightful</target>
+      </trans-unit>
+      <trans-unit id="reactTypeEyes" resname="reaction.type.eyes">
+        <source>reaction.type.eyes</source>
+        <target>Eyes</target>
+      </trans-unit>
+      <trans-unit id="reactTypeFunny" resname="reaction.type.funny">
+        <source>reaction.type.funny</source>
+        <target>Funny</target>
+      </trans-unit>
+      <trans-unit id="reactTypeThinking" resname="reaction.type.thinking">
+        <source>reaction.type.thinking</source>
+        <target>Thinking</target>
+      </trans-unit>
+      <trans-unit id="reactAdd" resname="reaction.add">
+        <source>reaction.add</source>
+        <target>Add a reaction</target>
+      </trans-unit>
+      <trans-unit id="reactTooltipNames" resname="reaction.tooltip.names">
+        <source>reaction.tooltip.names</source>
+        <target>{label}: {names}{more, plural, =0 {} one { and # more} other { and # more}}</target>
+      </trans-unit>
+      <trans-unit id="reactTooltipCount" resname="reaction.tooltip.count">
+        <source>reaction.tooltip.count</source>
+        <target>{label}: {count}</target>
+      </trans-unit>
+      <trans-unit id="reactPeopleCountEn" resname="reaction.people">
+        <source>reaction.people</source>
+        <target>{count, plural, one {# person reacted} other {# people reacted}}</target>
+      </trans-unit>
+      <trans-unit id="reactPeopleMoreEn" resname="reaction.people_more">
+        <source>reaction.people_more</source>
+        <target>{count, plural, one {# more person} other {# more people}}</target>
+      </trans-unit>
+      <trans-unit id="help_page_key_help" resname="page.key.help">
+        <source>page.key.help</source>
+        <target>Help</target>
+      </trans-unit>
+      <trans-unit id="help_page_type_page" resname="page.type.page">
+        <source>page.type.page</source>
+        <target>Page</target>
+      </trans-unit>
+      <trans-unit id="help_page_type_help" resname="page.type.help">
+        <source>page.type.help</source>
+        <target>Help article</target>
+      </trans-unit>
+      <trans-unit id="help_label_block_type_help_search" resname="label.block_type.help_search">
+        <source>label.block_type.help_search</source>
+        <target>Help search</target>
+      </trans-unit>
+      <trans-unit id="help_label_block_type_help_topics" resname="label.block_type.help_topics">
+        <source>label.block_type.help_topics</source>
+        <target>Help topics</target>
+      </trans-unit>
+      <trans-unit id="help_label_help_article" resname="label.help_article">
+        <source>label.help_article</source>
+        <target>Help article</target>
+      </trans-unit>
+      <trans-unit id="help_label_help_articles" resname="label.help_articles">
+        <source>label.help_articles</source>
+        <target>Help</target>
+      </trans-unit>
+      <trans-unit id="help_label_help_parent" resname="label.help_parent">
+        <source>label.help_parent</source>
+        <target>Topic</target>
+      </trans-unit>
+      <trans-unit id="help_label_help_key" resname="label.help_key">
+        <source>label.help_key</source>
+        <target>Help key</target>
+      </trans-unit>
+      <trans-unit id="help_label_help_key_help" resname="label.help_key_help">
+        <source>label.help_key_help</source>
+        <target>Optional stable name for links from the application, e.g. import.rejects. Lowercase letters, digits, dots and hyphens.</target>
+      </trans-unit>
+      <trans-unit id="label_page_icon" resname="label.page_icon">
+        <source>label.page_icon</source>
+        <target>Icon</target>
+      </trans-unit>
+      <trans-unit id="label_page_icon_help" resname="label.page_icon_help">
+        <source>label.page_icon_help</source>
+        <target>Optional Tabler icon for topic and subpage cards, e.g. tabler:file-import.</target>
+      </trans-unit>
+      <trans-unit id="help_label_help_feedback" resname="label.help_feedback">
+        <source>label.help_feedback</source>
+        <target>Helpful?</target>
+      </trans-unit>
+      <trans-unit id="help_help_search_label" resname="help.search.label">
+        <source>help.search.label</source>
+        <target>Search the help</target>
+      </trans-unit>
+      <trans-unit id="help_help_search_placeholder" resname="help.search.placeholder">
+        <source>help.search.placeholder</source>
+        <target>Search the help …</target>
+      </trans-unit>
+      <trans-unit id="help_help_search_submit" resname="help.search.submit">
+        <source>help.search.submit</source>
+        <target>Search</target>
+      </trans-unit>
+      <trans-unit id="help_help_search_title" resname="help.search.title">
+        <source>help.search.title</source>
+        <target>Search the help</target>
+      </trans-unit>
+      <trans-unit id="help_help_search_empty_query" resname="help.search.empty_query">
+        <source>help.search.empty_query</source>
+        <target>Enter what you are looking for.</target>
+      </trans-unit>
+      <trans-unit id="help_help_search_no_results" resname="help.search.no_results">
+        <source>help.search.no_results</source>
+        <target>No help articles for “{query}”</target>
+      </trans-unit>
+      <trans-unit id="help_help_search_no_results_hint" resname="help.search.no_results_hint">
+        <source>help.search.no_results_hint</source>
+        <target>Try fewer or other words, or browse the topics.</target>
+      </trans-unit>
+      <trans-unit id="help_help_search_results" resname="help.search.results">
+        <source>help.search.results</source>
+        <target>{count, plural, one {# article} other {# articles}} for “{query}”</target>
+      </trans-unit>
+      <trans-unit id="help_help_topics_all" resname="help.topics.all">
+        <source>help.topics.all</source>
+        <target>All {count} articles</target>
+      </trans-unit>
+      <trans-unit id="help_help_article_pagination" resname="help.article.pagination">
+        <source>help.article.pagination</source>
+        <target>Previous and next article</target>
+      </trans-unit>
+      <trans-unit id="help_help_article_previous" resname="help.article.previous">
+        <source>help.article.previous</source>
+        <target>Previous</target>
+      </trans-unit>
+      <trans-unit id="help_help_article_next" resname="help.article.next">
+        <source>help.article.next</source>
+        <target>Next</target>
+      </trans-unit>
+      <trans-unit id="help_search_terms_label" resname="help.search_terms.label">
+        <source>help.search_terms.label</source>
+        <target>Search hits for “{query}”</target>
+      </trans-unit>
+      <trans-unit id="help_search_terms_back" resname="help.search_terms.back">
+        <source>help.search_terms.back</source>
+        <target>Back to the search results</target>
+      </trans-unit>
+      <trans-unit id="help_search_terms_clear" resname="help.search_terms.clear">
+        <source>help.search_terms.clear</source>
+        <target>Remove highlighting</target>
+      </trans-unit>
+      <trans-unit id="help_link_title" resname="help.link.title">
+        <source>help.link.title</source>
+        <target>Help for this area</target>
+      </trans-unit>
+      <trans-unit id="help_help_feedback_question" resname="help.feedback.question">
+        <source>help.feedback.question</source>
+        <target>Was this article helpful?</target>
+      </trans-unit>
+      <trans-unit id="help_help_feedback_thanks" resname="help.feedback.thanks">
+        <source>help.feedback.thanks</source>
+        <target>Thank you for your feedback!</target>
+      </trans-unit>
+      <trans-unit id="help_help_feedback_yes" resname="help.feedback.yes">
+        <source>help.feedback.yes</source>
+        <target>Yes</target>
+      </trans-unit>
+      <trans-unit id="help_help_feedback_no" resname="help.feedback.no">
+        <source>help.feedback.no</source>
+        <target>No</target>
+      </trans-unit>
+      <trans-unit id="help_help_feedback_comment_label" resname="help.feedback.comment_label">
+        <source>help.feedback.comment_label</source>
+        <target>What was missing or unclear?</target>
+      </trans-unit>
+      <trans-unit id="help_help_feedback_comment_placeholder" resname="help.feedback.comment_placeholder">
+        <source>help.feedback.comment_placeholder</source>
+        <target>Optional: tell us what to improve.</target>
+      </trans-unit>
+      <trans-unit id="help_help_feedback_comment_submit" resname="help.feedback.comment_submit">
+        <source>help.feedback.comment_submit</source>
+        <target>Send</target>
+      </trans-unit>
+      <trans-unit id="help_help_feedback_comment_hint" resname="help.feedback.comment_hint">
+        <source>help.feedback.comment_hint</source>
+        <target>The editors read every comment.</target>
+      </trans-unit>
+      <trans-unit id="help_help_feedback_commented" resname="help.feedback.commented">
+        <source>help.feedback.commented</source>
+        <target>Thank you, your comment has reached the editors.</target>
+      </trans-unit>
+      <trans-unit id="help_help_navigation_title" resname="help.navigation.title">
+        <source>help.navigation.title</source>
+        <target>Help topics</target>
+      </trans-unit>
+      <trans-unit id="help_help_reference_title" resname="help.reference.title">
+        <source>help.reference.title</source>
+        <target>Reference</target>
+      </trans-unit>
+      <trans-unit id="DashAccReqEn01" resname="dashboard.next_steps.access_request.new.title">
+        <source>dashboard.next_steps.access_request.new.title</source>
+        <target>Request hospital assignment</target>
+      </trans-unit>
+      <trans-unit id="DashAccReqEn02" resname="dashboard.next_steps.access_request.new.description">
+        <source>dashboard.next_steps.access_request.new.description</source>
+        <target>Ask to be assigned to your hospital to work with its data.</target>
+      </trans-unit>
+      <trans-unit id="DashAccReqEn03" resname="dashboard.next_steps.access_request.pending.title">
+        <source>dashboard.next_steps.access_request.pending.title</source>
+        <target>Request under review</target>
+      </trans-unit>
+      <trans-unit id="DashAccReqEn04" resname="dashboard.next_steps.access_request.pending.description">
+        <source>dashboard.next_steps.access_request.pending.description</source>
+        <target>Your request for {hospital} is being reviewed.</target>
+      </trans-unit>
+      <trans-unit id="DashAccReqEn05" resname="dashboard.next_steps.access_request.rejected.title">
+        <source>dashboard.next_steps.access_request.rejected.title</source>
+        <target>Request rejected</target>
+      </trans-unit>
+      <trans-unit id="DashAccReqEn06" resname="dashboard.next_steps.access_request.rejected.description">
+        <source>dashboard.next_steps.access_request.rejected.description</source>
+        <target>Open your request for {hospital} to see the reason.</target>
+      </trans-unit>
+      <trans-unit id="PinAnnEn01" resname="blog.pinned">
+        <source>blog.pinned</source>
+        <target>Pinned</target>
+      </trans-unit>
+      <trans-unit id="PinAnnEn02" resname="admin.post.field.pinned">
+        <source>admin.post.field.pinned</source>
+        <target>Pinned</target>
+      </trans-unit>
+      <trans-unit id="PinAnnEn03" resname="admin.post.field.pinned.help">
+        <source>admin.post.field.pinned.help</source>
+        <target>Pinned posts stand above all others on the blog start page and in the latest posts until you unpin them.</target>
+      </trans-unit>
+      <trans-unit id="PinAnnEn04" resname="admin.post.field.announced_at">
+        <source>admin.post.field.announced_at</source>
+        <target>Announced on</target>
+      </trans-unit>
+      <trans-unit id="PinAnnEn05" resname="admin.post.action.announce">
+        <source>admin.post.action.announce</source>
+        <target>Send as announcement</target>
+      </trans-unit>
+      <trans-unit id="PinAnnEn06" resname="admin.post.action.announce.confirm">
+        <source>admin.post.action.announce.confirm</source>
+        <target>Send “{title}” as an announcement to {count, plural, one {# user} other {# users}}? Each post can be announced only once.</target>
+      </trans-unit>
+      <trans-unit id="PinAnnEn07" resname="flash.admin.post.announced">
+        <source>flash.admin.post.announced</source>
+        <target>“{title}” is being sent as an announcement.</target>
+      </trans-unit>
+      <trans-unit id="PinAnnEn08" resname="flash.admin.post.not_announceable">
+        <source>flash.admin.post.not_announceable</source>
+        <target>Only a published post that was not announced before can be announced.</target>
+      </trans-unit>
+      <trans-unit id="PinAnnEn09" resname="flash.admin.post.invalid_token">
+        <source>flash.admin.post.invalid_token</source>
+        <target>The request has expired. Please try again.</target>
+      </trans-unit>
+      <trans-unit id="cms1578c01en" resname="label.block_type.cards">
+        <source>label.block_type.cards</source>
+        <target>Cards</target>
+      </trans-unit>
+      <trans-unit id="cms1578c02en" resname="label.block_type.child_pages">
+        <source>label.block_type.child_pages</source>
+        <target>Subpages</target>
+      </trans-unit>
+      <trans-unit id="cms1578c03en" resname="label.cards_items">
+        <source>label.cards_items</source>
+        <target>Cards</target>
+      </trans-unit>
+      <trans-unit id="cms1578c04en" resname="help.page.cards_items">
+        <source>help.page.cards_items</source>
+        <target>One to four cards side by side.</target>
+      </trans-unit>
+      <trans-unit id="cms1578c05en" resname="label.child_pages_numbered">
+        <source>label.child_pages_numbered</source>
+        <target>Number as steps</target>
+      </trans-unit>
+      <trans-unit id="cms1578c06en" resname="help.page.child_pages_numbered">
+        <source>help.page.child_pages_numbered</source>
+        <target>Shows “Step 1”, “Step 2” and so on for subpages that describe a sequence.</target>
+      </trans-unit>
+      <trans-unit id="cms1578c07en" resname="label.card_icon">
+        <source>label.card_icon</source>
+        <target>Icon</target>
+      </trans-unit>
+      <trans-unit id="cms1578c08en" resname="label.card_title">
+        <source>label.card_title</source>
+        <target>Title</target>
+      </trans-unit>
+      <trans-unit id="cms1578c09en" resname="label.card_link_url">
+        <source>label.card_link_url</source>
+        <target>Link</target>
+      </trans-unit>
+      <trans-unit id="cms1578c10en" resname="help.page.card_link_url">
+        <source>help.page.card_link_url</source>
+        <target>Path on this site, e.g. /help/getting-started, or an https address.</target>
+      </trans-unit>
+      <trans-unit id="cms1578c11en" resname="label.card_link_label">
+        <source>label.card_link_label</source>
+        <target>Link text</target>
+      </trans-unit>
+      <trans-unit id="cms1578c12en" resname="help.page.card_link_label">
+        <source>help.page.card_link_label</source>
+        <target>Without a text the link reads “Read more”.</target>
+      </trans-unit>
+      <trans-unit id="cms1578c13en" resname="label.summary">
+        <source>label.summary</source>
+        <target>Short description</target>
+      </trans-unit>
+      <trans-unit id="cms1578c14en" resname="help.page.summary">
+        <source>help.page.summary</source>
+        <target>One sentence about the page. It appears on subpage cards, in the help topics, in the help search and as description for search engines.</target>
+      </trans-unit>
+      <trans-unit id="cms1578c15en" resname="page.child_pages.step">
+        <source>page.child_pages.step</source>
+        <target>Step {number}</target>
+      </trans-unit>
+      <trans-unit id="cms1578c16en" resname="page.child_pages.reading_time">
+        <source>page.child_pages.reading_time</source>
+        <target>{minutes, plural, one {# minute} other {# minutes}} read</target>
+      </trans-unit>
+      <trans-unit id="cms1578c17en" resname="page.child_pages.read">
+        <source>page.child_pages.read</source>
+        <target>Read</target>
+      </trans-unit>
+      <trans-unit id="cms1578c18en" resname="page.cards.read_more">
+        <source>page.cards.read_more</source>
+        <target>Read more</target>
+      </trans-unit>
+      <trans-unit id="cms1590r01en" resname="label.block_type.read_more">
+        <source>label.block_type.read_more</source>
+        <target>Learn more</target>
+      </trans-unit>
+      <trans-unit id="cms1590r02en" resname="label.read_more_title">
+        <source>label.read_more_title</source>
+        <target>Heading</target>
+      </trans-unit>
+      <trans-unit id="cms1590r03en" resname="help.page.read_more_title">
+        <source>help.page.read_more_title</source>
+        <target>Defaults to “Learn more”.</target>
+      </trans-unit>
+      <trans-unit id="cms1590r04en" resname="label.read_more_items">
+        <source>label.read_more_items</source>
+        <target>Links</target>
+      </trans-unit>
+      <trans-unit id="cms1590r05en" resname="help.page.read_more_items">
+        <source>help.page.read_more_items</source>
+        <target>One to eight links to related articles or pages.</target>
+      </trans-unit>
+      <trans-unit id="cms1590r06en" resname="help.page.read_more_link_url">
+        <source>help.page.read_more_link_url</source>
+        <target>Path of a page on this site, e.g. /help/getting-started, or an https address.</target>
+      </trans-unit>
+      <trans-unit id="cms1590r07en" resname="help.page.read_more_link_label">
+        <source>help.page.read_more_link_label</source>
+        <target>Optional for pages on this site: without it, the page title and short description are shown. Required for other addresses.</target>
+      </trans-unit>
+      <trans-unit id="cms1590r08en" resname="page.read_more.title">
+        <source>page.read_more.title</source>
+        <target>Learn more</target>
+      </trans-unit>
+      <trans-unit id="cmsBoardMembers01en" resname="label.block_type.board_members">
+        <source>label.block_type.board_members</source>
+        <target>Board members</target>
       </trans-unit>
     </body>
   </file>

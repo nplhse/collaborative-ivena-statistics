@@ -47,7 +47,6 @@ final readonly class AggregateDailyAnalyticsMessageHandler
             $this->jobRun->addMetrics([
                 'days_processed' => $result->daysProcessed,
                 'raw_requests' => $result->totalRawRequests,
-                'raw_events' => $result->totalRawEvents,
                 'aggregate_rows' => $result->totalAggregateRows,
                 'raw_rows_deleted' => $result->rawRowsDeleted,
             ]);
@@ -56,7 +55,6 @@ final readonly class AggregateDailyAnalyticsMessageHandler
                 'dates' => $result->dates,
                 'days_processed' => $result->daysProcessed,
                 'raw_requests' => $result->totalRawRequests,
-                'raw_events' => $result->totalRawEvents,
                 'aggregate_rows' => $result->totalAggregateRows,
                 'raw_rows_deleted' => $result->rawRowsDeleted,
             ]);

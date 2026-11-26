@@ -65,6 +65,7 @@ final class ShowMciCaseControllerTest extends WebTestCase
         self::assertSelectorExists('a[href="/explore/indication/'.$indicationNormalized->getPublicIdString().'"]');
         self::assertSelectorExists('a[href="/explore/infection/'.$infection->getPublicIdString().'"]');
         self::assertSelectorNotExists('a[href*="/explore/indication/raw/"]');
+        self::assertSelectorNotExists('a[href*="/tools/indication-review"]');
     }
 
     public function testDetailPageRejectsPostMethod(): void

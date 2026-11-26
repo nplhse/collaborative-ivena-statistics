@@ -1,0 +1,301 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Admin\Functional\Controller;
+
+use App\Allocation\Domain\Enum\AllocationGender;
+use App\Allocation\Domain\Enum\AllocationTransportType;
+use App\Allocation\Domain\Enum\AllocationUrgency;
+use App\Allocation\Domain\Enum\IndicationRawReviewStatus;
+use App\Allocation\Infrastructure\Factory\AllocationFactory;
+use App\Allocation\Infrastructure\Factory\AssignmentFactory;
+use App\Allocation\Infrastructure\Factory\DepartmentFactory;
+use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
+use App\Allocation\Infrastructure\Factory\HospitalAccessGrantFactory;
+use App\Allocation\Infrastructure\Factory\HospitalFactory;
+use App\Allocation\Infrastructure\Factory\IndicationGroupFactory;
+use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
+use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
+use App\Allocation\Infrastructure\Factory\InfectionFactory;
+use App\Allocation\Infrastructure\Factory\MciCaseFactory;
+use App\Allocation\Infrastructure\Factory\OccasionFactory;
+use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
+use App\Allocation\Infrastructure\Factory\SpecialityFactory;
+use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Content\Domain\Entity\PageTranslation;
+use App\Content\Infrastructure\Factory\MediaFactory;
+use App\Content\Infrastructure\Factory\PageTranslationFactory;
+use App\Engagement\Application\Dto\MonthlyReminderTrigger;
+use App\Engagement\Domain\Entity\MonthlyReminderDispatch;
+use App\Feedback\Domain\Entity\Feedback;
+use App\Feedback\Domain\Enum\FeedbackCategory;
+use App\Import\Domain\Entity\ImportBatchRun;
+use App\Import\Domain\Entity\ImportBatchRunItem;
+use App\Import\Domain\Entity\ImportReject;
+use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Onboarding\Infrastructure\Factory\UserOnboardingStepFactory;
+use App\Shared\Domain\Entity\CookieConsent;
+use App\Statistics\Domain\Entity\SavedExplorerView;
+use App\User\Domain\Factory\UserFactory;
+use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
+use Zenstruck\Foundry\Test\Factories;
+
+/**
+ * #1121: the admin CRUD pages show German titles and labels for a German admin.
+ */
+#[ResetDatabase]
+final class AdminCrudTranslationTest extends WebTestCase
+{
+    use Factories;
+
+    /** English labels of these pages that differ in German; none may be left on a German page. */
+    private const array ENGLISH_LABELS = [
+        'Created', 'Updated', 'Created by', 'Updated by', 'Description', 'Category', 'Sort order', 'Indications',
+        'Note', 'Children', 'Groups', 'Normalized', 'Review status', 'Target', 'Review comment', 'Reviewed at',
+        'Reviewed by', 'First matched by', 'First matched at', 'Aliases', 'State', 'Dispatch Areas',
+        'Hospital', 'Hospitals', 'Dispatch Area', 'Arrival', 'Gender', 'Age', 'Requires Resus', 'Requires Cathlab',
+        'CPR', 'Ventilated', 'Shock', 'Pregnant', 'Work Accident', 'With Physician', 'Transport Type', 'Urgency',
+        'Speciality', 'Department', 'Department Was Closed', 'Occasion', 'Assignment', 'Infection',
+        'Secondary transport', 'Secondary indication raw', 'Secondary indication normalized', 'Case ID hash', 'Notes',
+        'MANV-ID (Title)', 'Owner', 'Street', 'Postal code', 'City', 'Country', 'Location', 'Tier', 'Size', 'Beds',
+        'Latitude', 'Longitude', 'Participating', 'Participating since', 'Access grants', 'User', 'Permissions',
+        'Indication Raw', 'Indication Normalized',
+        'Type', 'Rows total', 'Rows passed', 'Rows rejected', 'Rows deduplicated',
+        'Rows deduplicated (Discarded)', 'Rows deduplicated (Replaced)', 'Run count', 'Runtime (ms)', 'Export starts at',
+        'Export ends at (exclusive)', 'Export period source', 'Source file', 'Reject file', 'File extension', 'MIME type',
+        'File size (bytes)', 'Checksum', 'Line', 'Messages', 'Row JSON', 'Started', 'Finished', 'Options', 'Items',
+        'Batch run', 'Import ID', 'Import name', 'Attempts', 'Error',
+        'Guest email', 'Title', 'Message', 'Page URL', 'Path', 'Context', 'User agent', 'App version', 'Subject ID',
+        'Mode', 'Decided at', 'Updated at', 'Reporting period', 'Trigger', 'Recipient', 'Queued at', 'Delivered at',
+        'Failure reason', 'Locale', 'Owned hospitals', 'Step', 'Completed at', 'System view', 'Config JSON',
+        'Username', 'Email', 'Password', 'Is Enabled', 'Is Verified', 'Credentials Expired', 'Roles',
+        'label.width', 'label.height',
+    ];
+
+    /**
+     * @return iterable<string, array{string, \Closure(): object, string, string}>
+     */
+    public static function pageProvider(): iterable
+    {
+        yield 'assignment' => ['assignment', static fn (): object => AssignmentFactory::createOne(), 'Zuweisungstypen', 'Zuweisungstyp'];
+        yield 'department' => ['department', static fn (): object => DepartmentFactory::createOne(), 'Abteilungen', 'Abteilung'];
+        yield 'dispatch area' => ['dispatch-area', static fn (): object => DispatchAreaFactory::createOne(), 'Leitstellenbereiche', 'Leitstellenbereich'];
+        yield 'infection' => ['infection', static fn (): object => InfectionFactory::createOne(), 'Infektionen', 'Infektion'];
+        yield 'occasion' => ['occasion', static fn (): object => OccasionFactory::createOne(), 'Anlässe', 'Anlass'];
+        yield 'secondary transport' => ['secondary-transport', static fn (): object => SecondaryTransportFactory::createOne(), 'Sekundärtransporte', 'Sekundärtransport'];
+        yield 'speciality' => ['speciality', static fn (): object => SpecialityFactory::createOne(), 'Fachrichtungen', 'Fachrichtung'];
+        yield 'state' => ['state', static fn (): object => StateFactory::createOne(), 'Bundesländer', 'Bundesland'];
+        yield 'indication group' => ['indication-group', static fn (): object => IndicationGroupFactory::createOne(), 'Indikationsgruppen', 'Indikationsgruppe'];
+        yield 'allocation' => ['allocation', static fn (): object => self::withReferenceData(static fn (): object => AllocationFactory::createOne()), 'Zuweisungen', 'Zuweisung'];
+        yield 'mci case' => ['mci-case', static fn (): object => self::withReferenceData(static fn (): object => MciCaseFactory::createOne()), 'MANV-Fälle', 'MANV-Fall'];
+        yield 'hospital' => ['hospital', static fn (): object => HospitalFactory::createOne(), 'Kliniken', 'Klinik'];
+        yield 'hospital access grant' => ['hospital-access-grant', static fn (): object => HospitalAccessGrantFactory::createOne(), 'Zugriffsberechtigungen', 'Zugriffsberechtigung'];
+        yield 'import' => ['import', static fn (): object => self::withReferenceData(static fn (): object => ImportFactory::createOne()), 'Importe', 'Import'];
+        yield 'import reject' => ['import-reject', self::importReject(...), 'Abgelehnte Importzeilen', 'Abgelehnte Importzeile'];
+        yield 'import batch run' => ['import-batch-run', static fn (): object => self::batchRunItem()->getRun() ?? throw new \LogicException('no run'), 'Stapelläufe', 'Stapellauf'];
+        yield 'import batch run item' => ['import-batch-run-item', self::batchRunItem(...), 'Stapelpositionen', 'Stapelposition'];
+        yield 'feedback' => ['feedback', self::feedback(...), 'Feedback', 'Feedback'];
+        yield 'cookie consent' => ['cookie-consent', static fn (): object => self::persist(new CookieConsent('subject-1')), 'Cookie-Einwilligungen', 'Cookie-Einwilligung'];
+        yield 'monthly reminder dispatch' => ['monthly-reminder-dispatch', self::reminderDispatch(...), 'Monatliche Erinnerungsversände', 'Monatliche Erinnerung'];
+        yield 'user' => ['user', static fn (): object => UserFactory::createOne(), 'Benutzer', 'Benutzer'];
+        yield 'user onboarding step' => ['user-onboarding-step', static fn (): object => UserOnboardingStepFactory::createOne(), 'Onboarding-Schritte', 'Onboarding-Schritt'];
+        yield 'saved explorer view' => ['saved-explorer-view', static fn (): object => self::persist(new SavedExplorerView('translation-view', 'Translation view', 'allocations', ['metric' => 'count'], 'Description', true)), 'Explorer-Ansichten', 'Explorer-Ansicht'];
+        yield 'media' => ['media', static fn (): object => MediaFactory::createOne(), 'Medienbibliothek', 'Mediendatei'];
+        yield 'indication normalized' => ['indication-normalized', static fn (): object => IndicationNormalizedFactory::createOne(), 'Indikationen (normalisiert)', 'Indikation (normalisiert)'];
+        yield 'indication raw' => ['indication-raw', static fn (): object => IndicationRawFactory::createOne(), 'Indikationen (Rohdaten)', 'Indikation (Rohdaten)'];
+    }
+
+    /**
+     * @param \Closure(): object $create
+     */
+    #[DataProvider('pageProvider')]
+    public function testIndexIsGermanForAGermanAdmin(string $slug, \Closure $create, string $plural, string $singular): void
+    {
+        $client = $this->germanAdmin();
+        $create();
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/'.$slug);
+
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString($plural, $crawler->filter('title')->text());
+        $this->assertNoEnglishLabel($crawler->filter('table thead th')->each(static fn ($th): string => trim($th->text())), $slug.' index');
+    }
+
+    /**
+     * @param \Closure(): object $create
+     */
+    #[DataProvider('pageProvider')]
+    public function testDetailIsGermanForAGermanAdmin(string $slug, \Closure $create, string $plural, string $singular): void
+    {
+        $client = $this->germanAdmin();
+        $entity = $create();
+        self::assertTrue(method_exists($entity, 'getId'));
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/'.$slug.'/'.$entity->getId());
+
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString($singular, $crawler->filter('title')->text());
+        $this->assertNoEnglishLabel($crawler->filter('.field-label')->each(static fn ($label): string => trim($label->text())), $slug.' detail');
+    }
+
+    public function testRawIndicationListShowsTheTranslatedReviewStatus(): void
+    {
+        $client = $this->germanAdmin();
+        IndicationRawFactory::createOne(['reviewStatus' => IndicationRawReviewStatus::NeedsReview]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/indication-raw');
+
+        self::assertResponseIsSuccessful();
+        self::assertSame('Wartet auf Freigabe', trim($crawler->filter('td[data-column="reviewStatus"] .badge')->text()));
+    }
+
+    /**
+     * #1304: choice values show their German label on the detail page instead of the hard-coded English one.
+     *
+     * @return iterable<string, array{string, \Closure(): object, list<string>}>
+     */
+    public static function choiceValueProvider(): iterable
+    {
+        $clinical = ['gender' => AllocationGender::FEMALE, 'transportType' => AllocationTransportType::AIR, 'urgency' => AllocationUrgency::OUTPATIENT];
+        $clinicalLabels = ['Weiblich', 'Luft', 'Ambulante Versorgung'];
+
+        yield 'allocation' => ['allocation', static fn (): object => self::withReferenceData(static fn (): object => AllocationFactory::createOne($clinical)), $clinicalLabels];
+        yield 'mci case' => ['mci-case', static fn (): object => self::withReferenceData(static fn (): object => MciCaseFactory::createOne($clinical)), $clinicalLabels];
+        yield 'feedback' => ['feedback', self::feedback(...), ['Offen', 'Fehler']];
+        yield 'feedback quarantine' => ['feedback-quarantine', static fn (): object => self::persist(self::feedback()->quarantine(['manual'], null, null, new \DateTimeImmutable('2026-11-10 08:00:00'))), ['Fehler']];
+        yield 'monthly reminder dispatch' => ['monthly-reminder-dispatch', self::reminderDispatch(...), ['Administrator', 'In Warteschlange']];
+        yield 'user' => ['user', static fn (): object => UserFactory::new()->asAdmin()->create(['locale' => 'de']), ['Deutsch', 'Administrator']];
+        yield 'page translation' => ['page-translation', static fn (): object => PageTranslationFactory::createOne(['status' => PageTranslation::STATUS_DRAFT]), ['Entwurf']];
+    }
+
+    /**
+     * @param \Closure(): object $create
+     * @param list<string>       $expected
+     */
+    #[DataProvider('choiceValueProvider')]
+    public function testDetailShowsGermanChoiceValues(string $slug, \Closure $create, array $expected): void
+    {
+        $client = $this->germanAdmin();
+        $entity = $create();
+        self::assertTrue(method_exists($entity, 'getId'));
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/'.$slug.'/'.$entity->getId());
+
+        self::assertResponseIsSuccessful();
+        $values = implode(' | ', $crawler->filter('.field-value')->each(static fn ($value): string => trim($value->text())));
+        foreach ($expected as $label) {
+            self::assertStringContainsString($label, $values, $slug);
+        }
+    }
+
+    /**
+     * Allocation and MCI factories pick random existing reference data; one of each is enough.
+     *
+     * @param \Closure(): object $create
+     */
+    private static function withReferenceData(\Closure $create): object
+    {
+        $state = StateFactory::createOne();
+        $dispatchArea = DispatchAreaFactory::createOne(['state' => $state]);
+        $hospital = HospitalFactory::createOne(['state' => $state, 'dispatchArea' => $dispatchArea]);
+        ImportFactory::createOne(['hospital' => $hospital]);
+        SpecialityFactory::createOne();
+        DepartmentFactory::createOne();
+        AssignmentFactory::createOne();
+        OccasionFactory::createOne();
+        InfectionFactory::createOne();
+        SecondaryTransportFactory::createOne();
+        IndicationRawFactory::createOne();
+        IndicationNormalizedFactory::createOne();
+
+        return $create();
+    }
+
+    private static function feedback(): Feedback
+    {
+        return self::persist(new Feedback()
+            ->setCategory(FeedbackCategory::BUG)
+            ->setMessage('Chart is empty')
+            ->setPageUrl('https://example.test/statistics'));
+    }
+
+    private static function reminderDispatch(): MonthlyReminderDispatch
+    {
+        $hospital = HospitalFactory::createOne([
+            'state' => StateFactory::createOne(),
+            'dispatchArea' => DispatchAreaFactory::createOne(),
+        ]);
+
+        return self::persist(new MonthlyReminderDispatch(
+            $hospital,
+            '2026-10',
+            MonthlyReminderTrigger::Admin->value,
+            new \DateTimeImmutable('2026-11-01 08:00:00'),
+            recipientEmail: 'owner@example.test',
+        ));
+    }
+
+    private static function importReject(): ImportReject
+    {
+        $reject = new ImportReject();
+        $reject->setImport(self::withReferenceData(static fn (): object => ImportFactory::createOne()));
+        $reject->setLineNumber(12);
+        $reject->setMessages(['createdAt: This value should not be blank.']);
+        $reject->setRow(['line' => 12]);
+
+        return self::persist($reject);
+    }
+
+    private static function batchRunItem(): ImportBatchRunItem
+    {
+        $run = new ImportBatchRun(['dry_run' => false]);
+        $item = new ImportBatchRunItem(1, 'Import 1');
+        $run->addItem($item);
+        self::persist($run);
+
+        return self::persist($item);
+    }
+
+    /**
+     * @template T of object
+     *
+     * @param T $entity
+     *
+     * @return T
+     */
+    private static function persist(object $entity): object
+    {
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->persist($entity);
+        $entityManager->flush();
+
+        return $entity;
+    }
+
+    /**
+     * @param list<string> $labels
+     */
+    private function assertNoEnglishLabel(array $labels, string $page): void
+    {
+        self::assertNotSame([], $labels, $page.' shows labels');
+        foreach ($labels as $label) {
+            self::assertNotContains($label, self::ENGLISH_LABELS, $page.': '.implode(' | ', $labels));
+        }
+    }
+
+    private function germanAdmin(): KernelBrowser
+    {
+        // One request per test: loginUser() fills the token storage only for the next request, and the locale listener
+        // reads the user from it before the firewall runs.
+        $client = self::createClient();
+        $client->loginUser(UserFactory::new()->asAdmin()->create(['locale' => 'de']));
+
+        return $client;
+    }
+}

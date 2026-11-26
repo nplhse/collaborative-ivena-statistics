@@ -5,7 +5,7 @@
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
         {% block header_after %}
-            {{ include('@Shared/_includes/subnav_explore.html.twig') }}
+            <twig:Navigation:Sidebar menu="explore" />
         {% endblock %}
     {% endembed %}
 {% endblock %}
@@ -29,6 +29,7 @@
             <div class="col">
                 <h1 id="dispatch-area-name" class="fw-bold">{{ dispatchArea.name }}</h1>
                 <div class="list-inline list-inline-dots text-secondary">
+                    <twig:AdminObjectId :id="dispatchArea.id" />
                     <div class="list-inline-item">
                         {{ 'catalog.type.dispatch_area'|trans({}, 'allocation') }}
                     </div>
@@ -64,7 +65,7 @@
                         </div>
                         <div class="mb-2">
                             <twig:ux:icon name="tabler:user" width="1.5em" height="1.5em" />
-                            {{ 'label.created_by'|trans({}, 'messages') }} <strong>{{ users.link(dispatchArea.createdBy) }}</strong>
+                            {{ 'label.created_by'|trans({}, 'messages') }} <strong>{{ users.link(dispatchArea.createdBy, {avatar: 'inline'}) }}</strong>
                         </div>
                         {% if dispatchArea.updatedBy and dispatchArea.updatedAt %}
                             <div class="mt-1 mb-2">
@@ -73,7 +74,7 @@
                             </div>
                             <div class="mb-2">
                                 <twig:ux:icon name="tabler:user" width="1.5em" height="1.5em" />
-                                {{ 'label.updated_by'|trans({}, 'messages') }} <strong>{{ users.link(dispatchArea.updatedBy) }}</strong>
+                                {{ 'label.updated_by'|trans({}, 'messages') }} <strong>{{ users.link(dispatchArea.updatedBy, {avatar: 'inline'}) }}</strong>
                             </div>
                         {% endif %}
                 </twig:Card>

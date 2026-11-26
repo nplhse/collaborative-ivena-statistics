@@ -16,6 +16,7 @@ parameters:
         - public/
         - src/
         - tests/
+        - plugins/
     excludePaths:
         - config/reference.php
         - tests/PHPStan/Unit/Rules/data/*
@@ -28,6 +29,7 @@ parameters:
                 - bin/*
                 - config/*
                 - tests/*
+                - plugins/*/tests/*
             reportUnmatched: false
         -
             identifier: wallClock.function
@@ -35,6 +37,7 @@ parameters:
                 - bin/*
                 - config/*
                 - tests/*
+                - plugins/*/tests/*
             reportUnmatched: false
         -
             identifier: wallClock.createFromFormat
@@ -42,6 +45,7 @@ parameters:
                 - bin/*
                 - config/*
                 - tests/*
+                - plugins/*/tests/*
             reportUnmatched: false
     doctrine:
         objectManagerLoader: tests/object-manager.php

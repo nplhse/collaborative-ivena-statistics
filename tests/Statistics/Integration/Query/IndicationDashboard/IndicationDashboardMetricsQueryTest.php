@@ -100,7 +100,7 @@ final class IndicationDashboardMetricsQueryTest extends KernelTestCase
             StatisticsFilterScope::Hospital,
             $hospital->getId(),
             null,
-            StatisticsFilterPeriod::All,
+            StatisticsFilterPeriod::Last12Months,
         );
         $bounds = StatisticsPeriodResolver::resolve($filter);
         $scope = new StatisticsScopeCriteria([$hospital->getId()]);

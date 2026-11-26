@@ -27,6 +27,18 @@ final class RegistrationIdentityCheckerTest extends KernelTestCase
         self::assertTrue($checker->isIdentityTaken('  alice  ', 'other@example.test'));
     }
 
+    public function testIsIdentityTakenWhenUsernameDiffersOnlyInCase(): void
+    {
+        UserFactory::createOne([
+            'username' => 'Alice',
+            'email' => 'alice@example.test',
+        ]);
+
+        $checker = self::getContainer()->get(RegistrationIdentityChecker::class);
+
+        self::assertTrue($checker->isIdentityTaken('aLiCe', 'other@example.test'), 'profile URLs ignore the case (#1353)');
+    }
+
     public function testIsIdentityTakenWhenEmailExistsNormalized(): void
     {
         UserFactory::createOne([

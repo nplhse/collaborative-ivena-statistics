@@ -1,0 +1,90 @@
+{#
+    Data coverage of the hospitals with STATISTICS over their whole history (#971): one block per hospital, one row
+    per year, one cell per month, in the style of the import coverage calendar. Cells are shaded by volume relative to
+    the hospital's busiest month; peaks and quiet months are never marked as problems.
+#}
+{% set months = range(1, 12) %}
+{% set hospitals = overview.hospitals|filter(status => status.history is not empty) %}
+<div class="card" data-testid="my-hospitals-coverage">
+    <div class="card-header">
+        <div>
+            <h3 class="card-title">{{ 'my_hospitals.coverage.title'|trans({}, 'allocation') }}</h3>
+            <div class="text-body-secondary small">
+                {{ 'my_hospitals.coverage.subtitle'|trans({}, 'allocation') }}
+                {% if overview.statisticsHospitals < overview.hospitalCount %}
+                    · {{ 'my_hospitals.summary.basis'|trans({count: overview.statisticsHospitals, total: overview.hospitalCount}, 'allocation') }}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="my-hospitals-coverage">
+            {% for status in hospitals %}
+                {% set byMonth = {} %}
+                {% for month in status.history %}
+                    {% set byMonth = byMonth|merge({('m' ~ month.month|date('Y-m')): month}) %}
+                {% endfor %}
+                {% set maxAllocations = max(status.history|map(month => month.allocations)|merge([1])) %}
+                {% set firstYear = status.history|first.month|date('Y') %}
+                {% set lastYear = status.history|last.month|date('Y') %}
+                <div class="my-hospitals-coverage-hospital" data-testid="my-hospitals-coverage-hospital" data-hospital-id="{{ status.entry.hospital.id }}">
+                    <div class="fw-medium mb-1 text-truncate">{{ status.entry.hospital.name }}</div>
+                    <div class="my-hospitals-coverage-grid" role="table" aria-label="{{ 'my_hospitals.coverage.title'|trans({}, 'allocation') }}: {{ status.entry.hospital.name }}">
+                        <div class="my-hospitals-coverage-row" role="row" aria-hidden="true">
+                            <span></span>
+                            {% for number in months %}
+                                <span class="my-hospitals-coverage-month">{{ ('2024-' ~ number ~ '-01')|format_date(pattern: 'MMMMM') }}</span>
+                            {% endfor %}
+                        </div>
+                        {% for year in range(firstYear, lastYear) %}
+                            <div class="my-hospitals-coverage-row" role="row" data-year="{{ year }}">
+                                <span class="my-hospitals-coverage-year" role="rowheader">{{ year }}</span>
+                                {% for number in months %}
+                                    {% set month = byMonth['m' ~ year ~ '-' ~ '%02d'|format(number)] ?? null %}
+                                    {% if month %}
+                                        {% set state = month.state.value %}
+                                        {% set level = month.allocations > 0 ? (4 * month.allocations / maxAllocations)|round(0, 'ceil') : 0 %}
+                                        {% set cellClass = {
+                                            covered: 'is-data',
+                                            partial: 'is-data is-partial',
+                                            in_progress: 'is-no-data is-in-progress',
+                                            no_allocations: 'is-no-data',
+                                            missing: 'is-gap',
+                                            outside: 'is-no-data',
+                                        }[state] %}
+                                        {% set description = ('my_hospitals.month.state.' ~ state)|trans({allocations: month.allocations, covered: month.coveredDays, days: month.days}, 'allocation') %}
+                                        {% set monthLabel = month.month|format_date(pattern: 'MMMM yyyy') %}
+                                        <span role="cell" class="import-coverage-cell {{ cellClass }}{{ level > 1 and 'is-data' in cellClass ? ' is-level-' ~ level : '' }}" data-state="{{ state }}" data-month="{{ month.month|date('Y-m') }}" title="{{ monthLabel }}: {{ description }}">
+                                            <span class="visually-hidden">{{ monthLabel }}: {{ description }}</span>
+                                        </span>
+                                    {% else %}
+                                        <span role="cell" class="my-hospitals-coverage-empty" aria-hidden="true"></span>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="card-footer small text-body-secondary" data-testid="my-hospitals-coverage-legend">
+        <div class="my-hospitals-coverage-legend">
+            <div class="my-hospitals-coverage-legend-scale">
+                <span class="me-1">{{ 'my_hospitals.legend.volume'|trans({}, 'allocation') }}:</span>
+                {{ 'my_hospitals.legend.less'|trans({}, 'allocation') }}
+                <span class="import-coverage-cell is-data" aria-hidden="true"></span>
+                <span class="import-coverage-cell is-data is-level-2" aria-hidden="true"></span>
+                <span class="import-coverage-cell is-data is-level-3" aria-hidden="true"></span>
+                <span class="import-coverage-cell is-data is-level-4" aria-hidden="true"></span>
+                {{ 'my_hospitals.legend.more'|trans({}, 'allocation') }}
+            </div>
+            {% for state, cellClass in {partial: 'is-data is-partial', missing: 'is-gap', outside: 'is-no-data', in_progress: 'is-no-data is-in-progress'} %}
+                <div class="my-hospitals-coverage-legend-item">
+                    <span class="import-coverage-cell {{ cellClass }}" aria-hidden="true"></span>
+                    {{ ('my_hospitals.legend.' ~ state)|trans({}, 'allocation') }}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>

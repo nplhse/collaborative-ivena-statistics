@@ -16,8 +16,11 @@ use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Application\MessageHandler\ImportAllocationsMessageHandler;
+use App\Import\Application\Service\ImportRunLifecycle;
 use App\Import\Domain\Entity\Import;
+use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Repository\ImportRepository;
@@ -422,6 +425,63 @@ abstract class ImportAllocationsMessageHandlerTestCase extends DatabaseKernelTes
             ->getSingleScalarResult();
     }
 
+    protected function processInNewRun(int $importId): void
+    {
+        $run = self::getContainer()->get(ImportRunLifecycle::class)->register($importId, ImportRunTrigger::Console);
+
+        $this->handler->__invoke(new ImportAllocationsMessage($importId, $run->getId()->toRfc4122()));
+    }
+
+    /**
+     * Repeats the last row of the file with an unreadable date, so each added row is rejected.
+     */
+    protected function csvWithRejectedRows(string $csvPath, int $rejectedRows): string
+    {
+        $lines = preg_split('/\r\n|\n/', rtrim((string) file_get_contents($csvPath))) ?: [];
+        $validRow = (string) end($lines);
+        $rejectedRow = str_replace('07.01.2025', 'not-a-date', $validRow);
+
+        return implode("\n", [...$lines, ...array_fill(0, $rejectedRows, $rejectedRow)])."\n";
+    }
+
+    protected function arrangeImportOfSameHospital(int $importId, string $contents): int
+    {
+        $source = $this->imports->find($importId);
+        self::assertInstanceOf(Import::class, $source);
+
+        ['absolutePath' => $path, 'storedPath' => $storedPath] = $this->writeImportCsvUnderBase(
+            'ivena-import-second-'.bin2hex(random_bytes(8)).'.csv',
+            $contents,
+        );
+
+        $import = new Import()
+            ->setName('Second file of the hospital')
+            ->setHospital($source->getHospital())
+            ->setCreatedBy($source->getCreatedBy())
+            ->setType(ImportType::ALLOCATION)
+            ->setStatus(ImportStatus::PENDING)
+            ->setFilePath($storedPath)
+            ->setFileExtension('csv')
+            ->setFileMimeType('text/csv')
+            ->setFileSize((int) filesize($path))
+            ->setRunCount(0)
+            ->setRunTime(0)
+            ->setRowCount(0);
+
+        $this->em->persist($import);
+        $this->em->flush();
+
+        return (int) $import->getId();
+    }
+
+    protected function countProjectionRowsForImport(int $importId): int
+    {
+        return (int) $this->em->getConnection()->fetchOne(
+            'SELECT COUNT(*) FROM allocation_stats_projection WHERE import_id = ?',
+            [$importId],
+        );
+    }
+
     protected function countAuditEntriesForEntityClass(string $entityClass): int
     {
         return (int) $this->em->createQueryBuilder()
@@ -441,7 +501,7 @@ abstract class ImportAllocationsMessageHandlerTestCase extends DatabaseKernelTes
             ->from(AuditEntry::class, 'a')
             ->andWhere('a.entityClass = :class')
             ->setParameter('class', Import::class)
-            ->orderBy('a.id', 'DESC')
+            ->orderBy('a.id', \SortDirection::Descending)
             ->setMaxResults(80)
             ->getQuery()
             ->getResult();

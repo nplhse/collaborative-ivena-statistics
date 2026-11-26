@@ -10,6 +10,7 @@ use App\Allocation\Domain\Enum\IndicationRawReviewStatus;
 use App\Allocation\Domain\Enum\IndicationRawReviewWorklistSegment;
 use App\Allocation\UI\Http\DTO\IndicationQueryParametersDTO;
 use App\Allocation\UI\Http\DTO\IndicationRawReviewWorklistQueryDTO;
+use App\Shared\Infrastructure\Doctrine\SortDirections;
 use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Types\Types;
@@ -44,8 +45,8 @@ class IndicationRawRepository extends ServiceEntityRepository
         }
 
         // The id tie-breaker keeps rows with equal sort values on a stable page.
-        $qb->orderBy(self::listSortField($queryParametersDTO->sortBy), $queryParametersDTO->orderBy)
-            ->addOrderBy('i.id', $queryParametersDTO->orderBy);
+        $qb->orderBy(self::listSortField($queryParametersDTO->sortBy), SortDirections::fromString($queryParametersDTO->orderBy))
+            ->addOrderBy('i.id', SortDirections::fromString($queryParametersDTO->orderBy));
 
         if (null !== $queryParametersDTO->search) {
             $qb->andWhere($qb->expr()->like('LOWER(i.name)', ':search'))
@@ -104,8 +105,8 @@ class IndicationRawRepository extends ServiceEntityRepository
         $this->applyReviewWorklistSegment($qb, $query->segment);
         $this->applyReviewWorklistSearch($qb, $query->search);
 
-        $qb->orderBy('i.createdAt', 'ASC')
-            ->addOrderBy('i.id', 'ASC');
+        $qb->orderBy('i.createdAt', \SortDirection::Ascending)
+            ->addOrderBy('i.id', \SortDirection::Ascending);
 
         if (null !== $afterId) {
             $current = $this->find($afterId);
@@ -159,13 +160,13 @@ class IndicationRawRepository extends ServiceEntityRepository
 
     private function applyReviewWorklistSort(QueryBuilder $qb, IndicationRawReviewWorklistQueryDTO $query): void
     {
-        $direction = 'desc' === $query->orderBy ? 'DESC' : 'ASC';
+        $direction = 'desc' === $query->orderBy ? \SortDirection::Descending : \SortDirection::Ascending;
 
         if ('occurrence' === $query->sortBy) {
             $qb->addSelect($this->occurrenceCountSelect().' AS HIDDEN occurrenceCount')
                 ->orderBy('occurrenceCount', $direction)
-                ->addOrderBy('i.createdAt', 'ASC')
-                ->addOrderBy('i.id', 'ASC');
+                ->addOrderBy('i.createdAt', \SortDirection::Ascending)
+                ->addOrderBy('i.id', \SortDirection::Ascending);
 
             return;
         }
@@ -173,14 +174,14 @@ class IndicationRawRepository extends ServiceEntityRepository
         match ($query->segment) {
             IndicationRawReviewWorklistSegment::NeedsReview => $qb->orderBy('i.firstMatchedAt', $direction)
                 ->addOrderBy('i.id', $direction),
-            IndicationRawReviewWorklistSegment::New => $qb->orderBy('i.createdAt', 'DESC' === $direction ? 'DESC' : 'ASC')
-                ->addOrderBy('i.id', 'DESC'),
+            IndicationRawReviewWorklistSegment::New => $qb->orderBy('i.createdAt', $direction)
+                ->addOrderBy('i.id', \SortDirection::Descending),
             IndicationRawReviewWorklistSegment::Matched,
             IndicationRawReviewWorklistSegment::NotMatchable,
-            IndicationRawReviewWorklistSegment::Ignored => $qb->orderBy('i.reviewedAt', 'DESC' === $direction ? 'DESC' : 'ASC')
-                ->addOrderBy('i.id', 'DESC'),
-            default => $qb->orderBy('i.createdAt', 'DESC' === $direction ? 'DESC' : 'ASC')
-                ->addOrderBy('i.id', 'ASC'),
+            IndicationRawReviewWorklistSegment::Ignored => $qb->orderBy('i.reviewedAt', $direction)
+                ->addOrderBy('i.id', \SortDirection::Descending),
+            default => $qb->orderBy('i.createdAt', $direction)
+                ->addOrderBy('i.id', \SortDirection::Ascending),
         };
 
         if ('firstMatchedAt' === $query->sortBy) {

@@ -8,7 +8,7 @@ Legend: **Full** = create/edit/delete; **Read** = index/detail only; **—** = n
 
 | Entity | CRUD controller | Mode | Notes |
 |--------|-----------------|------|-------|
-| User | `UserCrudController` | Full | concise index; detail has locale, reminder preference, owned hospitals, access grants, timestamps; [conditional delete](#user-accounts) |
+| User | `UserCrudController` | Full | concise index with creation date; [review filters](#review-recent-registrations); detail has locale, reminder preference, owned hospitals, access grants, timestamps; [conditional delete](#user-accounts) |
 | Hospital | `HospitalCrudController` | Full | coordinates, access grants and timestamps on detail |
 | HospitalAccessGrant | `HospitalAccessGrantCrudController` | Full | permission mask UI |
 | Allocation | `AllocationCrudController` | Full | secondary transport/indications, notes |
@@ -23,6 +23,23 @@ Legend: **Full** = create/edit/delete; **Read** = index/detail only; **—** = n
 ## Reference data (full CRUD)
 
 Allocation, Assignment, Department, DispatchArea, IndicationNormalized, IndicationGroup, IndicationRaw (read-only forms), Infection, MciCase, Occasion, SecondaryTransport, Speciality, State.
+
+## Encounter (MTS catalog)
+
+Controllers live in the Encounter context (`src/Encounter/UI/Http/Controller/Admin/`) and are linked from the
+admin menu by route name (Data → MTS catalog), because no context may depend on Encounter. All changes go through
+`MtsCatalogCuration` and are audited ([encounter README](../04-features/encounter/README.md#mts-glossary), ADR 032).
+
+| Entity | CRUD controller | Mode | Notes |
+|--------|-----------------|------|-------|
+| MtsDiagram | `MtsDiagramCrudController` | Create/edit | code derived on creation and read-only; no delete; merge and undo on detail; collision report on the form |
+| MtsIndicator | `MtsIndicatorCrudController` | Create/edit | as diagrams |
+| MtsAlias | `MtsAliasCrudController` | Full | kind and label fixed after creation; aliases of a merge cannot be edited or deleted |
+| MtsDiagramIndicator | `MtsDiagramIndicatorCrudController` | Create/delete | no edit; active entries only |
+
+The plausibility table (problem areas, snapshots; ADR 033) has no EasyAdmin controller: catalog reviewers are not
+administrators, so it is maintained in the tool under `/tools/encounter-plausibility` (ADR 031), which the admin
+menu links (Data → MTS catalog → Plausibility table). A diagram named by a curated rule cannot be merged.
 
 ## Content
 
@@ -40,10 +57,11 @@ Allocation, Assignment, Department, DispatchArea, IndicationNormalized, Indicati
 
 | Entity | CRUD controller | Mode | Notes |
 |--------|-----------------|------|-------|
-| AuditEntry | `AuditLogCrudController` | Read | concise index (time, intent, action, entity, changed fields, actor); origin, request ID and diffs on detail; time-range and notification actions kept |
+| AuditEntry | — | Read | not in EasyAdmin: the audit timeline (`AuditTimelineController`, `/admin/audit`) shows it; see [audit-log.md](audit-log.md#audit-timeline) |
 | CookieConsent | `CookieConsentCrudController` | Read | version and `updatedAt` on detail; no `createdAt` getter |
 | JobRun | `JobRunCrudController` | Read | `job_run` (ADR 018), read-only entity over a DBAL-written table; filters for job, status, trigger, hospital, start and thresholds; shortcuts; metrics table and error on detail; linked from the import detail page |
-| Feedback | `FeedbackCrudController` | Limited | no manual create |
+| Feedback | `FeedbackCrudController` | Limited | no manual create; normal entries only; move to quarantine ([feedback](../04-features/feedback/README.md#admin-area)) |
+| Feedback (quarantine) | `FeedbackQuarantineCrudController` | Limited | quarantined entries only: view, release, delete (also as batch); no create or edit |
 
 Failed messages stay a custom list/detail Twig view, not EasyAdmin CRUD.
 
@@ -63,7 +81,8 @@ Failed messages stay a custom list/detail Twig view, not EasyAdmin CRUD.
 | Dashboard ops panel | `DashboardController` | Messenger, health, storage |
 | Failed messages | `DashboardController` (`operations_failed_messages`) | Inspect `messenger_messages` failed queue |
 | Disk usage | `DashboardController` (`operations_storage`) | Storage by category, location and history from the daily measurement (ADR 017) |
-| Usage analytics | `DashboardController` (`operations_usage_analytics_*`) | Overview, adoption, journeys, filters, performance |
+| Usage analytics | `DashboardController` (`operations_usage_analytics_*`) | Overview, accesses |
+| Navigation tree | `NavigationInspectorController` (`operations_navigation_index`) | All menus with properties, visibility and warnings, route check, evaluation for another user (#1237) |
 
 ## User accounts
 
@@ -72,3 +91,12 @@ Take an account out of use with **disable** (`isEnabled`) unless it is unused an
 **Delete** is offered on index, detail, and edit when the user does not own hospitals and is not the signed-in admin. Batch delete stays disabled.
 
 Do **not** cascade-remove hospitals or allocations. Reassign (or clear) `Hospital.owner` in Hospital CRUD first. Users are also referenced from many non-nullable `createdBy` columns; a delete that still hits a foreign key flashes an error instead of a 500. Disable remains available in every case.
+
+### Review recent registrations
+
+The user index shows **Created at** and can be sorted by it (newest first). The button **Possibly unknown users** opens the list with the participant filter set to "no" and sorted by **Created at**, newest first. Two filters can be combined with each other and with the sort order:
+
+- **Created at**: date range (or a single comparison) on `User.createdAt`.
+- **Has participant permissions**: yes/no on the effective roles, that is the stored roles plus `ROLE_USER`, expanded through the role hierarchy in `security.yaml` (`UserIdsWithEffectiveRoleQuery`). `ROLE_ADMIN` therefore counts as a participant; the enabled flag and hospital grants are not considered. See [permission-model.md](../02-architecture/permission-model.md#global-roles).
+
+Filters, sorting and page stay in the URL through pagination, the detail page and its "back to list" link. After a delete, or a blocked delete, the admin returns to the same filtered list. The filters only help to find accounts; nothing is classified or deleted automatically, and a missing participant role is no reason on its own to delete an account.

@@ -20,10 +20,23 @@ These version-specific details stay in place because 7.6.1 still depends on them
 - Axis title config always includes a `text` key. ApexCharts reads `axis.title.text` without checking that `title` exists.
 - PNG export sets an explicit font stack. Off-screen export cannot resolve `fontFamily: 'inherit'`.
 
+#### Light and dark mode
+
+Chart colours for the two colour schemes are set globally, not per chart (#1278):
+
+- [`assets/styles/charts.css`](../../assets/styles/charts.css), loaded by the `app` and `admin-kpi` entrypoints, styles axis and legend text, grid lines, axis lines and ticks, heatmap cell gaps, marker rings and tooltips for every ApexCharts chart. It uses Tabler variables, with Bootstrap fallbacks for EasyAdmin pages. Tabler's colours are `light-dark()` values, so charts follow the colour scheme and a theme change without re-rendering.
+- Controllers and option builders do not set `chart.foreColor`, `grid.borderColor`, `theme.mode`, `tooltip.theme` or colours for axis titles. An explicit value would override the global rules in one chart.
+- Data colours that must be plain colour values in the options (empty heatmap cells, neutral series, bar separators) come from [`assets/lib/chart-colors.js`](../../assets/lib/chart-colors.js): `chartColors(element)` returns the light or dark set, based on `isDarkTheme()` in [`chart-theme.js`](../../assets/lib/chart-theme.js). These values are read when the chart renders; after a theme change they apply on the next render.
+- The PNG export of analysis charts always uses the light colours.
+- ApexCharts' own `--apx-fore` and `--apx-grid` tokens are not used: ApexCharts copies them into SVG attributes, where `light-dark()` does not work.
+
+#### Single points in line charts
+
+Line and area charts draw no markers, only the line. With a single point (for example one month in the selected period) there is no line, so every line and area chart takes `markers` from [`assets/lib/chart-markers.js`](../../assets/lib/chart-markers.js): `lineMarkers(pointCount, markers)` returns a visible marker for exactly one point and the chart's own options otherwise (#1284). `seriesPointCount(series)` counts the points of charts without a shared category list.
+
 Not part of this upgrade. Add them only when a chart needs them:
 
 - Box plot jitter via `plotOptions.boxPlot.points`, once hospital or explorer distributions supply the raw observations.
-- Facet tokens (`--apx-*`) if charts should follow Tabler theme tokens more closely.
 - Violin, sunburst, icicle, trellis, the canvas renderer, storyboard, and ink. They need extra entry points and are unused by the current line, area, bar, heatmap, and box plot charts.
 
 ## Stimulus
@@ -39,12 +52,17 @@ Custom controllers live in `assets/controllers/*_controller.js`. Examples:
 | `hospital-population-charts`, `hospital-population-map` | Hospital population |
 | `benchmarking-charts` | Benchmarking |
 | `analysis-chart`, `generic-analysis-chart` | Analysis views |
+| `encounter-overview-chart` | Bar and box plot charts of the encounter overview; suppressed counts arrive as `null` and are not drawn |
 | `catalog-orientation-map` | Explore allocation/hospital orientation map (Leaflet, Turf) |
 | `result-count-mirror` | Copies DataTable `#result-count` into the page header after Turbo frame loads |
 | `bulk-selection` | Row selection, count and toolbar for DataTable bulk actions and the notification inbox |
 | `geo-map`, `isochrone-origin-map` | Statistics hospital-scope travel-time isochrone heatmap (Leaflet, Turf); widgets use `geo-map` |
 
 `assets/controllers.json` enables `@symfony/ux-live-component` and `@symfony/ux-turbo`.
+The `turbo-core` entry keeps the autoimport of `mercure_stream_source_element.js` that Symfony Flex adds from the
+`@symfony/ux-turbo` package config (#1305). It only registers the `<turbo-mercure-stream-source>` custom element and
+opens no connection while no page uses that element; `mercure-turbo-stream` stays disabled. Keeping it stops
+`composer update` from re-adding it as an unrelated diff.
 
 ## Live Components
 
@@ -100,6 +118,33 @@ view models) and reach the template as a variable. Import those by name. `IconFi
 (`tests/Shared/Unit/UI/`) scans `src/`, `templates/`, `config/` and `assets/` for icon names and fails if an SVG is
 missing. In the test env, on-demand Iconify is off (`config/packages/ux_icons.yaml`), so a missing icon also fails
 the rendering test instead of calling the network.
+
+## Explanatory texts on admin pages
+
+Admin pages show data and actions, not explanations (#1494). Add a visible explanatory text (intro, definition,
+hint under a heading, footnote, CRUD page help) only when an admin would otherwise misread a number and decide
+wrongly, trigger an action with consequences they cannot see, or miss a legal or privacy obligation the page has to
+state. Warnings, empty states, confirmation dialogs and form field help are not affected.
+
+Put a short explanation that is still useful into a tooltip on an info icon next to the label:
+`{{ include('@Admin/_info_tooltip.html.twig', {text: 'key'|trans({}, 'domain')}) }}`. For an EasyAdmin action use
+`setHtmlAttributes(['title' => new TranslatableMessage(...)])`. Definitions and background belong in `docs/`.
+
+## Print layout
+
+`assets/styles/print.css` is the shared print stylesheet of the application (not the admin area). It
+applies automatically when the browser prints and does not change the screen layout.
+
+- Mark page-specific controls with `d-print-none`. Page titles stay visible, even inside a
+  `.page-header.d-print-none`.
+- Printed output is always light and A4. DataTables stay tables on paper instead of switching to
+  their mobile cards.
+- A paginated DataTable prints the current page only and says so in its footer.
+- Charts are scaled to the paper by `assets/lib/print-preparation.js`; controllers need no print code.
+- Lazy Turbo Frames that have not loaded yet are left out of a printout from the browser menu. The
+  print icon in the statistics header (`_includes/print_button.html.twig`) loads them first and is
+  shown only on pages that have such frames.
+- Every printout ends with the application name, version and print time.
 
 ## Development workflow
 

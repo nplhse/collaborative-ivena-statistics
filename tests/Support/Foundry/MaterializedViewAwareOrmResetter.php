@@ -17,7 +17,8 @@ use Zenstruck\Foundry\ORM\ResetDatabase\OrmResetter;
  * database does not exist yet (e.g. ParaTest with TEST_TOKEN).
  *
  * Decorated inner to Foundry's DamaDatabaseResetter so DAMA disables static connections
- * before the migrate reset runs.
+ * before the migrate reset runs. The reset terminates DAMA's static connections opened by
+ * earlier tests, so they are dropped afterwards ({@see DamaStaticConnections}, #887).
  *
  * @see tests/Support/MaterializedView/README.md
  */
@@ -34,6 +35,8 @@ final readonly class MaterializedViewAwareOrmResetter implements OrmResetter
     {
         $this->materializedViewsInstaller->resetInstallationState();
         $this->decorated->resetBeforeFirstTest($kernel);
+        // The reset terminated every other backend, including DAMA's static connections.
+        DamaStaticConnections::forgetAll();
         $this->materializedViewsInstaller->ensureInstalled();
         $this->clearExploreFilterReferenceCache();
     }

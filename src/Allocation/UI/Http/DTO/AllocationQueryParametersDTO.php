@@ -9,6 +9,7 @@ use App\Allocation\Application\Allocations\AllocationCreatedAtRangeParser;
 use App\Allocation\Application\Allocations\AllocationListHospitalScopeResolver;
 use App\Allocation\Application\Export\DTO\AllocationListFilterCriteria;
 use App\Allocation\Application\Filter\OptionalRelationFilter;
+use App\Allocation\Domain\Enum\ClosureAtAssignment;
 use App\Allocation\UI\Twig\AllocationListColumns;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -84,9 +85,14 @@ final readonly class AllocationQueryParametersDTO
 
         public ?int $departmentWasClosed = null,
 
+        // The filter form submits '' for "all"; Choice only skips null, so '' must be listed.
+        #[Assert\Choice(choices: ['', ClosureAtAssignment::CLOSED->value, ClosureAtAssignment::OPEN->value, ClosureAtAssignment::UNKNOWN->value])]
+        public ?string $closureAtAssignment = null,
+
         public ?string $transportType = null,
 
-        #[Assert\Choice(choices: [AllocationListHospitalScopeResolver::SCOPE_MY_HOSPITALS])]
+        // Legacy parameter; an empty value means no scope, like a missing one.
+        #[Assert\Choice(choices: ['', AllocationListHospitalScopeResolver::SCOPE_MY_HOSPITALS])]
         public ?string $hospitalScope = null,
 
         #[Assert\GreaterThan(0)]
@@ -153,6 +159,7 @@ final readonly class AllocationQueryParametersDTO
             assignment: $this->assignment,
             occasion: $this->occasion,
             departmentWasClosed: $this->departmentWasClosed,
+            closureAtAssignment: $this->closureAtAssignment,
             transportType: $this->transportType,
             createdFrom: $createdAtRange->from,
             createdToExclusive: $createdAtRange->toExclusive,

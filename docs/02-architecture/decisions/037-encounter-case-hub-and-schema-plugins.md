@@ -1,0 +1,318 @@
+# ADR 037: Encounter as treatment case, schemas as Symfony bundles
+
+**Status:** accepted (#1274 part 1: contract, assignment, deletion rules and display proven with a test-only schema bundle; #1307 decisions and retries done; #1300 done: ED visit split out of the encounter, effective assignment on the encounter, cleanup of encounters without records, ED visits with MTS shipped as the plugin `plugins/ed-visit`, the application runs without it; #1301 done: data preparation tool with schema contributions)
+
+## Context
+
+ADR 026 introduced the `Encounter` context with one record type: `ed_visit`, one ED visit with
+Manchester Triage System (MTS) triage, process times, disposition and initial vitals. Further kinds of
+hospital data are expected: inpatient stays and diagnoses from controlling, prehospital data from EMS
+records. They differ much more between hospitals and vendors than the IVENA formats do, and adding each
+of them through an application release does not scale.
+
+The schema registry (`encounter.dimension`) already describes field contracts per schema, and the
+upload form lists its schemas. Processing is not open: `EncounterFileImporter` maps every file with the
+`ed_visit` row mapper into the `Encounter` entity and records MTS catalog codes. Review:
+[encounter-schema-plugins-review.md](../../04-features/encounter/encounter-schema-plugins-review.md)
+(#1273).
+
+Forces:
+
+- **IVENA stays primary.** Allocation and closure imports are fixed IVENA formats that every instance
+  uses. They are not the target of this decision.
+- **The case is the unit of interest.** Data from ED, controlling and EMS describe the same case. The
+  IVENA allocation is the natural anchor; MTS data also produce cases without an allocation (ADR 026).
+- **Security-critical steps must exist once.** Key generation lock and check value (ADR 027), detection
+  of identifying content, guarded commit, rejects, retention and deletion (ADR 029) must not be
+  reimplemented per data source.
+- **No patient-level key.** ADR 027 gives a stable case pseudonym per hospital and key generation; it
+  must not become a way to find the same patient again across cases.
+- **Data arrive in any order and can be ambiguous.** An inpatient stay may be imported before the ED
+  visit it follows; one administrative case can cover several ED visits.
+- **Clinical data.** Code that processes it is reviewed and deployed by the operator; nothing is
+  installed at runtime.
+- **Beta, one author.** The plugins are written by the maintainer for now. The contract has to work
+  until 1.0, not be frozen.
+
+## Decision
+
+### Plugin unit
+
+- A plugin contributes one or more **schemas of `ImportType::ENCOUNTER`**. It is a Symfony bundle,
+  installed with Composer and enabled in `config/bundles.php`. Enabling or removing one needs a
+  deployment (cache clear, migrations); there is no installation at runtime.
+- Allocation and closure imports stay import types of the core. `ImportType` is not extended by
+  plugins.
+
+### Encounter as treatment case
+
+- An `Encounter` is **one treatment case** for which more exists than the IVENA allocation. It holds
+  only base data: hospital, key generation, case pseudonym, anchor time, age, sex and at most one link
+  to an allocation (unique per allocation, changeable).
+- Everything else is a **record** of a schema: an ED visit with MTS, an inpatient stay, a diagnosis
+  list, an EMS record. A record of an existing case attaches to its encounter; it does not create a
+  second encounter for the same case.
+- An encounter has **no owning import**. The imports involved in an encounter are derived from the
+  records that reference it.
+
+### Case identity and time anchor
+
+- The **IVENA allocation is the primary anchor** of an encounter. Its time reference is the allocation's
+  `arrivalAt`, the **expected arrival** announced in IVENA. The clinical admission documented by the
+  hospital can differ from it; schemas keep their clinical times in their records, and matching
+  compares them with the expected arrival (ADR 030).
+- A case pseudonym can belong to **several encounters** within one hospital and key generation, as long
+  as their anchors differ, for example two allocations under one administrative case. The pseudonym
+  helps to find candidates; it is not the identity of an encounter.
+- An encounter without an allocation is created by a schema from its own data, with that schema's time
+  as anchor. Which time this is for `ed_visit` is an open question (below).
+- The boundary of ADR 027 stays: there is no patient-level key, and encounters of different cases are
+  never linked.
+
+### Effective assignment (amendment, #1300)
+
+Terms used from here on: an **encounter** is one treatment case; its row in `encounter` is the **encounter
+record**; the **IVENA allocation** is the independent allocation record; a **clinical record** is a record
+of a schema (`ed_visit`, `inpatient_stay`, …) that references its encounter through `encounter_id`.
+
+- Expected arrival (`arrivalAt`), age, sex and target hospital of an allocation are features for matching,
+  not identity.
+- The **effective assignment** of an encounter to an IVENA allocation is `encounter.allocation_id`
+  (unique, `ON DELETE SET NULL`). It is the authoritative source: the case file, the assignment service and
+  the check whether an allocation is taken read it there. The core sets and removes it
+  (`EncounterAllocationAssignmentsInterface`); a schema with its own matching history (the ED matching in
+  `encounter_match`) writes that history and calls the core in the same transaction.
+- **Extension of the decision:** when a schema assigns a clinical record uniquely to an IVENA allocation,
+  it asks the core for that allocation's encounter, which returns the assigned encounter or creates one
+  and assigns it in the same step (`encounterForAllocation()`); at most one encounter per allocation. Which
+  schemas may create an encounter **without** an allocation stays a separate rule: for now only `ed_visit`
+  (an ED visit without allocation).
+- Deleting an import of a schema removes its records only; other clinical records and the effective
+  assignment stay at the encounter. A reviewer can remove the assignment by hand also when no ED visit is
+  left. Deleting or reprocessing an IVENA import sets the assignment to null; the encounter and its records
+  stay, and the matcher assigns the new allocation again when the match is unambiguous.
+
+### Finding the encounter
+
+A schema asks the core for the encounter of each record: by allocation link, by case pseudonym and
+time, or by creating a new encounter. The core answers with one of four results and never guesses.
+
+| Result | Example | Rule |
+|---|---|---|
+| **assigned** | exactly one candidate | The record is attached to it. |
+| **no candidate** | the stay arrives before its ED visit | The record is kept **unassigned** and tried again when later encounter imports of the hospital add candidates. |
+| **ambiguous** | the pseudonym matches several encounters and the time does not decide | The record is kept unassigned with an **assignment conflict** naming the candidates. |
+| **contradictory** | allocation link and pseudonym point to different encounters | As ambiguous, with both candidates. |
+
+- Unassigned records and conflicts are counted in the import report.
+- Conflicts are visible to users with the `REVIEW` grant of the hospital (ADR 028) and are resolved by
+  hand with one of two decisions:
+  - **Assign to a candidate:** the record is attached to the chosen encounter and from then on
+    processed like an automatically assigned one.
+  - **Leave unassigned for now:** the conflict is closed without an assignment. The record stays
+    eligible for automatic assignment: a later retry that finds exactly one candidate attaches it. A
+    new conflict is raised only when a retry finds candidates other than those the reviewer saw.
+    Reprocessing the import removes the decision together with the record, like other review decisions
+    (ADR 029).
+- Automatic retries apply to records without candidate and to records left unassigned. Open conflicts
+  wait for review.
+- In the first version only `ed_visit` creates encounters; other schemas attach to existing ones.
+
+### Records and ownership
+
+- Each schema stores its records in its **own tables**, without Doctrine inheritance.
+- ADR 029 applies **per record**: a record belongs to the import that created it; duplicate detection
+  uses a schema-specific fingerprint, unique per hospital, key generation and schema.
+- A record references at most one encounter. The reference is empty while the record is unassigned.
+- The reference is `ON DELETE RESTRICT`: the database refuses to remove an encounter that a record still
+  references, also when the record belongs to a schema whose bundle is disabled but whose tables remain.
+- **Deleting or reprocessing an import** removes exactly the records of that import, through its schema,
+  with the cleanup of ADR 029. Records of other imports at the same encounter stay. Deleting an encounter
+  import also removes the encounters it leaves without records (#1644); otherwise an encounter can be left
+  without records for a while, for example during a reassignment.
+- **Cleanup of encounters without records** is a separate, central step of the core. It removes encounters that no record
+  references, after checking every table that references `encounter`, including tables of disabled
+  bundles. It can be started by hand, on a schedule or after defined events; a bundle can request it.
+
+### Matching
+
+Matching ED visits with allocations (ADR 030) is part of the `ed_visit` schema. The core offers linking
+and unlinking an encounter and an allocation; merging and splitting encounters is an open question.
+
+### Shared workflow and schema handler
+
+The core keeps the import workflow for every schema: reading the file, manifest and header validation,
+detection of identifying content, key generation lock and check value, guarded commit, rejects, report
+counters, source file retention, reprocessing and deletion. A schema contributes its field contract per
+version (`EncounterDimensionInterface`) and a **schema handler** that maps rows, finds the encounter of
+each record, writes its records inside the core's transaction, removes the records of an import and
+returns the counts for the report. The core has no branch for a specific schema.
+
+### Places a schema appears
+
+A schema may contribute to the import selection and report, the data preparation tool, the navigation
+and tools, the allocation case file and the Explore overview. Where an existing extension point fits,
+the schema uses it; the review lists each place with the interface and the generalisation it needs.
+Two rules hold for all of them:
+
+- Access is decided by the core and the hosting page, not trusted to the contribution. In the case file
+  the core checks `VIEW_CASES`. On the Explore overview, Explore decides whether an entry is visible in
+  the current hospital and permission context; the target page checks its access itself.
+- The Explore overview gets a new extension point for an entry and its target page; it is a fixed
+  template today.
+
+### Contract layer
+
+- Plugins depend only on `App\Encounter\Contract\…` (interfaces, value objects, the base entity), on
+  `Shared` extension points and on Symfony and Doctrine. A Deptrac layer enforces this.
+- **Amendment (#1300, 2026-11-17):** a full schema such as `ed_visit` also needs a few Encounter classes outside
+  the contract (the `Encounter` entity as target of its Doctrine relations, the voter attributes, the base-data
+  enums, the grant repository, the department catalog, the `EncountersImported` event) and the entities, enums
+  and documented extension points of other contexts (users and roles, hospitals, departments, allocations,
+  imports, navigation, tools, My Hospitals, Explore, glossary, DataTable, audit, and the Statistics page API for
+  a statistics page of its own). Wrapping all of that in
+  contract facades was rejected as a large layer without benefit while plugins live in this repository. The
+  allowed names are listed in `PluginBoundaryTest::ALLOWED`, which fails CI, and in the Deptrac layers
+  `Encounter_PluginApi` and `Encounter_Plugin`; [extension points](../extension-points.md#encounter-schema-bundles)
+  lists them.
+- Where another context offers the extension point (allocation case file, Explore overview, import data
+  removers, import detail page), Encounter implements it once and forwards to its plugins. A plugin
+  needs no dependency on `Allocation` or `Import`.
+- The contract may change during the beta. Plugins in this repository are updated in the same change.
+
+### Bundle layout and location
+
+- Bundles follow the Symfony bundle best practices (`AbstractBundle`, `src/`, `config/`, `templates/`,
+  `translations/`, `migrations/`), not the context layout of ADR 007. They contribute their Doctrine
+  mapping, migrations, routes and Twig namespace through the bundle, without edits to the application
+  configuration.
+- Shipped plugins live in `plugins/<name>/` as Composer path repositories, so that one can move to its
+  own repository later. Test-only bundles live under `tests/` and are enabled in the `test` environment
+  only.
+
+### Data preparation tool
+
+The tool becomes a generic shell (key file, fingerprinting, manifest, removal of identifying columns,
+local map); schemas contribute their schema file, profiles, scripts and catalogs (#1301).
+
+**Done in #1301:** key rules (fingerprint and case key) come from the dimension (`keyRules()`), the renderer
+adds them to the schema; schemas contribute through `DataPrepContributionInterface`, ordered by schema name;
+the profile of a file decides its schema, several matching profiles stop the export; only the export fields of
+the active schema version reach the file. The `ed_visit` contribution is registered by the plugin; step 4h moved its
+files (schema, ORBIS profile, schema module, local map files) into `plugins/ed-visit/data-prep/`. Details: [data-preparation-tool.md](../../04-features/encounter/data-preparation-tool.md#schema-contributions).
+
+### Transition
+
+The decision is implemented in steps:
+
+1. **#1274** proves the mechanism with a synthetic test bundle (`inpatient_stay`): contract layer,
+   schema handler, all four assignment results (`contradictory` at the level of the assignment
+   service, because the synthetic schema carries no allocation link), unassigned records and conflicts
+   with their counts and candidates,
+   the visibility of conflicts for `REVIEW`, case file sections and Explore entries. The existing
+   `encounter` row of an ED visit serves as the encounter; MTS stays in the core.
+2. **#1307** (follow-up of #1274, done): the two manual decisions on conflicts (the conflict page
+   re-checks each conflict under the encounter hospital lock and keeps a decision history) and retrying
+   records without candidate and records left unassigned after later encounter imports, plus a targeted
+   retry of one conflict whose assignment became unique. The hospital lock is taken by the decisions and
+   retries only; import write, reprocessing and the matcher join it in step 3.
+3. **#1300** splits the ED visit out of the `encounter` table (step 1 done: `ed_visit` keyed by the
+   encounter id, data migrated 1:1 and back, effective assignment on the encounter, reprocessing of
+   `ed_visit` reconciles by fingerprint in one transaction, see ADR 029; import write, reprocessing and the
+   matcher take the encounter hospital lock; step 2 done: the cleanup of encounters without records runs
+   daily and by command, per hospital under the encounter hospital lock, and treats every refusing
+   foreign key to `encounter` as a record; step 3 done: the empty bundle `plugins/ed-visit`
+   (`Cois\Plugin\EdVisit\EdVisitBundle`, package `nplhse/cois-ed-visit`) as a Composer path package, enabled
+   in every environment and covered by the static analysis; step 4 done: the ED visit code, its tests,
+   templates and Stimulus controller moved into the bundle in one change, because its parts depend on each
+   other in a cycle; the hospital course card takes the ED course through `EncounterCourseProviderInterface`;
+   queued `MatchEncountersMessage`s keep working through a class alias; the encounter analytics page comes from
+   the bundle through the extension point "Statistics pages" (also used by the test bundle); the synthetic ED
+   data and its fixture are part of the bundle, loaded only in dev, test and demo, and the fixture purge asks
+   plugins which tables to keep; the ED part of the data preparation tool is a contribution of the bundle (#1301);
+   step 5 done: the application runs with the bundle disabled (core pages link encounters through
+   `EncounterLinkProviderInterface`, menus show plugin pages only while their routes exist; tested with kernels
+   without the bundle and without any schema); step 6 done: `make check-without-ed-visit` installs a copy
+   without the package and smoke-tests it). URLs, route names, permissions, texts and numbers are unchanged.
+
+Before step 1 of #1300, `ed_visit` was the only schema in production and its records were the encounters;
+deleting an `ed_visit` import whose visits carried records of another schema was refused. Since then an
+ED import deletion removes the visits only.
+
+## Open questions
+
+- **Anchor without allocation:** whether an encounter created by `ed_visit` without an allocation uses
+  the fingerprint anchor of ADR 029 (first contact of the initial assessment, else ED admission) or the
+  matching anchor of ADR 030 (ED admission, else the assessment). Until decided, `ed_visit` keeps the
+  fingerprint anchor.
+- **Time rule for one pseudonym with several encounters:** whether and within which window the clinical
+  time of a record (for example the admission of a stay) decides between candidates.
+- **Merging and splitting:** what happens to records when a second schema may create encounters and a
+  later allocation link makes two encounters the same case, or a link is removed.
+- **Cleanup criteria:** whether a scheduled run should wait before it treats an encounter without
+  records as final (for example while reassignments are open). Since #1300 the daily cleanup removes
+  every encounter that is empty at the run.
+- **Disabled bundles:** how unassigned records and open conflicts of a schema whose bundle is disabled
+  are shown and resolved. Since #1300 the application runs without the `ed_visit` bundle: its tables stay
+  (core migrations created them) and the conflict page lists candidates without a link to a visit page. What
+  happens to pending records and conflicts of the disabled schema itself is still open.
+
+## Consequences
+
+**Positive:**
+
+- New kinds of hospital data need a bundle and a deployment, not an application release
+- Key check, identifying-content detection, commit guard and deletion exist once for all schemas
+- The case view brings data of several sources together without a patient-level key
+- Deleting an import removes exactly its records; no record disappears because another import was
+  deleted
+- Records that arrive early or match ambiguously are kept and can be assigned later
+- A fresh installation without the MTS bundle remains possible
+
+**Negative:**
+
+- Splitting the ED visit out of the `encounter` table needs a data migration on pilot data
+- Unassigned records and conflicts need a review page and people with the `REVIEW` grant
+- Encounters without records exist until the cleanup runs (since #1644 not after deleting an encounter import)
+- Until the split, deleting an `ed_visit` import fails completely while records of another schema are
+  attached
+- A record that names an allocation is not retried when a later matcher run links that allocation, only
+  after the next encounter import or by the command
+- A contract layer to maintain, and a second layout (bundles) next to the contexts
+- Until merging is decided, only one schema may create encounters
+
+## Alternatives
+
+- **One `ImportType` per plugin:** rejected. `ImportType` is a PHP enum stored as Doctrine enum, and
+  several services branch over it with `match`; a bundle cannot add a case, and every plugin would
+  repeat the shared workflow.
+- **Plugins with their own import workflow:** rejected; the key check and identifying-content
+  detection would exist once per plugin.
+- **Doctrine single-table or joined inheritance for records:** rejected; the base class would have to
+  know every plugin.
+- **One encounter per record:** rejected; an inpatient stay that follows an ED visit or an allocation is
+  the same case.
+- **Case pseudonym as encounter identity:** rejected; one administrative case can cover several
+  allocations and ED visits.
+- **Rejecting ambiguous or unmatched rows:** rejected; rejects keep no values (ADR 026), so the record
+  could never be assigned later.
+- **Cascading deletes from the encounter to its records:** rejected; deleting one import would remove
+  records of other imports.
+- **Removing an encounter together with the import that created it:** rejected; records of other
+  imports would lose their encounter.
+- **Plugins installed at runtime (uploaded code):** rejected; code processing clinical data is reviewed
+  and deployed by the operator.
+- **Keep `ed_visit` and MTS in the core and only add schemas:** rejected; MTS is one source among
+  several, and an instance without ED data should not carry it.
+
+## References
+
+- Amends [026-encounter-data-context-and-exchange-format.md](026-encounter-data-context-and-exchange-format.md)
+  (model: one encounter is one case, not one ED visit),
+  [029-encounter-import-lifecycle.md](029-encounter-import-lifecycle.md) (ownership per record, encounter
+  cleanup) and [030-encounter-allocation-matching.md](030-encounter-allocation-matching.md) (matching
+  owned by `ed_visit`)
+- [027-encounter-pseudonym-key.md](027-encounter-pseudonym-key.md),
+  [028-encounter-access-grants.md](028-encounter-access-grants.md)
+- [../extension-points.md](../extension-points.md)
+- Issues #1273, #1274, #1300, #1301, #1307

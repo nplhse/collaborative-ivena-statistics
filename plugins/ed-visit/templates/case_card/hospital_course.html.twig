@@ -1,0 +1,95 @@
+{# Excerpt of the ED stay in the hospital course card (#1055, #1401), included by the core card (EdVisitCourseProvider). All values are on the visit page. #}
+{% set d = 'encounter' %}
+{% import '@EdVisit/visit/_course_macros.html.twig' as course_blocks %}
+{% set encounter = course.encounter %}
+{% set link = course.link %}
+{% macro duration(minutes) %}
+    {%- if minutes is null -%}
+        –
+    {%- elseif minutes >= 60 -%}
+        {{ (minutes / 60)|round(0, 'floor') }} h {{ minutes % 60 }} min
+    {%- else -%}
+        {{ minutes }} min
+    {%- endif -%}
+{% endmacro %}
+{% import _self as excerpt %}
+<div class="card-body" data-testid="encounter-course-excerpt">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3" data-testid="encounter-course-link">
+        <div>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                {% if course.automatic %}
+                    <span class="badge bg-blue-lt" title="{{ 'encounter.course.origin.automatic_hint'|trans({}, d) }}" data-testid="encounter-course-origin" data-origin="automatic">{{ 'encounter.course.origin.automatic'|trans({}, d) }}</span>
+                {% else %}
+                    <span class="badge bg-green-lt" title="{{ 'encounter.course.origin.confirmed_hint'|trans({}, d) }}" data-testid="encounter-course-origin" data-origin="confirmed">{{ 'encounter.course.origin.confirmed'|trans({}, d) }}</span>
+                {% endif %}
+                {% if course.agreementPercent is not null %}
+                    {{ course_blocks.agreement_badge(link.score, 'encounter-course-agreement') }}
+                {% endif %}
+            </div>
+            <div class="text-secondary small mt-1">{{ ('encounter.course.anchor.' ~ link.timeAnchor.value)|trans({minutes: (link.timeDifferenceMinutes > 0 ? '+' : '') ~ link.timeDifferenceMinutes}, d) }}</div>
+        </div>
+        <a class="btn btn-primary" href="{{ path('app_explore_ed_visit_show', {visitUid: encounter.visitUid}) }}" data-testid="encounter-course-visit-link">
+            <twig:ux:icon name="tabler:stethoscope" class="w-3 h-3 me-1" />
+            {{ 'encounter.course.open_visit'|trans({}, d) }}
+        </a>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-6" data-testid="encounter-course-triage">
+            <div class="subheader mb-1">{{ 'encounter.course.section.triage'|trans({}, d) }}</div>
+            <div class="fw-semibold" data-testid="encounter-course-category">
+                {% if encounter.triage.category %}
+                    <span class="badge bg-{{ encounter.triage.category.value }} me-1"></span>{{ ('encounter.mts.category.' ~ encounter.triage.category.value ~ '.name')|trans({}, d) }}
+                {% else %}–{% endif %}
+            </div>
+            {% if diagram_name %}<div class="small text-secondary">{{ diagram_name }}</div>{% endif %}
+            {% if indicator_name %}<div class="small text-secondary">{{ indicator_name }}</div>{% endif %}
+        </div>
+        <div class="col-md-6">
+            <div class="subheader mb-1">{{ 'encounter.course.section.disposition'|trans({}, d) }}</div>
+            <div class="fw-semibold" data-testid="encounter-course-disposition">{{ encounter.disposition.code ? ('encounter.disposition.' ~ encounter.disposition.code.value)|trans({}, d) : '–' }}</div>
+            {% if encounter.admittingDepartment %}<div class="small text-secondary">{{ encounter.admittingDepartment.name }}</div>{% endif %}
+            {% if encounter.disposition.careLevel %}<div class="small text-secondary">{{ ('encounter.care_level.' ~ encounter.disposition.careLevel.value)|trans({}, d) }}</div>{% endif %}
+        </div>
+    </div>
+
+    <div class="row g-3 border-top pt-1 mt-3" data-testid="encounter-course-intervals">
+        {% set interval_icons = {
+            admission_to_assessment: 'tabler:clock-play',
+            admission_to_physician: 'tabler:stethoscope',
+            admission_to_discharge: 'tabler:clock-check',
+        } %}
+        {% for value in course.intervals %}
+            <div class="col-md-4" data-testid="encounter-course-interval" data-interval="{{ value.interval.value }}" data-minutes="{{ value.minutes ?? '' }}">
+                <div class="subheader mb-1">
+                    {% if interval_icons[value.interval.value] is defined %}<twig:ux:icon name="{{ interval_icons[value.interval.value] }}" class="me-1" width="1em" height="1em" />{% endif %}
+                    {{- ('encounter.process.' ~ value.interval.value ~ '.label')|trans({}, d) }}
+                </div>
+                <div class="h3 mb-0">{{ excerpt.duration(value.minutes) }}</div>
+                {% if value.minutes is not null and not value.plausible %}
+                    <span class="badge bg-warning-lt" data-testid="encounter-course-implausible">{{ 'encounter.course.implausible'|trans({}, d) }}</span>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if course.timeline is not empty %}
+        <div class="row row-cols-2 row-cols-md-3 g-2 border-top pt-2 mt-3" data-testid="encounter-course-steps">
+            {% for event in course.timeline %}
+                {% set expected = event.key == 'ivena_arrival' %}
+                <div class="col{{ expected ? ' text-secondary' : '' }}" data-testid="encounter-course-event" data-event="{{ event.key }}">
+                    <div class="font-monospace{{ expected ? '' : ' fw-semibold' }}">{{ event.at|date('H:i') }}</div>
+                    <div class="small{{ expected ? ' fst-italic' : ' text-secondary' }}">{{ ('encounter.course.event.' ~ event.key)|trans({}, d) }}</div>
+                    {% if expected %}<span class="badge bg-secondary-lt" data-testid="encounter-course-event-source">{{ 'encounter.visit.timeline.from_ivena'|trans({}, d) }}</span>{% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if encounter.vitals.reference is not null %}
+        <div class="border-top pt-3 mt-3">
+            <div class="subheader mb-2">{{ 'encounter.course.section.vitals'|trans({}, d) }}</div>
+            {{ course_blocks.vitals(course, true, true) }}
+        </div>
+    {% endif %}
+</div>

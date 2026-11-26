@@ -12,12 +12,14 @@ use App\Content\Domain\Entity\Page;
 use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Domain\Enum\PageKey;
 use App\Content\Infrastructure\Factory\PageFactory;
-use App\Shared\Application\Navigation\DTO\SitemapPageNode;
+use App\Shared\Application\Navigation\DTO\SitemapEntry;
+use App\Shared\Application\Navigation\DTO\SitemapGroup;
 use App\Shared\Application\Navigation\DTO\SitemapSection;
 use App\Shared\Application\Navigation\SitemapProvider;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -40,157 +42,129 @@ final class SitemapProviderTest extends KernelTestCase
         $this->tokenStorage = self::getContainer()->get(TokenStorageInterface::class);
     }
 
-    public function testGuestSeesPublicAndContentSections(): void
+    public function testGuestSeesPublicAreasFooterColumnsAndRemainingPages(): void
     {
         $this->seedContentPages();
 
-        $sectionKeys = $this->sectionKeys($this->provider->getSections());
-
-        self::assertSame(['public', 'content'], $sectionKeys);
-        self::assertNotContains('statistics', $sectionKeys);
-        self::assertNotContains('explore', $sectionKeys);
-        self::assertNotContains('account', $sectionKeys);
-        self::assertNotContains('admin', $sectionKeys);
-
-        $publicSection = $this->findSection('public');
-        $publicLabels = array_map(static fn (\App\Shared\Application\Navigation\DTO\SitemapLink $link): string => $link->label, $publicSection->links);
-        $publicUrls = array_map(static fn (\App\Shared\Application\Navigation\DTO\SitemapLink $link): string => $link->url, $publicSection->links);
-
-        self::assertContains('Login', $publicLabels);
-        self::assertContains('Register', $publicLabels);
-        self::assertSame('Home', $publicSection->links[0]->label);
-        self::assertFalse(
-            (bool) array_filter($publicUrls, static fn (string $url): bool => str_contains($url, '/blog')),
-        );
         self::assertSame(
-            ['Home', 'Login', 'Register', 'Forgot password?', 'Cookie settings'],
-            $publicLabels,
+            ['blog', 'page-about', 'page-features', 'page-faq', 'footer-legal', 'footer-more', 'pages'],
+            $this->sectionKeys(),
         );
+        self::assertSame(['Page imprint', 'Page privacy', 'Page terms', 'Data sources and licences'], $this->labels($this->findSection('footer-legal')->groups[0]->entries));
+        self::assertSame(['Cookie settings'], $this->labels($this->findSection('footer-more')->groups[0]->entries), 'The sitemap does not link to itself.');
 
-        $contentSection = $this->findSection('content');
-        self::assertCount(1, $contentSection->links);
-        self::assertSame('Blog', $contentSection->links[0]->label);
-        self::assertNotEmpty($contentSection->pageTree);
-
-        $pageTreeLabels = $this->flattenPageTreeLabels($contentSection->pageTree);
-        self::assertContains('Page about', $pageTreeLabels);
-        self::assertContains('Custom guide', $pageTreeLabels);
-        self::assertContains('Child page', $pageTreeLabels);
-        self::assertNotContains('Members only', $pageTreeLabels);
+        $pages = $this->findSection('pages')->groups[0]->entries;
+        self::assertSame(['Guides'], $this->labels($pages), 'Pages already listed as area or footer link are not repeated; members-only pages are hidden.');
+        self::assertSame(['Custom guide', 'Child page'], $this->labels($pages[0]->children));
+        self::assertStringContainsString('/guides/child-page', (string) $pages[0]->children[1]->url);
     }
 
-    public function testContentSectionRendersNestedPagesAsTree(): void
-    {
-        $this->seedContentPages();
-
-        $contentSection = $this->findSection('content');
-        $guidesNode = $this->findPageTreeNodeByLabel($contentSection->pageTree, 'Guides');
-
-        self::assertNotNull($guidesNode);
-        self::assertCount(2, $guidesNode->children);
-
-        $childLabels = array_map(
-            static fn (SitemapPageNode $node): string => $node->label,
-            $guidesNode->children,
-        );
-
-        self::assertSame(['Custom guide', 'Child page'], $childLabels);
-        self::assertStringContainsString('/guides/child-page', $guidesNode->children[1]->url);
-    }
-
-    public function testAuthenticatedUserSeesStatisticsAndAccountSections(): void
+    public function testUserSeesStatisticsWithSidebarGroupsAndNestedInsights(): void
     {
         $this->seedContentPages();
         $this->authenticate(UserFactory::createOne(['roles' => ['ROLE_USER']]));
 
-        $sectionKeys = $this->sectionKeys($this->provider->getSections());
-
-        self::assertSame(['public', 'content', 'statistics', 'account'], $sectionKeys);
-        self::assertNotContains('explore', $sectionKeys);
-        self::assertNotContains('data_exchange', $sectionKeys);
-        self::assertNotContains('admin', $sectionKeys);
-
-        $publicSection = $this->findSection('public');
-        $publicLabels = array_map(static fn (\App\Shared\Application\Navigation\DTO\SitemapLink $link): string => $link->label, $publicSection->links);
-
-        self::assertNotContains('Login', $publicLabels);
-        self::assertNotContains('Register', $publicLabels);
-
-        $contentSection = $this->findSection('content');
-        $pageTreeLabels = $this->flattenPageTreeLabels($contentSection->pageTree);
-
-        self::assertContains('Members only', $pageTreeLabels);
-        $contentLabels = array_map(static fn (\App\Shared\Application\Navigation\DTO\SitemapLink $link): string => $link->label, $contentSection->links);
-        self::assertSame(['Activity', 'Blog'], $contentLabels);
-
-        $statisticsSection = $this->findSection('statistics');
-        self::assertCount(9, $statisticsSection->links);
-        $statisticsLabels = array_map(
-            static fn (\App\Shared\Application\Navigation\DTO\SitemapLink $link): string => $link->label,
-            $statisticsSection->links,
+        self::assertSame(
+            ['statistics', 'blog', 'page-faq', 'footer-project', 'footer-legal', 'footer-more', 'pages'],
+            $this->sectionKeys(),
         );
-        self::assertSame('Overview', $statisticsLabels[0]);
-        $this->assertLabelsAreAlphabetical(array_slice($statisticsLabels, 1));
-        self::assertContains('Top Lists', $statisticsLabels);
-        self::assertContains('Reports', $statisticsLabels);
-        self::assertContains('Forced assignments', $statisticsLabels);
+
+        $statistics = $this->findSection('statistics');
+        self::assertSame($this->url('app_stats_dashboard'), $statistics->url);
+        self::assertSame(
+            [null, 'Allocations', 'Comparisons', 'Capacity & closures', 'Own analyses', null],
+            array_map(static fn (SitemapGroup $group): ?string => $group->label, $statistics->groups),
+        );
+        self::assertSame(['Overview', 'Reports', 'Top Lists'], $this->labels($statistics->groups[0]->entries));
+        self::assertSame(['Forced assignments'], $this->labels($statistics->groups[3]->entries), 'Closures need the beta role.');
+        self::assertSame(['Geographic flow', 'Hospitals'], $this->labels($statistics->groups[5]->entries));
+
+        $insights = $statistics->groups[1]->entries[0];
+        self::assertSame('Insights', $insights->label);
+        self::assertNull($insights->url, 'A group entry of the sidebar only heads its children.');
+        self::assertSame(['Overview', 'Dimensions', 'Comparison'], $this->labels($insights->children));
+        self::assertSame(
+            ['Assignment', 'Departments', 'Indication groups', 'Indications', 'Infections', 'Occasions', 'Secondary transports', 'Specialities'],
+            $this->labels($insights->children[1]->children),
+        );
+
+        self::assertSame(['Page about', 'Page features', 'Activity'], $this->labels($this->findSection('footer-project')->groups[0]->entries));
+        self::assertSame(['Members only', 'Guides'], $this->labels($this->findSection('pages')->groups[0]->entries));
     }
 
-    public function testParticipantSeesExploreDataExchangeAndMyHospitalsInAccount(): void
+    public function testParticipantSeesExploreImportAndTools(): void
     {
         $this->seedContentPages();
         $this->authenticate(UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]));
 
-        $sectionKeys = $this->sectionKeys($this->provider->getSections());
-
         self::assertSame(
-            ['public', 'content', 'explore', 'statistics', 'data_exchange', 'account'],
-            $sectionKeys,
+            ['explore', 'statistics', 'import', 'tools', 'blog', 'page-faq', 'footer-project', 'footer-help', 'footer-legal', 'footer-more', 'pages'],
+            $this->sectionKeys(),
         );
 
-        $exploreSection = $this->findSection('explore');
-        self::assertCount(16, $exploreSection->links);
-        $exploreLabels = array_map(
-            static fn (\App\Shared\Application\Navigation\DTO\SitemapLink $link): string => $link->label,
-            $exploreSection->links,
+        $explore = $this->findSection('explore');
+        self::assertSame(
+            [null, 'Cases', 'Organisation', 'Hospital structure', 'Features'],
+            array_map(static fn (SitemapGroup $group): ?string => $group->label, $explore->groups),
         );
-        self::assertContains('Users', $exploreLabels);
-        $this->assertLabelsAreAlphabetical($exploreLabels);
+        self::assertSame(['Hospitals', 'States', 'Dispatch Areas', 'Users'], $this->labels($explore->groups[2]->entries), 'Users come from the User context.');
 
-        $dataExchangeSection = $this->findSection('data_exchange');
-        self::assertCount(1, $dataExchangeSection->links);
-        self::assertSame('Import', $dataExchangeSection->links[0]->label);
+        self::assertSame([], $this->findSection('import')->groups, 'Import has no sub-pages and becomes a link tile.');
 
-        $accountSection = $this->findSection('account');
-        self::assertCount(5, $accountSection->links);
-        self::assertSame('My hospitals', $accountSection->links[4]->label);
-        self::assertSame('My Account', $accountSection->links[0]->label);
+        $tools = $this->findSection('tools');
+        self::assertSame($this->url('app_tools_index'), $tools->url);
+        self::assertSame(['Indication review'], $this->labels($tools->groups[0]->entries));
     }
 
-    public function testExportLinkOnlyVisibleInDataExchangeSectionWhenUserCanExport(): void
+    public function testBetaRolesAddClosuresTreatmentDataAndBetaTools(): void
+    {
+        $this->seedContentPages();
+        $this->authenticate(UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_ENCOUNTER_BETA']]));
+
+        $statistics = $this->findSection('statistics');
+        self::assertSame(
+            [null, 'Allocations', 'Comparisons', 'Capacity & closures', 'Clinical data', 'Own analyses', null],
+            array_map(static fn (SitemapGroup $group): ?string => $group->label, $statistics->groups),
+        );
+
+        [$forcedAssignments, $closures] = $statistics->groups[3]->entries;
+        self::assertSame('Forced assignments', $forcedAssignments->label);
+        self::assertSame('Closures', $closures->label);
+        self::assertNull($closures->badge, 'Closure Analytics left the beta (#1350).');
+        self::assertSame(
+            ['Overview', 'Duration and time burden', 'Timeline drilldown', 'Groups and events', 'Constellations'],
+            $this->labels($closures->children),
+        );
+        // The ED visit plugin and, in the test environment, the inpatient_stay test bundle add their statistics pages.
+        self::assertSame(['Treatment data', 'Inpatient stays (test)'], $this->labels($statistics->groups[4]->entries));
+
+        self::assertSame(
+            [['Assignment conflicts', 'ED match review', 'ED match validation', 'Indication review'], ['Encounter data preparation']],
+            array_map(fn (SitemapGroup $group): array => $this->labels($group->entries), $this->findSection('tools')->groups),
+        );
+    }
+
+    /**
+     * The export is a tool in its own category since #1633, not a section of its own.
+     */
+    public function testExportIsListedAsToolOnlyWhenTheUserCanExport(): void
     {
         $this->seedContentPages();
 
-        $participantWithoutExport = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
-        $this->authenticate($participantWithoutExport);
-
-        self::assertFalse($this->sectionContainsRoute($this->provider->getSections(), 'app_hospitals_export_allocations'));
+        $this->authenticate(UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]));
+        self::assertNotContains('export', $this->sectionKeys());
+        self::assertSame([['Indication review']], $this->toolLabels());
 
         $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
         HospitalFactory::createOne(['owner' => $owner]);
         $this->authenticate($owner);
-
-        self::assertTrue($this->sectionContainsRoute($this->provider->getSections(), 'app_hospitals_export_allocations'));
-
-        $dataExchangeSection = $this->findSection('data_exchange');
-        self::assertCount(2, $dataExchangeSection->links);
-        self::assertSame('Export', $dataExchangeSection->links[0]->label);
-        self::assertSame('Import', $dataExchangeSection->links[1]->label);
+        self::assertNotContains('export', $this->sectionKeys());
+        self::assertSame([['Indication review'], ['Export allocations']], $this->toolLabels());
+        self::assertSame($this->url('app_tools_allocation_export'), $this->findSection('tools')->groups[1]->entries[0]->url);
 
         $grantee = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
-        $hospital = HospitalFactory::createOne(['owner' => $owner]);
         HospitalAccessGrantFactory::createOne([
-            'hospital' => $hospital,
+            'hospital' => HospitalFactory::createOne(['owner' => $owner]),
             'user' => $grantee,
             'permissions' => HospitalPermissionMask::fromPermissions([
                 HospitalPermission::View,
@@ -198,34 +172,36 @@ final class SitemapProviderTest extends KernelTestCase
             ]),
         ]);
         $this->authenticate($grantee);
-
-        self::assertTrue($this->sectionContainsRoute($this->provider->getSections(), 'app_hospitals_export_allocations'));
+        self::assertSame([['Indication review'], ['Export allocations']], $this->toolLabels());
     }
 
-    public function testAdminDoesNotSeeAdministrationSection(): void
+    /**
+     * @return list<list<string>>
+     */
+    private function toolLabels(): array
+    {
+        return array_map(fn (SitemapGroup $group): array => $this->labels($group->entries), $this->findSection('tools')->groups);
+    }
+
+    public function testAccountAdminAndLoginPagesAreNotListed(): void
     {
         $this->seedContentPages();
+        $hidden = ['app_login', 'app_register', 'app_forgot_password_request', 'app_settings_index', 'app_hospitals_index', 'app_admin_dashboard'];
+
+        self::assertSame([], array_intersect(array_map($this->url(...), $hidden), $this->allUrls()), 'Guest');
+
         $this->authenticate(UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN', 'ROLE_PARTICIPANT']]));
-
-        $sectionKeys = $this->sectionKeys($this->provider->getSections());
-
-        self::assertNotContains('admin', $sectionKeys);
-        self::assertFalse($this->sectionContainsRoute($this->provider->getSections(), 'app_admin_dashboard'));
+        self::assertSame([], array_intersect(array_map($this->url(...), $hidden), $this->allUrls()), 'Admin');
     }
 
-    public function testContentSectionShowsBlogWithoutPublishedPages(): void
+    public function testEveryUrlIsListedOnce(): void
     {
-        $sectionKeys = $this->sectionKeys($this->provider->getSections());
+        $this->seedContentPages();
+        $this->authenticate(UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_ENCOUNTER_BETA']]));
 
-        self::assertContains('content', $sectionKeys);
+        $urls = $this->allUrls(withSectionUrls: false);
 
-        $publicSection = $this->findSection('public');
-        self::assertSame('Home', $publicSection->links[0]->label);
-
-        $contentSection = $this->findSection('content');
-        self::assertCount(1, $contentSection->links);
-        self::assertSame('Blog', $contentSection->links[0]->label);
-        self::assertSame([], $contentSection->pageTree);
+        self::assertSame(array_values(array_unique($urls)), $urls);
     }
 
     private function seedContentPages(): void
@@ -293,60 +269,11 @@ final class SitemapProviderTest extends KernelTestCase
     }
 
     /**
-     * @param list<SitemapPageNode> $nodes
-     *
      * @return list<string>
      */
-    private function flattenPageTreeLabels(array $nodes): array
+    private function sectionKeys(): array
     {
-        $labels = [];
-
-        foreach ($nodes as $node) {
-            $labels[] = $node->label;
-            $labels = [...$labels, ...$this->flattenPageTreeLabels($node->children)];
-        }
-
-        return $labels;
-    }
-
-    /**
-     * @param list<SitemapPageNode> $nodes
-     */
-    private function findPageTreeNodeByLabel(array $nodes, string $label): ?SitemapPageNode
-    {
-        foreach ($nodes as $node) {
-            if ($node->label === $label) {
-                return $node;
-            }
-
-            $match = $this->findPageTreeNodeByLabel($node->children, $label);
-            if ($match instanceof SitemapPageNode) {
-                return $match;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @param list<string> $labels
-     */
-    private function assertLabelsAreAlphabetical(array $labels): void
-    {
-        $sorted = $labels;
-        usort($sorted, strcasecmp(...));
-
-        self::assertSame($sorted, $labels);
-    }
-
-    /**
-     * @param list<SitemapSection> $sections
-     *
-     * @return list<string>
-     */
-    private function sectionKeys(array $sections): array
-    {
-        return array_map(static fn (SitemapSection $section): string => $section->key, $sections);
+        return array_map(static fn (SitemapSection $section): string => $section->key, $this->provider->getSections());
     }
 
     private function findSection(string $key): SitemapSection
@@ -357,24 +284,51 @@ final class SitemapProviderTest extends KernelTestCase
             }
         }
 
-        self::fail(sprintf('Expected sitemap section "%s" to exist.', $key));
+        self::fail(\sprintf('Expected sitemap section "%s" to exist.', $key));
     }
 
     /**
-     * @param list<SitemapSection> $sections
+     * @param list<SitemapEntry> $entries
+     *
+     * @return list<string>
      */
-    private function sectionContainsRoute(array $sections, string $routeName): bool
+    private function labels(array $entries): array
     {
-        $url = self::getContainer()->get(\Symfony\Component\Routing\Generator\UrlGeneratorInterface::class)->generate($routeName);
+        return array_map(static fn (SitemapEntry $entry): string => $entry->label, $entries);
+    }
 
-        foreach ($sections as $section) {
-            foreach ($section->links as $link) {
-                if ($link->url === $url) {
-                    return true;
+    /**
+     * @return list<string>
+     */
+    private function allUrls(bool $withSectionUrls = true): array
+    {
+        $urls = [];
+        $collect = static function (array $entries) use (&$collect, &$urls): void {
+            /** @var list<SitemapEntry> $entries */
+            foreach ($entries as $entry) {
+                if (null !== $entry->url) {
+                    $urls[] = $entry->url;
                 }
+
+                $collect($entry->children);
+            }
+        };
+
+        foreach ($this->provider->getSections() as $section) {
+            if ($withSectionUrls && null !== $section->url) {
+                $urls[] = $section->url;
+            }
+
+            foreach ($section->groups as $group) {
+                $collect($group->entries);
             }
         }
 
-        return false;
+        return $urls;
+    }
+
+    private function url(string $route): string
+    {
+        return self::getContainer()->get(UrlGeneratorInterface::class)->generate($route);
     }
 }

@@ -1,0 +1,43 @@
+{#
+    Helpfulness widget of a help article (#596). state: question (initial), thanks (answered yes), ask_comment
+    (answered no, asks what was missing), commented (comment sent). answer: the user's answer (true, false or null).
+#}
+<turbo-frame id="help-feedback-{{ page_id }}" class="d-block mb-4">
+    <div class="card help-feedback" data-testid="help-feedback" data-state="{{ state }}">
+        <div class="card-body">
+            {% if state == 'commented' %}
+                <p class="mb-0" data-testid="help-feedback-commented">{{ 'help.feedback.commented'|trans({}, 'content') }}</p>
+            {% elseif state == 'ask_comment' %}
+                <form method="post" action="{{ path('app_help_feedback_answer', {pageId: page_id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token(constant('App\\Content\\UI\\Http\\Controller\\HelpFeedbackController::CSRF_TOKEN_ID')) }}">
+                    <label class="form-label" for="help-feedback-comment-{{ page_id }}">{{ 'help.feedback.comment_label'|trans({}, 'content') }}</label>
+                    <textarea
+                        class="form-control mb-2"
+                        id="help-feedback-comment-{{ page_id }}"
+                        name="comment"
+                        rows="3"
+                        maxlength="{{ constant('App\\Content\\Application\\Help\\HelpFeedbackService::MAX_COMMENT_LENGTH') }}"
+                        placeholder="{{ 'help.feedback.comment_placeholder'|trans({}, 'content') }}"
+                    ></textarea>
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="submit" class="btn btn-primary btn-sm" data-testid="help-feedback-send">{{ 'help.feedback.comment_submit'|trans({}, 'content') }}</button>
+                        <span class="text-secondary small">{{ 'help.feedback.comment_hint'|trans({}, 'content') }}</span>
+                    </div>
+                </form>
+            {% else %}
+                <form method="post" action="{{ path('app_help_feedback_answer', {pageId: page_id}) }}" class="d-flex flex-wrap align-items-center gap-2">
+                    <input type="hidden" name="_token" value="{{ csrf_token(constant('App\\Content\\UI\\Http\\Controller\\HelpFeedbackController::CSRF_TOKEN_ID')) }}">
+                    <span class="fw-medium me-1">
+                        {{ (state == 'thanks' ? 'help.feedback.thanks' : 'help.feedback.question')|trans({}, 'content') }}
+                    </span>
+                    <button type="submit" name="helpful" value="1" class="btn btn-sm {{ answer is same as(true) ? 'btn-success' : 'btn-outline-success' }}" aria-pressed="{{ answer is same as(true) ? 'true' : 'false' }}" data-testid="help-feedback-yes">
+                        <span class="me-1" aria-hidden="true">👍</span>{{ 'help.feedback.yes'|trans({}, 'content') }}
+                    </button>
+                    <button type="submit" name="helpful" value="0" class="btn btn-sm {{ answer is same as(false) ? 'btn-danger' : 'btn-outline-danger' }}" aria-pressed="{{ answer is same as(false) ? 'true' : 'false' }}" data-testid="help-feedback-no">
+                        <span class="me-1" aria-hidden="true">👎</span>{{ 'help.feedback.no'|trans({}, 'content') }}
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</turbo-frame>

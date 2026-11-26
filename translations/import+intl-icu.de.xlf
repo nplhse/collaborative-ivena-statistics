@@ -13,6 +13,10 @@
         <source>flash.import.rate_limited</source>
         <target>Zu viele Importversuche. Bitte versuche es später erneut.</target>
       </trans-unit>
+      <trans-unit id="FlsImpNoUpDe" resname="flash.import.no_upload_permission">
+        <source>flash.import.no_upload_permission</source>
+        <target>Du kannst noch keinen Import starten: Dafür brauchst du für mindestens ein Krankenhaus die Berechtigung zum Importieren. Bitte den Inhaber des Krankenhauses oder eine:n Administrator:in um Zugriff.</target>
+      </trans-unit>
       <trans-unit id="FlsImpRunDe" resname="flash.import.delete_running_blocked">
         <source>flash.import.delete_running_blocked</source>
         <target>Dieser Import wird gerade ausgeführt und kann deshalb nicht gelöscht werden.</target>
@@ -28,6 +32,10 @@
       <trans-unit id="DeActDlSrc" resname="import.action.download_source_file">
         <source>import.action.download_source_file</source>
         <target>Originaldatei herunterladen</target>
+      </trans-unit>
+      <trans-unit id="DeSrcFileMissing" resname="import.source_file.missing">
+        <source>import.source_file.missing</source>
+        <target>Die Originaldatei dieses Imports ist nicht mehr gespeichert.</target>
       </trans-unit>
       <trans-unit id="De5c35af0b" resname="import.action.preview_mci_cases">
         <source>import.action.preview_mci_cases</source>
@@ -237,6 +245,18 @@
         <source>label.import.filter.all_statuses</source>
         <target>Jeder Status</target>
       </trans-unit>
+      <trans-unit id="DeImpFltAllType" resname="label.import.filter.all_types">
+        <source>label.import.filter.all_types</source>
+        <target>Jeder Typ</target>
+      </trans-unit>
+      <trans-unit id="DeImpFltPerFrm" resname="label.import.filter.period_from">
+        <source>label.import.filter.period_from</source>
+        <target>Daten ab</target>
+      </trans-unit>
+      <trans-unit id="DeImpFltPerTil" resname="label.import.filter.period_until">
+        <source>label.import.filter.period_until</source>
+        <target>Daten bis</target>
+      </trans-unit>
       <trans-unit id="De1dfdd53e" resname="label.import.filter.created_from">
         <source>label.import.filter.created_from</source>
         <target>Erstellt ab</target>
@@ -256,6 +276,38 @@
       <trans-unit id="impHelpFileDe" resname="label.import.helpFile">
         <source>label.import.helpFile</source>
         <target>Unterstütztes Format: CSV (Semikolon-getrennt). Excel-Dateien bitte zuerst als CSV exportieren.</target>
+      </trans-unit>
+      <trans-unit id="impUploadDeDropzone" resname="label.import.upload.dropzone">
+        <source>label.import.upload.dropzone</source>
+        <target>Datei hierher ziehen oder klicken, um sie auszuwählen. Sie wird sofort hochgeladen, während Sie den Rest ausfüllen.</target>
+      </trans-unit>
+      <trans-unit id="impUploadDeIng" resname="label.import.upload.uploading">
+        <source>label.import.upload.uploading</source>
+        <target>Wird hochgeladen … {percent} %</target>
+      </trans-unit>
+      <trans-unit id="impUploadDeEd" resname="label.import.upload.uploaded">
+        <source>label.import.upload.uploaded</source>
+        <target>Hochgeladen</target>
+      </trans-unit>
+      <trans-unit id="impUploadDeKept" resname="label.import.upload.kept">
+        <source>label.import.upload.kept</source>
+        <target>Bereits hochgeladen</target>
+      </trans-unit>
+      <trans-unit id="impUploadDeWaiting" resname="label.import.upload.waiting">
+        <source>label.import.upload.waiting</source>
+        <target>Die Datei wird noch hochgeladen. Der Import startet, sobald sie da ist.</target>
+      </trans-unit>
+      <trans-unit id="impUploadDeFailed" resname="label.import.upload.failed">
+        <source>label.import.upload.failed</source>
+        <target>Das Hochladen ist fehlgeschlagen. Prüfen Sie die Verbindung und versuchen Sie es erneut.</target>
+      </trans-unit>
+      <trans-unit id="impUploadDeRetry" resname="label.import.upload.retry">
+        <source>label.import.upload.retry</source>
+        <target>Erneut versuchen</target>
+      </trans-unit>
+      <trans-unit id="impUploadDeRemove" resname="label.import.upload.remove">
+        <source>label.import.upload.remove</source>
+        <target>Entfernen</target>
       </trans-unit>
       <trans-unit id="impSelHospDe" resname="label.import.selectHospital">
         <source>label.import.selectHospital</source>
@@ -317,17 +369,57 @@
         <source>label.import.type</source>
         <target>Importart</target>
       </trans-unit>
+      <trans-unit id="impNameDe" resname="label.import.name">
+        <source>label.import.name</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="impHospitalDe" resname="label.import.hospital">
+        <source>label.import.hospital</source>
+        <target>Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="impFileDe" resname="label.import.file">
+        <source>label.import.file</source>
+        <target>Datei</target>
+      </trans-unit>
       <trans-unit id="impTypeAllocDe" resname="label.import.type.allocation">
         <source>label.import.type.allocation</source>
         <target>Zuweisungen</target>
       </trans-unit>
       <trans-unit id="impTypeClosureDe" resname="label.import.type.closure">
         <source>label.import.type.closure</source>
-        <target>Schließungsliste (Beta)</target>
+        <target>Schließungsliste</target>
       </trans-unit>
-      <trans-unit id="impTypeHelpDe" resname="label.import.type.help">
-        <source>label.import.type.help</source>
-        <target>Schließungslisten sind eine Beta und nur mit der Rolle Closure beta sichtbar.</target>
+      <trans-unit id="impTypeEncounterDe" resname="label.import.type.encounter">
+        <source>label.import.type.encounter</source>
+        <target>Behandlungsdaten (Beta)</target>
+      </trans-unit>
+      <trans-unit id="impUploadAuthorityDe" resname="label.import.upload_authority">
+        <source>label.import.upload_authority</source>
+        <target>Ich bin berechtigt, für diese Klinik Daten hochzuladen.</target>
+      </trans-unit>
+      <trans-unit id="impHospOverrideDe" resname="label.import.hospitalOverride">
+        <source>label.import.hospitalOverride</source>
+        <target>Zielklinik überschreiben</target>
+      </trans-unit>
+      <trans-unit id="impHospOverrideHelpDe" resname="label.import.hospitalOverride.help">
+        <source>label.import.hospitalOverride.help</source>
+        <target>Speichert die Datei auf der ausgewählten Klinik, auch wenn sie eine andere Klinik aus dem Katalog nennt. Nur zum Laden echter Exporte in fiktive Demo-Kliniken. Alle anderen Prüfungen gelten weiter, die Zeilen bleiben echte Betriebsdaten.</target>
+      </trans-unit>
+      <trans-unit id="impHospOverrideNoticeDe" resname="label.import.hospitalOverride.notice">
+        <source>label.import.hospitalOverride.notice</source>
+        <target>Mit der Zielklinik-Überschreibung importiert. Diese Zeilen sind echte Betriebsdaten, keine synthetischen Daten.</target>
+      </trans-unit>
+      <trans-unit id="impHospOverrideSrcDe" resname="label.import.hospitalOverride.sourceLabel">
+        <source>label.import.hospitalOverride.sourceLabel</source>
+        <target>In der Datei genannte Klinik: {label}</target>
+      </trans-unit>
+      <trans-unit id="impOptionsDe" resname="label.import.options">
+        <source>label.import.options</source>
+        <target>Optionen</target>
+      </trans-unit>
+      <trans-unit id="impOptionsDemoDe" resname="label.import.options.demoWarning">
+        <source>label.import.options.demoWarning</source>
+        <target>Dies ist die Demo, deren Banner alle Daten als synthetisch ausweist. Ein Import mit Zielklinik-Überschreibung enthält echte Betriebsdaten und ist auf seiner Importseite gekennzeichnet. Zeige ihn nur, wenn das Publikum diese Daten sehen darf.</target>
       </trans-unit>
       <trans-unit id="impSumAllocDe" resname="import.summary.allocations_imported">
         <source>import.summary.allocations_imported</source>
@@ -336,6 +428,10 @@
       <trans-unit id="impSumClosDe" resname="import.summary.closures_imported">
         <source>import.summary.closures_imported</source>
         <target>{count, plural, one {# Schließung importiert} other {# Schließungen importiert}}</target>
+      </trans-unit>
+      <trans-unit id="impSumEncDe" resname="import.summary.encounters_imported">
+        <source>import.summary.encounters_imported</source>
+        <target>{count, plural, one {# Behandlung importiert} other {# Behandlungen importiert}}</target>
       </trans-unit>
       <trans-unit id="impFldImpDe" resname="import.field.imported_records">
         <source>import.field.imported_records</source>
@@ -600,6 +696,86 @@
       <trans-unit id="impCovG5De" resname="import.coverage.gaps.column.days">
         <source>import.coverage.gaps.column.days</source>
         <target>Dauer</target>
+      </trans-unit>
+      <trans-unit id="imp8A59819E" resname="import.delete.modal.body.encounter">
+        <source>import.delete.modal.body.encounter</source>
+        <target>Behandlungsdaten-Import „{name}“ löschen? Alle Besuche dieses Imports werden mit ihrem Zuordnungsverlauf und ihren Prüfentscheidungen, seinen abgelehnten Zeilen und der hochgeladenen Datei entfernt. Die Behandlungsfälle bleiben mit ihrer IVENA-Zuordnung und den Datensätzen anderer Importe erhalten, ebenso Besuche anderer Importe. Das lässt sich nicht rückgängig machen.</target>
+      </trans-unit>
+      <trans-unit id="impDEBC5472" resname="import.reprocess.modal.body.encounter">
+        <source>import.reprocess.modal.body.encounter</source>
+        <target>Behandlungsdaten-Import „{name}“ neu verarbeiten? Die aufbewahrte Datei wird erneut importiert: Unveränderte Besuche bleiben mit ihrer IVENA-Zuordnung und ihren Prüfentscheidungen erhalten, Besuche, die nicht mehr in der Datei stehen, werden entfernt, neue kommen hinzu. Schlägt der Lauf fehl, bleibt der bisherige Stand erhalten.</target>
+      </trans-unit>
+      <trans-unit id="imp1B9478E5" resname="label.import.encounter.fields">
+        <source>label.import.encounter.fields</source>
+        <target>Nur für Behandlungsdaten (Beta)</target>
+      </trans-unit>
+      <trans-unit id="impTypeBadgeDeAlloc" resname="import.type.label.allocation">
+        <source>import.type.label.allocation</source>
+        <target>Zuweisung</target>
+      </trans-unit>
+      <trans-unit id="impTypeBadgeDeClosure" resname="import.type.label.closure">
+        <source>import.type.label.closure</source>
+        <target>Schließung</target>
+      </trans-unit>
+      <trans-unit id="impTypeBadgeDeEncounter" resname="import.type.label.encounter">
+        <source>import.type.label.encounter</source>
+        <target>Behandlungsdaten</target>
+      </trans-unit>
+      <trans-unit id="impBrStRunningDe" resname="import.batch_run.status.running">
+        <source>import.batch_run.status.running</source>
+        <target>Läuft</target>
+      </trans-unit>
+      <trans-unit id="impBrStFinishedDe" resname="import.batch_run.status.finished">
+        <source>import.batch_run.status.finished</source>
+        <target>Beendet</target>
+      </trans-unit>
+      <trans-unit id="impBrStInterruptedDe" resname="import.batch_run.status.interrupted">
+        <source>import.batch_run.status.interrupted</source>
+        <target>Unterbrochen</target>
+      </trans-unit>
+      <trans-unit id="impBrStFailedDe" resname="import.batch_run.status.failed">
+        <source>import.batch_run.status.failed</source>
+        <target>Fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="impBriStPendingDe" resname="import.batch_run_item.status.pending">
+        <source>import.batch_run_item.status.pending</source>
+        <target>Ausstehend</target>
+      </trans-unit>
+      <trans-unit id="impBriStQueuedDe" resname="import.batch_run_item.status.queued">
+        <source>import.batch_run_item.status.queued</source>
+        <target>In Warteschlange</target>
+      </trans-unit>
+      <trans-unit id="impBriStRunningDe" resname="import.batch_run_item.status.running">
+        <source>import.batch_run_item.status.running</source>
+        <target>Läuft</target>
+      </trans-unit>
+      <trans-unit id="impBriStCompletedDe" resname="import.batch_run_item.status.completed">
+        <source>import.batch_run_item.status.completed</source>
+        <target>Abgeschlossen</target>
+      </trans-unit>
+      <trans-unit id="impBriStPartialDe" resname="import.batch_run_item.status.partial">
+        <source>import.batch_run_item.status.partial</source>
+        <target>Teilweise</target>
+      </trans-unit>
+      <trans-unit id="impBriStInterruptedDe" resname="import.batch_run_item.status.interrupted">
+        <source>import.batch_run_item.status.interrupted</source>
+        <target>Unterbrochen</target>
+      </trans-unit>
+      <trans-unit id="impBriStSkippedDe" resname="import.batch_run_item.status.skipped">
+        <source>import.batch_run_item.status.skipped</source>
+        <target>Übersprungen</target>
+      </trans-unit>
+      <trans-unit id="impBriStDispatchFailedDe" resname="import.batch_run_item.status.dispatch_failed">
+        <source>import.batch_run_item.status.dispatch_failed</source>
+        <target>Übergabe fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="impBriStFailedDe" resname="import.batch_run_item.status.failed">
+        <source>import.batch_run_item.status.failed</source>
+        <target>Fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="impBriStSupersededDe" resname="import.batch_run_item.status.superseded">
+        <source>import.batch_run_item.status.superseded</source>
+        <target>Ersetzt</target>
       </trans-unit>
     </body>
   </file>

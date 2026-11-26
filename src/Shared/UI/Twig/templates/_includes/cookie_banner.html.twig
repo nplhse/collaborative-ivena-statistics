@@ -12,7 +12,7 @@
             <div class="container">
                 <div class="row align-items-center">
                     <div class="col">
-                        <strong><span aria-hidden="true">🍪</span> {{ 'cookie.banner.title'|trans({}, 'shared') }}</strong> {{ 'cookie.banner.text'|trans({}, 'shared') }}
+                        <strong><span aria-hidden="true">🍪</span> {{ 'cookie.banner.title'|trans({}, 'shared') }}</strong> {{ 'cookie.banner.text'|trans({}, 'shared') }}{% if cookie_consent.monitoring.enabled ?? false %} {{ 'cookie.banner.performance_text'|trans({location: 'cookie.monitoring.location'|trans({location: cookie_consent.monitoring.location}, 'shared')}, 'shared') }}{% endif %}
                         <a href="{{ path('app_cookie_preferences') }}">{{ 'cookie.banner.learn_more'|trans({}, 'shared') }}</a>
                     </div>
                     <div class="col-12 col-md-auto">

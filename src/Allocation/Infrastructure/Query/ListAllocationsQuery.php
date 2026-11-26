@@ -6,6 +6,7 @@ namespace App\Allocation\Infrastructure\Query;
 
 use App\Allocation\Application\Allocations\AllocationListFilterCriteriaFactory;
 use App\Allocation\Application\Export\AllocationListFilterApplicator;
+use App\Allocation\Application\ListExtension\AllocationListExtensionRegistry;
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Hospital;
@@ -30,6 +31,8 @@ final readonly class ListAllocationsQuery
         private CursorCodec $cursorCodec,
         private AllocationListFilterApplicator $filterApplicator,
         private AllocationListFilterCriteriaFactory $filterCriteriaFactory,
+        private AllocationListResultCountQuery $resultCountQuery,
+        private AllocationListExtensionRegistry $extensions,
     ) {
     }
 
@@ -47,14 +50,16 @@ final readonly class ListAllocationsQuery
     ];
 
     /**
-     * @param list<string> $optionalColumns visible optional columns; only these are joined
-     * @param int|null     $pageSize        page size to use instead of the query's `limit` (a saved preference)
+     * @param list<string>          $optionalColumns  visible optional columns; only these are joined or filled
+     * @param int|null              $pageSize         page size to use instead of the query's `limit` (a saved preference)
+     * @param array<string, string> $extensionFilters active filters of list extensions (#1203), keyed by extension key
      */
     public function getPaginator(
         AllocationQueryParametersDTO $queryParametersDTO,
         ?User $user = null,
         array $optionalColumns = [],
         ?int $pageSize = null,
+        array $extensionFilters = [],
     ): CursorPaginator {
         $limit = max(1, $pageSize ?? $queryParametersDTO->limit);
         $qb = $this->entityManager->createQueryBuilder();
@@ -128,8 +133,9 @@ final readonly class ListAllocationsQuery
         };
 
         $this->filterApplicator->apply($qb, $this->filterCriteriaFactory->fromQuery($queryParametersDTO, $user));
+        $this->extensions->applyFilters($qb, $extensionFilters, $user);
 
-        $estimatedNumResults = $this->estimateNumResults($qb);
+        $resultCount = $this->resultCountQuery->count($qb);
 
         $cursor = $this->decodeCursor($queryParametersDTO);
         $slice = $this->fetchSlice($qb, $queryParametersDTO, $sortField, $cursor, $limit);
@@ -141,7 +147,7 @@ final readonly class ListAllocationsQuery
             $slice = $this->fetchSlice($qb, $queryParametersDTO, $sortField, null, $limit);
         }
 
-        $rows = $this->withOptionalColumns($slice['rows'], $optionalColumns);
+        $rows = $this->extensions->withCells($this->withOptionalColumns($slice['rows'], $optionalColumns), $optionalColumns, $user);
         $nextCursor = null;
         $previousCursor = null;
         if ([] !== $rows) {
@@ -162,7 +168,7 @@ final readonly class ListAllocationsQuery
             $limit,
             $nextCursor,
             $previousCursor,
-            $estimatedNumResults,
+            $resultCount,
             null !== $cursor ? $queryParametersDTO->cursor : null,
         );
     }
@@ -261,7 +267,7 @@ final readonly class ListAllocationsQuery
                 ->setParameter('cursorId', $cursor['id'], ParameterType::INTEGER);
         }
 
-        $direction = $ascending ? 'ASC' : 'DESC';
+        $direction = $ascending ? \SortDirection::Ascending : \SortDirection::Descending;
         $qb
             ->orderBy($sortField, $direction)
             ->addOrderBy('a.id', $direction)
@@ -303,84 +309,5 @@ final readonly class ListAllocationsQuery
         }
 
         return (string) $value;
-    }
-
-    private function estimateNumResults(QueryBuilder $qb): ?int
-    {
-        $estimateQb = clone $qb;
-        $estimateQb
-            ->resetDQLPart('orderBy')
-            ->select('a.id');
-
-        $query = $estimateQb->getQuery();
-        $rawSql = $query->getSQL();
-        $explainSql = \is_array($rawSql) ? implode(' ', $rawSql) : $rawSql;
-        $connection = $this->entityManager->getConnection();
-
-        try {
-            foreach ($query->getParameters() as $parameter) {
-                $quoted = $this->quoteForExplain($parameter->getValue());
-                $explainSql = preg_replace('/\?/', $quoted, $explainSql, 1) ?? $explainSql;
-            }
-
-            $rows = $connection
-                ->executeQuery('EXPLAIN '.$explainSql)
-                ->fetchAllAssociative();
-        } catch (\Throwable) {
-            return null;
-        }
-
-        return $this->extractEstimatedRows($rows);
-    }
-
-    /**
-     * @param list<array<string, mixed>> $rows
-     */
-    private function extractEstimatedRows(array $rows): ?int
-    {
-        foreach ($rows as $row) {
-            if (isset($row['rows']) && \is_numeric($row['rows'])) {
-                return (int) $row['rows'];
-            }
-
-            if (isset($row['QUERY PLAN']) && \is_string($row['QUERY PLAN']) && 1 === preg_match('/rows=(\d+)/', $row['QUERY PLAN'], $matches)) {
-                return (int) $matches[1];
-            }
-        }
-
-        return null;
-    }
-
-    private function quoteForExplain(mixed $value): string
-    {
-        if ($value instanceof \BackedEnum) {
-            return $this->quoteForExplain($value->value);
-        }
-
-        if ($value instanceof \DateTimeInterface) {
-            return "'".$value->format('Y-m-d H:i:s')."'";
-        }
-
-        if (\is_array($value)) {
-            $quoted = array_map($this->quoteForExplain(...), $value);
-
-            return '('.implode(', ', $quoted).')';
-        }
-
-        if (\is_int($value) || \is_float($value)) {
-            return (string) $value;
-        }
-
-        if (\is_bool($value)) {
-            return $value ? 'true' : 'false';
-        }
-
-        if (null === $value) {
-            return 'NULL';
-        }
-
-        $escaped = str_replace("'", "''", (string) $value);
-
-        return "'".$escaped."'";
     }
 }

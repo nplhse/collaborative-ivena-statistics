@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { lineMarkers } from '../lib/chart-markers.js';
 import { loadApexCharts } from '../lib/load-apexcharts.js';
 
 /* stimulusFetch: 'lazy' */
@@ -85,6 +86,7 @@ export default class extends Controller {
             },
             yaxis: { min: yMin, max: yMax, show: false },
             stroke: { curve: 'smooth', width: 3 },
+            markers: lineMarkers(labels.length),
             fill: {
                 type: 'gradient',
                 gradient: {
@@ -95,7 +97,7 @@ export default class extends Controller {
                 },
             },
             dataLabels: { enabled: false },
-            grid: { strokeDashArray: 4, borderColor: 'rgba(0,0,0,0.04)' },
+            grid: { strokeDashArray: 4 },
             tooltip: { shared: true, intersect: false },
             legend: { show: false },
         };
@@ -154,7 +156,7 @@ export default class extends Controller {
                 show: false,
             },
             dataLabels: { enabled: false },
-            grid: { strokeDashArray: 4, borderColor: 'rgba(0,0,0,0.04)' },
+            grid: { strokeDashArray: 4 },
             legend: { show: false },
             tooltip: { shared: true, intersect: false },
         };

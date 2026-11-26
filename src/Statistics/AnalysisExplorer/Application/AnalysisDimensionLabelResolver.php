@@ -150,6 +150,21 @@ final class AnalysisDimensionLabelResolver
     }
 
     /**
+     * Adds entity labels for ids that have no row in the result, such as a reference hospital without cases (#1346).
+     *
+     * @param list<int> $ids
+     */
+    public function warmAdditionalEntityIds(string $dimensionKey, array $ids): void
+    {
+        if ([] === $ids || !$this->entityLabelResolver->supports($dimensionKey)) {
+            return;
+        }
+
+        $this->entityLabelsByDimension[$dimensionKey] = ($this->entityLabelsByDimension[$dimensionKey] ?? [])
+            + $this->entityLabelResolver->resolve($dimensionKey, $ids);
+    }
+
+    /**
      * @param array<string, list<int>> $idsByDimension
      */
     private function collectEntityId(array &$idsByDimension, string $dimensionKey, mixed $value): void

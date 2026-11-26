@@ -26,6 +26,6 @@ final class Badge
     {
         $variant = $this->getVariant();
 
-        return \sprintf('badge bg-%s-lt text-%s-lt-fg', $variant, $variant);
+        return \sprintf('badge bg-%s-lt', $variant);
     }
 }

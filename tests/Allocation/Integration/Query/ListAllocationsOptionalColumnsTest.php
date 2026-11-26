@@ -16,6 +16,7 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Allocation\Infrastructure\Query\ListAllocationsQuery;
 use App\Allocation\UI\Http\DTO\AllocationQueryParametersDTO;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -25,6 +26,7 @@ use Zenstruck\Foundry\Test\Factories;
 final class ListAllocationsOptionalColumnsTest extends KernelTestCase
 {
     use Factories;
+    private ?User $administrator = null;
 
     private ListAllocationsQuery $query;
 
@@ -50,7 +52,7 @@ final class ListAllocationsOptionalColumnsTest extends KernelTestCase
         AllocationFactory::createOne(['occasion' => OccasionFactory::createOne(['name' => 'Verkehrsunfall'])]);
         AllocationFactory::createOne(['occasion' => null]);
 
-        $rows = $this->query->getPaginator(new AllocationQueryParametersDTO(), null, ['speciality', 'occasion'])->getItems();
+        $rows = $this->query->getPaginator(new AllocationQueryParametersDTO(), $this->administrator(), ['speciality', 'occasion'])->getItems();
 
         self::assertCount(2, $rows);
         foreach ($rows as $row) {
@@ -65,7 +67,7 @@ final class ListAllocationsOptionalColumnsTest extends KernelTestCase
     {
         AllocationFactory::createOne();
 
-        $row = $this->query->getPaginator(new AllocationQueryParametersDTO())->getItems()[0];
+        $row = $this->query->getPaginator(new AllocationQueryParametersDTO(), $this->administrator())->getItems()[0];
 
         self::assertArrayNotHasKey('speciality', $row);
         self::assertArrayHasKey('transportType', $row);
@@ -76,9 +78,17 @@ final class ListAllocationsOptionalColumnsTest extends KernelTestCase
     {
         AllocationFactory::createMany(4);
 
-        $paginator = $this->query->getPaginator(new AllocationQueryParametersDTO(limit: 50), null, [], 3);
+        $paginator = $this->query->getPaginator(new AllocationQueryParametersDTO(limit: 50), $this->administrator(), [], 3);
 
         self::assertCount(3, $paginator->getItems());
         self::assertSame(3, $paginator->getItemsPerPage());
+    }
+
+    /**
+     * Explore lists only the viewer's own hospitals (#1566); an administrator sees all of them.
+     */
+    private function administrator(): User
+    {
+        return $this->administrator ??= UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
     }
 }

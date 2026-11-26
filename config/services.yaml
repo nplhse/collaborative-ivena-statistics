@@ -5,6 +5,8 @@
 imports:
     - { resource: services/foundry.yaml }
     - { resource: services/foundry_test.yaml }
+    - { resource: services/encounter_probe_test.yaml }
+    - { resource: services/encounter_poc_test.yaml }
     - { resource: services/dev/doctrine_fixtures.yaml }
 
 # Put parameters here that don't need to change on each machine where the app is deployed
@@ -13,7 +15,16 @@ parameters:
     app.imports_max_size: '15M'
     app.imports_base_dir: '%kernel.project_dir%/var/imports'
     app.media_max_size: '10M'
-    app.media_upload_dir: '%kernel.project_dir%/public/uploads/media'
+    # Media storage (ADR 039); the old upload directory is read until the move of every file (removed in v0.4).
+    app.media_storage_dir: '%kernel.project_dir%/var/media'
+    # Archives of data extract exports (ADR 045), kept for the download period, served only through the controller.
+    app.research.exports_dir: '%kernel.project_dir%/var/research/exports'
+    app.media_legacy_dir: '%kernel.project_dir%/public/uploads/media'
+    # Maintenance mode (#1680, ADR 046): on while this file exists; var/maintenance is shared between releases.
+    app.maintenance_flag_file: '%kernel.project_dir%/var/maintenance/enabled'
+    # Integrity check (ADR 039): bytes hashed per daily run, and the age before an orphaned file is deleted.
+    app.media_check_hash_budget_bytes: 268435456
+    app.media_check_grace_hours: 24
     app.page_content_width_estimate: 800
     app.rejects_base_dir: '%kernel.project_dir%/var/imports/rejects'
     env(APP_URL): ''
@@ -31,6 +42,13 @@ parameters:
     app.storage.budget_bytes: '%env(int:default:app.admin.storage_limit_bytes:STORAGE_BUDGET_BYTES)%'
     env(STORAGE_CAPACITY_SOURCE): 'budget'
     app.storage.capacity_source: '%env(STORAGE_CAPACITY_SOURCE)%'
+    # Backups (ADR 038). BACKUP_DIR is the default target of app:backup:create; on a Deployer host keep it outside
+    # the deploy path. BACKUP_PG_TOOLS: local (pg_dump on PATH) or docker (Docker Compose service "database").
+    app.backup.default_directory: '%kernel.project_dir%/var/backups'
+    app.backup.directory: '%env(default:app.backup.default_directory:BACKUP_DIR)%'
+    env(BACKUP_PG_TOOLS): 'local'
+    app.backup.pg_tools: '%env(BACKUP_PG_TOOLS)%'
+    app.backup.reference_dir: '%kernel.project_dir%/var/reference'
     env(ANALYTICS_RAW_RETENTION_DAYS): '30'
     analytics.raw_retention_days: '%env(int:ANALYTICS_RAW_RETENTION_DAYS)%'
     env(OPENROUTESERVICE_API_KEY): ''
@@ -64,18 +82,26 @@ services:
             - '../src/**/Infrastructure/Faker/'
             - '../src/User/Domain/Factory/'
 
-    App\Analytics\Infrastructure\Doctrine\AnalyticsQueryCounterMiddleware:
-        tags:
-            - { name: doctrine.middleware }
-
     App\Allocation\Application\Contracts\HospitalIsochroneProviderInterface: '@App\Allocation\Infrastructure\Geo\HospitalIsochroneFileStore'
     App\Allocation\Application\Contracts\HospitalIsochroneStoreInterface: '@App\Allocation\Infrastructure\Geo\HospitalIsochroneFileStore'
     App\Allocation\Application\Contracts\HospitalIsochroneClientInterface: '@App\Allocation\Infrastructure\Http\OpenRouteServiceIsochroneClient'
     App\Allocation\Application\Contracts\PreparedLocationStoreInterface: '@App\Allocation\Infrastructure\Geo\PreparedLocationFileStore'
-    App\Analytics\Application\UsageEvents\UsageEventContextResolverInterface: '@App\Analytics\Application\UsageEvents\UsageEventContextResolver'
-    App\Analytics\Application\UsageEvents\UsageEventRecorderInterface: '@App\Analytics\Application\UsageEvents\UsageEventRecorder'
     App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisSummaryLabelResolverInterface: '@App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisSummaryLabelResolver'
     App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisSummaryFilterLabelsInterface: '@App\Statistics\AnalysisExplorer\Application\ExplorerFilterBadgePresenter'
+    # Part of the contract for encounter schema plugins (ADR 037), which inject them. Public so that they are
+    # kept while no service of the application injects them (retries, #1307) and tests can resolve them.
+    App\Encounter\Contract\Access\EncounterAccessInterface:
+        alias: App\Encounter\UI\Access\EncounterAccess
+        public: true
+    App\Encounter\Contract\Assignment\EncounterAssignmentsInterface:
+        alias: App\Encounter\Infrastructure\Assignment\EncounterAssignments
+        public: true
+    App\Encounter\Contract\Assignment\EncounterHospitalLockInterface:
+        alias: App\Encounter\Infrastructure\Assignment\EncounterHospitalLock
+        public: true
+    App\Encounter\Contract\Assignment\EncounterAllocationAssignmentsInterface:
+        alias: App\Encounter\Infrastructure\Assignment\EncounterAllocationAssignments
+        public: true
 
     app.lock.pdo:
         class: PDO
@@ -156,11 +182,22 @@ when@demo:
         app.cookie_prefix: 'demo_'
         app.imports_base_dir: '%kernel.project_dir%/var/demo/imports'
         app.rejects_base_dir: '%kernel.project_dir%/var/demo/imports/rejects'
-        app.media_upload_dir: '%kernel.project_dir%/public/uploads/demo/media'
+        app.media_storage_dir: '%kernel.project_dir%/var/demo/media'
+        app.research.exports_dir: '%kernel.project_dir%/var/demo/research/exports'
+        app.media_legacy_dir: '%kernel.project_dir%/public/uploads/demo/media'
         app.hospital_isochrones_dir: '%kernel.project_dir%/var/demo/geo/hospital-isochrones'
         app.prepared_locations_dir: '%kernel.project_dir%/var/demo/geo/prepared-locations'
+        app.maintenance_flag_file: '%kernel.project_dir%/var/demo/maintenance/enabled'
 
 when@test:
+    parameters:
+        # Test files stay out of the development storage. One storage per ParaTest worker, like its test database:
+        # integrity check tests empty the storage root, which must not remove files another worker is writing.
+        app.media_storage_dir: '%kernel.cache_dir%/media%env(default::TEST_TOKEN)%'
+        app.media_legacy_dir: '%kernel.cache_dir%/legacy-media%env(default::TEST_TOKEN)%'
+        app.research.exports_dir: '%kernel.cache_dir%/research-exports%env(default::TEST_TOKEN)%'
+        app.maintenance_flag_file: '%kernel.cache_dir%/maintenance%env(default::TEST_TOKEN)%/enabled'
+
     services:
         # One lock directory per ParaTest worker, like its test database (dbname_suffix with TEST_TOKEN):
         # a rebuild in another worker must not hold the lock a test asserts on.

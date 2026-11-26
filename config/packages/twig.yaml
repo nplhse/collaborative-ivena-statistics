@@ -14,8 +14,7 @@ twig:
         'app_blog_description': '%app.blog.description%'
         'app_mailer_from': '%app.mailer_from%'
         'app_copyright_start_year': '%app.meta.copyright_start_year%'
-        'app_hoster_name': '%app.meta.hoster.name%'
-        'app_hoster_url': '%app.meta.hoster.url%'
+        'app_uberspace_credit': '%app.meta.uberspace_credit%'
         'app_map_tiles':
             url: '%app.map_tiles.url%'
             attribution: '%app.map_tiles.attribution%'
@@ -26,11 +25,13 @@ twig:
         '%kernel.project_dir%/src/Admin/UI/Twig/templates': Admin
         '%kernel.project_dir%/src/Allocation/UI/Twig/templates': Allocation
         '%kernel.project_dir%/src/Content/UI/Twig/templates': Content
+        '%kernel.project_dir%/src/Encounter/UI/Twig/templates': Encounter
         '%kernel.project_dir%/src/Engagement/UI/Twig/templates': Engagement
         '%kernel.project_dir%/src/Feedback/UI/Twig/templates': Feedback
         '%kernel.project_dir%/src/Import/UI/Twig/templates': Import
         '%kernel.project_dir%/src/Notification/UI/Twig/templates': Notification
         '%kernel.project_dir%/src/User/UI/Twig/templates': User
+        '%kernel.project_dir%/src/Research/UI/Twig/templates': Research
         '%kernel.project_dir%/src/Shared/UI/Twig/templates': Shared
         '%kernel.project_dir%/src/Statistics/UI/Twig/templates': Statistics
         '%kernel.project_dir%/src/Storage/UI/Twig/templates': Storage

@@ -60,7 +60,7 @@ final class AnalysisExplorerHospitalDimensionAccessTest extends WebTestCase
         $stateId = $this->seedStateWithTwoHospitals();
 
         $client->loginUser(UserFactory::createOne(['roles' => $roles]));
-        $client->request(Request::METHOD_GET, '/statistics/analysis/explorer?scope=public&period=all');
+        $client->request(Request::METHOD_GET, '/statistics/analysis/explorer?scope=public&period=last_12_months');
         self::assertResponseIsSuccessful();
 
         $csv = $this->exportHospitalRowsForState($client, $stateId);
@@ -131,7 +131,7 @@ final class AnalysisExplorerHospitalDimensionAccessTest extends WebTestCase
         $state['query']['rows'] = ['dimension' => 'hospital', 'grain' => 'total'];
         $state['query']['columns'] = null;
 
-        $client->request(Request::METHOD_POST, '/statistics/analysis/explorer/export/table.csv?scope=public&period=all', [
+        $client->request(Request::METHOD_POST, '/statistics/analysis/explorer/export/table.csv?scope=public&period=last_12_months', [
             '_token' => $this->csrfToken($client),
             'appliedConfigState' => json_encode($state, \JSON_THROW_ON_ERROR),
         ]);

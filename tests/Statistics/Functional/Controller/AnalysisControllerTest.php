@@ -21,13 +21,13 @@ final class AnalysisControllerTest extends WebTestCase
         $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis?scope=public&period=all&view=chart',
+            '/statistics/analysis?scope=public&period=last_12_months&view=chart',
         );
 
         $this->assertResponseRedirects();
         $location = (string) $client->getResponse()->headers->get('Location');
         $this->assertStringContainsString('/statistics/analysis/library', $location);
         $this->assertStringContainsString('scope=public', $location);
-        $this->assertStringContainsString('period=all', $location);
+        $this->assertStringContainsString('period=last_12_months', $location);
     }
 }

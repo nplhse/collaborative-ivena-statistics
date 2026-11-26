@@ -9,7 +9,7 @@ import {
     layerBounds as leafletLayerBounds,
     prepareMapContainer,
 } from '../js/geo-map/createMap.js';
-import { loadGeoJson } from '../js/geo-map/loadGeoJson.js';
+import { addBoundaryAttributions, loadGeoJson } from '../js/geo-map/loadGeoJson.js';
 import { hospitalPinIcon } from '../js/geo-map/hospitalPin.js';
 
 const MUTED_STYLE = {
@@ -85,6 +85,7 @@ export default class extends Controller {
         geoUrl: String,
         highlightKey: { type: String, default: '' },
         showAll: { type: Boolean, default: false },
+        state: { type: String, default: '' },
         markerLat: { type: Number, default: Number.NaN },
         markerLng: { type: Number, default: Number.NaN },
         markerLabel: { type: String, default: '' },
@@ -131,7 +132,7 @@ export default class extends Controller {
             ensureContainerSize(this.mapContainerTarget, '.catalog-orientation-map-frame');
 
             this.map = createLeafletMap(this.mapContainerTarget, { scrollWheelZoom: true });
-            this.map.setView([50.55, 9.0], 8);
+            this.map.setView([51.1, 10.4], 6);
 
             let highlightLayer = null;
             let destinationLayer = null;
@@ -151,6 +152,7 @@ export default class extends Controller {
                     }
                 },
             }).addTo(this.map);
+            addBoundaryAttributions(this.map, features);
             this.highlightLayer = highlightLayer;
             this.destinationLayer = destinationLayer;
 
@@ -166,6 +168,15 @@ export default class extends Controller {
     }
 
     featuresForDisplay(geojson) {
+        if (this.showAllValue && this.stateValue && Array.isArray(geojson?.features)) {
+            return {
+                ...geojson,
+                features: geojson.features.filter(
+                    (feature) => feature?.properties?.state === this.stateValue,
+                ),
+            };
+        }
+
         if (this.showAllValue || !this.highlightKeyValue || !Array.isArray(geojson?.features)) {
             return geojson;
         }

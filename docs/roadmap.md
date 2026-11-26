@@ -12,8 +12,8 @@ each release contained is listed in the [changelog](../CHANGELOG.md).
 | Alpha: proof of concept to beta readiness | v0.0.1-alpha – v0.0.5-alpha | May – July 2026 | Done |
 | First beta | v0.1-beta | August 2026 | Done |
 | Foundation Complete | v0.2-beta | September – October 2026 | Done |
-| Feature Complete | v0.3-beta | November – December 2026 | In progress |
-| Hardening Complete | v0.4-beta | January 2027 | Planned |
+| Feature Complete | v0.3-beta | November 2026 | Done |
+| Hardening Complete | v0.4-beta | January 2027 | In progress |
 | Release candidate | v1.0.0-rc.1 | February 2027 | Planned |
 | Stable release | v1.0.0 | March 2027 | Planned |
 | After 1.0 | – | from 2027 | Backlog |
@@ -25,7 +25,7 @@ Dates of future phases are the milestone due dates. They are targets, not commit
 ### Alpha (v0.0.1 – v0.0.5, May – July 2026)
 
 Development started in July 2025; the first tagged release followed in May 2026. The alpha
-phase answered one question first: can the core of the domain, importing anonymised IVENA
+phase answered one question first: can the core of the domain, importing pseudonymised IVENA
 allocation exports and turning them into statistics, be built at all? v0.0.1 was that proof of
 concept. The following alphas each had one focus: imports (v0.0.2), statistics (v0.0.3), user
 and developer experience (v0.0.4) and beta readiness (v0.0.5). By the end, import, Explore, the
@@ -56,18 +56,26 @@ The architectural, analytical and UI foundations intended for 1.0. The largest p
 From here on, new product functionality is meant to build on these foundations instead of
 introducing new ones.
 
+### Feature Complete (v0.3-beta, November 2026)
+
+The functionality planned for 1.0, built on those foundations (565 closed issues), and the first
+release made with Gitflow (ADR 024) through a `release/*` branch:
+
+- A second kind of clinical data: an encounter data pilot links emergency department visits with
+  their Manchester Triage System assessment to IVENA allocations, prepared offline and
+  pseudonymised by the hospitals, shipped as the first schema plugin. Closure Analytics left the
+  beta.
+- Comparisons of the own hospitals with others that protect small groups, stricter scopes and
+  clearer statistics, and a navigation rebuilt around one tree with Tools, help, glossary and
+  data catalog.
+- Clear rules for participation: versioned acceptance of the terms of use, a stored upload
+  authority per hospital, Explore restricted to the own hospitals, hospital assignment requests,
+  and data extract requests for research with a Board vote and time-limited exports.
+- Operations: verified weekly backups with an off-site copy, managed media storage, dispatch-area
+  geography as master data, an audit log timeline, feedback quarantine, a page editor with
+  drafts, two-factor authentication for administrators and a maintenance mode for upgrades.
+
 ## Looking ahead
-
-### Feature Complete (v0.3-beta)
-
-All functionality planned for 1.0 is implemented. The focus is on what participants and
-operators still miss in daily use: comparing the own hospital with others while protecting
-small groups, finishing the closure feature, the EMS Medical Director role with dispatch-area
-imports, a proper workflow for hospital assignments, a reliable page editor and help section,
-spam protection for feedback, and verified backups.
-
-This is the first phase developed with Gitflow (ADR 024): work goes to `develop`, and the
-release is made through a `release/*` branch.
 
 ### Hardening Complete (v0.4-beta)
 

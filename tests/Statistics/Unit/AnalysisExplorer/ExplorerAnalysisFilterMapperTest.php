@@ -126,6 +126,17 @@ final class ExplorerAnalysisFilterMapperTest extends TestCase
         self::assertSame(2, $filters[0]->value);
     }
 
+    public function testFromStateArrayMapsPre1040AgeGroupKeys(): void
+    {
+        $filters = $this->mapper->fromStateArray([
+            ['dimensionKey' => 'age_group', 'operator' => 'equals', 'value' => '19_29'],
+            ['dimensionKey' => 'age_group', 'operator' => 'equals', 'value' => '30_39'],
+        ]);
+
+        self::assertSame('18_29', $filters[0]->value);
+        self::assertSame('30_39', $filters[1]->value);
+    }
+
     public function testFromStateArrayRejectsUnknownOperators(): void
     {
         $this->expectException(InvalidExplorerConfigException::class);

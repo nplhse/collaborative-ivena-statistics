@@ -79,7 +79,7 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
         $query = [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
             'geo_segment' => 'travel:10_20',
             'geo_profile' => 'urgency',
         ];
@@ -101,11 +101,14 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
         $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', 'Emergency Care');
         $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', 'Inpatient Care');
         $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', 'Outpatient Care');
-        $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', '+29,4%');
-        $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', '-29,4%');
-        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-group-urgency"] .text-green');
-        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-group-urgency"] .text-red');
-        $this->assertSelectorTextNotContains('[data-testid="stats-case-flow-segment-group-urgency"]', 'pp');
+        $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', '+29,4 pp');
+        $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', '-29,4 pp');
+        // Share differences are descriptive, so they carry no assessment colour (#1230).
+        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-group-urgency"] span.text-secondary[aria-label]');
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-segment-group-urgency"] .text-green');
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-segment-group-urgency"] .text-red');
+        // 100,0 % segment share vs. 70,6 % population share: a difference in percentage points, not a relative change.
+        $this->assertSelectorTextNotContains('[data-testid="stats-case-flow-segment-group-urgency"]', '+29,4%');
         $this->assertSelectorTextNotContains('[data-testid="stats-case-flow-segment-group-urgency"]', 'U1');
         $this->assertSelectorNotExists('[data-testid="stats-case-flow-kpis"]');
         $this->assertSelectorNotExists('[data-testid="stats-case-flow-segment-median"]');
@@ -157,10 +160,22 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
             'owner' => $user,
             'createdBy' => $user,
         ]);
+        // Third hospital with cases from area A: dispatch area scopes need ScopePrivacyPolicy::MIN_HOSPITALS (3).
+        // It lies in area B like Klinik B, so the catchment count of area A stays at Klinik A's 12 cases.
+        $hospitalC = HospitalFactory::createOne([
+            'name' => 'GeoSegDaKlinikC',
+            'state' => $state,
+            'dispatchArea' => $areaB,
+            'tier' => HospitalTier::BASIC,
+            'location' => HospitalLocation::RURAL,
+            'owner' => $user,
+            'createdBy' => $user,
+        ]);
 
         $this->seedCatalog();
         $importA = ImportFactory::createOne(['name' => 'GeoSegDaImportA', 'hospital' => $hospitalA, 'createdBy' => $user]);
         $importB = ImportFactory::createOne(['name' => 'GeoSegDaImportB', 'hospital' => $hospitalB, 'createdBy' => $user]);
+        $importC = ImportFactory::createOne(['name' => 'GeoSegDaImportC', 'hospital' => $hospitalC, 'createdBy' => $user]);
 
         AllocationFactory::createMany(12, [
             'import' => $importA,
@@ -180,15 +195,25 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
             'urgency' => AllocationUrgency::EMERGENCY,
             'createdAt' => new \DateTimeImmutable('2026-04-02 09:00:00'),
         ]);
+        AllocationFactory::createMany(4, [
+            'import' => $importC,
+            'hospital' => $hospitalC,
+            'state' => $state,
+            'dispatchArea' => $areaA,
+            'gender' => AllocationGender::FEMALE,
+            'urgency' => AllocationUrgency::EMERGENCY,
+            'createdAt' => new \DateTimeImmutable('2026-04-02 09:00:00'),
+        ]);
 
         $rebuilder = self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class);
         $rebuilder->rebuildForImport($importA->getId());
         $rebuilder->rebuildForImport($importB->getId());
+        $rebuilder->rebuildForImport($importC->getId());
         $this->refreshStatisticsMaterializedViews();
 
         $query = [
             'scope' => 'dispatch_area:'.$areaA->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
             'geo_segment' => 'origin:'.$areaA->getId(),
             'geo_profile' => 'overview',
             'urgency' => '1',
@@ -257,7 +282,7 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/case-flow/segment-profile', [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
             'geo_profile' => 'urgency',
         ]);
 
@@ -280,7 +305,7 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/case-flow/segment-profile', [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
             'geo_profile' => 'demographics',
         ]);
         $this->assertResponseIsSuccessful();
@@ -292,7 +317,7 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/case-flow/segment-profile', [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
             'geo_profile' => 'age',
         ]);
         $this->assertResponseIsSuccessful();
@@ -303,7 +328,7 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/case-flow/segment-profile', [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
             'geo_profile' => 'resources',
         ]);
         $this->assertResponseIsSuccessful();
@@ -314,7 +339,7 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/case-flow/segment-profile', [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
             'geo_profile' => 'features',
         ]);
         $this->assertResponseIsSuccessful();
@@ -328,7 +353,7 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/case-flow/segment-profile', [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
             'geo_segment' => 'origin:not-a-number',
         ]);
         $this->assertResponseIsSuccessful();
@@ -370,7 +395,7 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/case-flow/segment-profile', [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-case-flow-segment-suppressed"]');
@@ -380,7 +405,7 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/case-flow/segment-profile', [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
             'geo_segment' => 'origin:'.$area->getId(),
             'geo_profile' => 'gender',
         ]);

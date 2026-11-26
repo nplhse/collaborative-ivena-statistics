@@ -533,7 +533,7 @@ final readonly class AllocationBucketQuery
             ->from(Allocation::class, 'a')
             ->where('a.createdAt >= :from')
             ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('a.createdAt', 'ASC');
+            ->orderBy('a.createdAt', \SortDirection::Ascending);
         $this->applyCreatedAtBefore($qb, $toExclusive);
         $this->applyHospitalScope($qb, $hospitalIds);
 

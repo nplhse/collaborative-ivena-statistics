@@ -3,7 +3,7 @@
 <a
     href="{{ path(route, app.request.query.all|merge(routeParameters)|merge({page: null})) }}"
     target="_top"
-    class="badge text-decoration-none {{ row.grouped ? 'bg-blue-lt text-blue' : (row.clustered ? 'bg-azure-lt text-azure' : 'bg-purple-lt text-purple-lt-fg') }}"
+    class="badge text-decoration-none {{ row.grouped ? 'bg-blue-lt text-blue' : (row.clustered ? 'bg-azure-lt text-azure' : 'bg-purple-lt') }}"
     {% if row.grouped %}title="{{ row.sourceGroupId }}"{% endif %}
 >
     {{ ('stats.closure.events.' ~ row.eventType.value)|trans({}, 'statistics') }}

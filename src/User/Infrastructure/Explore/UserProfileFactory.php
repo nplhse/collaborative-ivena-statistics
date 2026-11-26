@@ -42,7 +42,6 @@ final readonly class UserProfileFactory
         $activityPage = $this->activityQuery->getPage($user, null);
 
         return new UserProfileView(
-            publicId: $user->getPublicIdString(),
             username: $username,
             isAdmin: UserPublicRoleResolver::isAdmin($user),
             isParticipant: UserPublicRoleResolver::isParticipant($user),
@@ -56,6 +55,8 @@ final readonly class UserProfileFactory
             commentCount: $this->publishedCommentsProvider->countOnPublishedPostsByUserId($id),
             activities: $activityPage->items,
             activityNextCursor: $activityPage->nextCursor,
+            userId: $id,
+            displayName: $user->getDisplayName(),
         );
     }
 }

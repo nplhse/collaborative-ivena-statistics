@@ -100,6 +100,20 @@ final class MetricRegistry
             sortPriority: 21,
         ));
 
+        $this->register(new MetricDefinition(
+            key: 'percent_of_series',
+            label: 'Percent within series',
+            metricType: MetricType::Relative,
+            computationKind: MetricComputationKind::Relative,
+            description: 'Share of row count within its series: the bucket\'s count divided by all counted cases of the series (requires series dimension, #1346)',
+            requiredBaseMetricKeys: ['count'],
+            requiresSeriesDimension: true,
+            supportsRelativeMode: true,
+            defaultFormat: MetricFormat::Percent,
+            defaultPrecision: 2,
+            sortPriority: 22,
+        ));
+
         $this->registerTransportMetrics();
         $this->registerBooleanRateMetrics();
         $this->registerHospitalMetrics();

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Benchmarking\Application;
 
+use App\Statistics\Application\DTO\StatisticsDrawerFilter;
 use App\Statistics\Benchmarking\Application\Contract\BenchmarkAggregationProviderInterface;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkCriteria;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkDistribution;
@@ -41,13 +42,14 @@ final readonly class BenchmarkReportService
         return $this->mapAggregationToReport($criteria, $aggregation);
     }
 
-    public function buildForOverview(BenchmarkCriteria $criteria): BenchmarkReport
+    public function buildForOverview(BenchmarkCriteria $criteria, ?StatisticsDrawerFilter $drawerFilter = null): BenchmarkReport
     {
         $aggregation = $this->aggregationProvider->aggregateForOverview(
             $criteria->primaryScope,
             $criteria->primaryPeriod,
             $criteria->comparisonScope,
             $criteria->comparisonPeriod,
+            $drawerFilter,
         );
 
         return $this->mapAggregationToReport($criteria, $aggregation, overview: true);

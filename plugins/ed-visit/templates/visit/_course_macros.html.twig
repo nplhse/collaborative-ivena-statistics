@@ -1,0 +1,94 @@
+{#
+    Clinical blocks of one ED visit, shared by the case card "Hospital course" (#1055) and the visit
+    detail page (#1178). Every value may be missing; missing values render as a dash or a short sentence.
+#}
+
+{# Agreement of a link or proposal (score 0–1); the colour follows the matcher's thresholds and score bands. #}
+{% macro agreement_badge(score, testid = null) %}
+    <span class="badge {{ encounter_agreement_badge_class(score) }}"{% if testid %} data-testid="{{ testid }}"{% endif %}>{{ 'encounter.course.agreement'|trans({percent: (score * 100)|round(0, 'floor')}, 'encounter') }}</span>
+{% endmacro %}
+
+{% macro triage(encounter, diagram_name, indicator_name) %}
+    {% set d = 'encounter' %}
+    <div class="datagrid" data-testid="encounter-course-triage">
+        <div class="datagrid-item">
+            <div class="datagrid-title">{{ 'encounter.course.field.category'|trans({}, d) }}</div>
+            <div class="datagrid-content" data-testid="encounter-course-category">
+                {% if encounter.triage.category %}
+                    <span class="badge bg-{{ encounter.triage.category.value }} me-1"></span>
+                    {{ ('encounter.mts.category.' ~ encounter.triage.category.value ~ '.name')|trans({}, d) }}
+                {% else %}–{% endif %}
+            </div>
+        </div>
+        <div class="datagrid-item">
+            <div class="datagrid-title">{{ 'encounter.course.field.diagram'|trans({}, d) }}</div>
+            <div class="datagrid-content">{{ diagram_name ?? '–' }}</div>
+        </div>
+        <div class="datagrid-item">
+            <div class="datagrid-title">{{ 'encounter.course.field.indicator'|trans({}, d) }}</div>
+            <div class="datagrid-content">{{ indicator_name ?? '–' }}</div>
+        </div>
+        <div class="datagrid-item">
+            <div class="datagrid-title">{{ 'encounter.course.field.pain_score'|trans({}, d) }}</div>
+            <div class="datagrid-content">{{ encounter.triage.painScore ?? '–' }}</div>
+        </div>
+    </div>
+{% endmacro %}
+
+{# with_hint: the case card labels documented first values; the visit detail page shows only the values. compact: the documented values, at most three per row, the explanation moves into the badge's tooltip. #}
+{% macro vitals(course, with_hint = true, compact = false) %}
+    {% set d = 'encounter' %}
+    {% set vitals = course.encounter.vitals %}
+    {% if vitals.reference is null %}
+        <p class="text-secondary mb-0" data-testid="encounter-course-vitals-none">{{ 'encounter.course.vitals.none'|trans({}, d) }}</p>
+    {% else %}
+        {% if with_hint or vitals.reference.value == 'admission_measurement' %}
+        <p class="small mb-2" data-testid="encounter-course-vitals-reference" data-reference="{{ vitals.reference.value }}">
+            {% if course.vitalsOnTimeline %}
+                {{ 'encounter.course.vitals.admission_measurement'|trans({time: vitals.measuredAt|date('H:i')}, d) }}
+            {% elseif vitals.reference.value == 'admission_measurement' %}
+                {{ 'encounter.course.vitals.admission_measurement_no_time'|trans({}, d) }}
+            {% else %}
+                <span class="badge bg-secondary-lt me-1"{% if compact %} title="{{ 'encounter.course.vitals.documented_initial_hint'|trans({}, d) }}"{% endif %}>{{ 'encounter.course.vitals.documented_initial'|trans({}, d) }}</span>
+                {% if not compact %}<span class="text-secondary">{{ 'encounter.course.vitals.documented_initial_hint'|trans({}, d) }}</span>{% endif %}
+            {% endif %}
+        </p>
+        {% endif %}
+        <div class="{{ compact ? 'row row-cols-2 row-cols-md-3 g-3' : 'datagrid' }}" data-testid="encounter-course-vitals">
+            {% for field, value in {
+                blood_pressure: vitals.bpSystolic is not null or vitals.bpDiastolic is not null ? (vitals.bpSystolic ?? '–') ~ '/' ~ (vitals.bpDiastolic ?? '–') ~ ' mmHg' : null,
+                heart_rate: vitals.heartRate is not null ? vitals.heartRate ~ ' /min' : null,
+                respiratory_rate: vitals.respiratoryRate is not null ? vitals.respiratoryRate ~ ' /min' : null,
+                spo2: vitals.spo2 is not null ? vitals.spo2 ~ ' %' : null,
+                temperature: vitals.temperature is not null ? vitals.temperature|format_number({fraction_digit: 1}) ~ ' °C' : null,
+                glucose: vitals.glucose is not null ? vitals.glucose ~ ' mg/dl' : null,
+                gcs: vitals.gcs,
+            } %}
+                {% if not compact or value is not null %}
+                <div class="{{ compact ? 'col' : 'datagrid-item' }}">
+                    <div class="datagrid-title">{{ ('encounter.course.vitals.' ~ field)|trans({}, d) }}</div>
+                    <div class="datagrid-content" data-vital="{{ field }}">{{ value ?? '–' }}</div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endmacro %}
+
+{% macro disposition(encounter) %}
+    {% set d = 'encounter' %}
+    <div class="datagrid" data-testid="encounter-course-disposition">
+        <div class="datagrid-item">
+            <div class="datagrid-title">{{ 'encounter.course.field.disposition'|trans({}, d) }}</div>
+            <div class="datagrid-content">{{ encounter.disposition.code ? ('encounter.disposition.' ~ encounter.disposition.code.value)|trans({}, d) : '–' }}</div>
+        </div>
+        <div class="datagrid-item">
+            <div class="datagrid-title">{{ 'encounter.course.field.care_level'|trans({}, d) }}</div>
+            <div class="datagrid-content">{{ encounter.disposition.careLevel ? ('encounter.care_level.' ~ encounter.disposition.careLevel.value)|trans({}, d) : '–' }}</div>
+        </div>
+        <div class="datagrid-item">
+            <div class="datagrid-title">{{ 'encounter.course.field.department'|trans({}, d) }}</div>
+            <div class="datagrid-content">{{ encounter.admittingDepartment ? encounter.admittingDepartment.name : '–' }}</div>
+        </div>
+    </div>
+{% endmacro %}

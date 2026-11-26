@@ -7,6 +7,7 @@ namespace App\Allocation\Infrastructure\Repository;
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\IndicationNormalized;
 use App\Allocation\UI\Http\DTO\IndicationQueryParametersDTO;
+use App\Shared\Infrastructure\Doctrine\SortDirections;
 use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -40,8 +41,8 @@ final class IndicationNormalizedRepository extends ServiceEntityRepository
         }
 
         // The id tie-breaker keeps rows with equal sort values on a stable page.
-        $qb->orderBy(self::listSortField($queryParametersDTO->sortBy), $queryParametersDTO->orderBy)
-            ->addOrderBy('i.id', $queryParametersDTO->orderBy);
+        $qb->orderBy(self::listSortField($queryParametersDTO->sortBy), SortDirections::fromString($queryParametersDTO->orderBy))
+            ->addOrderBy('i.id', SortDirections::fromString($queryParametersDTO->orderBy));
 
         if (null !== $queryParametersDTO->search) {
             $qb->andWhere($qb->expr()->like('LOWER(i.name)', ':search'))
@@ -73,7 +74,7 @@ final class IndicationNormalizedRepository extends ServiceEntityRepository
     {
         $rows = $this->createQueryBuilder('i')
             ->select('i.id, i.name, i.code')
-            ->orderBy('i.code', 'ASC')
+            ->orderBy('i.code', \SortDirection::Ascending)
             ->getQuery()
             ->getArrayResult();
 
@@ -119,7 +120,7 @@ final class IndicationNormalizedRepository extends ServiceEntityRepository
                     WHERE a.secondaryIndicationNormalized = n
                 )'
             )
-            ->orderBy('n.name', 'ASC')
+            ->orderBy('n.name', \SortDirection::Ascending)
             ->getQuery()
             ->getResult();
 

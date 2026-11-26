@@ -1,0 +1,84 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Cois\Plugin\EdVisit\UI\Navigation;
+
+use App\Shared\Application\Navigation\Tool\Tool;
+use App\Shared\Application\Navigation\Tool\ToolCategory;
+use App\Shared\Application\Navigation\Tool\ToolProviderInterface;
+use App\Shared\Application\Navigation\Tool\ToolTopic;
+use Cois\Plugin\EdVisit\UI\Http\Controller\Review\ListReviewHospitalsController;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+
+/**
+ * Lists the encounter match review and the match validation in the Tools section (ADR 031); the assignment
+ * conflicts and the data preparation tool come from the core. Both belong to the encounter pilot and need
+ * ROLE_ENCOUNTER_BETA, like their controllers; the per-hospital REVIEW grant is checked on the pages (the hospital
+ * list shows only the hospitals the user may review), so the navigation needs no database query. The plausibility table of the
+ * matcher (ADR 033) is listed only for ROLE_ENCOUNTER_CATALOG_REVIEWER as well.
+ *
+ * @psalm-suppress UnusedClass Tagged via ToolProviderInterface.
+ */
+final readonly class EncounterToolProvider implements ToolProviderInterface
+{
+    public const string REVIEW = 'encounter_review';
+    public const string VALIDATION = 'encounter_validation';
+    public const string PLAUSIBILITY = 'encounter_plausibility';
+
+    public function __construct(
+        private AuthorizationCheckerInterface $authorizationChecker,
+    ) {
+    }
+
+    #[\Override]
+    public function tools(): array
+    {
+        if (!$this->authorizationChecker->isGranted('ROLE_ENCOUNTER_BETA')) {
+            return [];
+        }
+
+        $tools = [
+            new Tool(
+                key: self::REVIEW,
+                titleKey: 'tools.encounter_review.title',
+                descriptionKey: 'tools.encounter_review.description',
+                translationDomain: 'encounter',
+                route: 'app_tools_encounter_review',
+                icon: 'tabler:arrows-exchange',
+                category: ToolCategory::Matching,
+                beta: true,
+                topics: [ToolTopic::Allocations, ToolTopic::Encounters],
+            ),
+            new Tool(
+                key: self::VALIDATION,
+                titleKey: 'tools.encounter_validation.title',
+                descriptionKey: 'tools.encounter_validation.description',
+                translationDomain: 'encounter',
+                route: 'app_tools_encounter_review',
+                icon: 'tabler:clipboard-check',
+                category: ToolCategory::Matching,
+                beta: true,
+                routeParameters: ['mode' => ListReviewHospitalsController::MODE_VALIDATION],
+                topics: [ToolTopic::Allocations, ToolTopic::Encounters],
+            ),
+        ];
+
+        // The plausibility table (ADR 033) needs the catalog reviewer role on top of the beta role; ROLE_ADMIN inherits both.
+        if ($this->authorizationChecker->isGranted('ROLE_ENCOUNTER_CATALOG_REVIEWER')) {
+            $tools[] = new Tool(
+                key: self::PLAUSIBILITY,
+                titleKey: 'tools.encounter_plausibility.title',
+                descriptionKey: 'tools.encounter_plausibility.description',
+                translationDomain: 'encounter',
+                route: 'app_tools_encounter_plausibility',
+                icon: 'tabler:table',
+                category: ToolCategory::Matching,
+                beta: true,
+                topics: [ToolTopic::Indications, ToolTopic::Encounters],
+            );
+        }
+
+        return $tools;
+    }
+}

@@ -64,8 +64,8 @@ final readonly class ExplorerAnalysisSummaryLabelResolver implements ExplorerAna
         $now = $this->clock->now();
 
         return match ($filter->period) {
-            StatisticsFilterPeriod::All => $this->translator->trans(
-                'stats.filter.period.all',
+            StatisticsFilterPeriod::Last12Months => $this->translator->trans(
+                'stats.filter.period.last_12_months',
                 [],
                 'statistics',
                 $locale,

@@ -1,0 +1,63 @@
+{# Data status summary of My Hospitals (#971): at most four tiles. A tile resting on fewer hospitals says so. #}
+<div class="row row-cards mb-3" data-testid="my-hospitals-summary">
+    <div class="col-sm-6 col-xl-3">
+        <div class="card card-sm h-100">
+            <div class="card-body">
+                <div class="subheader">{{ 'my_hospitals.summary.allocations'|trans({}, 'allocation') }}</div>
+                <div class="h2 mb-0" data-testid="my-hospitals-summary-allocations">{{ overview.allocationCount|format_number }}</div>
+                <div class="text-body-secondary small">{{ 'my_hospitals.summary.with_data'|trans({count: overview.hospitalsWithData}, 'allocation') }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card card-sm h-100">
+            <div class="card-body">
+                <div class="subheader">{{ 'my_hospitals.summary.data_period'|trans({}, 'allocation') }}</div>
+                <div class="h3 mb-0" data-testid="my-hospitals-summary-period">
+                    {% if overview.firstAllocationAt and overview.lastAllocationAt %}
+                        {{ overview.firstAllocationAt|format_date('medium') }} – {{ overview.lastAllocationAt|format_date('medium') }}
+                    {% else %}
+                        {{ 'my_hospitals.summary.no_data'|trans({}, 'allocation') }}
+                    {% endif %}
+                </div>
+                <div class="text-body-secondary small">{{ 'my_hospitals.summary.data_period_hint'|trans({}, 'allocation') }}</div>
+            </div>
+        </div>
+    </div>
+    {% if overview.imports %}
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-sm h-100">
+                <div class="card-body">
+                    <div class="subheader">{{ 'my_hospitals.summary.imports'|trans({}, 'allocation') }}</div>
+                    <div class="h2 mb-0" data-testid="my-hospitals-summary-imports">{{ overview.imports.finished|format_number }}</div>
+                    <div class="text-body-secondary small" data-testid="my-hospitals-summary-success-rate">
+                        {% if overview.imports.successRate is not null %}
+                            {{ 'my_hospitals.success_rate'|trans({rate: overview.imports.successRate}, 'allocation') }}
+                        {% else %}
+                            {{ 'my_hospitals.summary.no_imports'|trans({}, 'allocation') }}
+                        {% endif %}
+                    </div>
+                    {% if overview.imports.hospitals < overview.hospitalCount %}
+                        <div class="text-body-secondary small">{{ 'my_hospitals.summary.basis'|trans({count: overview.imports.hospitals, total: overview.hospitalCount}, 'allocation') }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    {% if overview.months is not null %}
+        <div class="col-sm-6 col-xl-3">
+            <div class="card card-sm h-100">
+                <div class="card-body">
+                    <div class="subheader">{{ 'my_hospitals.summary.coverage'|trans({}, 'allocation') }}</div>
+                    <div class="h2 mb-0" data-testid="my-hospitals-summary-coverage">
+                        {{ 'my_hospitals.coverage_value'|trans({covered: overview.fullyCoveredMonths, total: overview.completeMonths}, 'allocation') }}
+                    </div>
+                    <div class="text-body-secondary small">{{ 'my_hospitals.summary.coverage_hint'|trans({}, 'allocation') }}</div>
+                    {% if overview.statisticsHospitals < overview.hospitalCount %}
+                        <div class="text-body-secondary small">{{ 'my_hospitals.summary.basis'|trans({count: overview.statisticsHospitals, total: overview.hospitalCount}, 'allocation') }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>

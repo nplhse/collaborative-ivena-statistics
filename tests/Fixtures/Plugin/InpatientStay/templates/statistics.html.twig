@@ -1,0 +1,31 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{# Statistics page of the test bundle (#1300): the Statistics page API with the bundle's own figure. #}
+{% set d = 'inpatient_stay_test' %}
+
+{% block title %}{{ 'inpatient_stay_test.statistics.title'|trans({}, d) }} – {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}<twig:Navigation:Sidebar menu="statistics" />{% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col min-w-0">
+                    <h2 class="page-title mb-0" data-testid="inpatient-stay-statistics-heading">{{ 'inpatient_stay_test.statistics.title'|trans({}, d) }}</h2>
+                </div>
+                {{ include('@Statistics/_header_controls.html.twig') }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div class="card">
+        <div class="card-body" data-testid="inpatient-stay-statistics-count">{{ 'inpatient_stay_test.statistics.count'|trans({count: stays}, d) }}</div>
+    </div>
+{% endblock %}

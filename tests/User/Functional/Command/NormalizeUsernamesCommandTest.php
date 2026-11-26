@@ -75,6 +75,33 @@ final class NormalizeUsernamesCommandTest extends KernelTestCase
         self::assertSame('foo@bar', $invalid->getUsername());
     }
 
+    public function testReplacementThatDiffersOnlyInCaseFromAnotherUsernameIsACollision(): void
+    {
+        $taken = UserFactory::createOne(['username' => 'jane-doe']);
+        $withSpace = UserFactory::createOne(['username' => 'Jane Doe']);
+
+        $tester = $this->createCommandTester();
+        $tester->execute(['--apply' => true]);
+
+        self::assertStringContainsString(NormalizeUsernamesCommand::STATUS_COLLISION, $tester->getDisplay());
+        \Zenstruck\Foundry\Persistence\refresh($taken);
+        \Zenstruck\Foundry\Persistence\refresh($withSpace);
+        self::assertSame('jane-doe', $taken->getUsername());
+        self::assertSame('Jane Doe', $withSpace->getUsername(), 'Jane-Doe would collide with jane-doe (#1353)');
+    }
+
+    public function testDigitsOnlyUsernameIsReportedForManualRename(): void
+    {
+        $digitsOnly = UserFactory::createOne(['username' => '1234']);
+
+        $tester = $this->createCommandTester();
+        $tester->execute(['--apply' => true]);
+
+        self::assertStringContainsString(NormalizeUsernamesCommand::STATUS_STILL_INVALID, $tester->getDisplay());
+        \Zenstruck\Foundry\Persistence\refresh($digitsOnly);
+        self::assertSame('1234', $digitsOnly->getUsername(), 'Digits only are reserved for IDs (#1354); an admin renames by hand.');
+    }
+
     private function createCommandTester(): CommandTester
     {
         /** @var NormalizeUsernamesCommand $command */

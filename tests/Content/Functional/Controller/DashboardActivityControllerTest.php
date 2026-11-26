@@ -218,10 +218,9 @@ final class DashboardActivityControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="dashboard-activity-item"][data-activity-type="import_milestone"]');
         self::assertSelectorExists('[data-testid="dashboard-activity-item"][data-activity-type="comment_created"]');
         self::assertSelectorExists('[data-testid="dashboard-activity-item"][data-activity-type="post_published"]');
-        self::assertSelectorTextContains('body', 'Imported first dataset');
-        self::assertSelectorTextContains('body', 'Reached 5 data imports');
-        self::assertSelectorTextContains('body', 'Wrote a comment');
-        self::assertSelectorTextContains('body', 'On');
+        self::assertSelectorTextContains('body', 'for the first time');
+        self::assertSelectorTextContains('body', 'has completed 5 data imports in total');
+        self::assertSelectorTextContains('body', 'commented on');
         self::assertSelectorTextContains('body', 'Untitled Comment Post');
         self::assertSelectorTextContains('body', 'Nice work');
         self::assertSelectorTextContains('body', 'Draft Headline');
@@ -426,5 +425,35 @@ final class DashboardActivityControllerTest extends WebTestCase
             metadata: $metadata,
         ));
         $entityManager->flush();
+    }
+
+    public function testActivityShowsActorDisplayNameAndAvatar(): void
+    {
+        $client = self::createClient();
+        $viewer = UserFactory::createOne(['username' => 'activity-name-viewer']);
+        $actor = UserFactory::createOne(['username' => 'activity-named-actor', 'displayName' => 'Andreas Meyer']);
+        $actorId = $actor->getId();
+        self::assertNotNull($actorId);
+
+        $this->record(
+            $actor,
+            UserActivityType::POST_PUBLISHED,
+            new \DateTimeImmutable('2026-05-01 12:00:00'),
+            UserActivityDeduplicationKey::postPublished($actorId, 1),
+            ['title' => 'Named Post', 'slug' => 'named-post'],
+        );
+
+        $client->loginUser($viewer);
+        $crawler = $client->request(Request::METHOD_GET, '/dashboard/activity');
+
+        self::assertResponseIsSuccessful();
+        $item = $crawler->filter('[data-testid="dashboard-activity-item"]')->first();
+        self::assertSame('AM', trim($item->filter('[data-testid="activity-actor"] .avatar')->text()));
+        self::assertStringContainsString(
+            'bg-'.\App\User\UI\Twig\Components\UserAvatar::PALETTE[$actorId % 8].'-lt',
+            (string) $item->filter('[data-testid="activity-actor"] .avatar')->attr('class'),
+        );
+        self::assertStringEndsWith('Andreas Meyer', trim($item->filter('[data-testid="activity-actor"]')->text()));
+        self::assertSame('activity-named-actor', $item->filter('[data-testid="activity-actor"]')->attr('title'));
     }
 }

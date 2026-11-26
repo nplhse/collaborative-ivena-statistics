@@ -11,6 +11,10 @@ make upgrade-dev  # update deps/schema; keeps existing DB (e.g. mirror DB)
 
 First-time setup details: [../01-getting-started/local-setup.md](../01-getting-started/local-setup.md)
 
+Data extract exports need the read-only role `app_ro`: a fresh database volume gets it, an existing one with
+`make db-readonly-role`; then set `RESEARCH_DATABASE_URL` in `.env.local`
+([export connection](../04-features/research/README.md#export-connection)).
+
 ### Work in a git worktree
 
 A new worktree has no `vendor/`, no `node_modules/`, no local env files and cold caches for the code checks. `bin/worktree-init` takes all of that from an existing checkout, so checks and tests run right away:
@@ -27,6 +31,7 @@ What it does, from the main checkout (or the checkout given as second argument):
 | What | How |
 |---|---|
 | `.env.local`, `.env.*.local` | copied |
+| Own test databases | `TEST_DATABASE_SUFFIX=_<worktree directory name>` set in the worktree's `.env.test.local` |
 | `vendor/`, `node_modules/` | cloned (APFS clone on macOS, so no extra disk space), then synced with the worktree's lock files via `composer install` and, if `package-lock.json` differs, `npm ci` |
 | Rector, PHP-CS-Fixer, twig-cs-fixer caches | copied; each tool re-checks only files that differ |
 | PHPStan cache | copied once it lives in `var/cache/phpstan` |
@@ -36,11 +41,19 @@ Existing files in the worktree are kept; `--force` replaces them. The script is 
 
 The same steps apply to people and to coding agents that work in parallel worktrees.
 
-A worktree uses the same databases as its source checkout: the development database from the copied `.env.local`, and the test databases from `DATABASE_URL` in `.env` (or a copied `.env.test.local`; the test environment does not read `.env.local`) with the suffix `_test`, plus one per ParaTest worker via `TEST_TOKEN`. In practice:
+A worktree shares the development database of its source checkout (from the copied `.env.local`), but has its own test databases. Test database names are `DATABASE_URL` from `.env` (or `.env.test.local`; the test environment does not read `.env.local`) plus `_test`, `TEST_DATABASE_SUFFIX` and, per ParaTest worker, `TEST_TOKEN`: in the worktree `../my-topic` that gives `app_test_my_topic`, and `app_test_my_topic1` … `4` for `make test-database`. In practice:
 
-- Do not run database tests in two checkouts at the same time. `make ci`, `make test` and `make test-database` reset the test databases and get in each other's way.
-- Migrations from a branch change the shared development database; other checkouts then run against that schema.
-- For an isolated worktree, set another database name in its `.env.local` (development) and `.env.test.local` (tests), then run `make install-dev` there.
+- Database tests in different worktrees run at the same time without resetting each other's databases. Foundry creates a missing test database and runs the migrations on the first run, so there is no setup step.
+- Without `TEST_DATABASE_SUFFIX` (main checkout, a worktree not set up with `bin/worktree-init`, or a branch from before #1168) the test databases are the shared `app_test*`: do not run database tests in two such checkouts at the same time. Re-run `bin/worktree-init` on an older worktree to give it its own.
+- Migrations from a branch change the shared development database; other checkouts then run against that schema. For an isolated development database, set another database name in the worktree's `.env.local`, then run `make install-dev` there.
+
+When the work is merged, remove the worktree together with its test databases:
+
+```bash
+bin/worktree-cleanup ../my-topic
+```
+
+It drops `app_test_my_topic` and the worker databases (`TEST_TOKEN` 1 to `PROCESSES`, default 4), then runs `git worktree remove`; the branch is kept. It refuses the main checkout, a worktree without its own suffix, a branch whose `doctrine.yaml` ignores the suffix, and a worktree with uncommitted changes. A worktree removed with plain `git worktree remove` leaves its test databases behind; drop them by hand.
 
 ### Reset local runtime data
 
@@ -51,7 +64,7 @@ make reset   # like purge, then load demo fixtures (see [fixtures.md](fixtures.m
 
 ### Run the demo environment
 
-A separate `APP_ENV=demo` with its own database `app_demo` and synthetic data for presentations: `make demo-install`, `make demo-start`, `make demo-consume`. See [../05-operations/demo-environment.md](../05-operations/demo-environment.md).
+A separate `APP_ENV=demo` with its own database `app_demo` and synthetic data for presentations: `make demo-install`, `make demo-start`, `make demo-consume`; `make demo-uninstall` removes it again. See [../05-operations/demo-environment.md](../05-operations/demo-environment.md).
 
 ### Start the local worker
 
@@ -88,6 +101,7 @@ Checks never change source code (they may write caches, compiled containers and 
 | `make audit` | `composer audit` | no | network |
 | `make security` | Psalm taint analysis (`SARIF=results.sarif` writes a report) | no | — |
 | `make ci-full` | `ci`, `audit` and `security` | no | test database, network |
+| `make check-without-ed-visit` | Installs a temporary copy without the ED visit plugin and smoke-tests it (see below) | no | database server |
 
 Day to day and before a pull request: `make check` and the tests of every context whose behaviour can change (`make test PATH_ARG=tests/<Context>`). The complete suite runs in GitHub Actions on every pull request; run `make ci` locally only for changes to central infrastructure or to reproduce a CI failure. `make check` stops at the first failing check; `make -k check` runs all of them and lists every failure.
 
@@ -99,7 +113,7 @@ The checks in the order of `make check`:
 |---|---|---|
 | 1 | Repository | `check-phpunit-suite-dirs`, `composer-validate`, `check-conflicts` |
 | 2 | Symfony config | `lint-yaml`, `lint-container` (deprecations + `lint:container`), `lint-xliff`, `lint-trans`, `lint-templates` (Twig syntax) |
-| 3 | Code style and refactoring | `swiss-knife-check` (`swiss-knife`), `rector-check` (`rector`), `lint-php` (`fix-php`), `lint-twig` (`fix-twig`, twig-cs-fixer), `lint-js` (`fix-js`) |
+| 3 | Code style and refactoring | `swiss-knife-check` (`swiss-knife`), `rector-check` (`rector`), `lint-php` (`fix-php`), `lint-twig` (`fix-twig`, twig-cs-fixer), `lint-js` (`fix-js`; also runs the Node tests of the data preparation tool, `npm run test:js`) |
 | 4 | Analysis | `phpstan`, `psalm` |
 | 5 | Architecture | `deptrac`: report only, never fails ([ADR 010](../02-architecture/decisions/010-architecture-guardrails-and-beta-scope.md)); `deptrac-strict` fails on violations outside the baseline |
 
@@ -109,8 +123,33 @@ The Linting workflow (`.github/workflows/lint.yml`) calls these targets one step
 
 The `Makefile` defines the commands: which tool runs with which options, which test suites belong together, where reports go. The workflows call those targets and provide everything around them: PHP, Node and extensions, the locked dependencies, Composer and tool caches, the PostgreSQL service and job environment (`APP_SECRET`, `DATABASE_URL`, `CONSOLE: php bin/console`, as CI has no Symfony CLI), compiled assets before the database tests, and the coverage, JUnit and SARIF uploads. The prod kernel smoke job keeps its own steps: it replaces `vendor/` with a `--no-dev` install, which should not happen in a development checkout.
 
+Workflows pin every action to a full commit SHA with its release as a comment, for example
+`uses: actions/checkout@<40-character sha> # v7.0.1`, so a moved or compromised tag cannot change what CI runs. Add new
+actions the same way: resolve the release tag to its commit, and use the exact tag name in the comment, because
+Dependabot reads it to find updates. Dependabot updates SHA and comment together and groups all action updates into
+one weekly pull request against `develop` (`.github/dependabot.yml`).
+
 Tool caches live in `var/cache/` (`rector`, `phpstan`, `psalm`) and in `.php-cs-fixer.cache` / `.twig-cs-fixer.cache`;
 CI caches the same paths. `make clear` removes the ones in `var/cache/`.
+
+#### Install without the ED visit plugin
+
+`make check-without-ed-visit` (`bin/check-without-ed-visit`, #1300) proves that the application installs and runs
+without the package `nplhse/cois-ed-visit`. It copies the checkout (tracked and untracked files, plus `.env.local`,
+`vendor/` and `assets/vendor/`) to a temporary directory and there:
+
+1. removes the package with Composer (`composer.json`, `composer.lock`, the path repository and the plugin's test
+   autoload) and drops the bundle from `config/bundles.php` and the plugin directories from `phpunit.dist.xml`;
+2. checks that `Cois\Plugin\EdVisit\EdVisitBundle` is not loadable;
+3. warms the prod cache, lints the prod and test containers and compiles the asset map;
+4. migrates an empty test database `…_test_without_ed_visit` and validates the Doctrine mapping;
+5. runs `tests/Encounter/Functional/WithoutEdVisit` and `NewImportControllerTest`: boot, import selection, allocation
+   and closure imports, menus without dead links.
+
+The directory and the database are removed at the end; `bin/check-without-ed-visit --keep` leaves both for
+inspection (drop the database with `php bin/console doctrine:database:drop --env=test --force` in that directory).
+Run it before a pull request that changes what the core needs from the plugin, and before the release. It is not
+part of `make check` or CI.
 
 ### Translations
 
@@ -174,6 +213,16 @@ make warmup   # does not touch the database
 
 For schema changes on an existing database, prefer `make upgrade-dev` over `purge` or `reset`.
 
+### Keep `config/reference.php` current
+
+`config/reference.php` holds the array shapes for PHP configuration (IDE autocompletion, static analysis). Symfony generates it and [recommends committing it](https://symfony.com/blog/new-in-symfony-7-4-better-php-configuration); the framework-bundle recipe deliberately does not ignore it ([symfony/recipes#1560](https://github.com/symfony/recipes/issues/1560)). It stays tracked here.
+
+- Symfony rewrites it whenever a debug container is compiled: `cache:clear` or `cache:warmup` in `dev` or `test`, and therefore also `composer install` and `make upgrade-dev`. `demo` and `prod` run without debug and do not touch it.
+- The content does not depend on the environment: it covers every bundle and every environment from `config/bundles.php`. It changes when bundles are added or removed, when a new environment appears, or when a dependency update changes a bundle's configuration tree.
+- Regenerate it (`php bin/console cache:clear`) and commit it in the same pull request whenever you change `composer.lock`, `config/bundles.php` or add an environment.
+- Dependabot pull requests cannot regenerate it, so after dependency updates the file is often out of date and shows up as a diff in the next checkout. Do not discard that diff: commit it as its own commit, `chore(config): regenerate config/reference.php`, in your pull request.
+- Never edit it by hand. PHPStan skips it (`excludePaths` in `phpstan.dist.neon`).
+
 ### Migrations
 
 ```bash
@@ -185,8 +234,12 @@ php bin/console doctrine:migrations:migrate --no-interaction
 New migrations:
 
 - Generate them with `php bin/console doctrine:migrations:diff` (or `make:migration`) and review the SQL.
+  - Tables that a context manages with DBAL only, without an entity, are hidden from the diff by a schema filter (#1372). Register a new one through `DbalManagedTablesInterface` in its context; never register a table an entity maps. `SchemaDiffDropsNoTableTest` fails while a table is neither mapped nor registered.
+  - The diff still proposes changes on mapped tables where the mapping and the migrations differ: index names, the `public_id` type, identity columns, indexes that exist only in migrations (#1398). Remove those statements from a generated migration.
+  - Without the ED visit plugin, its tables are unmapped and the diff proposes to drop them. Generate migrations with the plugin installed.
 - Name the version with the actual current time, `Version<YYYYMMDDHHMMSS>` (`date '+%Y%m%d%H%M%S'`), never a rounded value such as `Version20261014190000`. If you rename one that already ran locally, update `doctrine_migration_versions` too.
 - Never edit a migration that is already on `develop` (or on `main`); add a new one instead. Other checkouts and the next release already depend on it.
+- Migrations run in the order of the timestamp in their class name, across namespaces (`TimestampMigrationComparator`, ADR 037), so that migrations of encounter schema bundles run after the core migrations they build on; equal timestamps are ordered by the full class name. A migration whose class name does not end in `Version<YYYYMMDDHHMMSS>` is refused. A bundle migration may only build on core migrations with an older timestamp.
 
 ## Branches, releases and hotfixes
 
@@ -211,7 +264,9 @@ The project follows Gitflow with `main` as the default branch ([ADR 024](../02-a
 
 Release `0.3-beta` as an example. Every step on the release branch is a pull request into `release/0.3-beta`; the branch only takes fixes, version and docs, no new features.
 
-1. **Milestone:** no open issues or pull requests left in the milestone; move what does not make it.
+1. **Milestone:** no open issues or pull requests left in the milestone; move what does not make it. Check that the
+   ["What's new for you" card](../04-features/onboarding/whats-new.md#adding-a-release) lists the release's
+   user-facing features and its migration records the installation, or that the release deliberately has no card.
 2. **Branch:** create `release/0.3-beta` from `origin/develop` and push it.
 3. **Version:** set `APP_VERSION` in `src/Kernel.php` to `v0.3-beta`. It feeds the footer, the health check and the Sentry release.
 4. **Changelog:** write the `## [0.3-beta] - <date>` section ([Changelog](#changelog)), with a short summary and, if needed, a link to the upgrade guide.

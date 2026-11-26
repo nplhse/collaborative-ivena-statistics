@@ -2,14 +2,14 @@
 
 {% import '@Shared/_macros/badges.html.twig' as badges %}
 
-{% block title %}{{ 'title.user.show'|trans({}, 'user') }}: {{ profile.username }} - {{ parent() }}{% endblock %}
+{% block title %}{{ 'title.user.show'|trans({}, 'user') }}: {{ user_display_name(profile.displayName, profile.username) }} - {{ parent() }}{% endblock %}
 
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
         {% block header_after %}
             {# Users without ROLE_PARTICIPANT may only open their own profile, not the rest of Explore. #}
             {% if is_granted('ROLE_PARTICIPANT') %}
-                {{ include('@Shared/_includes/subnav_explore.html.twig') }}
+                <twig:Navigation:Sidebar menu="explore" />
             {% endif %}
         {% endblock %}
     {% endembed %}
@@ -23,22 +23,25 @@
                 :items="[
                         { label: 'link.explore', path: path('app_explore_index') },
                         { label: 'link.users', path: path('app_explore_user_list') },
-                        { label: profile.username, translatable: false }
+                        { label: user_display_name(profile.displayName, profile.username), translatable: false }
                     ]"
             />
         {% else %}
-            <twig:Breadcrumbs :items="[{ label: profile.username, translatable: false }]" />
+            <twig:Breadcrumbs :items="[{ label: user_display_name(profile.displayName, profile.username), translatable: false }]" />
         {% endif %}
 
         <div class="row align-items-center" data-testid="user-profile-header">
             <div class="col-auto">
-                <span class="avatar avatar-lg rounded">
-                    <twig:ux:icon name="tabler:user" width="36px" height="36px" />
-                </span>
+                <twig:UserAvatar :userId="profile.userId" :displayName="profile.displayName" :username="profile.username" size="xl" data-testid="user-profile-avatar" />
             </div>
             <div class="col">
-                <h1 id="user-username" class="fw-bold mb-1">{{ profile.username }}</h1>
+                {% set profileName = user_display_name(profile.displayName, profile.username) %}
+                <h1 id="user-username" class="fw-bold mb-1">{{ profileName }}</h1>
+                {% if profileName != profile.username %}
+                    <div class="text-secondary mb-1" data-testid="user-profile-username">@{{ profile.username }}</div>
+                {% endif %}
                 <div class="list-inline list-inline-dots text-secondary">
+                    <twig:AdminObjectId :id="profile.userId" />
                     {% if profile.isSelf %}
                         <div class="list-inline-item">
                             <twig:Badge variant="green" data-testid="user-badge-self">{{ 'label.user.self_profile'|trans({}, 'user') }}</twig:Badge>
@@ -104,13 +107,15 @@
                     />
                 {% else %}
                     <div class="list-group list-group-flush">
-                        {{ include('@User/explore/users/_activity_items.html.twig', {
+                        {{ include('@Content/dashboard/_activity_items.html.twig', {
                             activities: profile.activities,
                             previews: previews|default({}),
+                            activity_item_testid: 'profile-activity-item',
+                            show_reactions: true,
                         }) }}
                         {% if profile.hasMoreActivities and profile.activityNextCursor and profile.activityNextFrameId %}
                             {{ include('@User/explore/users/_activity_next_frame.html.twig', {
-                                profilePublicId: profile.publicId,
+                                profileUsername: profile.username,
                                 nextCursor: profile.activityNextCursor,
                                 frameId: profile.activityNextFrameId,
                             }) }}

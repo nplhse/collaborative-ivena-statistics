@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Set up a git worktree with local env files, dependencies and warm analysis caches.
+# Set up a git worktree with local env files, own test databases, dependencies and warm analysis caches.
 #
 # Usage: bin/worktree-init [--force] <worktree-path> [<source-checkout>]
 #
 # The source defaults to the main checkout (first entry of `git worktree list`).
 # Existing files in the worktree are kept unless --force is given.
-# See docs/03-development/development-workflow.md.
+# Remove it again with bin/worktree-cleanup. See docs/03-development/development-workflow.md.
 set -euo pipefail
 
 usage() {
@@ -87,6 +87,22 @@ for file in "$source"/.env.local "$source"/.env.*.local; do
     take "$(basename "$file")" || true
 done
 [ "$found_env" = true ] || report skipped ".env*.local (none in source)"
+
+echo
+echo "Test databases"
+# Own test databases per worktree: config/packages/doctrine.yaml appends TEST_DATABASE_SUFFIX to
+# "_test" (before ParaTest's TEST_TOKEN). Foundry creates them on the first test run;
+# bin/worktree-cleanup drops them. Cut to 40 characters to stay below PostgreSQL's 63.
+suffix="_$(basename "$target" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9_\n' '_' | cut -c1-40)"
+env_test="$target/.env.test.local"
+if grep -qx "TEST_DATABASE_SUFFIX=$suffix" "$env_test" 2>/dev/null; then
+    report kept "TEST_DATABASE_SUFFIX=$suffix in .env.test.local"
+else
+    # Replace a line copied from the source (another worktree), keep everything else.
+    { grep -v '^TEST_DATABASE_SUFFIX=' "$env_test" 2>/dev/null || true; echo "TEST_DATABASE_SUFFIX=$suffix"; } > "$env_test.tmp"
+    mv "$env_test.tmp" "$env_test"
+    report set "TEST_DATABASE_SUFFIX=$suffix in .env.test.local"
+fi
 
 echo
 echo "Dependencies"

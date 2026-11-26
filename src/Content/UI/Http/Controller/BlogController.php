@@ -52,6 +52,7 @@ final class BlogController extends AbstractController
         return $this->render('@Content/blog/index.html.twig', [
             'paginator' => $paginator,
             'previews' => $this->buildPreviews($paginator),
+            'comment_counts' => $this->buildCommentCounts($paginator),
             'list_title' => 'blog.list.all_posts',
             'list_title_params' => [],
             ...$this->buildSidebarData(),
@@ -71,6 +72,7 @@ final class BlogController extends AbstractController
         return $this->render('@Content/blog/index.html.twig', [
             'paginator' => $paginator,
             'previews' => $this->buildPreviews($paginator),
+            'comment_counts' => $this->buildCommentCounts($paginator),
             'activeCategory' => $category,
             'list_title' => 'blog.list.category',
             'list_title_params' => ['name' => $category->getName()],
@@ -91,6 +93,7 @@ final class BlogController extends AbstractController
         return $this->render('@Content/blog/index.html.twig', [
             'paginator' => $paginator,
             'previews' => $this->buildPreviews($paginator),
+            'comment_counts' => $this->buildCommentCounts($paginator),
             'activeTag' => $tag,
             'list_title' => 'blog.list.tag',
             'list_title_params' => ['name' => $tag->getName()],
@@ -121,6 +124,7 @@ final class BlogController extends AbstractController
             'post' => $post,
             'content' => $this->postContentSanitizer->sanitize((string) $post->getContent()),
             'comments' => $this->postCommentRepository->findRootCommentsForPost($post),
+            'comment_count' => $this->postCommentRepository->countForPost($post),
             'previous_post' => $this->postRepository->findPreviousPublishedPost($post),
             'next_post' => $this->postRepository->findNextPublishedPost($post),
             ...$this->buildSidebarData(),
@@ -207,6 +211,26 @@ final class BlogController extends AbstractController
         }
 
         return $previews;
+    }
+
+    /**
+     * Comment counts of the listed posts in one query instead of loading each post's comments (#1655).
+     *
+     * @param PaginationInterface<mixed> $paginator
+     *
+     * @return array<int, int>
+     */
+    private function buildCommentCounts(PaginationInterface $paginator): array
+    {
+        $postIds = [];
+        foreach ($paginator->getItems() as $post) {
+            $postId = $post instanceof Post ? $post->getId() : null;
+            if (null !== $postId) {
+                $postIds[] = $postId;
+            }
+        }
+
+        return $this->postCommentRepository->countByPostIds($postIds);
     }
 
     /**

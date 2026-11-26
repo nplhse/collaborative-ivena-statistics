@@ -63,7 +63,7 @@ final class CatalogActionFactoryTest extends TestCase
             ->willReturnCallback(static fn (string $route, array $params = []): string => match ($route) {
                 'app_explore_allocation_list' => '/explore/allocation',
                 'app_stats_insights_show' => '/statistics/insights/indications/7',
-                'app_explore_indication_raw_review_worklist' => '/explore/indication/raw/review',
+                'app_tools_indication_review' => '/tools/indication-review',
                 'app_stats_top_lists_show' => '/statistics/top-lists/top_diagnoses',
                 default => throw new \InvalidArgumentException($route),
             });
@@ -71,7 +71,7 @@ final class CatalogActionFactoryTest extends TestCase
         $actions = $this->factory($urlGenerator)->forIndication(7, 101, true);
 
         self::assertCount(4, $actions);
-        self::assertSame('/explore/indication/raw/review', $actions[2]->url);
+        self::assertSame('/tools/indication-review', $actions[2]->url);
         self::assertSame('/statistics/top-lists/top_diagnoses', $actions[3]->url);
     }
 
@@ -175,7 +175,7 @@ final class CatalogActionFactoryTest extends TestCase
                 'app_stats_benchmarking' === $route
                     && ($params['scope'] ?? null) === 'hospital'
                     && ($params['hospital'] ?? null) === 9
-                    && ($params['period'] ?? null) === 'all'
+                    && ($params['period'] ?? null) === 'last_12_months'
                     && ($params['comparison_scope'] ?? null) === 'hospital_cohort'
                     && ($params['comparison_period'] ?? null) === 'all_time' => '/statistics/benchmarking?scope=hospital',
                 default => throw new \InvalidArgumentException($route.' '.json_encode($params)),

@@ -17,7 +17,7 @@ final class UserUsernameConstraintsTest extends TestCase
     {
         $constraints = UserUsernameConstraints::forUsername();
 
-        self::assertCount(3, $constraints);
+        self::assertCount(4, $constraints);
         self::assertInstanceOf(NotBlank::class, $constraints[0]);
         self::assertInstanceOf(Length::class, $constraints[1]);
         self::assertSame(UserUsernameConstraints::MIN_LENGTH, $constraints[1]->min);
@@ -25,6 +25,10 @@ final class UserUsernameConstraintsTest extends TestCase
         self::assertInstanceOf(Regex::class, $constraints[2]);
         self::assertSame(UserUsernameConstraints::PATTERN, $constraints[2]->pattern);
         self::assertSame('validation.username.format', $constraints[2]->message);
+        self::assertInstanceOf(Regex::class, $constraints[3]);
+        self::assertSame(UserUsernameConstraints::DIGITS_ONLY_PATTERN, $constraints[3]->pattern);
+        self::assertFalse($constraints[3]->match);
+        self::assertSame('validation.username.digits_only', $constraints[3]->message);
     }
 
     #[DataProvider('validUsernameProvider')]
@@ -44,6 +48,8 @@ final class UserUsernameConstraintsTest extends TestCase
         yield 'umlauts' => ['Müller'];
         yield 'eszett' => ['groß-1'];
         yield 'minimum length' => ['abc'];
+        yield 'digits with one letter' => ['1234a'];
+        yield 'digits with a dot' => ['12.34'];
     }
 
     #[DataProvider('invalidUsernameProvider')]
@@ -64,6 +70,7 @@ final class UserUsernameConstraintsTest extends TestCase
         yield 'too short' => ['ab'];
         yield 'empty' => [''];
         yield 'emoji' => ['user😀'];
+        yield 'digits only, reserved for IDs' => ['1234'];
     }
 
     public function testTrimRemovesUnicodeWhitespaceAtEdges(): void

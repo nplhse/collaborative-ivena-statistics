@@ -28,9 +28,13 @@
                 {{ form_row(form._remember_me) }}
 
                 <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}" />
+                {# Stateless token checked by origin; the csrf-protection script handles only the first token field. #}
+                <input type="hidden" name="_link_csrf_token" value="{{ csrf_token('login_link_request') }}" />
 
                 <div class="form-footer">
                     <button type="submit" class="btn btn-primary w-100">{{ 'label.signin'|trans({}, 'messages') }}</button>
+                    {# Login link (#1355): same form, no password needed; the request page answers the same for everyone. #}
+                    <button type="submit" class="btn btn-outline-secondary w-100 mt-2" formaction="{{ path('app_login_link_request') }}" formnovalidate>{{ 'label.login_link.send'|trans({}, 'user') }}</button>
                 </div>
             </form>
             <div class="text-center text-secondary mt-3">

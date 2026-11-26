@@ -321,6 +321,14 @@
         <source>notification.category.announcements</source>
         <target>Ankündigungen</target>
       </trans-unit>
+      <trans-unit id="NtfCatCommunityDe" resname="notification.category.community">
+        <source>notification.category.community</source>
+        <target>Community</target>
+      </trans-unit>
+      <trans-unit id="NtfCategoryResearch" resname="notification.category.research">
+        <source>notification.category.research</source>
+        <target>Anträge auf Datenauszüge</target>
+      </trans-unit>
       <trans-unit id="Ntf162B4673" resname="notification.category.administration">
         <source>notification.category.administration</source>
         <target>Administration</target>
@@ -376,6 +384,18 @@
       <trans-unit id="Ntf3429DD8A" resname="admin.import_failed.label">
         <source>admin.import_failed.label</source>
         <target>Fehlgeschlagene Importe</target>
+      </trans-unit>
+      <trans-unit id="NtfFbQsTitleDe" resname="admin.feedback_quarantine_summary.title">
+        <source>admin.feedback_quarantine_summary.title</source>
+        <target>{count, plural, one {# Feedback} other {# Feedbacks}} in Quarantäne verschoben</target>
+      </trans-unit>
+      <trans-unit id="NtfFbQsMsgDe" resname="admin.feedback_quarantine_summary.message">
+        <source>admin.feedback_quarantine_summary.message</source>
+        <target>Spamverdacht seit der letzten Zusammenfassung. In der Quarantäne {total, plural, one {liegt jetzt # Eintrag} other {liegen jetzt # Einträge}}; dort können Sie sie prüfen.</target>
+      </trans-unit>
+      <trans-unit id="NtfFbQsLabelDe" resname="admin.feedback_quarantine_summary.label">
+        <source>admin.feedback_quarantine_summary.label</source>
+        <target>Wöchentliche Zusammenfassung der Feedback-Quarantäne</target>
       </trans-unit>
       <trans-unit id="NtfF91586F0" resname="admin.feedback_received.title">
         <source>admin.feedback_received.title</source>
@@ -536,6 +556,102 @@
       <trans-unit id="NtfA3C9D2EF" resname="storage.email.category_value">
         <source>storage.email.category_value</source>
         <target>{category, select, database {Datenbank} imports {Importe} media {Medien} application {Anwendung} temporary {Temporäre Dateien} other {Sonstiges}}: {size}</target>
+      </trans-unit>
+      <trans-unit id="Ntf90C992DA" resname="admin.encounter_key_changed.title">
+        <source>admin.encounter_key_changed.title</source>
+        <target>Pseudonymschlüssel gewechselt: {hospitalName}</target>
+      </trans-unit>
+      <trans-unit id="NtfBE78881E" resname="admin.encounter_key_changed.message">
+        <source>admin.encounter_key_changed.message</source>
+        <target>{username} hat den Pseudonymschlüssel der Behandlungsdaten von {hospitalName} gewechselt (Schlüsselgeneration {generation}). {option, select, delete {Die vorhandenen Behandlungsdaten werden gelöscht.} other {Die vorhandenen Behandlungsdaten wurden behalten.}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf56F80BDB" resname="admin.encounter_key_changed.label">
+        <source>admin.encounter_key_changed.label</source>
+        <target>Wechsel des Pseudonymschlüssels (Behandlungsdaten)</target>
+      </trans-unit>
+      <trans-unit id="NtfMediaIntegrityTitleDe" resname="admin.media_integrity_problem.title">
+        <source>admin.media_integrity_problem.title</source>
+        <target>{missing, plural, =0 {} one {# Mediendatei fehlt} other {# Mediendateien fehlen}}{missing, plural, =0 {} other {{damaged, plural, =0 {} other {, }}}}{damaged, plural, =0 {} one {# Mediendatei ist beschädigt} other {# Mediendateien sind beschädigt}}</target>
+      </trans-unit>
+      <trans-unit id="NtfMediaIntegrityMessageDe" resname="admin.media_integrity_problem.message">
+        <source>admin.media_integrity_problem.message</source>
+        <target>Die Prüfung der Mediendateien hat {missing, plural, =0 {keine fehlende Datei} one {eine fehlende Datei} other {# fehlende Dateien}} und {damaged, plural, =0 {keine beschädigte Datei} one {eine beschädigte Datei} other {# beschädigte Dateien}} gefunden. Seiten und Beiträge, die sie verwenden, zeigen defekte Bilder oder Links. Führen Sie auf dem Server app:media:check aus, um die betroffenen Dateien zu sehen, und stellen Sie sie aus einem Backup wieder her.</target>
+      </trans-unit>
+      <trans-unit id="NtfMediaIntegrityLabelDe" resname="admin.media_integrity_problem.label">
+        <source>admin.media_integrity_problem.label</source>
+        <target>Fehlende oder beschädigte Mediendateien</target>
+      </trans-unit>
+      <trans-unit id="NtfHarDeAdminHospitalAssignmentRequestedTitle" resname="admin.hospital_assignment_requested.title">
+        <source>admin.hospital_assignment_requested.title</source>
+        <target>Klinikzuordnung beantragt: {hospitalName}</target>
+      </trans-unit>
+      <trans-unit id="NtfHarDeAdminHospitalAssignmentRequestedMessage" resname="admin.hospital_assignment_requested.message">
+        <source>admin.hospital_assignment_requested.message</source>
+        <target>{username} beantragt die Zuordnung zu {hospitalName} ({reason, select, ed_leadership {Leitung der Notaufnahme} hospital_management {Klinikleitung} data_submission {Datenlieferung} other {sonstiger Grund}}). Prüfen Sie den Antrag, um ihn anzunehmen oder abzulehnen.</target>
+      </trans-unit>
+      <trans-unit id="NtfHarDeAdminHospitalAssignmentRequestedLabel" resname="admin.hospital_assignment_requested.label">
+        <source>admin.hospital_assignment_requested.label</source>
+        <target>Anträge auf Klinikzuordnung</target>
+      </trans-unit>
+      <trans-unit id="NtfHarDeHospitalAssignmentDecidedTitle" resname="hospital_assignment.decided.title">
+        <source>hospital_assignment.decided.title</source>
+        <target>{decision, select, approved {Ihr Antrag für {hospitalName} wurde angenommen} other {Ihr Antrag für {hospitalName} wurde abgelehnt}}</target>
+      </trans-unit>
+      <trans-unit id="NtfHarDeHospitalAssignmentDecidedMessage" resname="hospital_assignment.decided.message">
+        <source>hospital_assignment.decided.message</source>
+        <target>{decision, select, approved {{outcome, select, ownership {Sie sind jetzt Eigentümerin oder Eigentümer von {hospitalName}.} other {Sie haben jetzt Zugang zu {hospitalName}.}}} other {Ein:e Administrator:in hat Ihren Antrag für {hospitalName} abgelehnt. Ihre Anträge zeigen die Begründung, falls eine angegeben wurde.}}</target>
+      </trans-unit>
+      <trans-unit id="NtfHarDeHospitalAssignmentDecidedLabel" resname="hospital_assignment.decided.label">
+        <source>hospital_assignment.decided.label</source>
+        <target>Entscheidungen über meine Zuordnungsanträge</target>
+      </trans-unit>
+      <trans-unit id="NtfHarDeHospitalAssignmentOwnershipTransferredTitle" resname="hospital_assignment.ownership_transferred.title">
+        <source>hospital_assignment.ownership_transferred.title</source>
+        <target>Eigentümerschaft von {hospitalName} wurde übertragen</target>
+      </trans-unit>
+      <trans-unit id="NtfHarDeHospitalAssignmentOwnershipTransferredMessage" resname="hospital_assignment.ownership_transferred.message">
+        <source>hospital_assignment.ownership_transferred.message</source>
+        <target>Ein:e Administrator:in hat {newOwner} zur Eigentümerschaft von {hospitalName} gemacht. {access, select, keep_full_access {Sie behalten vollen Zugang zur Klinik.} other {Sie haben keinen Zugang mehr zur Klinik.}}</target>
+      </trans-unit>
+      <trans-unit id="NtfHarDeHospitalAssignmentOwnershipTransferredLabel" resname="hospital_assignment.ownership_transferred.label">
+        <source>hospital_assignment.ownership_transferred.label</source>
+        <target>Übertragungen meiner Kliniken</target>
+      </trans-unit>
+      <trans-unit id="NtfReactLabelDe" resname="content.reaction_received.label">
+        <source>content.reaction_received.label</source>
+        <target>Reaktionen auf meine Inhalte</target>
+      </trans-unit>
+      <trans-unit id="NtfReactTitleDe" resname="content.reaction_received.title">
+        <source>content.reaction_received.title</source>
+        <target>{count, plural, one {Neue Reaktion} other {# neue Reaktionen}}</target>
+      </trans-unit>
+      <trans-unit id="NtfReactMsgDe" resname="content.reaction_received.message">
+        <source>content.reaction_received.message</source>
+        <target>{actors, select, one {{firstActor} hat} two {{firstActor} und {secondActor} haben} many {{firstActor}, {secondActor} und {others, plural, one {# weitere Person} other {# weitere}} haben} other {{count, plural, one {Eine Person hat} other {# Personen haben}}}} auf {targetType, select, post {Ihren Beitrag „{title}“} comment {Ihren Kommentar zu „{title}“} other {Ihren Eintrag in der Aktivitätsübersicht}} reagiert: {breakdown}</target>
+      </trans-unit>
+      <trans-unit id="NtfPostAnnDe1" resname="announcement.post.label">
+        <source>announcement.post.label</source>
+        <target>Ankündigungen aus dem Blog</target>
+      </trans-unit>
+      <trans-unit id="NtfPostAnnDe2" resname="announcement.post.title">
+        <source>announcement.post.title</source>
+        <target>Ankündigung: {title}</target>
+      </trans-unit>
+      <trans-unit id="NtfPostAnnDe3" resname="announcement.post.message">
+        <source>announcement.post.message</source>
+        <target>Lesen Sie die neue Ankündigung im Blog.</target>
+      </trans-unit>
+      <trans-unit id="NtfTwoFactorResetTitle" resname="security.two_factor_reset.title">
+        <source>security.two_factor_reset.title</source>
+        <target>Zwei-Faktor-Authentifizierung wurde zurückgesetzt</target>
+      </trans-unit>
+      <trans-unit id="NtfTwoFactorResetMessage" resname="security.two_factor_reset.message">
+        <source>security.two_factor_reset.message</source>
+        <target>Ihr Konto fragt keinen Code aus einer Authenticator-App mehr ab. Wenn Sie das nicht veranlasst haben, ändern Sie Ihr Passwort und wenden Sie sich an die Administrator:innen. In Ihren Einstellungen können Sie die Zwei-Faktor-Authentifizierung wieder einrichten.</target>
+      </trans-unit>
+      <trans-unit id="NtfTwoFactorResetLabel" resname="security.two_factor_reset.label">
+        <source>security.two_factor_reset.label</source>
+        <target>Zwei-Faktor-Authentifizierung zurückgesetzt</target>
       </trans-unit>
     </body>
   </file>

@@ -4,6 +4,8 @@
 
 **Purpose:** Deployment, workers, mail, backups, observability, and incident diagnosis.
 
+The project recommends [Uberspace](https://uberspace.de/) for hosting, and these docs assume it ([deployment.md](deployment.md)).
+
 ## Documents
 
 | Document | Type | Description |
@@ -18,10 +20,11 @@
 | [content-security-policy.md](content-security-policy.md) | Guide | CSP report-only, Sentry triage, beta checklist |
 | [health-check.md](health-check.md) | Reference | `GET /health` endpoint |
 | [troubleshooting.md](troubleshooting.md) | Guide | Symptom → cause → fix |
+| [audit-log.md](audit-log.md) | Reference | Audit log fields, producers, request correlation, access |
 | [audit-log-maintenance.md](audit-log-maintenance.md) | Guide | Audit log maintenance; purge import-generated Assessment entries |
 | [admin-entity-coverage.md](admin-entity-coverage.md) | Reference | EasyAdmin entity matrix; user disable vs delete |
 | [hospital-geodata.md](hospital-geodata.md) | Guide | Geocode hospital coordinates and fetch destination isochrones |
-| [demo-environment.md](demo-environment.md) | Guide | Local offline demo (`APP_ENV=demo`): install, start, safety |
+| [demo-environment.md](demo-environment.md) | Guide | Local offline demo (`APP_ENV=demo`): install, start, safety; internal staging on a server |
 | [../04-features/import/repair-indication-corruption.md](../04-features/import/repair-indication-corruption.md) | Runbook | One-time issue 521 repair on production (CSV quotes, stubs, STEMI leftover) |
 
 ## Reading order
@@ -33,7 +36,7 @@
 5. [backup-restore.md](backup-restore.md)
 6. [health-check.md](health-check.md)
 7. [troubleshooting.md](troubleshooting.md)
-8. [audit-log-maintenance.md](audit-log-maintenance.md) (when cleaning up historical audit noise)
+8. [audit-log.md](audit-log.md) (when reading the audit log), [audit-log-maintenance.md](audit-log-maintenance.md) (when cleaning up historical audit noise)
 9. [hospital-geodata.md](hospital-geodata.md) (when geocoding hospitals or fetching isochrones for a state)
 10. [demo-environment.md](demo-environment.md) (when preparing a presentation)
 11. [Indication corruption repair](../04-features/import/repair-indication-corruption.md) (when applying issue 521 on production)

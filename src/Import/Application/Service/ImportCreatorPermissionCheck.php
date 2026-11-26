@@ -8,9 +8,7 @@ use App\Allocation\Application\Service\HospitalPermissionAccess;
 use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportRunReasonCode;
-use App\Import\Domain\Enum\ImportType;
 use App\User\Domain\Entity\User;
-use App\User\Domain\Security\UserRole;
 
 /**
  * An import is always processed as its creator. This check tells whether the creator may still import
@@ -31,10 +29,6 @@ final readonly class ImportCreatorPermissionCheck
         $createdBy = $import->getCreatedBy();
         if (!$createdBy instanceof User) {
             return ImportRunReasonCode::MissingCreator;
-        }
-
-        if (ImportType::CLOSURE === $import->getType() && !\in_array(UserRole::CLOSURE_BETA, $createdBy->getRoles(), true)) {
-            return ImportRunReasonCode::MissingClosureRole;
         }
 
         $hospitalId = $import->getHospital()?->getId();

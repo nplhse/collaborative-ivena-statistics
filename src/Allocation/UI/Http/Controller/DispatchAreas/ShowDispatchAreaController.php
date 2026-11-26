@@ -12,6 +12,7 @@ use App\Allocation\Application\Service\HospitalPermissionAccess;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery;
+use App\Shared\UI\Http\Routing\OpensById;
 use App\User\Domain\Entity\User;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -30,6 +31,7 @@ final class ShowDispatchAreaController extends AbstractController
     ) {
     }
 
+    #[OpensById(DispatchArea::class)]
     #[Route(
         '/explore/dispatch_area/{publicId}',
         name: 'app_explore_dispatch_area_show',
@@ -45,7 +47,6 @@ final class ShowDispatchAreaController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        $name = $dispatchArea->getName() ?? '';
         $coverage = $this->coverageQuery->forDimension(CatalogDimensionKey::DispatchArea, $id);
         $importHospitalIds = $this->importHospitalIds($dispatchArea);
         $singleImportHospitalId = 1 === \count($importHospitalIds) ? $importHospitalIds[0] : null;
@@ -55,7 +56,7 @@ final class ShowDispatchAreaController extends AbstractController
             'coverage' => $coverage,
             'actions' => $this->actionFactory->forDispatchArea($id, $singleImportHospitalId),
             'yearExploreUrls' => $this->yearUrlFactory->forYears(['dispatchArea' => $id], $coverage->years),
-            'orientationMap' => $this->orientationMapFactory->forDispatchArea($name),
+            'orientationMap' => $this->orientationMapFactory->forDispatchArea($id),
             'importHospitalIds' => $importHospitalIds,
         ]);
     }

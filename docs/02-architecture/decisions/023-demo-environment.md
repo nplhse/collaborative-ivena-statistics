@@ -36,7 +36,7 @@ wrong `.env.local` would show real data in a presentation.
 |---|---|
 | Database | `app_demo` on the local server (`.env.demo`) |
 | Imports, rejects | `var/demo/imports`, `var/demo/imports/rejects` (`app.imports_base_dir`, `app.rejects_base_dir`) |
-| Media uploads | `public/uploads/demo/media` (`app.media_upload_dir`, Vich mapping `media`) |
+| Media files | `var/demo/media` (`app.media_storage_dir`, ADR 039; before: `public/uploads/demo/media`) |
 | Cache, logs | `var/cache/demo`, `var/log/demo.log` (Symfony default per environment) |
 | Messenger | same Doctrine transports; the queues live in `app_demo`, so they are separate |
 | Locks | PostgreSQL advisory locks of `app_demo` |
@@ -65,7 +65,9 @@ plain `php bin/console`).
   demo at a real mail server and real recipients stay out of reach. Earlier the demo used
   `null://null`; #791 step 7 switched to Mailpit so presenters can show the emails the demo sends
   (`make demo-reminder HOSPITAL=<id>`). Mail and notification delivery messages run synchronously
-  as in dev, so the demo needs no mail worker.
+  as in dev, so the demo needs no mail worker. `DEMO_MAIL=off` switches to `null://null` for a demo
+  without Mailpit (see [Internal staging on a server](#internal-staging-on-a-server)); the env var
+  processor `DemoMailerDsnEnvVarProcessor` accepts only `mailpit` and `off`, so the guarantee holds.
 - Sentry: `dsn: null`, no traces, no logs, also fixed in config.
 - Breached-password lookup (`framework.validation.not_compromised_password`): off, as in `test`; the demo
   wizard creates participant accounts offline.
@@ -83,6 +85,21 @@ plain `php bin/console`).
 - The parameter `app.demo_mode` (false by default, true only `when@demo`) feeds the Twig global
   `app_demo_mode`: the layout shows a banner ("all data is synthetic") and prefixes the page title;
   the EasyAdmin layout (`templates/bundles/EasyAdminBundle/layout.html.twig`) shows the same banner.
+
+### Real exports through the target hospital override
+
+*Note added with #1352.* The target hospital override of the import form (#878) is available in `dev`
+**and** `demo`. It loads a real IVENA export into a fictional demo hospital, so a demo database can hold
+real operational data although the banner says that all data is synthetic. This was a deliberate choice: a
+demo or staging installation may show how real exports of a prospective hospital look in the platform.
+
+- The demo's isolation is unchanged: such data stays in `app_demo` and `var/demo/imports`, and nothing in
+  the demo reaches production.
+- Every such import is marked on its import page ("Imported with the target hospital override. These rows
+  are real operational data"), and in the demo the Options section of the upload form warns that the
+  import contradicts the banner. Whoever presents decides whether the audience may see that data.
+- `make demo-install` and the wizard still load synthetic data only; the override is an explicit action of
+  a user who may upload to the hospital.
 
 ### Generation runs (#791 step 3)
 
@@ -239,6 +256,27 @@ and case numbers start with `SYNTH-`.
 Two places that allowed only `dev` and `test` also allow `demo`: creating missing overview
 materialized views on the fly (`OverviewMaterializedViewsInstaller`) and
 `app:dev:reset-operational-data`. Both stay refused in `prod`.
+
+### Internal staging on a server
+
+Amendment: the demo environment also serves as an internal staging installation of `develop` on
+an Uberspace account of its own, deployed with the production Deployer recipe. The `staging` host in
+`hosts.yaml` sets `APP_ENV=demo`, installs the dev packages and shares the demo files; `deploy.php`
+does not know the host. Deployer and the demo stay as they are, apart from three additions:
+
+- `DEMO_MAIL=off` discards mail, because a server has no Mailpit and synchronous mail delivery would
+  otherwise fail.
+- `bin/ops/demo-reset.sh`, run nightly by cron, restores a snapshot (database, demo imports and
+  media) and, on its first run after a deploy, rebuilds the data and takes a new snapshot. It keeps
+  the disk usage of the account flat.
+- Access protection is HTTP Basic Auth in front of the application, set up on the server; the demo
+  accounts and their passwords are known and must not be reachable without it.
+
+A separate account keeps staging off the disk quota, database and services of production.
+Alternatives considered: a `staging` environment of its own (more configuration for a single
+installation), a deploy task per staging feature in `deploy.php` (more code than the host options
+need), and staging in the production account (shared quota and database server). Operations guide:
+[demo-environment.md](../../05-operations/demo-environment.md#staging-on-a-server).
 
 ## Consequences
 

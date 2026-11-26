@@ -191,7 +191,7 @@ final readonly class BenchmarkSelectionQueryBuilder
         $params = [$periodKey => $period->value];
 
         return match ($period) {
-            StatisticsFilterPeriod::AllTime, StatisticsFilterPeriod::All => $params,
+            StatisticsFilterPeriod::AllTime, StatisticsFilterPeriod::Last12Months => $params,
             StatisticsFilterPeriod::Year => array_merge($params, [$yearKey => $side->periodYear]),
             StatisticsFilterPeriod::Quarter => array_merge($params, [
                 $yearKey => $side->periodYear,

@@ -6,10 +6,8 @@ on:
         paths-ignore:
             - 'docs/**'
             - '**.md'
+    # Docs-only pull requests run the workflow; the code jobs are skipped through the changes job (#1183).
     pull_request:
-        paths-ignore:
-            - 'docs/**'
-            - '**.md'
 
 # Cancel superseded runs on PR branches. On main and develop every run gets its own
 # group, so no push is cancelled or dropped from the queue.
@@ -21,8 +19,16 @@ permissions:
     contents: read
 
 jobs:
+    changes:
+        uses: ./.github/workflows/changes.yml
+        permissions:
+            contents: read
+            pull-requests: read
+
     prod-smoke:
         name: Prod kernel smoke
+        needs: changes
+        if: needs.changes.outputs.code == 'true'
         runs-on: ubuntu-latest
         env:
             APP_ENV: prod
@@ -30,10 +36,10 @@ jobs:
             APP_SECRET: ci-test-placeholder-not-for-production
         steps:
             - name: Checkout code
-              uses: actions/checkout@v7
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
             - name: Install PHP with extensions
-              uses: shivammathur/setup-php@v2
+              uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
               with:
                   extensions: "intl, mbstring, zip"
                   php-version: '8.4'
@@ -41,7 +47,7 @@ jobs:
 
             # Keeps the Composer scripts: cache:clear boots the prod kernel, importmap:install fetches the JS vendors.
             - name: Install production dependencies
-              uses: ramsey/composer-install@v4
+              uses: ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda # 4.0.0
               with:
                   composer-options: --no-dev
 
@@ -59,26 +65,35 @@ jobs:
             - name: Compile assets
               run: php bin/console asset-map:compile
 
+            # The prod CSP header (docs/05-operations/content-security-policy.md). Here, because this job builds the
+            # prod container anyway; before, a test compiled one inside the database job (#1343).
+            - name: Check the prod CSP header
+              run: php bin/check-prod-csp
+
     unit:
         name: Unit tests
+        needs: changes
+        if: needs.changes.outputs.code == 'true'
         runs-on: ubuntu-latest
         env:
             APP_SECRET: ci-test-placeholder-not-for-production
         steps:
             - name: Checkout code
-              uses: actions/checkout@v7
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
             - name: Install PHP with extensions
-              uses: shivammathur/setup-php@v2
+              uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
               with:
                   coverage: pcov
+                  # pcov only watches src/ when it exists; plugins/ (ADR 037) has code to measure too.
+                  ini-values: pcov.directory=., pcov.exclude="~/(vendor|var|node_modules)/~"
                   extensions: "intl, mbstring, zip"
                   php-version: '8.4'
                   tools: composer:v2
 
             # No Composer scripts: cache:clear would build a dev container the tests never use (~16 s).
             - name: Install dependencies
-              uses: ramsey/composer-install@v4
+              uses: ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda # 4.0.0
               with:
                   composer-options: --no-scripts
 
@@ -88,7 +103,7 @@ jobs:
 
             - name: Upload unit coverage artifact
               if: success()
-              uses: actions/upload-artifact@v7
+              uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
               with:
                   name: coverage-unit
                   path: var/coverage/logs/clover-unit.xml
@@ -96,7 +111,7 @@ jobs:
 
             - name: Upload unit test results to Codecov
               if: ${{ !cancelled() }}
-              uses: codecov/codecov-action@v7
+              uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
               with:
                   token: ${{ secrets.CODECOV_TOKEN }}
                   report_type: test_results
@@ -107,9 +122,14 @@ jobs:
 
     database:
         name: Database tests
+        needs: changes
+        if: needs.changes.outputs.code == 'true'
         runs-on: ubuntu-latest
         env:
             APP_SECRET: ci-test-placeholder-not-for-production
+            # Non-debug kernels: about 40 % less time and memory (#1343). Doctrine profiling stays on in
+            # when@test for the query-count tests; container deprecations are checked by `make lint-container`.
+            APP_DEBUG: 0
             SYMFONY_DEPRECATIONS_HELPER: 'max[total]=0&verbose=1'
         services:
             postgres:
@@ -127,19 +147,21 @@ jobs:
                     --health-retries 5
         steps:
             - name: Checkout code
-              uses: actions/checkout@v7
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
             - name: Install PHP with extensions
-              uses: shivammathur/setup-php@v2
+              uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
               with:
                   coverage: pcov
-                  extensions: "intl, mbstring, pdo_pgsql, zip"
+                  # pcov only watches src/ when it exists; plugins/ (ADR 037) has code to measure too.
+                  ini-values: pcov.directory=., pcov.exclude="~/(vendor|var|node_modules)/~"
+                  extensions: "intl, mbstring, pdo_pgsql, pgsql, zip"
                   php-version: '8.4'
                   tools: composer:v2
 
             # No Composer scripts: cache:clear would build a dev container the tests never use (~16 s).
             - name: Install dependencies
-              uses: ramsey/composer-install@v4
+              uses: ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda # 4.0.0
               with:
                   composer-options: --no-scripts
 
@@ -149,10 +171,13 @@ jobs:
                   php bin/console importmap:install
                   php bin/console asset-map:compile
 
+            # Without coverage: pcov would instrument the container compilation as well (#1343).
+            # APP_DEBUG=0 from the job env, so this is the container the tests use.
             - name: Warm test cache
-              run: php bin/console cache:warmup --env=test
+              run: php -d pcov.enabled=0 bin/console cache:warmup --env=test
 
             # Same command as `make test-database` locally; COVERAGE and JUNIT write the files uploaded below.
+            # It first compiles the extra test containers without coverage (`make test-warmup`, #1343).
             - name: Execute database-backed tests via ParaTest
               run: |
                   make -s test-database COVERAGE=1 JUNIT=1
@@ -162,7 +187,7 @@ jobs:
 
             - name: Upload integration coverage artifact
               if: success()
-              uses: actions/upload-artifact@v7
+              uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
               with:
                   name: coverage-integration
                   path: var/coverage/logs/clover-integration.xml
@@ -170,7 +195,7 @@ jobs:
 
             - name: Upload integration test results to Codecov
               if: ${{ !cancelled() }}
-              uses: codecov/codecov-action@v7
+              uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
               with:
                   token: ${{ secrets.CODECOV_TOKEN }}
                   report_type: test_results
@@ -188,22 +213,22 @@ jobs:
         if: success()
         steps:
             - name: Checkout code
-              uses: actions/checkout@v7
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
             - name: Download unit coverage
-              uses: actions/download-artifact@v8
+              uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
               with:
                   name: coverage-unit
                   path: var/coverage/logs
 
             - name: Download integration coverage
-              uses: actions/download-artifact@v8
+              uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
               with:
                   name: coverage-integration
                   path: var/coverage/logs
 
             - name: Upload combined coverage to Codecov
-              uses: codecov/codecov-action@v7
+              uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
               with:
                   token: ${{ secrets.CODECOV_TOKEN }}
                   files: var/coverage/logs/clover-unit.xml,var/coverage/logs/clover-integration.xml

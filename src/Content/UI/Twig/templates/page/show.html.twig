@@ -2,6 +2,12 @@
 
 {% block title %}{{ translation.title }} - {{ parent() }}{% endblock %}
 
+{% block meta_description %}
+    {% if translation.summary %}
+        <meta name="description" content="{{ translation.summary }}">
+    {% endif %}
+{% endblock %}
+
 {% block page_header %}
     <div class="container-xl">
         <twig:Breadcrumbs :items="breadcrumbItems" />
@@ -31,12 +37,19 @@
     <div class="page-body">
         <div class="container-xl">
             <div class="row g-3">
-                <div class="col-lg-8">
+                {# Search terms of a help search (#1590): marked in the article, with a way back to the result list. #}
+                {% set help_search_terms = page.isHelpArticle ? app.request.query.getString('q')|slice(0, 100)|trim : '' %}
+                <div class="col-lg-8"
+                     {% if help_search_terms is not empty %}data-controller="help-search-terms" data-help-search-terms-terms-value="{{ help_search_terms }}"{% endif %}>
+                    {% if help_search_terms is not empty %}
+                        {{ include('@Content/help/_search_terms_bar.html.twig', {terms: help_search_terms, page: page}) }}
+                    {% endif %}
                     <article class="card mb-4">
                         <div class="card-body">
                             <div class="page-content-blocks content"
                                  data-controller="lightbox"
-                                 data-lightbox-gallery-value="content-gallery">
+                                 data-lightbox-gallery-value="content-gallery"
+                                 {% if help_search_terms is not empty %}data-help-search-terms-target="content"{% endif %}>
                                 {% for block in content %}
                                     {% if block.enabled is not defined or block.enabled %}
                                         {% if block.type in page_content_block_types() %}
@@ -52,6 +65,15 @@
                             </div>
                         </div>
                     </article>
+                    {# Help topics (#1578) list their articles as cards, unless the editor placed the subpages block. #}
+                    {% if page.isHelpArticle and content|filter(b => b.type == 'child_pages' and (b.enabled ?? true))|length == 0 %}
+                        <div class="mb-4">
+                            {{ include('@Content/page/_child_cards.html.twig', {nodes: page_children(), numbered: false}) }}
+                        </div>
+                    {% endif %}
+                    {% if help_neighbours is defined and help_neighbours %}
+                        {{ include('@Content/help/_article_footer.html.twig', {neighbours: help_neighbours, page: page}) }}
+                    {% endif %}
                 </div>
                 <div class="col-lg-4">
                     {{ include('@Content/page/_sidebar.html.twig') }}

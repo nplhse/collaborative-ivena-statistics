@@ -20,7 +20,7 @@ final class AnalyticsSqlIntCoercionTest extends TestCase
         $day = new \DateTimeImmutable('2026-05-10', AnalyticsCalendar::timezone());
 
         self::assertSame(4, $query->countRequests($day));
-        self::assertSame(0, $query->countEvents($day));
+        self::assertSame(0, $query->countRequests($day));
     }
 
     public function testReportingQueryCoercesNumericStringsAndNonNumericCounts(): void

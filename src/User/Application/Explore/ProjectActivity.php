@@ -12,13 +12,16 @@ final readonly class ProjectActivity
         public ProfileActivityType $type,
         public string $stableId,
         public string $actorUsername,
-        public ?string $actorPublicId = null,
         public ?string $hospitalName = null,
         public ?string $hospitalPublicId = null,
         public ?int $milestone = null,
         public ?string $postTitle = null,
         public ?string $postSlug = null,
         public ?string $excerpt = null,
+        public ?int $actorId = null,
+        public ?string $actorDisplayName = null,
+        /** Id of the user_activity row; reactions refer to it (#467). */
+        public ?int $id = null,
     ) {
     }
 }

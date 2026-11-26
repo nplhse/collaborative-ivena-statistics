@@ -13,7 +13,6 @@ final readonly class AnalyticsScheduledAggregationResult
         public array $dates,
         public int $daysProcessed,
         public int $totalRawRequests,
-        public int $totalRawEvents,
         public int $totalAggregateRows,
         public int $rawRowsDeleted,
     ) {

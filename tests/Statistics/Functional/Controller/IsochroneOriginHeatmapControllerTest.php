@@ -22,6 +22,7 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Allocation\Infrastructure\Geo\HospitalIsochroneFileStore;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
+use App\Tests\Support\Geo\DispatchAreaShapes;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
@@ -33,13 +34,14 @@ use Zenstruck\Foundry\Test\Factories;
 #[ResetDatabase]
 final class IsochroneOriginHeatmapControllerTest extends WebTestCase
 {
+    use DispatchAreaShapes;
     use Factories;
     use InteractsWithAuthenticatedUser;
 
     public function testOverviewOmitsFrameOutsideHospitalScope(): void
     {
         $client = $this->createClientAsRoleUser();
-        $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all');
+        $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=last_12_months');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('[data-testid="stats-isochrone-origin-map-frame"]');
@@ -54,7 +56,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
         $crawler = $client->request(Request::METHOD_GET, '/statistics/', [
             'scope' => 'hospital',
             'hospital' => (string) $fixture['hospitalId'],
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         $this->assertResponseIsSuccessful();
@@ -75,7 +77,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/widgets/isochrone-origin-map', [
             'scope' => 'hospital',
             'hospital' => (string) $fixture['hospitalId'],
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         $this->assertResponseIsSuccessful();
@@ -92,7 +94,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
             $client->request(Request::METHOD_GET, '/statistics/widgets/isochrone-origin-map', [
                 'scope' => 'hospital',
                 'hospital' => (string) $fixture['hospitalId'],
-                'period' => 'all',
+                'period' => 'last_12_months',
                 'departmentWasClosed' => $value,
             ]);
             $this->assertResponseIsSuccessful();
@@ -108,7 +110,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
             $client->request(Request::METHOD_GET, '/statistics/widgets/isochrone-origin-map', [
                 'scope' => 'hospital',
                 'hospital' => (string) $fixture['hospitalId'],
-                'period' => 'all',
+                'period' => 'last_12_months',
             ]);
 
             $this->assertResponseIsSuccessful();
@@ -131,7 +133,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
             $crawler = $client->request(Request::METHOD_GET, '/statistics/widgets/isochrone-origin-map', [
                 'scope' => 'hospital',
                 'hospital' => (string) $fixture['hospitalId'],
-                'period' => 'all',
+                'period' => 'last_12_months',
                 'dimension' => 'specialities',
                 'id' => (string) $fixture['specialityId'],
             ]);
@@ -146,13 +148,18 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
             self::assertNotNull($crawler->filter('[data-testid="stats-geo-map-layer-isochrones"]')->attr('checked'));
             $geoUrl = $crawler->filter('[data-testid="stats-isochrone-origin-map"]')->attr('data-geo-map-geo-url-value');
             self::assertNotNull($geoUrl);
-            self::assertStringContainsString('hessen-landkreise', $geoUrl);
+            self::assertSame('/statistics/geo/dispatch-areas.geojson', $geoUrl);
             $payloadJson = (string) $crawler->filter('[data-testid="stats-isochrone-origin-map"]')->attr('data-geo-map-payload-value');
             self::assertStringStartsWith('{', $payloadJson);
             $payload = json_decode($payloadJson, true);
             self::assertIsArray($payload);
             self::assertSame(['isochroneBands', 'hospitalPin'], $payload['compactEnabledLayers']);
             self::assertContains('originChoropleth', $payload['compactLayers']);
+            self::assertNotEmpty($payload['mapFeatures']);
+            $this->giveDispatchAreasShapes();
+            foreach ($payload['mapFeatures'] as $feature) {
+                $this->assertHasMapFeature($feature['geoKey']);
+            }
             $bandCount = 0;
             foreach ($payload['bands'] as $band) {
                 $bandCount += (int) $band['count'];
@@ -174,7 +181,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
             [
                 'scope' => 'hospital',
                 'hospital' => (string) $fixture['hospitalId'],
-                'period' => 'all',
+                'period' => 'last_12_months',
             ],
         );
 
@@ -196,7 +203,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
             $client->request(Request::METHOD_GET, '/statistics/widgets/isochrone-origin-map', [
                 'scope' => 'hospital',
                 'hospital' => (string) $fixture['hospitalId'],
-                'period' => 'all',
+                'period' => 'last_12_months',
                 'indicationId' => (string) $fixture['indicationId'],
             ]);
 
@@ -216,7 +223,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
             $client->request(Request::METHOD_GET, '/statistics/widgets/isochrone-origin-map', [
                 'scope' => 'hospital',
                 'hospital' => (string) $fixture['hospitalId'],
-                'period' => 'all',
+                'period' => 'last_12_months',
                 'indicationId' => '999999',
             ]);
 
@@ -225,7 +232,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
             $client->request(Request::METHOD_GET, '/statistics/widgets/isochrone-origin-map', [
                 'scope' => 'hospital',
                 'hospital' => (string) $fixture['hospitalId'],
-                'period' => 'all',
+                'period' => 'last_12_months',
                 'groupId' => '999999',
             ]);
 
@@ -257,7 +264,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
             [
                 'scope' => 'hospital',
                 'hospital' => (string) $fixture['hospitalId'],
-                'period' => 'all',
+                'period' => 'last_12_months',
             ],
         );
 
@@ -272,7 +279,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/widgets/isochrone-origin-map', [
             'scope' => 'hospital',
             'hospital' => (string) $fixture['hospitalId'],
-            'period' => 'all',
+            'period' => 'last_12_months',
             'dimension' => 'indication-groups',
             'id' => (string) $group->getId(),
         ]);

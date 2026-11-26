@@ -1,0 +1,174 @@
+# ADR 038: Verified backups as one directory with a manifest
+
+**Status:** accepted
+
+## Context
+
+Backups were made by shell scripts in `bin/ops/`: a `pg_dump` file and a `tar.gz` of imports and media,
+written independently, with no description of what they contain (#949). An operator could not tell whether a
+dump and an archive belonged together, whether a file was damaged, or whether a restore brought back what was
+backed up. Row counts for a restore drill had to be captured by hand at another time than the dump.
+
+Issue #949 asks for Symfony commands that create, verify and restore backups with a versioned, self-describing
+format. The triage of 2026-11-18 limits v0.3 to a full backup with manifest, a verify command and a guided
+restore; partial backups follow later. Two later issues must fit the same format: #489 moves media out of
+`public/` into managed storage, #727 adds archiving and checksums for import source files.
+
+Constraints:
+
+- Production runs on Uberspace with Deployer (`shared/` holds `var/imports`, `var/reference`,
+  `var/geo/hospital-isochrones`, `public/uploads/media`) and PostgreSQL in the same account. Local development
+  runs PostgreSQL in Docker Compose and usually has no client tools on the host.
+- The application keeps running during a backup; imports and the worker may write.
+- No new encryption, signing or remote storage (out of scope of #949).
+
+## Decision
+
+### Format
+
+A backup is one directory named `ivena-stats-<type>-<YYYYMMDDTHHMMSSZ>` (UTC; type `full` for now):
+
+```
+manifest.json            written last
+database.dump            pg_dump custom format, schema public without PostGIS tables
+files/<component>.tar.gz regular files of one component
+files/<component>.sha256 SHA-256 per file, sha256sum format
+```
+
+- It is written below `.<name>.partial` and renamed when everything, including the manifest, is written. A
+  directory with the final name is therefore always complete; a failed run removes its own partial directory
+  and nothing else. Existing backups are never overwritten.
+- Directories are created with mode `0700`, files with `0600`. Targets below `public/` are refused; a target
+  inside a Deployer release gets a warning, because the release is deleted later.
+
+### Manifest
+
+`manifest.json` holds `format` (`ivena-stats-backup`) and `format_version` (1), the id, the type, `created_at`
+with an explicit offset, the application version and environment, the database server and dump tool versions,
+the **full list of executed migrations** (in timestamp order, ADR 037) and the **row count of every table** in
+schema `public`. Per file component it holds the number of files, their bytes, skipped symbolic links and
+whether the source directory was missing. Per payload file it holds size and SHA-256.
+
+The rows of runtime tables (`BackupFormat::RUNTIME_TABLES`: `lock_keys`, the locks of the Symfony lock store,
+#1452) are neither dumped, counted nor restored; only their structure is. Otherwise a restore would bring back the
+`backup-maintenance` lock the backup held while it dumped, with a token no process owns, and block backups,
+restores and the media check until it expired. Restores of older backups skip these rows and their counts.
+
+It contains no records, no personal data, no credentials and no absolute paths. File lists with names stay in
+the `.sha256` payloads.
+
+The full migration list lets a restore tell an older backup (a subset of the migrations the code knows; it may
+be restored and then migrated) from a newer one (migrations the code does not know; refused).
+
+### Components
+
+Components have logical names, independent of where their files are today:
+
+| Component | Source | Notes |
+|---|---|---|
+| `database` | schema `public` | PostGIS tables (`spatial_ref_sys`, …) excluded, as before |
+| `imports` | `app.imports_base_dir` | without `pending/` (temporary uploads, #977) |
+| `media` | `app.media_storage_dir` (before ADR 039: `app.media_upload_dir`) | kept its name when #489 moved the files; without `variants/` and `.tmp/` (ADR 039) |
+| `geo` | `app.hospital_isochrones_dir` | prepared locations are derived and not included |
+| `reference` | `var/reference` | a copy in the private data repository is still required (ADR 020) |
+
+`.env.local` is not part of a backup; it is backed up separately. A component without files writes no archive.
+Symbolic links are never followed or packed; they are counted in the manifest.
+
+### Consistency
+
+- The database is read in one read-only `REPEATABLE READ` transaction that exports its snapshot
+  (`pg_export_snapshot()`). `pg_dump --snapshot` reads exactly that snapshot, and the row counts and executed
+  migrations are read in the same transaction. Dump and manifest describe the same state while the application
+  keeps running.
+- Files are listed and hashed first; tar packs exactly that list. Afterwards size and modification time of every
+  file are compared again: a file that changed during the backup fails the run instead of producing an
+  inconsistent archive.
+- Backup and restore share the lock `backup-maintenance`, so they never run at the same time.
+
+### PostgreSQL tools
+
+`BACKUP_PG_TOOLS=local` (default, the server) runs `pg_dump` from `PATH` against the configured connection,
+with the password in `PGPASSWORD` and never as an argument. `BACKUP_PG_TOOLS=docker` (local development) runs
+the tools inside the Compose service `database` and copies the files with `docker compose cp`. All external
+commands are argument lists without a shell.
+
+### Verify
+
+`app:backup:verify` checks a backup without changing it: the manifest (a newer `format_version` is refused), size
+and SHA-256 of every payload, the dump's table of contents (`pg_restore --list`, every manifest table has data)
+and every archive entry. Archives are streamed and hashed in PHP instead of being extracted: no temporary copy
+of the files is needed, and entries a restore must never write (absolute paths, `..`, links, devices) are
+detected before any extraction. Each file is compared with its line in the `.sha256` list, and the totals with
+the manifest. All checks run and every problem is listed; the exit code is `1` when there is one.
+
+### Restore
+
+`app:backup:restore` replaces database and files only after the backup has been verified and its files have been
+staged:
+
+- **Migration state.** The executed migrations of the backup are compared with the migrations this application
+  knows. A backup with fewer is restored and the operator is asked to migrate; a backup with migrations the code
+  does not know is refused, because this code cannot describe its schema.
+- **Preflight and verify.** It refuses while the message queues hold work (except `failed`) and runs the
+  complete verify first; any problem stops it before a change.
+- **Files are staged first.** Each archive is extracted next to its target (`.<dir>.restore-<time>`) and every file
+  is checked against its list. Targets are resolved to their real directory, so a Deployer `shared/` link stays
+  in place and the shared directory is replaced. A component whose directory was missing in the backup is left
+  alone: an empty restore could otherwise remove files of a differently configured path.
+- **Database: dropped first by default.** Schema `public` is dropped and recreated (one transaction, as
+  `restore-database.sh` does), the dump is restored in one transaction without PostGIS objects, and every table
+  count must match the manifest. The database needs no space for a second copy, which matters because it is
+  large. The price: a failure after the drop leaves an empty (or, after a count mismatch, a differing) database;
+  the error says so, and the operator restores again. Everything that can fail without the database (verify,
+  queues, file staging) runs before the drop.
+- **`--keep-previous`: a way back when there is space.** Schema `public` is renamed to `pre_restore_<time>` instead
+  and a new one created; any failure drops the new schema and renames the old one back, so a failed restore
+  changes nothing. This needs the space of a second copy of the database for the duration of the restore.
+- **Switch, then clean up.** Target directories are renamed to `<dir>.pre-restore-<time>` and the staged ones take
+  their place; a failure here switches the directories back (with `--keep-previous` also the database). After a
+  complete restore the replaced directories are removed and, with `--keep-previous`, the old schema is dropped.
+  With `--keep-previous` the replaced directories are kept for the operator to remove after checking the
+  application.
+
+The staged files need space for a second copy of the file components until the switch. Every failure states what
+it left behind. Unattended restores need `--confirm-destructive`.
+
+### Commands
+
+`app:backup:create` creates a backup, `app:backup:verify` verifies one, `app:backup:restore` restores one (#949).
+Make targets (`backup`, `backup-verify`, `backup-restore`) are thin wrappers; the scripts in `bin/ops/` remain for
+backups made before this format.
+
+## Alternatives considered
+
+- **One archive file per backup** (a single `tar` with everything inside). One file is easier to copy, but
+  checking a checksum or reading the manifest means reading or unpacking the whole archive, and `pg_restore`
+  cannot read a dump nested in an archive without extracting it first. Rejected; a directory can still be
+  packed by the operator for transport.
+- **Keep the shell scripts and add a manifest script.** Bash would have to parse `DATABASE_URL`, JSON and
+  migration state; the restore guidance (#949) needs interactive selection and checks that Symfony Console and
+  Doctrine already provide. Rejected.
+- **Counts taken separately from the dump** (as `verify-restore.sh` did). Simpler, but counts and dump can then
+  describe different states while the application writes. Rejected in favour of the exported snapshot.
+- **ZIP via ext-zip instead of tar.** Would avoid an external tool, but adds a new platform requirement;
+  `tar` is present on every target host. Rejected.
+- **Per-file checksums inside the manifest.** Would make the manifest grow with every import file. They live in
+  the `.sha256` payloads instead, which are covered by the manifest checksums.
+- **Restore into a separate database and switch `DATABASE_URL`.** Would keep the old database completely, but
+  needs the right to create databases (not given on shared hosting) and a configuration change during the
+  restore, and twice the space like `--keep-previous`. Rejected.
+- **Always keep the previous schema until the end.** Makes every failed restore a no-change, but needs a second
+  copy of a large database; kept as the opt-in `--keep-previous` instead of the default.
+
+## Consequences
+
+- One format for #949, #489 and #727; partial backups can add components and types without a new format.
+- A restore needs free disk space for a second copy of the file components while it runs (and of the database
+  with `--keep-previous`), and a database user that owns schema `public`.
+- Without `--keep-previous`, a restore that fails after the drop leaves no current database; creating a backup
+  before a restore is the operator's way back.
+- Backups made with the old scripts have no manifest; they are restored with `bin/ops/restore-database.sh` and
+  `tar` as documented in [backup-restore.md](../../05-operations/backup-restore.md).
+- The server needs `pg_dump` and `pg_restore` of the server's major version or newer, and `tar`.
+- Checksums detect damage, not tampering: whoever can replace a backup can replace its manifest too.

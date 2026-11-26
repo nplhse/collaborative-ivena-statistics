@@ -1,0 +1,251 @@
+/*
+ * Admin navigation tree (#1237): a tree like the sidebar with the properties of the selected entry beside it.
+ * Colour marks deviations only: grey for hidden entries, red for errors, blue for the active path; ids, routes
+ * and keys stay neutral. Sizes are in rem so they do not shrink inside smaller text: 15px labels, 14px
+ * details, 13px for routes, ids and status, nothing smaller.
+ */
+.nav-inspector-mono {
+    font-family: var(--bs-font-monospace);
+    font-size: 0.8125rem;
+    color: var(--bs-secondary-color);
+    overflow-wrap: anywhere;
+}
+
+.nav-inspector-summary {
+    padding: 0.6rem 0.9rem;
+    color: var(--bs-secondary-color);
+    background: var(--bs-tertiary-bg);
+    border-radius: var(--bs-border-radius);
+}
+
+.nav-inspector-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(16rem, 22rem);
+    gap: 1rem;
+    align-items: start;
+    padding-top: 1rem;
+}
+
+@media (max-width: 991.98px) {
+    .nav-inspector-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.nav-inspector-panel {
+    position: sticky;
+    top: 1rem;
+    padding: 1rem;
+}
+
+.nav-inspector-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1rem;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: var(--bs-border-width) solid var(--bs-border-color);
+}
+
+.nav-inspector-search {
+    width: 16rem;
+    max-width: 100%;
+}
+
+.nav-inspector-count {
+    margin-inline-start: auto;
+    font-size: 0.875rem;
+    color: var(--bs-secondary-color);
+}
+
+.nav-inspector-meta {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 0.15rem 1rem;
+    margin: 0;
+    padding: 0.6rem 1rem;
+    font-size: 0.875rem;
+    border-bottom: var(--bs-border-width) solid var(--bs-border-color);
+}
+
+.nav-inspector-meta dt {
+    font-weight: normal;
+    color: var(--bs-secondary-color);
+}
+
+.nav-inspector-meta dd {
+    margin: 0;
+}
+
+.nav-inspector-tree,
+.nav-inspector-tree ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.nav-inspector-tree {
+    padding-bottom: 0.5rem;
+}
+
+/* Nested levels hang under the parent's label with a guide line, as in the sidebar. */
+.nav-inspector-tree li > ul > li > ul {
+    margin-inline-start: 1.75rem;
+    border-inline-start: var(--bs-border-width) solid var(--bs-border-color);
+}
+
+.nav-inspector-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.6rem;
+    align-items: baseline;
+    padding: 1rem 1rem 0.35rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--bs-secondary-color);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.nav-inspector-section .nav-inspector-mono {
+    font-weight: normal;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.nav-inspector-section-provider {
+    margin-inline-start: auto;
+}
+
+.nav-inspector-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.25rem 0.75rem;
+    align-items: center;
+    padding: 0.4rem 1rem;
+    cursor: pointer;
+    border-inline-start: 3px solid transparent;
+}
+
+.nav-inspector-row:hover {
+    background: var(--bs-tertiary-bg);
+}
+
+.nav-inspector-row.is-selected {
+    background: var(--bs-primary-bg-subtle);
+}
+
+.nav-inspector-row.is-on-path {
+    border-inline-start-color: var(--bs-primary);
+}
+
+.nav-inspector-who {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+    min-width: 0;
+}
+
+.nav-inspector-icon {
+    flex: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--bs-secondary-color);
+}
+
+.nav-inspector-text {
+    min-width: 0;
+}
+
+.nav-inspector-label {
+    font-size: 0.9375rem;
+    font-weight: 500;
+}
+
+.nav-inspector-row.is-hidden .nav-inspector-label,
+.nav-inspector-row.is-hidden .nav-inspector-icon {
+    color: var(--bs-secondary-color);
+    font-weight: normal;
+}
+
+.nav-inspector-route {
+    font-family: var(--bs-font-monospace);
+    font-size: 0.8125rem;
+    color: var(--bs-secondary-color);
+    overflow-wrap: anywhere;
+}
+
+.nav-inspector-provider-diff {
+    font-family: var(--bs-font-monospace);
+    font-size: 0.8125rem;
+    color: var(--bs-warning-text-emphasis);
+}
+
+.nav-inspector-status {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    justify-content: flex-end;
+}
+
+.nav-inspector-pill {
+    padding: 0.15rem 0.6rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    white-space: nowrap;
+    border-radius: 999px;
+}
+
+.nav-inspector-pill.is-hidden {
+    color: var(--bs-secondary-color);
+    background: var(--bs-secondary-bg);
+}
+
+.nav-inspector-pill.is-error {
+    color: var(--bs-danger-text-emphasis);
+    background: var(--bs-danger-bg-subtle);
+}
+
+/* EasyAdmin's primary pair: in dark mode --bs-primary is almost white, so white text was unreadable. */
+.nav-inspector-pill.is-active {
+    color: var(--ea-primary-foreground);
+    background: var(--ea-primary);
+}
+
+.nav-inspector-pill.is-path {
+    color: var(--bs-primary-text-emphasis);
+    background: var(--bs-primary-bg-subtle);
+}
+
+.nav-inspector-note {
+    padding: 0.5rem 1rem 0.75rem;
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--bs-secondary-color);
+}
+
+.nav-inspector-folded {
+    border-top: var(--bs-border-width) solid var(--bs-border-color);
+}
+
+.nav-inspector-folded .btn {
+    font-size: inherit;
+}
+
+.nav-inspector-props {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 0.4rem 1rem;
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+.nav-inspector-props dt {
+    font-weight: normal;
+    color: var(--bs-secondary-color);
+}
+
+.nav-inspector-props dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}

@@ -1,0 +1,20 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'inpatient_stay_test.explore.title'|trans({}, 'inpatient_stay_test') }} - {{ parent() }}{% endblock %}
+
+{% block page_content %}
+    <div class="card">
+        <div class="card-body">
+            <h2 class="page-title mb-3">{{ 'inpatient_stay_test.explore.title'|trans({}, 'inpatient_stay_test') }}</h2>
+            {% if hospitals is empty %}
+                <p class="text-secondary mb-0" data-testid="inpatient-stay-no-hospitals">{{ 'inpatient_stay_test.no_hospitals'|trans({}, 'inpatient_stay_test') }}</p>
+            {% else %}
+                <div class="list-group" data-testid="inpatient-stay-hospitals">
+                    {% for hospital in hospitals %}
+                        <a class="list-group-item list-group-item-action" href="{{ path('app_explore_inpatient_stays_hospital', {hospitalId: hospital.id}) }}">{{ hospital.name }}</a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

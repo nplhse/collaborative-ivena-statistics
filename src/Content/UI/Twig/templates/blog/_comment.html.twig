@@ -1,10 +1,28 @@
 <div class="border rounded p-3" style="margin-left: {{ level * 1.5 }}rem;">
     {% import '@Shared/_macros/users.html.twig' as users %}
     <div class="d-flex justify-content-between align-items-center mb-2">
-        <strong>{{ users.link(comment.author, {requireParticipant: true}) }}</strong>
+        <div class="d-flex align-items-center gap-2 min-w-0">
+            <twig:UserAvatar :user="comment.author" size="sm" />
+            {% if comment.author %}
+                {% set authorName = user_display_name(comment.author.displayName, comment.author.username) %}
+                <strong class="text-truncate" title="{{ comment.author.username }}">
+                    {%- if is_granted('ROLE_PARTICIPANT') and comment.author.username -%}
+                        <a href="{{ path('app_explore_user_show', {username: comment.author.username}) }}" target="_top">{{ authorName }}</a>
+                    {%- else -%}
+                        {{ authorName }}
+                    {%- endif -%}
+                </strong>
+                {% if 'ROLE_BOARD_MEMBER' in comment.author.roles %}
+                    <span class="badge bg-purple-lt flex-shrink-0" data-testid="comment-author-board-member">{{ 'label.user.badge.board_member'|trans({}, 'user') }}</span>
+                {% endif %}
+            {% else %}
+                <strong>{{ users.link(null, {requireParticipant: true}) }}</strong>
+            {% endif %}
+        </div>
         <span class="text-secondary">{{ comment.createdAt|date('d.m.Y H:i') }}</span>
     </div>
     <div class="mb-2">{{ comment.content|nl2br }}</div>
+    {{ include('@Content/reaction/_placeholder.html.twig', {target_type: 'comment', target_id: comment.id}) }}
 
     {% if is_granted('ROLE_USER') %}
         <details class="mb-2">

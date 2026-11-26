@@ -22,7 +22,8 @@ final class DemoEnvironmentConfigTest extends KernelTestCase
         self::assertTrue($container->getParameter('app.demo_mode'));
         self::assertSame($projectDir.'/var/demo/imports', $container->getParameter('app.imports_base_dir'));
         self::assertSame($projectDir.'/var/demo/imports/rejects', $container->getParameter('app.rejects_base_dir'));
-        self::assertSame($projectDir.'/public/uploads/demo/media', $container->getParameter('app.media_upload_dir'));
+        self::assertSame($projectDir.'/var/demo/media', $container->getParameter('app.media_storage_dir'));
+        self::assertSame($projectDir.'/public/uploads/demo/media', $container->getParameter('app.media_legacy_dir'));
         self::assertSame($projectDir.'/var/demo/geo/hospital-isochrones', $container->getParameter('app.hospital_isochrones_dir'));
         self::assertSame($projectDir.'/var/demo/geo/prepared-locations', $container->getParameter('app.prepared_locations_dir'));
         self::assertSame('large', $container->getParameter('fixtures.profile'));
@@ -49,6 +50,26 @@ final class DemoEnvironmentConfigTest extends KernelTestCase
         self::assertArrayNotHasKey('WebProfilerBundle', $bundles);
         self::assertArrayNotHasKey('DebugBundle', $bundles);
         self::assertArrayNotHasKey('DAMADoctrineTestBundle', $bundles);
+    }
+
+    public function testDemoEnvironmentSendsMailToMailpitByDefault(): void
+    {
+        $container = $this->bootDemoKernel();
+
+        self::assertSame('smtp://127.0.0.1:1025', $container->getParameter('app.mailer_dsn'));
+    }
+
+    public function testDemoMailOffDiscardsEveryMail(): void
+    {
+        $_SERVER['DEMO_MAIL'] = $_ENV['DEMO_MAIL'] = 'off';
+
+        try {
+            $container = $this->bootDemoKernel();
+
+            self::assertSame('null://null', $container->getParameter('app.mailer_dsn'));
+        } finally {
+            unset($_SERVER['DEMO_MAIL'], $_ENV['DEMO_MAIL']);
+        }
     }
 
     public function testOtherEnvironmentsAreNotInDemoMode(): void

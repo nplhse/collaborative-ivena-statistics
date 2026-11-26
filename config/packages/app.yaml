@@ -1,6 +1,7 @@
 parameters:
     app.default.title: 'Collaborative IVENA statistics'
     env(APP_CONTENT_DEFAULT_LOCALE): 'en'
+    env(APP_UBERSPACE_CREDIT): 'true'
 
 app:
     title: '%env(default:app.default.title:APP_TITLE)%'
@@ -20,9 +21,9 @@ app:
         csv_reject_dir: 'var/import_rejects'
     meta:
         copyright_start_year: 2025
-        hoster:
-            name: 'Uberspace'
-            url: 'https://uberspace.de'
+        # The project recommends Uberspace for hosting (docs/05-operations/deployment.md). Set
+        # APP_UBERSPACE_CREDIT=false when the installation is hosted elsewhere.
+        uberspace_credit: '%env(bool:APP_UBERSPACE_CREDIT)%'
 
     registration:
         # Domain suffixes (exact domain or TLD). Leading dots are optional (.ru and ru are equivalent).
@@ -30,6 +31,24 @@ app:
         # but pru.com / russia.com / ru.example.com do not.
         blocked_email_domains:
             - .ru
+
+    terms:
+        # Version of the terms of use (#1564, ADR 043), set with APP_TERMS_VERSION in .env.local. Raise it when the terms
+        # change materially; everyone then accepts the new version at their next login. Editorial edits of the terms page
+        # change nothing. Empty: acceptance is stored at registration, but nobody is asked at login.
+        version: '%env(default::APP_TERMS_VERSION)%'
+
+    security:
+        two_factor:
+            # Administrators must set up two-factor authentication before they can use the application (#1357,
+            # ADR 040). On by default since #1567, so production is safe without extra configuration; off in dev,
+            # demo and test (below). Needs APP_TWO_FACTOR_KEY, without it the obligation has no effect.
+            required_for_admins: true
+
+    research:
+        # Days of a Board voting round on a data extract request, and the time an applicant has for a requested
+        # revision (#1635, ADR 045).
+        vote_period_days: 14
 
     closure_volume:
         reference_weeks_before: 4
@@ -74,10 +93,61 @@ app:
             overdue_after_minutes: 120
         storage_measurement:
             overdue_after_minutes: 1500
+        feedback_quarantine_summary:
+            overdue_after_minutes: 10140
+        feedback_quarantine_purge:
+            overdue_after_minutes: 1500
+        research_data_request_deadlines:
+            overdue_after_minutes: 60
+        research_export_cleanup:
+            overdue_after_minutes: 1500
         messenger_queue_sample:
             overdue_after_minutes: 120
         monitoring_retention:
             overdue_after_minutes: 1500
+        encounter_source_file_retention:
+            overdue_after_minutes: 1500
+        encounter_cleanup:
+            overdue_after_minutes: 1500
+        import_pending_upload_purge:
+            overdue_after_minutes: 120
+        media_integrity_check:
+            overdue_after_minutes: 1500
+        reaction_cleanup:
+            overdue_after_minutes: 1500
+
+    encounter:
+        # Days an upload file is kept for error analysis and reprocessing before the daily job deletes it
+        # (ADR 026, docs/04-features/encounter/README.md#upload-file-retention). Imported encounters stay.
+        source_file_retention_days: 30
+        # Matcher of ED visits and IVENA allocations (ADR 030, docs/04-features/encounter/README.md#matching).
+        # Changing a value changes which pairs are linked from the next run on; existing links stay.
+        matching:
+            auto_accept_threshold: 0.90
+            proposal_threshold: 0.50
+            pass1: { minutes_before: 20, minutes_after: 45, max_age_difference: 2 }
+            pass2: { minutes_before: 30, minutes_after: 90, max_age_difference: 5 }
+        # Match validation (#1057, docs/04-features/encounter/README.md#match-validation): lower bounds of the
+        # score bands in the report and the default sample size per stratum and band.
+        validation:
+            score_bands: [0.50, 0.70, 0.90, 0.99]
+            sample_size: 20
+        # Plausibility table of PZC and MTS diagram (ADR 033, docs/04-features/encounter/README.md#plausibility-table):
+        # observations a cell needs before it gets learned points, and an exact cell before its points replace those
+        # of the problem-area cell. Learning job (#1155): Laplace smoothing, shrinkage towards the seed (pseudo
+        # observations) and the fold rule of the cross-fitted replay.
+        plausibility:
+            min_observations: 10
+            learning:
+                smoothing: 1.0
+                shrinkage: 10.0
+                fold: alternating_days
+        # Offline data preparation tool (ADR 026): raise version with every change to the tool or a
+        # bundled profile; raise min_version to block older tools (docs/04-features/encounter/data-preparation-tool.md).
+        data_prep:
+            version: '1.4.0'
+            min_version: '1.0.0'
+            released_at: '2026-11-25'
 
     storage:
         # Usage in percent of the capacity reference at which each level starts (ADR 017).
@@ -109,3 +179,37 @@ app:
                 - weight loss
                 - make money
                 - click here
+            blocked_link_domains:
+                - telegra.ph
+            patterns:
+                - '/\bearn\s+\$[\d,.]+\s+(?:per|a)\s+month\b/i'
+            history_days: 30
+        quarantine:
+            # Days after going into quarantine until an entry is deleted.
+            retention_days: 30
+
+# Two-factor obligation never applies locally or in the demo, whatever the base value says (#1357).
+when@dev:
+    app:
+        security:
+            two_factor:
+                required_for_admins: false
+
+when@demo:
+    app:
+        # Demo accounts are shared (ADR 023); nobody accepts the terms for them at login (#1564).
+        terms:
+            version: ~
+        security:
+            two_factor:
+                required_for_admins: false
+
+# Tests sign in administrators without two-factor authentication; tests of the obligation switch it on themselves (#1567).
+# The same holds for the terms of use: tests of the login prompt set a version themselves (#1564).
+when@test:
+    app:
+        terms:
+            version: ~
+        security:
+            two_factor:
+                required_for_admins: false

@@ -69,9 +69,21 @@
         <source>flash.settings.locale.updated</source>
         <target>Language preference saved.</target>
       </trans-unit>
-      <trans-unit id="9xtc9Dc" resname="help.settings.username_fixed">
-        <source>help.settings.username_fixed</source>
-        <target>Username is fixed and cannot be changed.</target>
+      <trans-unit id="UsrDispName" resname="label.display_name">
+        <source>label.display_name</source>
+        <target>Display name</target>
+      </trans-unit>
+      <trans-unit id="UsrDispNameHelp" resname="help.settings.display_name">
+        <source>help.settings.display_name</source>
+        <target>Optional, for example your first and last name. Other signed-in users see it next to your avatar, visitors who are not signed in only see your username.</target>
+      </trans-unit>
+      <trans-unit id="UsrSaveProfile" resname="label.settings.save_profile">
+        <source>label.settings.save_profile</source>
+        <target>Update name</target>
+      </trans-unit>
+      <trans-unit id="UsrProfileSaved" resname="flash.settings.profile.updated">
+        <source>flash.settings.profile.updated</source>
+        <target>Display name saved.</target>
       </trans-unit>
       <trans-unit id="notif02" resname="help.settings.notifications.monthly_reminder">
         <source>help.settings.notifications.monthly_reminder</source>
@@ -157,6 +169,38 @@
         <source>label.settings.notifications</source>
         <target>Notifications</target>
       </trans-unit>
+      <trans-unit id="setOv01" resname="label.settings.overview">
+        <source>label.settings.overview</source>
+        <target>Overview</target>
+      </trans-unit>
+      <trans-unit id="setOv02" resname="label.settings.back_to_overview">
+        <source>label.settings.back_to_overview</source>
+        <target>All settings</target>
+      </trans-unit>
+      <trans-unit id="setOv03" resname="label.settings.sections_nav">
+        <source>label.settings.sections_nav</source>
+        <target>Settings areas</target>
+      </trans-unit>
+      <trans-unit id="setOv04" resname="text.settings.overview_intro">
+        <source>text.settings.overview_intro</source>
+        <target>Choose the area you want to view or change.</target>
+      </trans-unit>
+      <trans-unit id="setOv05" resname="text.settings.section.account">
+        <source>text.settings.section.account</source>
+        <target>Display name, email verification status and language.</target>
+      </trans-unit>
+      <trans-unit id="setOv06" resname="text.settings.section.email">
+        <source>text.settings.section.email</source>
+        <target>Change the email address of your account.</target>
+      </trans-unit>
+      <trans-unit id="setOv07" resname="text.settings.section.password">
+        <source>text.settings.section.password</source>
+        <target>Choose a new password for signing in.</target>
+      </trans-unit>
+      <trans-unit id="setOv08" resname="text.settings.section.notifications">
+        <source>text.settings.section.notifications</source>
+        <target>Choose which notifications you receive and how.</target>
+      </trans-unit>
       <trans-unit id="notif04" resname="label.settings.notifications.monthly_reminder">
         <source>label.settings.notifications.monthly_reminder</source>
         <target>Monthly data submission reminder</target>
@@ -200,6 +244,18 @@
       <trans-unit id="pwdSet05" resname="label.login.remember_me">
         <source>label.login.remember_me</source>
         <target>Remember me</target>
+      </trans-unit>
+      <trans-unit id="LoginId01" resname="label.login.identifier">
+        <source>label.login.identifier</source>
+        <target>Username or email</target>
+      </trans-unit>
+      <trans-unit id="LoginId02" resname="message.login.email_switch_notice">
+        <source>message.login.email_switch_notice</source>
+        <target>From version 1.0, you sign in with your email address only. You can already use it instead of your username.</target>
+      </trans-unit>
+      <trans-unit id="LoginId03" resname="message.login.email_switch_hint">
+        <source>message.login.email_switch_hint</source>
+        <target>Please note that from version 1.0, only the email address can be used to sign in.</target>
       </trans-unit>
       <trans-unit id="LocSet02" resname="label.settings.language">
         <source>label.settings.language</source>
@@ -371,11 +427,11 @@
       </trans-unit>
       <trans-unit id="em.welcomeExpDesc" resname="email.welcome.next_steps.explore.description">
         <source>email.welcome.next_steps.explore.description</source>
-        <target>Explore allocations and reference data in the data catalog.</target>
+        <target>Browse allocations and reference data.</target>
       </trans-unit>
       <trans-unit id="em.welcomeExpTitle" resname="email.welcome.next_steps.explore.title">
         <source>email.welcome.next_steps.explore.title</source>
-        <target>Open the data catalog</target>
+        <target>Explore data</target>
       </trans-unit>
       <trans-unit id="em.welcomeHospAllDesc" resname="email.welcome.next_steps.hospitals.all.description">
         <source>email.welcome.next_steps.hospitals.all.description</source>
@@ -581,10 +637,6 @@
         <source>label.user.activity.comment_created</source>
         <target>Wrote a comment</target>
       </trans-unit>
-      <trans-unit id="usrLblActivityCommentOnEn" resname="label.user.activity.comment_on">
-        <source>label.user.activity.comment_on</source>
-        <target>On</target>
-      </trans-unit>
       <trans-unit id="usrLblActivityHospitalAssociatedEn" resname="label.user.activity.hospital_associated">
         <source>label.user.activity.hospital_associated</source>
         <target>Associated with a hospital</target>
@@ -600,6 +652,418 @@
       <trans-unit id="usrLblActivityHospitalOwnerRevokedEn" resname="label.user.activity.hospital_owner_revoked">
         <source>label.user.activity.hospital_owner_revoked</source>
         <target>Hospital ownership ended</target>
+      </trans-unit>
+      <trans-unit id="actSentJoinedPlainEn" resname="label.user.activity.sentence.joined.plain">
+        <source>label.user.activity.sentence.joined.plain</source>
+        <target>{actor} joined the platform.</target>
+      </trans-unit>
+      <trans-unit id="actSentFirstImportObjectEn" resname="label.user.activity.sentence.first_import.object">
+        <source>label.user.activity.sentence.first_import.object</source>
+        <target>{actor} imported data for {object} for the first time.</target>
+      </trans-unit>
+      <trans-unit id="actSentFirstImportPlainEn" resname="label.user.activity.sentence.first_import.plain">
+        <source>label.user.activity.sentence.first_import.plain</source>
+        <target>{actor} imported data for the first time.</target>
+      </trans-unit>
+      <trans-unit id="actSentImportMilestoneObjectEn" resname="label.user.activity.sentence.import_milestone.object">
+        <source>label.user.activity.sentence.import_milestone.object</source>
+        <target>{actor} has completed {count} data imports in total, most recently for {object}.</target>
+      </trans-unit>
+      <trans-unit id="actSentImportMilestonePlainEn" resname="label.user.activity.sentence.import_milestone.plain">
+        <source>label.user.activity.sentence.import_milestone.plain</source>
+        <target>{actor} has completed {count} data imports in total.</target>
+      </trans-unit>
+      <trans-unit id="actSentPostPublishedObjectEn" resname="label.user.activity.sentence.post_published.object">
+        <source>label.user.activity.sentence.post_published.object</source>
+        <target>{actor} published the post “{object}”.</target>
+      </trans-unit>
+      <trans-unit id="actSentPostPublishedPlainEn" resname="label.user.activity.sentence.post_published.plain">
+        <source>label.user.activity.sentence.post_published.plain</source>
+        <target>{actor} published a post.</target>
+      </trans-unit>
+      <trans-unit id="actSentCommentCreatedObjectEn" resname="label.user.activity.sentence.comment_created.object">
+        <source>label.user.activity.sentence.comment_created.object</source>
+        <target>{actor} commented on “{object}”.</target>
+      </trans-unit>
+      <trans-unit id="actSentCommentCreatedPlainEn" resname="label.user.activity.sentence.comment_created.plain">
+        <source>label.user.activity.sentence.comment_created.plain</source>
+        <target>{actor} commented on a post.</target>
+      </trans-unit>
+      <trans-unit id="actSentHospitalAssociatedObjectEn" resname="label.user.activity.sentence.hospital_associated.object">
+        <source>label.user.activity.sentence.hospital_associated.object</source>
+        <target>{actor} is now associated with {object}.</target>
+      </trans-unit>
+      <trans-unit id="actSentHospitalAssociatedPlainEn" resname="label.user.activity.sentence.hospital_associated.plain">
+        <source>label.user.activity.sentence.hospital_associated.plain</source>
+        <target>{actor} is now associated with a hospital.</target>
+      </trans-unit>
+      <trans-unit id="actSentHospitalDisassociatedObjectEn" resname="label.user.activity.sentence.hospital_disassociated.object">
+        <source>label.user.activity.sentence.hospital_disassociated.object</source>
+        <target>{actor} is no longer associated with {object}.</target>
+      </trans-unit>
+      <trans-unit id="actSentHospitalDisassociatedPlainEn" resname="label.user.activity.sentence.hospital_disassociated.plain">
+        <source>label.user.activity.sentence.hospital_disassociated.plain</source>
+        <target>{actor} is no longer associated with a hospital.</target>
+      </trans-unit>
+      <trans-unit id="actSentHospitalOwnerGrantedObjectEn" resname="label.user.activity.sentence.hospital_owner_granted.object">
+        <source>label.user.activity.sentence.hospital_owner_granted.object</source>
+        <target>{actor} is now responsible for {object}.</target>
+      </trans-unit>
+      <trans-unit id="actSentHospitalOwnerGrantedPlainEn" resname="label.user.activity.sentence.hospital_owner_granted.plain">
+        <source>label.user.activity.sentence.hospital_owner_granted.plain</source>
+        <target>{actor} is now responsible for a hospital.</target>
+      </trans-unit>
+      <trans-unit id="actSentHospitalOwnerRevokedObjectEn" resname="label.user.activity.sentence.hospital_owner_revoked.object">
+        <source>label.user.activity.sentence.hospital_owner_revoked.object</source>
+        <target>{actor} is no longer responsible for {object}.</target>
+      </trans-unit>
+      <trans-unit id="actSentHospitalOwnerRevokedPlainEn" resname="label.user.activity.sentence.hospital_owner_revoked.plain">
+        <source>label.user.activity.sentence.hospital_owner_revoked.plain</source>
+        <target>{actor} is no longer responsible for a hospital.</target>
+      </trans-unit>
+      <trans-unit id="LL00" resname="label.settings.login_link">
+        <source>label.settings.login_link</source>
+        <target>Sign in with a link</target>
+      </trans-unit>
+      <trans-unit id="SEC01" resname="title.settings.security">
+        <source>title.settings.security</source>
+        <target>Sign-in &amp; security</target>
+      </trans-unit>
+      <trans-unit id="SEC02" resname="text.settings.section.security">
+        <source>text.settings.section.security</source>
+        <target>Password, sign-in link and two-factor authentication.</target>
+      </trans-unit>
+      <trans-unit id="SEC03" resname="text.settings.login_link.active">
+        <source>text.settings.login_link.active</source>
+        <target>The sign-in link is active.</target>
+      </trans-unit>
+      <trans-unit id="SEC04" resname="text.settings.login_link.active_detail">
+        <source>text.settings.login_link.active_detail</source>
+        <target>On the login page you can have a sign-in link sent to {email}.</target>
+      </trans-unit>
+      <trans-unit id="SEC05" resname="text.settings.login_link.inactive">
+        <source>text.settings.login_link.inactive</source>
+        <target>The sign-in link is off.</target>
+      </trans-unit>
+      <trans-unit id="SEC06" resname="text.settings.login_link.inactive_detail">
+        <source>text.settings.login_link.inactive_detail</source>
+        <target>You sign in with your password.</target>
+      </trans-unit>
+      <trans-unit id="SEC07" resname="text.settings.section.login_link">
+        <source>text.settings.section.login_link</source>
+        <target>Sign in with a one-time link sent by email.</target>
+      </trans-unit>
+      <trans-unit id="SEC08" resname="label.settings.password">
+        <source>label.settings.password</source>
+        <target>Password</target>
+      </trans-unit>
+      <trans-unit id="SEC10" resname="label.settings.status_on">
+        <source>label.settings.status_on</source>
+        <target>On</target>
+      </trans-unit>
+      <trans-unit id="SEC11" resname="label.settings.status_off">
+        <source>label.settings.status_off</source>
+        <target>Off</target>
+      </trans-unit>
+      <trans-unit id="LL01" resname="help.settings.login_link">
+        <source>help.settings.login_link</source>
+        <target>When switched on, you can have a one-time sign-in link sent to your email address on the login page instead of entering your password. The link is valid for 15 minutes.</target>
+      </trans-unit>
+      <trans-unit id="LL02" resname="help.settings.login_link_2fa">
+        <source>help.settings.login_link_2fa</source>
+        <target>Anyone with access to your mailbox can then sign in as well. We recommend also protecting your account with two-factor authentication.</target>
+      </trans-unit>
+      <trans-unit id="LL03" resname="label.settings.login_link_on">
+        <source>label.settings.login_link_on</source>
+        <target>On</target>
+      </trans-unit>
+      <trans-unit id="LL04" resname="label.settings.login_link_off">
+        <source>label.settings.login_link_off</source>
+        <target>Off</target>
+      </trans-unit>
+      <trans-unit id="LL05" resname="label.settings.login_link_enable">
+        <source>label.settings.login_link_enable</source>
+        <target>Switch on</target>
+      </trans-unit>
+      <trans-unit id="LL06" resname="label.settings.login_link_disable">
+        <source>label.settings.login_link_disable</source>
+        <target>Switch off</target>
+      </trans-unit>
+      <trans-unit id="LL07" resname="flash.settings.login_link.enabled">
+        <source>flash.settings.login_link.enabled</source>
+        <target>Sign-in with a link is now switched on.</target>
+      </trans-unit>
+      <trans-unit id="LL08" resname="flash.settings.login_link.disabled">
+        <source>flash.settings.login_link.disabled</source>
+        <target>Sign-in with a link is now switched off. Links that were already sent no longer work.</target>
+      </trans-unit>
+      <trans-unit id="LL09" resname="title.login_link.request">
+        <source>title.login_link.request</source>
+        <target>Sign in with a link</target>
+      </trans-unit>
+      <trans-unit id="LL10" resname="text.login_link.request_intro">
+        <source>text.login_link.request_intro</source>
+        <target>Enter your username or email address. If sign-in with a link is switched on for your account, we send you a link that signs you in once.</target>
+      </trans-unit>
+      <trans-unit id="LL11" resname="label.login_link.send">
+        <source>label.login_link.send</source>
+        <target>Send me a sign-in link</target>
+      </trans-unit>
+      <trans-unit id="LL12" resname="label.login_link.back_to_login">
+        <source>label.login_link.back_to_login</source>
+        <target>Back to login</target>
+      </trans-unit>
+      <trans-unit id="LL13" resname="title.login_link.sent">
+        <source>title.login_link.sent</source>
+        <target>Check your inbox</target>
+      </trans-unit>
+      <trans-unit id="LL14" resname="text.login_link.sent">
+        <source>text.login_link.sent</source>
+        <target>If an account with sign-in by link exists for your entry, we have sent a link to its email address. The link is valid for {minutes} minutes and works once.</target>
+      </trans-unit>
+      <trans-unit id="LL15" resname="text.login_link.sent_hint">
+        <source>text.login_link.sent_hint</source>
+        <target>No email? Check your spam folder or sign in with your password. Sign-in with a link can be switched on in your account settings.</target>
+      </trans-unit>
+      <trans-unit id="LL16" resname="label.login_link.request_again">
+        <source>label.login_link.request_again</source>
+        <target>Request a new link</target>
+      </trans-unit>
+      <trans-unit id="LL17" resname="title.login_link.confirm">
+        <source>title.login_link.confirm</source>
+        <target>Confirm sign-in</target>
+      </trans-unit>
+      <trans-unit id="LL18" resname="text.login_link.confirm_account">
+        <source>text.login_link.confirm_account</source>
+        <target>Sign in as {username}?</target>
+      </trans-unit>
+      <trans-unit id="LL19" resname="label.login_link.not_you">
+        <source>label.login_link.not_you</source>
+        <target>Not you? Back to login</target>
+      </trans-unit>
+      <trans-unit id="LL20" resname="email.login_link.title">
+        <source>email.login_link.title</source>
+        <target>Your sign-in link</target>
+      </trans-unit>
+      <trans-unit id="LL21" resname="email.login_link.preheader">
+        <source>email.login_link.preheader</source>
+        <target>Use the link to sign in once.</target>
+      </trans-unit>
+      <trans-unit id="LL22" resname="email.login_link.heading">
+        <source>email.login_link.heading</source>
+        <target>Your sign-in link</target>
+      </trans-unit>
+      <trans-unit id="LL23" resname="email.login_link.intro">
+        <source>email.login_link.intro</source>
+        <target>You asked for a link to sign in to {app}. Use the button below to sign in.</target>
+      </trans-unit>
+      <trans-unit id="LL24" resname="email.login_link.expiry">
+        <source>email.login_link.expiry</source>
+        <target>The link is valid for {minutes} minutes and works once.</target>
+      </trans-unit>
+      <trans-unit id="LL25" resname="email.login_link.cta">
+        <source>email.login_link.cta</source>
+        <target>Sign in</target>
+      </trans-unit>
+      <trans-unit id="LL26" resname="email.login_link.fallback_before_link">
+        <source>email.login_link.fallback_before_link</source>
+        <target>Trouble with the button? Copy this URL into your browser: </target>
+      </trans-unit>
+      <trans-unit id="LL27" resname="email.login_link.fallback_after_link">
+        <source>email.login_link.fallback_after_link</source>
+        <target> If you did not ask for this link, you can ignore this email.</target>
+      </trans-unit>
+      <trans-unit id="LL28" resname="text.login_link.confirm_question">
+        <source>text.login_link.confirm_question</source>
+        <target>Do you want to sign in with this account?</target>
+      </trans-unit>
+      <trans-unit id="TF00" resname="title.two_factor.login">
+        <source>title.two_factor.login</source>
+        <target>Two-factor authentication</target>
+      </trans-unit>
+      <trans-unit id="TF01" resname="text.two_factor.login">
+        <source>text.two_factor.login</source>
+        <target>Enter the six-digit code from your authenticator app.</target>
+      </trans-unit>
+      <trans-unit id="TF02" resname="label.two_factor.code">
+        <source>label.two_factor.code</source>
+        <target>Code</target>
+      </trans-unit>
+      <trans-unit id="TF03" resname="help.two_factor.backup_code">
+        <source>help.two_factor.backup_code</source>
+        <target>No access to your app? Enter one of your backup codes instead.</target>
+      </trans-unit>
+      <trans-unit id="TF04" resname="label.two_factor.verify">
+        <source>label.two_factor.verify</source>
+        <target>Verify</target>
+      </trans-unit>
+      <trans-unit id="TF05" resname="label.two_factor.cancel">
+        <source>label.two_factor.cancel</source>
+        <target>Cancel and sign out</target>
+      </trans-unit>
+      <trans-unit id="TF06" resname="flash.two_factor.code_invalid">
+        <source>flash.two_factor.code_invalid</source>
+        <target>The code is not correct.</target>
+      </trans-unit>
+      <trans-unit id="TF07" resname="flash.two_factor.code_reused">
+        <source>flash.two_factor.code_reused</source>
+        <target>This code was already used. Please wait for the next code from your app.</target>
+      </trans-unit>
+      <trans-unit id="TF08" resname="title.settings.two_factor">
+        <source>title.settings.two_factor</source>
+        <target>Two-factor authentication</target>
+      </trans-unit>
+      <trans-unit id="TF09" resname="text.settings.section.two_factor">
+        <source>text.settings.section.two_factor</source>
+        <target>Protect your sign-in with a code from an authenticator app.</target>
+      </trans-unit>
+      <trans-unit id="TF10" resname="label.settings.two_factor_on">
+        <source>label.settings.two_factor_on</source>
+        <target>On</target>
+      </trans-unit>
+      <trans-unit id="TF11" resname="label.settings.two_factor_off">
+        <source>label.settings.two_factor_off</source>
+        <target>Off</target>
+      </trans-unit>
+      <trans-unit id="TF12" resname="help.settings.two_factor">
+        <source>help.settings.two_factor</source>
+        <target>After your password or a sign-in link, you also enter a six-digit code from an authenticator app such as Aegis, 2FAS or 1Password.</target>
+      </trans-unit>
+      <trans-unit id="TF13" resname="text.settings.two_factor.enabled_since">
+        <source>text.settings.two_factor.enabled_since</source>
+        <target>Switched on since {date}.</target>
+      </trans-unit>
+      <trans-unit id="TF14" resname="text.settings.two_factor.backup_codes_left">
+        <source>text.settings.two_factor.backup_codes_left</source>
+        <target>{left} of {total} backup codes left.</target>
+      </trans-unit>
+      <trans-unit id="TF15" resname="label.settings.two_factor_current_code">
+        <source>label.settings.two_factor_current_code</source>
+        <target>Current code or backup code</target>
+      </trans-unit>
+      <trans-unit id="TF16" resname="label.settings.two_factor_renew_backup_codes">
+        <source>label.settings.two_factor_renew_backup_codes</source>
+        <target>Create new backup codes</target>
+      </trans-unit>
+      <trans-unit id="TF17" resname="label.settings.two_factor_disable">
+        <source>label.settings.two_factor_disable</source>
+        <target>Switch off</target>
+      </trans-unit>
+      <trans-unit id="TF18" resname="label.settings.two_factor_qr_code">
+        <source>label.settings.two_factor_qr_code</source>
+        <target>QR code for your authenticator app</target>
+      </trans-unit>
+      <trans-unit id="TF19" resname="text.settings.two_factor.scan">
+        <source>text.settings.two_factor.scan</source>
+        <target>Scan this QR code with your authenticator app. To use several devices, scan it with each of them now.</target>
+      </trans-unit>
+      <trans-unit id="TF20" resname="text.settings.two_factor.manual_key">
+        <source>text.settings.two_factor.manual_key</source>
+        <target>Or enter this key in the app:</target>
+      </trans-unit>
+      <trans-unit id="TF21" resname="label.settings.two_factor_first_code">
+        <source>label.settings.two_factor_first_code</source>
+        <target>Code from the app</target>
+      </trans-unit>
+      <trans-unit id="TF22" resname="label.settings.two_factor_enable">
+        <source>label.settings.two_factor_enable</source>
+        <target>Switch on</target>
+      </trans-unit>
+      <trans-unit id="TF23" resname="title.settings.two_factor_backup_codes">
+        <source>title.settings.two_factor_backup_codes</source>
+        <target>Backup codes</target>
+      </trans-unit>
+      <trans-unit id="TF24" resname="text.settings.two_factor.backup_codes_once">
+        <source>text.settings.two_factor.backup_codes_once</source>
+        <target>Save these codes now, for example in your password manager. They are shown only once. Each code works once if you cannot use your authenticator app.</target>
+      </trans-unit>
+      <trans-unit id="TF25" resname="label.settings.two_factor_codes_saved">
+        <source>label.settings.two_factor_codes_saved</source>
+        <target>I have saved the codes</target>
+      </trans-unit>
+      <trans-unit id="TF26" resname="label.settings.two_factor_set_up">
+        <source>label.settings.two_factor_set_up</source>
+        <target>Set up two-factor authentication</target>
+      </trans-unit>
+      <trans-unit id="TF27" resname="flash.settings.two_factor.code_invalid">
+        <source>flash.settings.two_factor.code_invalid</source>
+        <target>The code is not correct. Please try again.</target>
+      </trans-unit>
+      <trans-unit id="TF28" resname="flash.settings.two_factor.too_many_attempts">
+        <source>flash.settings.two_factor.too_many_attempts</source>
+        <target>Too many attempts. Please try again in 15 minutes.</target>
+      </trans-unit>
+      <trans-unit id="TF29" resname="flash.settings.two_factor.enabled">
+        <source>flash.settings.two_factor.enabled</source>
+        <target>Two-factor authentication is switched on.</target>
+      </trans-unit>
+      <trans-unit id="TF30" resname="flash.settings.two_factor.disabled">
+        <source>flash.settings.two_factor.disabled</source>
+        <target>Two-factor authentication is switched off.</target>
+      </trans-unit>
+      <trans-unit id="TF31" resname="text.settings.two_factor.active">
+        <source>text.settings.two_factor.active</source>
+        <target>Your account is protected with an authenticator app.</target>
+      </trans-unit>
+      <trans-unit id="TF32" resname="help.settings.two_factor_renew">
+        <source>help.settings.two_factor_renew</source>
+        <target>New codes replace all previous ones.</target>
+      </trans-unit>
+      <trans-unit id="TF33" resname="label.settings.two_factor_disable_heading">
+        <source>label.settings.two_factor_disable_heading</source>
+        <target>Switch off two-factor authentication</target>
+      </trans-unit>
+      <trans-unit id="TF34" resname="help.settings.two_factor_disable">
+        <source>help.settings.two_factor_disable</source>
+        <target>Afterwards your password or a sign-in link is enough to sign in again.</target>
+      </trans-unit>
+      <trans-unit id="TF35" resname="label.settings.two_factor_copy_codes">
+        <source>label.settings.two_factor_copy_codes</source>
+        <target>Copy all codes</target>
+      </trans-unit>
+      <trans-unit id="TF36" resname="flash.settings.two_factor.required">
+        <source>flash.settings.two_factor.required</source>
+        <target>Administrators must set up two-factor authentication before they can continue.</target>
+      </trans-unit>
+      <trans-unit id="TF37" resname="text.settings.two_factor.required">
+        <source>text.settings.two_factor.required</source>
+        <target>Two-factor authentication is required for administrators. Set it up to continue.</target>
+      </trans-unit>
+      <trans-unit id="TF38" resname="label.settings.two_factor_recommended">
+        <source>label.settings.two_factor_recommended</source>
+        <target>Recommended</target>
+      </trans-unit>
+      <trans-unit id="termsAccept00" resname="title.terms.accept">
+        <source>title.terms.accept</source>
+        <target>Accept the terms of use</target>
+      </trans-unit>
+      <trans-unit id="termsAccept01" resname="text.terms.accept_intro">
+        <source>text.terms.accept_intro</source>
+        <target>The terms of use have changed. Please read version {version} and accept it to continue using the platform.</target>
+      </trans-unit>
+      <trans-unit id="termsAccept02" resname="link.terms.read">
+        <source>link.terms.read</source>
+        <target>Read the terms of use (opens in a new tab)</target>
+      </trans-unit>
+      <trans-unit id="termsAccept03" resname="label.terms.accept">
+        <source>label.terms.accept</source>
+        <target>I have read and accept the terms of use.</target>
+      </trans-unit>
+      <trans-unit id="termsAccept04" resname="label.terms.submit">
+        <source>label.terms.submit</source>
+        <target>Accept and continue</target>
+      </trans-unit>
+      <trans-unit id="termsAccept05" resname="text.terms.decline">
+        <source>text.terms.decline</source>
+        <target>Without your acceptance your access rests.</target>
+      </trans-unit>
+      <trans-unit id="termsAcceptAuthority0En" resname="label.terms.upload_authority">
+        <source>label.terms.upload_authority</source>
+        <target>I am still authorised to upload data for {hospitals}.</target>
+      </trans-unit>
+      <trans-unit id="termsAcceptAuthority1En" resname="help.terms.upload_authority">
+        <source>help.terms.upload_authority</source>
+        <target>Otherwise you confirm it again before your next upload.</target>
       </trans-unit>
     </body>
   </file>

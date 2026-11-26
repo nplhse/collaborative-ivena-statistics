@@ -1,0 +1,233 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Allocation\Functional\Controller\DataCatalog;
+
+use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
+use App\User\Domain\Factory\UserFactory;
+use Doctrine\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\HttpFoundation\Request;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
+use Zenstruck\Foundry\Test\Factories;
+
+#[ResetDatabase]
+final class DataCatalogControllerTest extends WebTestCase
+{
+    use InteractsWithAuthenticatedUser;
+    use Factories;
+
+    public function testOverviewListsTheCoreObjects(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $client->request(Request::METHOD_GET, '/help/data-catalog');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="data-catalog-object"][data-object-key="allocation"]');
+        self::assertSelectorTextContains('[data-object-key="allocation"]', 'Allocation');
+        self::assertSelectorTextContains('[data-object-key="allocation"]', '33 variables');
+        self::assertSelectorTextContains('[data-object-key="mci_case"]', '26 variables');
+        self::assertSelectorTextContains('[data-object-key="hospital"]', '16 variables');
+        self::assertSelectorTextContains('[data-object-key="dispatch_area"]', '5 variables');
+        self::assertSelectorTextContains('[data-object-key="state"]', '4 variables');
+        self::assertSelectorTextContains('[data-object-key="indication_normalized"]', '5 variables');
+        self::assertSelectorTextContains('[data-object-key="indication_group"]', '5 variables');
+        foreach (['speciality', 'department', 'assignment', 'infection', 'occasion', 'secondary_transport'] as $key) {
+            self::assertSelectorTextContains(sprintf('[data-object-key="%s"]', $key), '4 variables');
+        }
+    }
+
+    public function testReferenceToADocumentedObjectLinksToItsEntry(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $client->request(Request::METHOD_GET, '/help/data-catalog/allocation');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('#allocation-hospital a[href="/help/data-catalog/hospital"]');
+        self::assertSelectorExists('#allocation-dispatch-area a[href="/help/data-catalog/dispatch_area"]');
+        self::assertSelectorExists('#allocation-state a[href="/help/data-catalog/state"]');
+        self::assertSelectorExists('#allocation-indication-normalized a[href="/help/data-catalog/indication_normalized"]');
+        self::assertSelectorExists('#allocation-assignment a[href="/help/data-catalog/assignment"]');
+        self::assertSelectorExists('#allocation-secondary-transport a[href="/help/data-catalog/secondary_transport"]');
+    }
+
+    public function testEveryReferenceOfTheCoreObjectsLinksToAnEntryExceptRawIndications(): void
+    {
+        $client = $this->createClientAsParticipant();
+
+        $expected = [
+            'allocation' => ['allocation.indication_raw', 'allocation.secondary_indication_raw'],
+            'mci_case' => ['mci_case.indication_raw'],
+            'hospital' => [],
+        ];
+
+        foreach ($expected as $object => $rawReferences) {
+            $crawler = $client->request(Request::METHOD_GET, '/help/data-catalog/'.$object);
+            self::assertResponseIsSuccessful();
+
+            $unlinked = $crawler->filterXPath('//tr[@data-variable-key][.//span[normalize-space(.)="Reference to"]]')->each(
+                static fn (Crawler $row): string => (string) $row->attr('data-variable-key'),
+            );
+            self::assertSame($rawReferences, $unlinked, $object);
+        }
+    }
+
+    public function testRegionDetailsShowTheirVariablesAndLinkTheirParent(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $client->request(Request::METHOD_GET, '/help/data-catalog/dispatch_area');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h2.page-title', 'Dispatch area');
+        self::assertSelectorTextContains('#dispatch-area-name [data-testid="data-catalog-storage"]', 'dispatch_area.name');
+        self::assertSelectorExists('#dispatch-area-state a[href="/help/data-catalog/state"]');
+        self::assertSelectorTextNotContains('body', 'data_catalog.');
+
+        $client->request(Request::METHOD_GET, '/help/data-catalog/state');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('#state-name [data-testid="data-catalog-storage"]', 'state.name');
+    }
+
+    public function testHospitalDetailShowsPrefixedCodeLabelsAndEmbeddedColumns(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $client->request(Request::METHOD_GET, '/help/data-catalog/hospital');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('#hospital-size [data-testid="data-catalog-codes"]', 'Small');
+        self::assertSelectorTextContains('#hospital-postal-code [data-testid="data-catalog-storage"]', 'hospital.address_postal_code');
+        self::assertSelectorTextNotContains('body', 'data_catalog.');
+        self::assertSelectorTextNotContains('body', 'hospital.size.');
+    }
+
+    public function testDetailShowsGroupedVariablesWithStorageCodesAndRange(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $client->request(Request::METHOD_GET, '/help/data-catalog/allocation');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="data-catalog-group"][data-group-key="clinical"]');
+        self::assertSelectorExists('tr#allocation-urgency[data-variable-key="allocation.urgency"]');
+        self::assertSelectorTextContains('#allocation-urgency [data-testid="data-catalog-storage"]', 'allocation.urgency');
+        self::assertSelectorTextContains('#allocation-urgency [data-testid="data-catalog-codes"]', 'Emergency');
+        self::assertSelectorTextContains('#allocation-age [data-testid="data-catalog-range"]', '99');
+        self::assertSelectorTextContains('#allocation-assessment-airway [data-testid="data-catalog-storage"]', 'assessment.airway');
+        self::assertSelectorTextNotContains('body', 'data_catalog.');
+    }
+
+    public function testTypeCellShowsTermIconAndStorageType(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $client->request(Request::METHOD_GET, '/help/data-catalog/allocation');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('#allocation-is-cpr [data-testid="data-catalog-type"]', 'Boolean');
+        self::assertSelectorExists('#allocation-is-cpr [data-testid="data-catalog-type"][data-type="boolean"] svg');
+        self::assertSelectorTextContains('#allocation-is-cpr [data-testid="data-catalog-storage-type"]', 'boolean');
+        self::assertSelectorTextContains('#allocation-gender [data-testid="data-catalog-type"]', 'Enum');
+        self::assertSelectorTextContains('#allocation-gender [data-testid="data-catalog-storage-type"]', 'varchar(255)');
+        self::assertSelectorTextContains('#allocation-hospital [data-testid="data-catalog-storage-type"]', 'int');
+    }
+
+    public function testTimesNameTheirTimeZoneAndTheNoteShowsHowToGetUtc(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $crawler = $client->request(Request::METHOD_GET, '/help/data-catalog/allocation');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('#allocation-created-at [data-testid="data-catalog-time-zone"]', 'Time zone Europe/Berlin');
+        self::assertSelectorTextContains('#allocation-created-at a[href="#time-zone-note"]', 'See note');
+        self::assertSelectorNotExists('#allocation-age [data-testid="data-catalog-time-zone"]');
+        // Winter time is UTC+1, summer time UTC+2.
+        self::assertSame(
+            [['2026-01-15 14:30', '2026-01-15 13:30'], ['2026-07-01 14:30', '2026-07-01 12:30']],
+            $crawler->filter('#time-zone-note [data-testid="data-catalog-time-zone-examples"] tbody tr')->each(static fn (Crawler $row): array => $row->filter('td')->each(static fn (Crawler $cell): string => trim($cell->text()))),
+        );
+        self::assertSelectorTextContains('#time-zone-note', "AT TIME ZONE 'Europe/Berlin'");
+    }
+
+    public function testClassifiedVariablesLinkToTheirGlossaryDefinition(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $client->request(Request::METHOD_GET, '/help/data-catalog/allocation');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('#allocation-urgency a[data-testid="data-catalog-glossary-link"][href="/help/glossary/urgency"]', 'Definitions in the glossary');
+        self::assertSelectorExists('#allocation-transport-type a[data-testid="data-catalog-glossary-link"][href="/help/glossary/transport-type"]');
+        self::assertSelectorNotExists('#allocation-age [data-testid="data-catalog-glossary-link"]');
+
+        $client->request(Request::METHOD_GET, '/help/data-catalog/hospital');
+        self::assertSelectorExists('#hospital-tier a[data-testid="data-catalog-glossary-link"][href="/help/glossary/hospital-classifications#tier"]');
+        self::assertSelectorExists('#hospital-location a[data-testid="data-catalog-glossary-link"][href="/help/glossary/hospital-classifications#location"]');
+    }
+
+    public function testCodeListsUpToFiveCodesStayOpen(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $client->request(Request::METHOD_GET, '/help/data-catalog/allocation');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorCount(5, '#allocation-assessment-breathing [data-testid="data-catalog-codes"] li');
+        self::assertSelectorNotExists('#allocation-assessment-breathing details');
+    }
+
+    public function testGermanLocaleShowsGermanLabels(): void
+    {
+        $client = self::createClient();
+        $client->loginUser(UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'], 'locale' => 'de']));
+        $client->request(Request::METHOD_GET, '/help/data-catalog/allocation');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h2.page-title', 'Zuweisung');
+        self::assertSelectorTextContains('#allocation-urgency', 'Dringlichkeit');
+        self::assertSelectorTextContains('#allocation-age [data-testid="data-catalog-range"]', 'Jahre');
+    }
+
+    public function testUnknownObjectReturnsNotFound(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $client->request(Request::METHOD_GET, '/help/data-catalog/unknown');
+
+        self::assertResponseStatusCodeSame(404);
+    }
+
+    public function testCatalogPagesQueryNoCaseData(): void
+    {
+        $client = $this->createClientAsParticipant();
+
+        foreach (['/help/data-catalog', '/help/data-catalog/allocation', '/help/data-catalog/mci_case', '/help/data-catalog/hospital', '/help/data-catalog/dispatch_area', '/help/data-catalog/state', '/help/data-catalog/indication_normalized', '/help/data-catalog/indication_group'] as $url) {
+            self::assertSame([], $this->caseDataQueries($client, $url), $url);
+        }
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function caseDataQueries(KernelBrowser $client, string $url): array
+    {
+        $client->enableProfiler();
+        $client->request(Request::METHOD_GET, $url);
+        self::assertResponseIsSuccessful();
+
+        $profile = $client->getProfile();
+        self::assertNotFalse($profile);
+        $collector = $profile->getCollector('db');
+        self::assertInstanceOf(DoctrineDataCollector::class, $collector);
+
+        $matches = [];
+        foreach ($collector->getQueries() as $queries) {
+            foreach ($queries as $query) {
+                $sql = (string) $query['sql'];
+                if (1 === preg_match('/\b(FROM|JOIN)\s+"?(allocation|assessment|mci_case|encounter|ed_visit)"?\b/i', $sql)) {
+                    $matches[] = $sql;
+                }
+            }
+        }
+
+        return $matches;
+    }
+}

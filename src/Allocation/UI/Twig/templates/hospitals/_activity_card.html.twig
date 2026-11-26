@@ -1,0 +1,13 @@
+{# Activities of this hospital from the shared activity feed (#488): access and ownership changes
+   and import milestones, newest first; further pages load lazily like on /activity. #}
+<div class="card mb-3" data-testid="hospital-activity">
+    <div class="card-header">
+        <div class="card-title">{{ 'title.hospital.activity'|trans({}, 'allocation') }}</div>
+    </div>
+    <turbo-frame id="activity-timeline" src="{{ path('app_activity_timeline_feed', {hospital: hospital.publicIdString}) }}" loading="lazy">
+        <div class="card-body text-center text-secondary py-3" aria-busy="true" aria-live="polite">
+            <div class="spinner-border spinner-border-sm text-secondary" role="status" aria-hidden="true"></div>
+            <span class="visually-hidden">{{ 'activity.timeline.loading'|trans({}, 'content') }}</span>
+        </div>
+    </turbo-frame>
+</div>

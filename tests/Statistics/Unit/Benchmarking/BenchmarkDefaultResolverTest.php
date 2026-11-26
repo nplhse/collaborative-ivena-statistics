@@ -23,7 +23,7 @@ final class BenchmarkDefaultResolverTest extends TestCase
 
         self::assertNotNull($payload);
         self::assertSame('public', $payload['query']['scope']);
-        self::assertSame('all', $payload['query']['period']);
+        self::assertSame('last_12_months', $payload['query']['period']);
         self::assertSame('public', $payload['query'][StatisticsQueryKeys::COMPARISON_SCOPE]);
         self::assertSame('all_time', $payload['query'][StatisticsQueryKeys::COMPARISON_PERIOD]);
     }
@@ -41,7 +41,7 @@ final class BenchmarkDefaultResolverTest extends TestCase
 
         self::assertNotNull($payload);
         self::assertSame('my_hospitals', $payload['query']['scope']);
-        self::assertSame('all', $payload['query']['period']);
+        self::assertSame('last_12_months', $payload['query']['period']);
         self::assertSame('hospital_cohort', $payload['query'][StatisticsQueryKeys::COMPARISON_SCOPE]);
         self::assertSame('all_time', $payload['query'][StatisticsQueryKeys::COMPARISON_PERIOD]);
     }

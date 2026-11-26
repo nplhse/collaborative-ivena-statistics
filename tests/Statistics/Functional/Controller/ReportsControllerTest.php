@@ -143,7 +143,7 @@ final class ReportsControllerTest extends WebTestCase
         $client = $this->createClientAsRoleUser();
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/reports/transport_time_profile?scope=public&period=all',
+            '/statistics/reports/transport_time_profile?scope=public&period=last_12_months',
         );
 
         $this->assertResponseIsSuccessful();
@@ -152,7 +152,7 @@ final class ReportsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-ttp-empty"]');
         $this->assertSelectorExists('[data-testid="stats-ttp-context"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-context-trigger"]');
-        $this->assertSelectorExists('[data-testid="stats-analysis-context-period"] option[value="all"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-period"] option[value="last_12_months"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-context-period"] option[value="year"]');
         $this->assertSelectorExists('[data-testid="stats-ttp-explorer-link"]');
         $this->assertSelectorExists('.page-header [data-testid="stats-ttp-explorer-link"].btn');
@@ -281,7 +281,9 @@ final class ReportsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-ttp-matrix-legend"]');
         $this->assertSelectorExists('[data-testid="stats-ttp-ranked-legend"]');
         $this->assertSelectorExists('[data-testid="stats-ttp-delta-badge"]');
-        $this->assertSelectorExists('[data-testid="stats-ttp-delta-badge"].bg-green-lt, [data-testid="stats-ttp-delta-badge"].bg-red-lt');
+        // The heat cell carries the colour; the delta badge is neutral (#1230).
+        $this->assertSelectorExists('[data-testid="stats-ttp-delta-badge"].bg-secondary-lt');
+        $this->assertSelectorNotExists('[data-testid="stats-ttp-delta-badge"].bg-green-lt, [data-testid="stats-ttp-delta-badge"].bg-red-lt');
         $this->assertSelectorExists('[data-testid="stats-ttp-rank-badge"]');
         $this->assertSelectorExists('[data-testid="stats-ttp-explorer-link"]');
         $this->assertStringContainsString(
@@ -344,8 +346,8 @@ final class ReportsControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-monthly-report-closed-department"]');
         $this->assertSelectorExists('[data-testid="stats-monthly-report-closed-department-count"]');
-        $this->assertSelectorTextContains('[data-testid="stats-monthly-report-closed-department-count"]', '3');
-        $this->assertSelectorExists('[data-testid="stats-monthly-report-closed-department-share"]');
+        $this->assertSelectorTextSame('[data-testid="stats-monthly-report-closed-department-count"] .h1', '3');
+        $this->assertSelectorTextContains('[data-testid="stats-monthly-report-closed-department-count"] .h1 + .small', '30');
         $this->assertSelectorExists('[data-testid="stats-monthly-report-closed-department-link"]');
         $link = $crawler->filter('[data-testid="stats-monthly-report-closed-department-link"]')->attr('href');
         $this->assertNotNull($link);
@@ -354,6 +356,65 @@ final class ReportsControllerTest extends WebTestCase
         $this->assertStringContainsString('year=2026', (string) $link);
         $this->assertStringContainsString('month=3', (string) $link);
         $this->assertSelectorNotExists('[data-testid="stats-monthly-report-closed-department-empty"]');
+
+        // The drawer filter applies to the headline and to the closed department section alike (#1039).
+        $client->request(Request::METHOD_GET, '/statistics/reports/monthly?scope=public&year=2026&month=3&urgency=1');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="statistics-filters-active"]');
+        $this->assertSelectorTextContains('[data-testid="stats-monthly-report-kpis"]', '3');
+        $this->assertSelectorTextSame('[data-testid="stats-monthly-report-closed-department-count"] .h1', '3');
+        $this->assertSelectorTextContains('[data-testid="stats-monthly-report-closed-department-count"] .h1 + .small', '100');
+    }
+
+    public function testMonthlyReportMarksTheRejectionRateInsightAsUnfiltered(): void
+    {
+        $client = self::createClient();
+        $owner = $this->loginAsParticipant($client);
+        $state = StateFactory::createOne(['name' => 'MonthlyNoteState']);
+        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'MonthlyNoteDispatch', 'state' => $state]);
+        $hospital = HospitalFactory::createOne(['name' => 'MonthlyNoteHospital', 'owner' => $owner, 'state' => $state, 'dispatchArea' => $dispatchArea]);
+        DepartmentFactory::createOne();
+        SpecialityFactory::createOne();
+        AssignmentFactory::createOne();
+        IndicationRawFactory::createOne(['name' => 'MonthlyNoteRaw', 'code' => 912_802]);
+        IndicationNormalizedFactory::createOne(['name' => 'MonthlyNoteNorm']);
+        $import = ImportFactory::createOne(['name' => 'MonthlyNoteImport', 'hospital' => $hospital, 'createdBy' => $owner]);
+        AllocationFactory::createMany(2, [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'urgency' => AllocationUrgency::EMERGENCY,
+            'createdAt' => new \DateTimeImmutable('2026-03-10 10:00:00'),
+        ]);
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
+        // Rejected import rows: 10 % in February, 5 % in March.
+        $connection = self::getContainer()->get(Connection::class);
+        foreach ([['2026-02-15', 10], ['2026-03-15', 5]] as [$date, $rejected]) {
+            $connection->insert('kpi_daily', [
+                'date' => $date,
+                'hospital_id' => $hospital->getId(),
+                'imports_count' => 1,
+                'successful_imports_count' => 1,
+                'records_total' => 100,
+                'records_processed' => 100 - $rejected,
+                'records_rejected' => $rejected,
+                'failed_imports_count' => 0,
+                'created_at' => $date.' 12:00:00',
+            ]);
+        }
+        $url = '/statistics/reports/monthly?scope=hospital&hospital='.$hospital->getId().'&year=2026&month=3';
+
+        $client->request(Request::METHOD_GET, $url);
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-monthly-report-insights"]');
+        $this->assertSelectorNotExists('[data-testid="stats-monthly-report-insight-note"]');
+
+        // The rejection rate counts import rows and cannot follow the drawer; its insight says so (#1039).
+        $client->request(Request::METHOD_GET, $url.'&urgency=1');
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains('[data-testid="stats-monthly-report-insights"] [data-testid="stats-monthly-report-insight-note"]', 'regardless of the filter');
     }
 
     public function testMonthlyReportShowsClosedDepartmentZeroStateWhenNoClosedAllocations(): void
@@ -398,7 +459,7 @@ final class ReportsControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-monthly-report-closed-department"]');
-        $this->assertSelectorTextContains('[data-testid="stats-monthly-report-closed-department-count"]', '0');
+        $this->assertSelectorTextSame('[data-testid="stats-monthly-report-closed-department-count"] .h1', '0');
         $this->assertSelectorExists('[data-testid="stats-monthly-report-closed-department-empty"]');
         $this->assertSelectorExists('[data-testid="stats-monthly-report-closed-department-link"]');
     }

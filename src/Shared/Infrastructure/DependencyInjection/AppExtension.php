@@ -25,8 +25,7 @@ final class AppExtension extends Extension
 
         $metaConfig = $config['meta'];
         $container->setParameter('app.meta.copyright_start_year', $metaConfig['copyright_start_year']);
-        $container->setParameter('app.meta.hoster.name', $metaConfig['hoster']['name']);
-        $container->setParameter('app.meta.hoster.url', $metaConfig['hoster']['url']);
+        $container->setParameter('app.meta.uberspace_credit', $metaConfig['uberspace_credit']);
 
         // Import settings
         $importConfig = $config['import'];
@@ -39,6 +38,12 @@ final class AppExtension extends Extension
             $config['registration']['blocked_email_domains'],
         );
 
+        $container->setParameter('app.terms.version', $config['terms']['version']);
+
+        $container->setParameter('app.security.two_factor.required_for_admins', $config['security']['two_factor']['required_for_admins']);
+
+        $container->setParameter('app.research.vote_period_days', $config['research']['vote_period_days']);
+
         $container->setParameter('app.closure_volume.reference_weeks_before', $config['closure_volume']['reference_weeks_before']);
         $container->setParameter('app.closure_volume.reference_weeks_after', $config['closure_volume']['reference_weeks_after']);
         $container->setParameter('app.closure_volume.minimum_reference_slots', $config['closure_volume']['minimum_reference_slots']);
@@ -47,6 +52,24 @@ final class AppExtension extends Extension
         $container->setParameter('app.job_runs_retention', $config['job_runs_retention']);
         $container->setParameter('app.messenger_monitoring.retention', $config['messenger_monitoring']['retention']);
         $container->setParameter('app.messenger_monitoring.health', $config['messenger_monitoring']['health']);
+
+        // Encounter upload file retention and data preparation tool (ADR 026)
+        $container->setParameter('app.encounter.source_file_retention_days', $config['encounter']['source_file_retention_days']);
+        $matchingConfig = $config['encounter']['matching'];
+        $container->setParameter('app.encounter.matching.auto_accept_threshold', $matchingConfig['auto_accept_threshold']);
+        $container->setParameter('app.encounter.matching.proposal_threshold', $matchingConfig['proposal_threshold']);
+        $container->setParameter('app.encounter.matching.pass1', $matchingConfig['pass1']);
+        $container->setParameter('app.encounter.matching.pass2', $matchingConfig['pass2']);
+        $container->setParameter('app.encounter.validation.score_bands', $config['encounter']['validation']['score_bands']);
+        $container->setParameter('app.encounter.validation.sample_size', $config['encounter']['validation']['sample_size']);
+        $container->setParameter('app.encounter.plausibility.min_observations', $config['encounter']['plausibility']['min_observations']);
+        $container->setParameter('app.encounter.plausibility.learning.smoothing', $config['encounter']['plausibility']['learning']['smoothing']);
+        $container->setParameter('app.encounter.plausibility.learning.shrinkage', $config['encounter']['plausibility']['learning']['shrinkage']);
+        $container->setParameter('app.encounter.plausibility.learning.fold', $config['encounter']['plausibility']['learning']['fold']);
+        $dataPrepConfig = $config['encounter']['data_prep'];
+        $container->setParameter('app.encounter.data_prep.version', $dataPrepConfig['version']);
+        $container->setParameter('app.encounter.data_prep.min_version', $dataPrepConfig['min_version']);
+        $container->setParameter('app.encounter.data_prep.released_at', $dataPrepConfig['released_at']);
 
         // Storage monitoring (ADR 017)
         $storageConfig = $config['storage'];
@@ -64,5 +87,9 @@ final class AppExtension extends Extension
         $container->setParameter('app.feedback.spam.authenticated_threshold', $spamConfig['authenticated_threshold']);
         $container->setParameter('app.feedback.spam.authenticated_score_bonus', $spamConfig['authenticated_score_bonus']);
         $container->setParameter('app.feedback.spam.keywords', $spamConfig['keywords']);
+        $container->setParameter('app.feedback.spam.blocked_link_domains', $spamConfig['blocked_link_domains']);
+        $container->setParameter('app.feedback.spam.patterns', $spamConfig['patterns']);
+        $container->setParameter('app.feedback.spam.history_days', $spamConfig['history_days']);
+        $container->setParameter('app.feedback.quarantine.retention_days', $config['feedback']['quarantine']['retention_days']);
     }
 }

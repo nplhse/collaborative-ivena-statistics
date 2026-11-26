@@ -20,7 +20,8 @@
             <td class="text-end">
                 <twig:Statistics:DeltaIndicator
                     :value="absoluteDelta"
-                    unit="percent"
+                    :colorizeTrend="false"
+                    unit="pp"
                     whenZero="neutral"
                     ariaKey="stats.benchmark.indication_mix.delta.aria"
                 />

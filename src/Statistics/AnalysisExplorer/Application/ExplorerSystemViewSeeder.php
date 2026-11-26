@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\Application;
 
+use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Domain\Entity\SavedExplorerView;
 use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
 use App\User\Domain\Entity\User;
@@ -552,7 +553,7 @@ final readonly class ExplorerSystemViewSeeder
     {
         return [
             'scope' => ['group' => 'public', 'detail' => null],
-            'period' => ['type' => 'all', 'year' => null, 'quarter' => null, 'month' => null],
+            'period' => ['type' => StatisticsFilterPeriod::Last12Months->value, 'year' => null, 'quarter' => null, 'month' => null],
         ];
     }
 

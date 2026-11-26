@@ -15,6 +15,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 
 /**
  * @extends AbstractCrudController<IndicationNormalized>
@@ -32,8 +33,8 @@ final class IndicationNormalizedCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('Indication Normalized')
-            ->setEntityLabelInPlural('Indication Normalized')
+            ->setEntityLabelInSingular(new TranslatableMessage('admin.indication_normalized.entity.singular', domain: 'admin'))
+            ->setEntityLabelInPlural(new TranslatableMessage('admin.indication_normalized.entity.plural', domain: 'admin'))
             ->setSearchFields(['id', 'name', 'code'])
             ->setDefaultSort(['name' => 'ASC']);
     }
@@ -51,22 +52,22 @@ final class IndicationNormalizedCrudController extends AbstractCrudController
     {
         yield IdField::new('id')
             ->onlyOnDetail();
-        yield IntegerField::new('code', 'Code');
-        yield TextField::new('name', 'Name');
-        yield TextField::new('note', 'Note')
+        yield IntegerField::new('code', new TranslatableMessage('label.indication.code', domain: 'messages'));
+        yield TextField::new('name', new TranslatableMessage('label.name', domain: 'messages'));
+        yield TextField::new('note', new TranslatableMessage('admin.field.note', domain: 'admin'))
             ->onlyOnDetail();
-        yield AssociationField::new('children', 'Children')
+        yield AssociationField::new('children', new TranslatableMessage('admin.indication_normalized.field.children', domain: 'admin'))
             ->onlyOnDetail();
-        yield AssociationField::new('groups', 'Groups');
-        yield DateTimeField::new('createdAt', 'Created')
+        yield AssociationField::new('groups', new TranslatableMessage('label.indication.groups', domain: 'messages'));
+        yield DateTimeField::new('createdAt', new TranslatableMessage('label.created', domain: 'messages'))
             ->setFormat('dd.MM.yyyy HH:mm')
             ->hideOnForm();
-        yield DateTimeField::new('updatedAt', 'Updated')
+        yield DateTimeField::new('updatedAt', new TranslatableMessage('label.updated', domain: 'messages'))
             ->setFormat('dd.MM.yyyy HH:mm')
             ->hideOnForm();
-        yield AssociationField::new('createdBy', 'Created by')
+        yield AssociationField::new('createdBy', new TranslatableMessage('label.created_by', domain: 'messages'))
             ->onlyOnDetail();
-        yield AssociationField::new('updatedBy', 'Updated by')
+        yield AssociationField::new('updatedBy', new TranslatableMessage('label.updated_by', domain: 'messages'))
             ->onlyOnDetail();
     }
 }

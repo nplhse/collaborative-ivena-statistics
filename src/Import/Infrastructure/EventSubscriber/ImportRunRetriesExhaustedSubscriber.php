@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace App\Import\Infrastructure\EventSubscriber;
 
-use App\Import\Application\Message\ImportClosuresMessage;
 use App\Import\Application\Message\ImportRunMessageInterface;
 use App\Import\Application\Service\ImportRunLifecycle;
-use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Monitoring\ImportRunTelemetry;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Target;
@@ -45,7 +43,7 @@ final readonly class ImportRunRetriesExhaustedSubscriber
                 $this->telemetry->retriesExhausted(
                     $message->getImportId(),
                     (string) $message->getRunId(),
-                    $message instanceof ImportClosuresMessage ? ImportType::CLOSURE : ImportType::ALLOCATION,
+                    $message->getImportType(),
                 );
             }
         } catch (\Throwable $e) {

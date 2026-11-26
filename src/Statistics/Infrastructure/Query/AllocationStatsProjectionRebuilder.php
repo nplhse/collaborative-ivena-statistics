@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Infrastructure\Query;
 
+use App\Allocation\Application\Contracts\HospitalDataSnapshotInvalidatorInterface;
 use App\Statistics\Application\Contract\AllocationProjectionRunTelemetryInterface;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
 use App\Statistics\Application\DTO\AllocationStatsProjectionRebuildResult;
@@ -17,11 +18,30 @@ final readonly class AllocationStatsProjectionRebuilder implements AllocationSta
         private Connection $connection,
         private LoggerInterface $logger,
         private AllocationProjectionRunTelemetryInterface $telemetry,
+        private HospitalDataSnapshotInvalidatorInterface $dataSnapshotInvalidator,
     ) {
     }
 
     #[\Override]
     public function deleteForImport(int $importId): int
+    {
+        $deleted = $this->deleteRows($importId);
+        $this->invalidateDataSnapshot($importId);
+
+        return $deleted;
+    }
+
+    #[\Override]
+    public function rebuildForImport(int $importId): AllocationStatsProjectionRebuildResult
+    {
+        $result = $this->rebuildRows($importId);
+        // After the commit: the warm message must see the new rows.
+        $this->invalidateDataSnapshot($importId);
+
+        return $result;
+    }
+
+    private function deleteRows(int $importId): int
     {
         $deleted = $this->connection->executeStatement(
             'DELETE FROM allocation_stats_projection WHERE import_id = :importId',
@@ -36,13 +56,12 @@ final readonly class AllocationStatsProjectionRebuilder implements AllocationSta
         return $deleted;
     }
 
-    #[\Override]
-    public function rebuildForImport(int $importId): AllocationStatsProjectionRebuildResult
+    private function rebuildRows(int $importId): AllocationStatsProjectionRebuildResult
     {
         $this->connection->beginTransaction();
 
         try {
-            $deletedRows = $this->telemetry->measure('projection.delete', fn (): int => $this->deleteForImport($importId));
+            $deletedRows = $this->telemetry->measure('projection.delete', fn (): int => $this->deleteRows($importId));
 
             $insertedRows = $this->telemetry->measure('projection.insert', fn (): int => $this->connection->executeStatement(
                 $this->insertSelectSql(),
@@ -66,6 +85,17 @@ final readonly class AllocationStatsProjectionRebuilder implements AllocationSta
             ]);
 
             throw $e;
+        }
+    }
+
+    /**
+     * The projection feeds the monthly volumes of My Hospitals (#971).
+     */
+    private function invalidateDataSnapshot(int $importId): void
+    {
+        $hospitalId = $this->connection->fetchOne('SELECT hospital_id FROM import WHERE id = :importId', ['importId' => $importId]);
+        if (is_numeric($hospitalId)) {
+            $this->dataSnapshotInvalidator->invalidate([(int) $hospitalId]);
         }
     }
 

@@ -463,6 +463,25 @@ final class UserCrudControllerTest extends WebTestCase
         self::assertTrue($hasher->isPasswordValid($target, $newPassword));
     }
 
+    public function testEmptyValuesShowAMutedDashInsteadOfANullBadge(): void
+    {
+        $client = self::createClient();
+        $admin = UserFactory::new()->asAdmin()->create(['displayName' => 'Index Admin']);
+        UserFactory::createOne(['username' => 'no-display-name', 'displayName' => null]);
+        $client->loginUser($admin);
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/user');
+
+        self::assertResponseIsSuccessful();
+        $cell = $crawler->filter('tbody tr')
+            ->reduce(static fn ($row): bool => str_contains($row->text(), 'no-display-name'))
+            ->filter('td[data-column="displayName"]');
+        self::assertCount(1, $cell);
+        self::assertSame('—', trim($cell->text()));
+        self::assertCount(1, $cell->filter('span.text-secondary'));
+        self::assertCount(0, $cell->filter('.badge'));
+    }
+
     public function testUserIndexOmitsSecondaryColumns(): void
     {
         $client = self::createClient();
@@ -598,5 +617,33 @@ final class UserCrudControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
 
         return (string) $crawler->filter('#action-confirmation-form input[name="token"]')->attr('value');
+    }
+
+    public function testAdminCanSetAndClearDisplayName(): void
+    {
+        $client = self::createClient();
+
+        $suffix = bin2hex(random_bytes(4));
+        $target = UserFactory::createOne(['username' => 'display-target-'.$suffix]);
+        $admin = UserFactory::new()->asAdmin()->create(['username' => 'display-admin-'.$suffix]);
+        $targetId = $target->getId();
+        self::assertNotNull($targetId);
+
+        $client->loginUser($admin);
+
+        foreach (['  Ada   Admin ' => 'Ada Admin', '' => null] as $input => $expected) {
+            $crawler = $client->request(Request::METHOD_GET, '/admin/user/'.$targetId.'/edit');
+            self::assertResponseIsSuccessful();
+
+            $client->submit($crawler->selectButton('Save changes')->form([
+                'User[displayName]' => (string) $input,
+            ]));
+            self::assertTrue($client->getResponse()->isRedirect());
+
+            self::getContainer()->get(EntityManagerInterface::class)->clear();
+            $reloaded = self::getContainer()->get(UserRepository::class)->find($targetId);
+            self::assertInstanceOf(User::class, $reloaded);
+            self::assertSame($expected, $reloaded->getDisplayName());
+        }
     }
 }

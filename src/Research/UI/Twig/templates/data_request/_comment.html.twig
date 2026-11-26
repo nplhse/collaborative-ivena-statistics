@@ -1,0 +1,39 @@
+{# A comment in the timeline with its visible replies (ADR 045). A reply never reaches more readers than its comment. #}
+<div class="card mb-0{{ comment.visibility.value == 'internal' ? ' border-danger-subtle' : (comment.visibility.value == 'private' ? ' border-warning-subtle' : '') }}" data-testid="data-request-comment" id="comment-{{ comment.id }}">
+    <div class="card-header py-2 d-flex justify-content-between align-items-center gap-2 flex-wrap">
+        <div class="d-flex align-items-center gap-2 min-w-0 flex-wrap">
+            {{ include('@Research/data_request/_user.html.twig', {person: comment.author}) }}
+            <twig:RelativeTimestamp :datetime="comment.createdAt" />
+            <span class="text-secondary small">· {{ 'data_request.comment.version'|trans({version: comment.version.number}, 'research') }}</span>
+            {% if comment.vote %}
+                <twig:Badge variant="blue">{{ 'data_request.comment.vote_badge'|trans({choice: comment.vote.choice.labelKey|trans({}, 'research')}, 'research') }}</twig:Badge>
+            {% endif %}
+        </div>
+        {{ include('@Research/data_request/_visibility_badge.html.twig', {visibility: comment.visibility}) }}
+    </div>
+    <div class="card-body py-2">
+        <div class="text-break">{{ comment.body|nl2br }}</div>
+
+        {% for child in comment.children %}
+            {% if child.visibility in readableLevels %}
+                <div class="border-start ps-3 mt-3">
+                    {{ include('@Research/data_request/_comment.html.twig', {comment: child}) }}
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        {% set replyLevels = writableLevels|filter(level => level.reach <= comment.visibility.reach)|sort((a, b) => b.reach <=> a.reach) %}
+        {% if replyLevels is not empty and comment.parent is null %}
+            <details class="mt-2">
+                <summary class="small">{{ 'data_request.comment.reply'|trans({}, 'research') }}</summary>
+                <form method="post" action="{{ path('app_data_requests_comment', {publicId: dataRequest.publicIdString}) }}" class="mt-2" data-testid="data-request-reply-form">
+                    <input type="hidden" name="_token" value="{{ csrf_token('data_request_comment_' ~ dataRequest.publicIdString) }}">
+                    <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                    <textarea name="body" class="form-control mb-2" rows="3" required maxlength="5000" aria-label="{{ 'data_request.comment.reply'|trans({}, 'research') }}"></textarea>
+                    {{ include('@Research/data_request/_comment_visibility.html.twig', {levels: replyLevels, fieldId: 'reply-' ~ comment.id}) }}
+                    <button type="submit" class="btn btn-sm btn-primary">{{ 'data_request.comment.reply_submit'|trans({}, 'research') }}</button>
+                </form>
+            </details>
+        {% endif %}
+    </div>
+</div>

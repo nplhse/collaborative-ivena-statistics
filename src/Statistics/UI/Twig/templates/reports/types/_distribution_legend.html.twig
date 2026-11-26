@@ -9,7 +9,8 @@
                 {{ segment.count|number_format(0, ',', '.') }}
                 ({{ segment.percent|number_format(1, ',', '.') }}%{% if segment.percentDeltaPp is not null %}, <twig:Statistics:DeltaIndicator
                     :value="segment.percentDeltaPp"
-                    unit="percent"
+                    :colorizeTrend="false"
+                    unit="pp"
                     display="text"
                     whenZero="neutral"
                     ariaKey="stats.reports.monthly.distribution.delta.aria"

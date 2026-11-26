@@ -19,9 +19,12 @@ use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
+use App\Statistics\Application\DTO\StatisticsDrawerFilter;
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
+use App\Statistics\Application\Mapping\AllocationStatsUrgencyProjectionCode;
 use App\Statistics\Benchmarking\Infrastructure\Query\BenchmarkAggregationProvider;
+use App\Statistics\Benchmarking\Infrastructure\Query\Dto\BenchmarkDistributionRow;
 use App\Tests\Statistics\Support\PreciseTransportTimeScenarios;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -161,6 +164,63 @@ final class BenchmarkAggregationProviderTest extends KernelTestCase
         foreach ($result->distributionRows as $row) {
             self::assertSame('indication', $row->dimension);
         }
+    }
+
+    /**
+     * 3 emergency allocations with physician and 2 inpatient ones without; the drawer filter "emergency" applies to
+     * both sides of the monthly report's self-benchmark (#1039).
+     */
+    public function testOverviewAppliesTheDrawerFilterToBothSides(): void
+    {
+        self::bootKernel();
+
+        $user = UserFactory::createOne(['username' => 'benchmark-drawer-'.bin2hex(random_bytes(4))]);
+        $state = StateFactory::createOne(['name' => 'BenchmarkDrawerState']);
+        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'BenchmarkDrawerDispatch', 'state' => $state]);
+        $hospital = HospitalFactory::createOne(['name' => 'BenchmarkDrawerHospital', 'state' => $state, 'dispatchArea' => $dispatchArea]);
+        SpecialityFactory::createOne(['name' => 'BenchmarkDrawerSpec']);
+        DepartmentFactory::createOne(['name' => 'BenchmarkDrawerDept']);
+        AssignmentFactory::createOne(['name' => 'BenchmarkDrawerAssign']);
+        IndicationRawFactory::createOne(['name' => 'BenchmarkDrawerRaw', 'code' => 912_420]);
+        $indication = IndicationNormalizedFactory::createOne(['name' => 'Benchmark Drawer Indication']);
+        $import = ImportFactory::createOne(['name' => 'BenchmarkDrawerImport', 'hospital' => $hospital, 'createdBy' => $user]);
+        $defaults = [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'indicationNormalized' => $indication,
+            'createdAt' => new \DateTimeImmutable('2026-03-15 10:00:00'),
+        ];
+        AllocationFactory::createMany(3, [...$defaults, 'urgency' => AllocationUrgency::EMERGENCY, 'isWithPhysician' => true]);
+        AllocationFactory::createMany(2, [...$defaults, 'urgency' => AllocationUrgency::INPATIENT, 'isWithPhysician' => false]);
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
+
+        /** @var BenchmarkAggregationProvider $provider */
+        $provider = self::getContainer()->get(BenchmarkAggregationProvider::class);
+        $aggregate = static fn (?StatisticsDrawerFilter $drawerFilter) => $provider->aggregateForOverview(
+            new StatisticsScopeCriteria([$hospital->getId()]),
+            new StatisticsPeriodBounds(new \DateTimeImmutable('2026-03-01 00:00:00'), new \DateTimeImmutable('2026-04-01 00:00:00')),
+            StatisticsScopeCriteria::public(),
+            new StatisticsPeriodBounds(null),
+            $drawerFilter,
+        );
+        $primaryIndicationCount = static fn (array $rows): int => array_sum(array_map(
+            static fn (BenchmarkDistributionRow $row): int => $row->primaryCount,
+            $rows,
+        ));
+
+        $unfiltered = $aggregate(null);
+        self::assertSame(5, $unfiltered->primary->total);
+        self::assertSame(3, $unfiltered->primary->withPhysician);
+        self::assertSame(5, $unfiltered->comparison->total);
+        self::assertSame(5, $primaryIndicationCount($unfiltered->distributionRows));
+
+        $filtered = $aggregate(new StatisticsDrawerFilter(urgency: AllocationStatsUrgencyProjectionCode::Emergency->value));
+        self::assertSame(3, $filtered->primary->total);
+        self::assertSame(3, $filtered->primary->withPhysician);
+        self::assertSame(3, $filtered->comparison->total);
+        self::assertSame(3, $primaryIndicationCount($filtered->distributionRows));
     }
 
     public function testReturnsEmptyResultForEmptyScopes(): void

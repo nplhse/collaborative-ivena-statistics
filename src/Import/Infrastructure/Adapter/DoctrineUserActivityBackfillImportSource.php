@@ -45,8 +45,8 @@ final readonly class DoctrineUserActivityBackfillImportSource implements UserAct
             ->andWhere('i.status IN (:statuses)')
             ->andWhere('IDENTITY(i.createdBy) IS NOT NULL')
             ->setParameter('statuses', [ImportStatus::COMPLETED, ImportStatus::PARTIAL])
-            ->orderBy('i.createdAt', 'ASC')
-            ->addOrderBy('i.id', 'ASC')
+            ->orderBy('i.createdAt', \SortDirection::Ascending)
+            ->addOrderBy('i.id', \SortDirection::Ascending)
             ->getQuery()
             ->getArrayResult();
 

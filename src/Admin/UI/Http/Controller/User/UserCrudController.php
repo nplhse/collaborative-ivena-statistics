@@ -5,24 +5,37 @@ declare(strict_types=1);
 namespace App\Admin\UI\Http\Controller\User;
 
 use App\Admin\Application\Service\HospitalPermissionLabelFormatter;
+use App\Admin\Application\Service\TermsAcceptanceLabelFormatter;
+use App\Admin\UI\Filter\IdSetFilter;
 use App\Admin\UI\Http\Controller\Hospital\HospitalAccessGrantCrudController;
 use App\Admin\UI\Http\Controller\Hospital\HospitalCrudController;
 use App\Allocation\Infrastructure\Repository\HospitalAccessGrantRepository;
 use App\Shared\Application\Locale\SupportedLocales;
 use App\Shared\Infrastructure\Audit\AuditContext;
+use App\Shared\Infrastructure\Doctrine\SortDirections;
 use App\User\Application\Event\UserBecameParticipant;
 use App\User\Application\Event\UserRegistered;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
+use App\User\Infrastructure\Query\UserIdsWithEffectiveRoleQuery;
+use App\User\Infrastructure\Security\TwoFactor\TwoFactorReset;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query\Expr\OrderBy;
+use Doctrine\ORM\QueryBuilder;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Option\EA;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\BatchActionDto;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Exception\EntityRemoveException;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -31,8 +44,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\ComparisonType;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -50,6 +66,19 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[IsGranted('ROLE_ADMIN')]
 final class UserCrudController extends AbstractCrudController
 {
+    private const string RESET_TWO_FACTOR_CSRF_TOKEN_ID = 'admin_user_reset_two_factor';
+
+    /** Roles an admin can assign, in the order of the form. */
+    private const array ROLES = [
+        UserRole::ADMIN,
+        UserRole::PARTICIPANT,
+        UserRole::BOARD_MEMBER,
+        UserRole::USER,
+        UserRole::REVIEW_INDICATIONS,
+        UserRole::ENCOUNTER_BETA,
+        UserRole::ENCOUNTER_CATALOG_REVIEWER,
+    ];
+
     public function __construct(
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly AuditContext $auditContext,
@@ -58,6 +87,9 @@ final class UserCrudController extends AbstractCrudController
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
         private readonly HospitalAccessGrantRepository $hospitalAccessGrantRepository,
+        private readonly UserIdsWithEffectiveRoleQuery $userIdsWithEffectiveRole,
+        private readonly TwoFactorReset $twoFactorReset,
+        private readonly TermsAcceptanceLabelFormatter $termsAcceptanceLabels,
     ) {
     }
 
@@ -71,10 +103,54 @@ final class UserCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('User')
-            ->setEntityLabelInPlural('Users')
-            ->setSearchFields(['id', 'username', 'email'])
+            ->setEntityLabelInSingular(new TranslatableMessage('admin.user.entity.singular', domain: 'admin'))
+            ->setEntityLabelInPlural(new TranslatableMessage('admin.user.entity.plural', domain: 'admin'))
+            ->setSearchFields(['id', 'username', 'displayName', 'email'])
             ->setDefaultSort(['username' => 'ASC']);
+    }
+
+    /**
+     * Sorts usernames case-insensitively, like the user list in the frontend; the database
+     * collation would put every capitalised name before the lowercase ones.
+     */
+    #[\Override]
+    public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder
+    {
+        $queryBuilder = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
+
+        /** @var list<OrderBy> $orderByParts */
+        $orderByParts = $queryBuilder->getDQLPart('orderBy');
+        $queryBuilder->resetDQLPart('orderBy');
+        foreach ($orderByParts as $orderBy) {
+            $parts = $orderBy->getParts();
+            if (1 === \count($parts) && 1 === preg_match('/^(\w+)\.username (ASC|DESC)$/i', $parts[0], $match)) {
+                $direction = SortDirections::fromString($match[2]);
+                $queryBuilder
+                    ->addSelect(\sprintf('LOWER(%s.username) AS HIDDEN usernameSort', $match[1]))
+                    ->addOrderBy('usernameSort', $direction)
+                    ->addOrderBy($match[1].'.username', $direction);
+
+                continue;
+            }
+
+            $queryBuilder->add('orderBy', $orderBy, true);
+        }
+
+        return $queryBuilder;
+    }
+
+    #[\Override]
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add(DateTimeFilter::new('createdAt', new TranslatableMessage('admin.user.field.created_at', domain: 'admin')))
+            // From version 1.0 users sign in with their email only (#1355, #1356): find accounts to follow up.
+            ->add(BooleanFilter::new('isVerified', new TranslatableMessage('admin.user.field.is_verified', domain: 'admin')))
+            ->add(IdSetFilter::new(
+                'participantPermissions',
+                new TranslatableMessage('admin.user.filter.participant_permissions', domain: 'admin'),
+                fn (): array => ($this->userIdsWithEffectiveRole)(UserRole::PARTICIPANT),
+            ));
     }
 
     #[\Override]
@@ -83,9 +159,11 @@ final class UserCrudController extends AbstractCrudController
         return $actions
             ->disable(Action::BATCH_DELETE)
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->add(Crud::PAGE_INDEX, $this->createNewestNonParticipantsAction())
             ->add(Crud::PAGE_INDEX, $this->createImpersonateAction())
             ->add(Crud::PAGE_DETAIL, $this->createImpersonateAction())
             ->add(Crud::PAGE_DETAIL, $this->createAccessGrantsAction())
+            ->add(Crud::PAGE_DETAIL, $this->createResetTwoFactorAction())
             ->add(Crud::PAGE_EDIT, Action::INDEX)
             ->add(Crud::PAGE_EDIT, Action::DELETE)
             ->update(Crud::PAGE_INDEX, Action::DELETE, $this->withUserDeleteVisibility(...))
@@ -175,6 +253,27 @@ final class UserCrudController extends AbstractCrudController
         );
     }
 
+    /**
+     * Shortcut for reviewing recent registrations: accounts without participant permissions,
+     * newest first.
+     */
+    private function createNewestNonParticipantsAction(): Action
+    {
+        return Action::new(
+            'newestNonParticipants',
+            new TranslatableMessage('admin.user.action.newest_non_participants', domain: 'admin'),
+            'fas fa-user-clock',
+        )
+            ->createAsGlobalAction()
+            ->linkToUrl(fn (): string => $this->adminUrlGenerator
+                ->unsetAll()
+                ->setController(self::class)
+                ->setAction(Action::INDEX)
+                ->set(EA::FILTERS, ['participantPermissions' => '0'])
+                ->set(EA::SORT, ['createdAt' => 'DESC'])
+                ->generateUrl());
+    }
+
     private function createAccessGrantsAction(): Action
     {
         return Action::new(
@@ -193,6 +292,53 @@ final class UserCrudController extends AbstractCrudController
                     ],
                 ])
                 ->generateUrl());
+    }
+
+    /**
+     * Switches off two-factor authentication of an account that lost its app and its backup codes (#1357, ADR 040).
+     * Not for the own account: administrators switch it off in their settings.
+     */
+    #[AdminRoute(path: '/{entityId}/reset-two-factor', name: 'reset_two_factor', options: ['methods' => ['POST']])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function resetTwoFactor(#[MapEntity(id: 'entityId')] User $user, Request $request): RedirectResponse
+    {
+        if (!$this->isCsrfTokenValid(self::RESET_TWO_FACTOR_CSRF_TOKEN_ID, $request->query->getString('token'))) {
+            $this->addFlash('danger', new TranslatableMessage('flash.admin.user.two_factor_reset.invalid_token', domain: 'admin'));
+        } elseif ($this->isCurrentUser($user)) {
+            throw $this->createAccessDeniedException('Administrators switch off their own two-factor authentication in the settings.');
+        } elseif ($this->twoFactorReset->reset($user, TwoFactorReset::INTENT_ADMIN)) {
+            $this->addFlash('success', new TranslatableMessage('flash.admin.user.two_factor_reset.done', ['username' => $user->getUserIdentifier()], 'admin'));
+        }
+
+        return $this->redirect($this->adminUrlGenerator
+            ->unsetAll()
+            ->setController(self::class)
+            ->setAction(Action::DETAIL)
+            ->setEntityId($user->getId())
+            ->generateUrl());
+    }
+
+    private function createResetTwoFactorAction(): Action
+    {
+        return Action::new(
+            'resetTwoFactor',
+            new TranslatableMessage('admin.user.action.reset_two_factor', domain: 'admin'),
+            'fas fa-shield-halved',
+        )
+            ->linkToUrl(fn (User $user): string => $this->adminUrlGenerator
+                ->unsetAll()
+                ->setController(self::class)
+                ->setAction('resetTwoFactor')
+                ->setEntityId($user->getId())
+                ->set('token', $this->container->get('security.csrf.token_manager')->getToken(self::RESET_TWO_FACTOR_CSRF_TOKEN_ID)->getValue())
+                ->generateUrl())
+            ->renderAsForm()
+            ->askConfirmation(static fn (User $user): TranslatableMessage => new TranslatableMessage(
+                'admin.user.action.reset_two_factor.confirm',
+                ['username' => $user->getUserIdentifier()],
+                'admin',
+            ))
+            ->displayIf(fn (User $user): bool => $user->isTotpAuthenticationEnabled() && !$this->isCurrentUser($user));
     }
 
     private function createImpersonateAction(): Action
@@ -223,41 +369,52 @@ final class UserCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.account', domain: 'admin'));
-        yield TextField::new('username');
-        yield TextField::new('email');
-        yield ChoiceField::new('locale', 'Locale')
-            ->setChoices([
-                'English' => SupportedLocales::DEFAULT,
-                'German' => SupportedLocales::GERMAN,
+        yield TextField::new('username', new TranslatableMessage('label.username', domain: 'messages'));
+        yield TextField::new('displayName', new TranslatableMessage('admin.user.field.display_name', domain: 'admin'))
+            ->setHelp(new TranslatableMessage('admin.user.field.display_name_help', domain: 'admin'))
+            ->setFormTypeOption('empty_data', '');
+        yield TextField::new('email', new TranslatableMessage('label.email', domain: 'user'));
+        yield ChoiceField::new('locale', new TranslatableMessage('admin.field.locale', domain: 'admin'))
+            ->setTranslatableChoices([
+                SupportedLocales::DEFAULT => new TranslatableMessage('locale.english', domain: 'shared'),
+                SupportedLocales::GERMAN => new TranslatableMessage('locale.german', domain: 'shared'),
             ])
             ->setRequired(false)
             ->hideOnIndex();
-        yield TextField::new('password')
+        yield TextField::new('password', new TranslatableMessage('label.password', domain: 'user'))
             ->setFormType(PasswordType::class)
             ->setRequired(Crud::PAGE_NEW === $pageName)
-            ->setHelp('On edit leave empty to keep the current password.')
+            ->setHelp(new TranslatableMessage('admin.user.field.password_help', domain: 'admin'))
             ->setFormTypeOption('empty_data', '')
             ->setFormTypeOption('mapped', Crud::PAGE_NEW === $pageName)
             ->setFormTypeOption('attr', ['autocomplete' => 'new-password'])
             ->onlyOnForms();
 
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.permissions', domain: 'admin'));
-        yield BooleanField::new('isEnabled')
+        yield BooleanField::new('isEnabled', new TranslatableMessage('label.enabled', domain: 'messages'))
             ->setHelp(new TranslatableMessage('help.admin.user.is_enabled', domain: 'admin'))
             ->renderAsSwitch();
-        yield BooleanField::new('isVerified')
+        yield BooleanField::new('isVerified', new TranslatableMessage('admin.user.field.is_verified', domain: 'admin'))
             ->hideOnIndex();
-        yield BooleanField::new('credentialsExpired')
+        yield BooleanField::new('credentialsExpired', new TranslatableMessage('admin.user.field.credentials_expired', domain: 'admin'))
             ->hideOnIndex();
-        yield ChoiceField::new('roles')
-            ->setChoices([
-                'Admin' => UserRole::ADMIN,
-                'Participant' => UserRole::PARTICIPANT,
-                'Board Member' => UserRole::BOARD_MEMBER,
-                'User' => UserRole::USER,
-                'Reviews indications' => UserRole::REVIEW_INDICATIONS,
-                'Closure beta' => UserRole::CLOSURE_BETA,
-            ])
+        yield BooleanField::new('totpAuthenticationEnabled', new TranslatableMessage('admin.user.field.two_factor', domain: 'admin'))
+            ->onlyOnDetail();
+        yield TextField::new('termsAcceptance', new TranslatableMessage('admin.user.field.terms_acceptance', domain: 'admin'))
+            ->onlyOnDetail()
+            ->setVirtual(true)
+            ->setSortable(false)
+            ->renderAsHtml()
+            ->setValue('')
+            ->formatValue(fn (mixed $_, User $user): string => $this->termsAcceptanceLabels->forUser($user));
+        yield DateTimeField::new('createdAt', new TranslatableMessage('admin.user.field.created_at', domain: 'admin'))
+            ->setFormat('dd.MM.yyyy HH:mm')
+            ->onlyOnIndex();
+        yield ChoiceField::new('roles', new TranslatableMessage('admin.user.field.roles', domain: 'admin'))
+            ->setTranslatableChoices(array_combine(
+                self::ROLES,
+                array_map(static fn (string $role): TranslatableMessage => new TranslatableMessage('admin.user.role.'.strtolower(substr($role, 5)), domain: 'admin'), self::ROLES),
+            ))
             ->allowMultipleChoices()
             ->renderAsBadges([
                 UserRole::ADMIN => 'danger',
@@ -265,11 +422,12 @@ final class UserCrudController extends AbstractCrudController
                 UserRole::BOARD_MEMBER => 'info',
                 UserRole::USER => 'primary',
                 UserRole::REVIEW_INDICATIONS => 'secondary',
-                UserRole::CLOSURE_BETA => 'dark',
+                UserRole::ENCOUNTER_BETA => 'dark',
+                UserRole::ENCOUNTER_CATALOG_REVIEWER => 'dark',
             ]);
 
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.hospitals', domain: 'admin'));
-        yield AssociationField::new('hospitals', 'Owned hospitals')
+        yield AssociationField::new('hospitals', new TranslatableMessage('admin.user.field.owned_hospitals', domain: 'admin'))
             ->onlyOnDetail()
             ->setSortable(false)
             ->renderAsHtml()
@@ -285,10 +443,10 @@ final class UserCrudController extends AbstractCrudController
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.metadata', domain: 'admin'));
         yield IdField::new('id')
             ->onlyOnDetail();
-        yield DateTimeField::new('createdAt', 'Created')
+        yield DateTimeField::new('createdAt', new TranslatableMessage('admin.user.field.created_at', domain: 'admin'))
             ->setFormat('dd.MM.yyyy HH:mm')
             ->onlyOnDetail();
-        yield DateTimeField::new('updatedAt', 'Updated')
+        yield DateTimeField::new('updatedAt', new TranslatableMessage('label.updated', domain: 'messages'))
             ->setFormat('dd.MM.yyyy HH:mm')
             ->onlyOnDetail();
     }

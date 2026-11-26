@@ -23,6 +23,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 
 /**
  * @extends AbstractCrudController<HospitalAccessGrant>
@@ -46,8 +47,8 @@ final class HospitalAccessGrantCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('Hospital access grant')
-            ->setEntityLabelInPlural('Hospital access grants')
+            ->setEntityLabelInSingular(new TranslatableMessage('admin.hospital_access_grant.entity.singular', domain: 'admin'))
+            ->setEntityLabelInPlural(new TranslatableMessage('admin.hospital_access_grant.entity.plural', domain: 'admin'))
             ->setSearchFields(['id', 'hospital.name', 'user.username', 'user.email'])
             ->setDefaultSort(['createdAt' => 'DESC']);
     }
@@ -64,8 +65,8 @@ final class HospitalAccessGrantCrudController extends AbstractCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add(EntityFilter::new('hospital', 'Hospital'))
-            ->add(EntityFilter::new('user', 'User'));
+            ->add(EntityFilter::new('hospital', new TranslatableMessage('admin.hospital.entity.singular', domain: 'admin')))
+            ->add(EntityFilter::new('user', new TranslatableMessage('admin.hospital_access_grant.field.user', domain: 'admin')));
     }
 
     #[\Override]
@@ -73,23 +74,23 @@ final class HospitalAccessGrantCrudController extends AbstractCrudController
     {
         yield IdField::new('id')
             ->onlyOnDetail();
-        yield AssociationField::new('hospital', 'Hospital');
-        yield AssociationField::new('user', 'User');
-        yield Field::new('permissions', 'Permissions')
+        yield AssociationField::new('hospital', new TranslatableMessage('admin.hospital.entity.singular', domain: 'admin'));
+        yield AssociationField::new('user', new TranslatableMessage('admin.hospital_access_grant.field.user', domain: 'admin'));
+        yield Field::new('permissions', new TranslatableMessage('label.hospital_access_grant.permissions', domain: 'messages'))
             ->setFormType(HospitalPermissionsFieldType::class)
             ->hideOnIndex()
             ->formatValue(static fn (mixed $value, HospitalAccessGrant $grant): string => HospitalPermissionLabelFormatter::formatMask($grant->getPermissions()));
-        yield TextField::new('permissionsSummary', 'Permissions')
+        yield TextField::new('permissionsSummary', new TranslatableMessage('label.hospital_access_grant.permissions', domain: 'messages'))
             ->onlyOnIndex()
             ->setValue('')
             ->formatValue(static fn (mixed $_, HospitalAccessGrant $grant): string => HospitalPermissionLabelFormatter::formatMask($grant->getPermissions()));
-        yield DateTimeField::new('createdAt', 'Created')
+        yield DateTimeField::new('createdAt', new TranslatableMessage('label.created', domain: 'messages'))
             ->hideOnForm();
-        yield DateTimeField::new('updatedAt', 'Updated')
+        yield DateTimeField::new('updatedAt', new TranslatableMessage('label.updated', domain: 'messages'))
             ->hideOnForm();
-        yield AssociationField::new('createdBy', 'Created by')
+        yield AssociationField::new('createdBy', new TranslatableMessage('label.created_by', domain: 'messages'))
             ->onlyOnDetail();
-        yield AssociationField::new('updatedBy', 'Updated by')
+        yield AssociationField::new('updatedBy', new TranslatableMessage('label.updated_by', domain: 'messages'))
             ->onlyOnDetail();
     }
 

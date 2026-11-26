@@ -35,6 +35,19 @@ class ExportAuditLogger
         $requestId = $this->auditContext->ensureRequestId(static fn (): string => bin2hex(random_bytes(16)));
         $origin = $this->auditContext->getOrigin() ?? AuditContext::ORIGIN_HTTP;
 
+        $metadata = [
+            'exporterKey' => $exporterKey,
+            'hospitalIds' => $hospitalIds,
+            'filters' => $filters,
+            'rowCount' => $rowCount,
+            'blocked' => $blocked,
+            'success' => $success,
+        ];
+        $upstreamRequestId = $this->auditContext->getUpstreamRequestId();
+        if (null !== $upstreamRequestId) {
+            $metadata['upstreamRequestId'] = $upstreamRequestId;
+        }
+
         $this->entityManager->persist(new AuditEntry(
             $this->clock->now(),
             $requestId,
@@ -44,14 +57,8 @@ class ExportAuditLogger
             'data_export',
             $exporterKey,
             [],
-            [
-                'exporterKey' => $exporterKey,
-                'hospitalIds' => $hospitalIds,
-                'filters' => $filters,
-                'rowCount' => $rowCount,
-                'blocked' => $blocked,
-                'success' => $success,
-            ],
+            $metadata,
+            $this->auditContext->getSessionRef(),
         ));
         $this->entityManager->flush();
     }

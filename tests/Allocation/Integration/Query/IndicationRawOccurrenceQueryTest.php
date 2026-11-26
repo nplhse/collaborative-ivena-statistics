@@ -90,8 +90,13 @@ final class IndicationRawOccurrenceQueryTest extends KernelTestCase
 
         self::assertSame(1, $this->query->fetchOccurrenceCount((int) $raw->getId()));
 
-        $samples = $this->query->fetchSampleAllocations((int) $raw->getId());
+        $samples = $this->query->fetchSampleAllocations((int) $raw->getId(), null);
         self::assertCount(1, $samples);
         self::assertSame('Occurrence Hospital', $samples[0]['hospital_name']);
+
+        // Restricted to the viewer's hospitals (#1566): the own hospital keeps the sample, others and none drop it.
+        self::assertCount(1, $this->query->fetchSampleAllocations((int) $raw->getId(), [(int) $hospital->getId()]));
+        self::assertSame([], $this->query->fetchSampleAllocations((int) $raw->getId(), [(int) $hospital->getId() + 1]));
+        self::assertSame([], $this->query->fetchSampleAllocations((int) $raw->getId(), []));
     }
 }

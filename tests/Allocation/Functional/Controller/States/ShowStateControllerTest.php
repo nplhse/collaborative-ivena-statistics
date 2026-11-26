@@ -6,6 +6,7 @@ namespace App\Tests\Allocation\Functional\Controller\States;
 
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Tests\Support\Geo\DispatchAreaShapes;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,6 +16,7 @@ use Zenstruck\Foundry\Test\Factories;
 #[ResetDatabase]
 final class ShowStateControllerTest extends WebTestCase
 {
+    use DispatchAreaShapes;
     use InteractsWithAuthenticatedUser;
     use Factories;
 
@@ -24,6 +26,7 @@ final class ShowStateControllerTest extends WebTestCase
         $state = StateFactory::createOne(['name' => 'Hessen']);
         $dispatchArea = DispatchAreaFactory::createOne(['name' => 'Frankfurt', 'state' => $state]);
 
+        $this->giveDispatchAreasShapes();
         $client->request(Request::METHOD_GET, '/explore/state');
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('table', 'Hessen');

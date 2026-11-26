@@ -304,4 +304,57 @@ final class PageContentBlockDataNormalizerTest extends TestCase
             ],
         ], $normalized);
     }
+
+    public function testCardItemsAreTrimmedAndEmptyCardsDropped(): void
+    {
+        $normalized = new PageContentBlockDataNormalizer()->normalize([
+            [
+                'type' => 'cards',
+                'data' => ['items' => [
+                    ['icon' => ' tabler:user ', 'title' => ' Staff ', 'html' => '<p>Start</p>', 'linkUrl' => '', 'linkLabel' => '', 'extra' => 'dropped'],
+                    ['title' => ' ', 'html' => ''],
+                    'not a card',
+                ]],
+            ],
+            ['type' => 'child_pages', 'data' => ['numbered' => '1', 'other' => 'dropped']],
+            ['type' => 'child_pages', 'data' => []],
+        ]);
+
+        self::assertSame([
+            ['type' => 'cards', 'data' => ['items' => [
+                ['icon' => 'tabler:user', 'title' => 'Staff', 'html' => '<p>Start</p>', 'linkUrl' => '', 'linkLabel' => ''],
+            ]]],
+            ['type' => 'child_pages', 'data' => ['numbered' => true]],
+            ['type' => 'child_pages', 'data' => ['numbered' => false]],
+        ], $normalized);
+    }
+
+    public function testCardItemsThatAreNotAListBecomeEmpty(): void
+    {
+        self::assertSame(
+            [['type' => 'cards', 'data' => ['items' => []]]],
+            new PageContentBlockDataNormalizer()->normalize([['type' => 'cards', 'data' => ['items' => 'not a list']]]),
+        );
+    }
+
+    public function testNormalizesReadMoreLinks(): void
+    {
+        $normalized = new PageContentBlockDataNormalizer()->normalize([[
+            'type' => 'read_more',
+            'data' => [
+                'title' => ' More ',
+                'html' => '<p>dropped</p>',
+                'items' => [
+                    ['linkUrl' => ' /help/importing ', 'linkLabel' => '', 'icon' => 'dropped'],
+                    ['linkUrl' => '', 'linkLabel' => ''],
+                    'not a link',
+                ],
+            ],
+        ]]);
+
+        self::assertSame([[
+            'type' => 'read_more',
+            'data' => ['title' => ' More ', 'items' => [['linkUrl' => '/help/importing', 'linkLabel' => '']]],
+        ]], $normalized);
+    }
 }

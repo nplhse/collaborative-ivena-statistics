@@ -4,48 +4,31 @@ declare(strict_types=1);
 
 namespace App\Allocation\Application\Explore\Catalog;
 
+use App\Allocation\Application\Contracts\DispatchAreaGeoIndexInterface;
 use App\Allocation\Application\Contracts\HospitalIsochroneProviderInterface;
 use App\Allocation\Application\Contracts\HospitalLookupInterface;
 use App\Allocation\Application\DTO\CatalogOrientationMap;
+use App\Allocation\Application\Geo\DTO\DispatchAreaGeoSnapshot;
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\SecondaryTransport;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\Yaml\Yaml;
 
 /**
- * Resolves Hessen GeoJSON orientation for Explore catalog detail pages.
+ * Resolves the dispatch-area orientation map of Explore catalog detail pages from the shapes in the database.
  */
 final readonly class CatalogOrientationMapFactory
 {
-    private const string HESSEN_STATE_NAME = 'Hessen';
-
-    /** @var array<string, string> */
-    private array $nameToGeoKey;
-
-    /** @var array<string, string> */
-    private array $districtLabels;
-
     public function __construct(
-        #[Autowire('%kernel.project_dir%/config/case_flow/dispatch_area_geo_map.yaml')]
-        string $configPath,
-        #[Autowire('%kernel.project_dir%/assets/geo/hessen-landkreise.geojson')]
-        string $geoJsonPath,
+        private DispatchAreaGeoIndexInterface $geoIndex,
         private HospitalIsochroneProviderInterface $isochroneProvider,
         private HospitalLookupInterface $hospitalLookup,
     ) {
-        $this->nameToGeoKey = $this->loadNameToGeoKey($configPath);
-        $this->districtLabels = $this->loadDistrictLabels($geoJsonPath);
     }
 
-    public function forDispatchArea(?string $name): CatalogOrientationMap
+    public function forDispatchArea(?int $dispatchAreaId): CatalogOrientationMap
     {
-        if (null === $name || '' === trim($name)) {
-            return CatalogOrientationMap::disabled();
-        }
-
-        $key = $this->resolveGeoKey($name);
+        $key = $this->shapeKey($dispatchAreaId);
         if (null === $key) {
             return CatalogOrientationMap::disabled();
         }
@@ -59,20 +42,21 @@ final readonly class CatalogOrientationMapFactory
             return CatalogOrientationMap::disabled();
         }
 
-        if (0 !== strcasecmp(trim($name), self::HESSEN_STATE_NAME)) {
+        $state = $this->geoIndex->snapshot()->stateWithShapes($name);
+        if (null === $state) {
             return CatalogOrientationMap::disabled();
         }
 
-        return new CatalogOrientationMap(enabled: true, showAllAreas: true);
+        return new CatalogOrientationMap(enabled: true, showAllAreas: true, stateName: $state);
     }
 
     public function forHospital(
-        ?string $dispatchAreaName,
+        ?int $dispatchAreaId,
         ?float $latitude,
         ?float $longitude,
         ?string $markerLabel = null,
     ): CatalogOrientationMap {
-        $areaMap = $this->forDispatchArea($dispatchAreaName);
+        $areaMap = $this->forDispatchArea($dispatchAreaId);
         if (!$areaMap->enabled) {
             return CatalogOrientationMap::disabled();
         }
@@ -96,7 +80,7 @@ final readonly class CatalogOrientationMapFactory
             return CatalogOrientationMap::disabled();
         }
 
-        $originMap = $this->forDispatchArea($origin->getName());
+        $originMap = $this->forDispatchArea($origin->getId());
         if (!$originMap->enabled) {
             return CatalogOrientationMap::disabled();
         }
@@ -106,7 +90,7 @@ final readonly class CatalogOrientationMapFactory
         $hasMarker = null !== $latitude && null !== $longitude;
         $destinationKey = $this->destinationHighlightKey(
             $originMap->highlightKey,
-            $hospital->getDispatchArea()?->getName(),
+            $hospital->getDispatchArea()?->getId(),
         );
 
         $recordedTravelMinutes = IsochroneTravelBand::minutesBetween(
@@ -129,7 +113,7 @@ final readonly class CatalogOrientationMapFactory
             markerLabel: $hasMarker ? $hospital->getName() : null,
             destinationHighlightKey: $destinationKey,
             showRoute: $hasMarker,
-            districtLabel: $this->districtLabelForKey($originMap->highlightKey),
+            districtLabel: null === $originMap->highlightKey ? null : $this->geoIndex->snapshot()->districtLabel($originMap->highlightKey),
             isochronesGeoJson: $isochrones,
             recordedTravelMinutes: $recordedTravelMinutes,
             contextMarkers: $this->contextMarkersForSecondaryTransport($allocation, $hospital),
@@ -185,116 +169,21 @@ final readonly class CatalogOrientationMapFactory
         return null !== $leftId && $leftId === $rightId;
     }
 
-    private function destinationHighlightKey(?string $originKey, ?string $hospitalDispatchAreaName): ?string
+    private function destinationHighlightKey(?string $originKey, ?int $hospitalDispatchAreaId): ?string
     {
-        if (null === $hospitalDispatchAreaName || '' === trim($hospitalDispatchAreaName)) {
+        $destinationKey = $this->shapeKey($hospitalDispatchAreaId);
+
+        return $destinationKey === $originKey ? null : $destinationKey;
+    }
+
+    private function shapeKey(?int $dispatchAreaId): ?string
+    {
+        if (null === $dispatchAreaId) {
             return null;
         }
 
-        $destinationKey = $this->resolveGeoKey($hospitalDispatchAreaName);
-        if (null === $destinationKey || $destinationKey === $originKey) {
-            return null;
-        }
+        $key = DispatchAreaGeoSnapshot::keyFor($dispatchAreaId);
 
-        return $destinationKey;
-    }
-
-    private function districtLabelForKey(?string $key): ?string
-    {
-        if (null === $key || !isset($this->districtLabels[$key])) {
-            return null;
-        }
-
-        $label = $this->districtLabels[$key];
-
-        return '' === $label ? null : $label;
-    }
-
-    private function resolveGeoKey(string $originName): ?string
-    {
-        if (isset($this->nameToGeoKey[$originName])) {
-            return $this->nameToGeoKey[$originName];
-        }
-
-        $normalized = mb_strtolower(trim($originName));
-        foreach ($this->nameToGeoKey as $name => $geoKey) {
-            if (mb_strtolower($name) === $normalized) {
-                return $geoKey;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function loadNameToGeoKey(string $configPath): array
-    {
-        if (!is_file($configPath)) {
-            return [];
-        }
-
-        $parsed = Yaml::parseFile($configPath);
-        /** @var array<string, string> $mapping */
-        $mapping = \is_array($parsed) ? ($parsed['dispatch_area_geo_map'] ?? []) : [];
-
-        return $mapping;
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function loadDistrictLabels(string $geoJsonPath): array
-    {
-        if (!is_file($geoJsonPath)) {
-            return [];
-        }
-
-        $raw = file_get_contents($geoJsonPath);
-        if (false === $raw || '' === $raw) {
-            return [];
-        }
-
-        try {
-            $parsed = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
-        } catch (\JsonException) {
-            return [];
-        }
-
-        if (!\is_array($parsed) || !isset($parsed['features']) || !\is_array($parsed['features'])) {
-            return [];
-        }
-
-        $labels = [];
-        foreach ($parsed['features'] as $feature) {
-            if (!\is_array($feature)) {
-                continue;
-            }
-
-            $properties = $feature['properties'] ?? null;
-            if (!\is_array($properties)) {
-                continue;
-            }
-
-            $key = $properties['key'] ?? null;
-            $names = $properties['krs_names'] ?? null;
-            if (!\is_string($key) || '' === $key || !\is_array($names)) {
-                continue;
-            }
-
-            $clean = [];
-            foreach ($names as $name) {
-                if (\is_string($name) && '' !== trim($name)) {
-                    $clean[] = trim($name);
-                }
-            }
-
-            if ([] !== $clean) {
-                $labels[$key] = implode(', ', $clean);
-            }
-        }
-
-        return $labels;
+        return $this->geoIndex->snapshot()->hasShape($key) ? $key : null;
     }
 }

@@ -30,10 +30,24 @@ final readonly class ExplorerChartPresenter
     /**
      * @return array<string, array<string, mixed>>
      */
-    public function buildSpecs(AnalysisRunResult $result, PresentationConfig $presentation): array
+    public function buildSpecs(AnalysisRunResult $result, PresentationConfig $presentation, bool $plotSeriesShare = false): array
     {
         if ([] === $result->rows) {
             return [];
+        }
+
+        // With the reference comparison and "show percent" (#1346) the chart plots the share within each group:
+        // a single hospital and the pooled rest only compare as shares, not as absolute counts.
+        if ($plotSeriesShare) {
+            $result = new AnalysisRunResult(
+                title: $result->title,
+                metricKeys: $result->metricKeys,
+                visualMetricKey: AnalysisMetricKey::PercentOfSeries,
+                rowAxis: $result->rowAxis,
+                columnAxis: $result->columnAxis,
+                rows: $result->rows,
+                totals: $result->totals,
+            );
         }
 
         $spec = $result->hasSeries()
@@ -43,6 +57,13 @@ final readonly class ExplorerChartPresenter
                 default => $this->buildMultiSeriesSpec($result, $presentation),
             }
         : $this->buildSingleSeriesSpec($result, $presentation);
+
+        // Shares within each group add up per group, not per bucket: bars are grouped, never stacked.
+        if ($plotSeriesShare && $result->hasSeries()) {
+            unset($spec['stacked']);
+            $spec['barGrouped'] = true;
+            $spec['seriesShare'] = true;
+        }
 
         return [
             $presentation->chartType->value => $spec,
@@ -409,7 +430,8 @@ final readonly class ExplorerChartPresenter
             return $this->translator->trans($profile->labelTranslationKey, [], 'statistics');
         }
 
-        return $this->metricRegistry->get($this->metricKeyMapper->toRegistryKey($metricKey))->label;
+        // Same key as the results table, the export and the edit form, so chart and table name a metric alike (#1408).
+        return $this->translator->trans('stats.analysis_explorer.metric.'.$metricKey->value, [], 'statistics');
     }
 
     private function metricFormat(AnalysisMetricKey $metricKey): string

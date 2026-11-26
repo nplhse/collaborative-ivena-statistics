@@ -46,7 +46,7 @@ final class ExplorerSystemViewSeederTest extends KernelTestCase
 
         $filterState = [
             'scope' => ['group' => 'public', 'detail' => null],
-            'period' => ['type' => 'all', 'year' => null, 'quarter' => null, 'month' => null],
+            'period' => ['type' => 'last_12_months', 'year' => null, 'quarter' => null, 'month' => null],
         ];
 
         foreach ($seeder->definitions() as $definition) {

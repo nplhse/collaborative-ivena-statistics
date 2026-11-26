@@ -234,6 +234,23 @@ final class ListImportDataTableTest extends WebTestCase
         self::assertSelectorTextContains('thead label.data-table-select-page', 'Select all rows on this page');
     }
 
+    public function testLastChangedByShowsAvatarAndDisplayName(): void
+    {
+        $client = self::createClient();
+        [$owner, $hospital] = $this->actors();
+        $editor = UserFactory::createOne(['username' => 'mmueller', 'displayName' => 'Michael Müller']);
+        $this->import('Mine', $hospital, $editor);
+        $client->loginUser($owner);
+
+        $crawler = $client->request(Request::METHOD_GET, '/import?columns=name,lastChangedBy&columnOrder=name,lastChangedBy');
+
+        self::assertResponseIsSuccessful();
+        $cell = $crawler->filter('table.table tbody tr')->first()->filter('td')->last();
+        self::assertSame('MM', trim($cell->filter('.user-link > .avatar.avatar-xs')->text()));
+        self::assertSame('Michael Müller', trim($cell->filter('.user-link > a')->text()));
+        self::assertSame('@mmueller', $cell->filter('.user-link > a')->attr('title'));
+    }
+
     public function testEmptyListShowsTheEmptyStateInsteadOfACard(): void
     {
         $client = self::createClient();

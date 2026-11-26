@@ -37,7 +37,7 @@ final class DownloadAllocationsExportController extends AbstractController
     ) {
     }
 
-    #[Route('/hospitals/export/allocations/download', name: 'app_hospitals_export_allocations_download', methods: ['POST'])]
+    #[Route('/tools/allocation-export/download', name: 'app_tools_allocation_export_download', methods: ['POST'])]
     public function __invoke(
         Request $request,
         #[CurrentUser] User $user,

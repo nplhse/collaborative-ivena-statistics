@@ -26,6 +26,7 @@ use App\Import\Application\Service\ImportCreatorPermissionCheck;
 use App\Import\Application\Service\ImportDataCoverageCalculator;
 use App\Import\Application\Service\ImportExportPeriodDeriver;
 use App\Import\Application\Service\ImportFileStorage;
+use App\Import\Application\Service\ImportHospitalOverride;
 use App\Import\Application\Service\ImportPreviousRunCleanupService;
 use App\Import\Application\Service\ImportRunCommitGuard;
 use App\Import\Application\Service\ImportRunErrorClassifier;
@@ -38,6 +39,7 @@ use App\Import\Domain\Enum\ImportType;
 use App\Import\Domain\Service\ImportEvaluation;
 use App\Import\Infrastructure\Repository\ImportRepository;
 use App\Shared\Infrastructure\Audit\AuditContext;
+use App\Shared\Infrastructure\Audit\Entity\AuditEntry;
 use App\Statistics\Application\Contract\ClosureRebuildRequestInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
@@ -72,6 +74,7 @@ final readonly class ImportClosuresMessageHandler
         private ImportExportPeriodDeriver $exportPeriodDeriver,
         private ImportDataCoverageCalculator $dataCoverageCalculator,
         private ImportRunTelemetryInterface $telemetry,
+        private ImportHospitalOverride $hospitalOverride,
     ) {
     }
 
@@ -110,7 +113,7 @@ final readonly class ImportClosuresMessageHandler
                 throw new \RuntimeException('Import not found after refresh');
             }
 
-            $this->applyResult($fresh, $summary, $writer, $this->runtimeSince($started));
+            $this->applyResult($fresh, $summary, $writer, $this->runtimeSince($started), $profile);
             $this->flushWithImportIntent('import.run.finished', $fresh);
 
             return $summary;
@@ -128,7 +131,7 @@ final readonly class ImportClosuresMessageHandler
                 $summary->ok,
                 $summary->rejected,
             );
-            $this->flushWithImportIntent('import.run.failed', $import, ['reason' => $e->getMessage()]);
+            $this->flushWithImportIntent(AuditEntry::INTENT_IMPORT_RUN_FAILED, $import, ['reason' => $e->getMessage()]);
 
             $this->importLogger->error('closure.import.failed.precondition', [
                 'id' => $import->getId(),
@@ -187,7 +190,7 @@ final readonly class ImportClosuresMessageHandler
             $writer->start($import);
 
             $this->telemetry->startSpan('import.profile', ['hospital_id' => $hospitalId]);
-            $profile = $this->hospitalProfile($hospitalId, $source);
+            $profile = $this->hospitalProfile($import, $hospitalId, $source);
             $this->telemetry->finishSpan();
             $reader = $this->telemetry->timedReader($this->rowReaderFactory->createFromCsvFile($source));
             $this->telemetry->startRows();
@@ -198,8 +201,8 @@ final readonly class ImportClosuresMessageHandler
             $this->telemetry->startSpan('import.finish');
             $outcome = $this->runLifecycle->finish(
                 $context,
-                function (Import $fresh) use ($summary, $writer, $runtimeMs): ImportRunOutcome {
-                    $this->applyResult($fresh, $summary, $writer, $runtimeMs);
+                function (Import $fresh) use ($summary, $writer, $runtimeMs, $profile): ImportRunOutcome {
+                    $this->applyResult($fresh, $summary, $writer, $runtimeMs, $profile);
                     $this->telemetry->evaluated($fresh);
 
                     return ImportRunOutcome::fromEvaluatedImport($fresh);
@@ -255,8 +258,10 @@ final readonly class ImportClosuresMessageHandler
         );
     }
 
-    private function applyResult(Import $fresh, ImportSummary $summary, RejectWriterInterface $writer, int $runtimeMs): void
+    private function applyResult(Import $fresh, ImportSummary $summary, RejectWriterInterface $writer, int $runtimeMs, ClosureHospitalProfile $profile): void
     {
+        $fresh->setHospitalOverrideSourceLabel($profile->overriddenFileLabel);
+
         $absRejectPath = $writer->getPath();
         if ($summary->rejected > 0 && \is_string($absRejectPath) && '' !== $absRejectPath) {
             $fresh->setRejectFilePath($this->fileStorage->toRelative($absRejectPath));
@@ -310,7 +315,7 @@ final readonly class ImportClosuresMessageHandler
 
             $startedRun = false;
             try {
-                $profile = $this->hospitalProfile($hospitalId, $filePath);
+                $profile = $this->hospitalProfile($import, $hospitalId, $filePath);
                 $reader = $this->rowReaderFactory->createFromCsvFile($filePath);
                 $startedRun = true;
                 $this->run($import, $reader, $writer, $profile);
@@ -370,7 +375,7 @@ final readonly class ImportClosuresMessageHandler
     private function markFailed(Import $import, string $reason): void
     {
         $import->setStatus(ImportStatus::FAILED);
-        $this->flushWithImportIntent('import.run.failed', $import, ['reason' => $reason]);
+        $this->flushWithImportIntent(AuditEntry::INTENT_IMPORT_RUN_FAILED, $import, ['reason' => $reason]);
 
         $this->importLogger->error('closure.import.failed.precondition', [
             'id' => $import->getId(),
@@ -436,7 +441,7 @@ final readonly class ImportClosuresMessageHandler
         return (int) \round((\microtime(true) - $started) * 1000.0);
     }
 
-    private function hospitalProfile(int $hospitalId, string $filePath): ClosureHospitalProfile
+    private function hospitalProfile(Import $import, int $hospitalId, string $filePath): ClosureHospitalProfile
     {
         $scanReader = $this->rowReaderFactory->createFromCsvFile($filePath);
 
@@ -444,7 +449,28 @@ final readonly class ImportClosuresMessageHandler
             $hospitalId,
             $this->hospitalRepository->findIdNameMap(),
             $this->hospitalGuard->distinctShortNames($scanReader->rowsAssoc()),
+            $this->allowsHospitalOverride($import),
         );
+    }
+
+    /**
+     * The stored override flag counts only where the override exists, `dev` and `demo` (#878, #1352); elsewhere
+     * the normal hospital checks apply, for example when such a database is processed elsewhere. The handler
+     * runs without a user: who may set the flag was decided at upload by `ImportCreateVoter`.
+     */
+    private function allowsHospitalOverride(Import $import): bool
+    {
+        if (!$import->isHospitalOverride()) {
+            return false;
+        }
+
+        if ($this->hospitalOverride->isAvailable()) {
+            return true;
+        }
+
+        $this->importLogger->warning('closure.import.hospital_override.ignored', ['id' => $import->getId()]);
+
+        return false;
     }
 
     private function resolvePermissionFailure(Import $import): ?ImportRunReasonCode

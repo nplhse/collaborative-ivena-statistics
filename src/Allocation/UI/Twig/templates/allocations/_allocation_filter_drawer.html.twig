@@ -27,6 +27,7 @@
         or filters.assignment is not null
         or filters.occasion is not empty
         or filters.departmentWasClosed is not null
+        or filters.closureAtAssignment is not empty
         or filters.transportType is not empty
         or filters.hasCreatedAtRange %}
     {% set clinicalActive = filters.requiresResus is not null
@@ -56,10 +57,12 @@
                                     <div class="col-12">
                                         <label class="form-label" for="allocation-filter-hospital">{{ 'label.hospital'|trans({}, 'messages') }}</label>
                                         <select name="hospitalFilter" id="allocation-filter-hospital" class="form-select" data-testid="allocation-filter-hospital">
-                                            <option value="" {{ selectedHospitalFilter == '' ? 'selected' }}>
-                                                {{ hospitalScopeOptions.allClinicsLabel }}
-                                            </option>
-                                            <option value="my_hospitals" {{ selectedHospitalFilter == 'my_hospitals' ? 'selected' }}>
+                                            {% if hospitalScopeOptions.allHospitalsAllowed %}
+                                                <option value="" {{ selectedHospitalFilter == '' ? 'selected' }}>
+                                                    {{ hospitalScopeOptions.allClinicsLabel }}
+                                                </option>
+                                            {% endif %}
+                                            <option value="my_hospitals" {{ selectedHospitalFilter == 'my_hospitals' or (selectedHospitalFilter == '' and not hospitalScopeOptions.allHospitalsAllowed) ? 'selected' }}>
                                                 {{ hospitalScopeOptions.scopeLabel }}
                                             </option>
                                             {% if hospitalScopeOptions.hospitals is not empty %}
@@ -298,7 +301,18 @@
                                                {{ filters.departmentWasClosed ? 'checked' }}>
                                         <span class="form-check-label">{{ 'field.departmentWasClosed'|trans({}, 'messages') }}</span>
                                     </label>
-                                    <div class="form-text">{{ 'help.export.department_was_closed_filter'|trans({}, 'allocation') }}</div>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label" for="allocation-filter-closure-at-assignment">{{ 'label.closure_at_assignment'|trans({}, 'allocation') }}</label>
+                                    <select name="closureAtAssignment" id="allocation-filter-closure-at-assignment" class="form-select" data-testid="allocation-filter-closure-at-assignment">
+                                        <option value="">{{ 'label.closure_at_assignment.all'|trans({}, 'allocation') }}</option>
+                                        {% for state in closureAtAssignmentStates %}
+                                            <option value="{{ state.value }}" {{ filters.closureAtAssignment == state.value ? 'selected' }}>
+                                                {{ state.label()|trans({}, 'allocation') }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="form-text">{{ 'help.closure_at_assignment_filter'|trans({}, 'allocation') }}</div>
                                 </div>
                             </div>
                         </div>
@@ -324,5 +338,32 @@
                         </div>
                     {{ editAccordion.panel_end() }}
                 </div>
+                {# Filters of other contexts (allocation list extensions, #1203), one section each. #}
+                {% for extension in listExtensionFilters|default([]) %}
+                    {% set extensionFilter = extension.filter %}
+                    <div class="accordion-item" data-testid="allocation-filter-section-{{ extension.key }}">
+                        {{ editAccordion.header(
+                            'allocation-filter-' ~ extension.key ~ '-heading',
+                            'allocation-filter-' ~ extension.key ~ '-panel',
+                            (extensionFilter.section ?? extensionFilter.label)|trans({}, extensionFilter.domain),
+                            'allocation-filter-section-' ~ extension.key ~ '-toggle',
+                            extension.value is not null,
+                        ) }}
+                        {{ editAccordion.panel_start('allocation-filter-' ~ extension.key ~ '-panel', 'allocation-filter-' ~ extension.key ~ '-heading', extension.value is not null) }}
+                            <div class="accordion-body">
+                                <label class="form-label" for="allocation-filter-{{ extension.key }}">{{ extensionFilter.label|trans({}, extensionFilter.domain) }}</label>
+                                <select name="{{ extension.key }}" id="allocation-filter-{{ extension.key }}" class="form-select" data-testid="allocation-filter-{{ extension.key }}">
+                                    <option value="">{{ extensionFilter.allLabel|trans({}, extensionFilter.domain) }}</option>
+                                    {% for value, label in extensionFilter.choices %}
+                                        <option value="{{ value }}" {{ extension.value == value ? 'selected' }}>{{ label|trans({}, extensionFilter.domain) }}</option>
+                                    {% endfor %}
+                                </select>
+                                {% if extensionFilter.help %}
+                                    <div class="form-text">{{ extensionFilter.help|trans({}, extensionFilter.domain) }}</div>
+                                {% endif %}
+                            </div>
+                        {{ editAccordion.panel_end() }}
+                    </div>
+                {% endfor %}
             </div>
 </twig:FilterDrawer>

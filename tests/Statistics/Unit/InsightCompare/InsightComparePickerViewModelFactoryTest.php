@@ -31,7 +31,7 @@ final class InsightComparePickerViewModelFactoryTest extends TestCase
             'dimension' => InsightDimensionKey::Indications->value,
             'id' => '12',
             StatisticsQueryKeys::SCOPE => StatisticsFilterScope::Public->value,
-            StatisticsQueryKeys::PERIOD => StatisticsFilterPeriod::All->value,
+            StatisticsQueryKeys::PERIOD => StatisticsFilterPeriod::Last12Months->value,
             StatisticsQueryKeys::SUBJECT_A_DIMENSION => InsightDimensionKey::Indications->value,
             StatisticsQueryKeys::SUBJECT_A_ID => '12',
             'q' => 'stem',
@@ -41,7 +41,7 @@ final class InsightComparePickerViewModelFactoryTest extends TestCase
             $request,
             $subjectA,
             null,
-            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::Last12Months),
             'ACS',
             'Public · All',
         );
@@ -50,7 +50,7 @@ final class InsightComparePickerViewModelFactoryTest extends TestCase
 
         self::assertSame('app_stats_insights_search', $params['_route']);
         self::assertSame(StatisticsFilterScope::Public->value, $params[StatisticsQueryKeys::SCOPE]);
-        self::assertSame(StatisticsFilterPeriod::All->value, $params[StatisticsQueryKeys::PERIOD]);
+        self::assertSame(StatisticsFilterPeriod::Last12Months->value, $params[StatisticsQueryKeys::PERIOD]);
         self::assertArrayNotHasKey('dimension', $params);
         self::assertArrayNotHasKey('id', $params);
         self::assertArrayNotHasKey('q', $params);

@@ -15,6 +15,8 @@ systemctl --user status messenger
 journalctl --user -u messenger -f
 ```
 
+Logs, Sentry events, the audit log and EasyAdmin name objects by their internal numeric ID. Administrators see that ID in the header of every Explore detail page and can open an object by it: `/explore/{type}/{id}`, for example `/explore/hospital/40` or `/explore/user/12`, redirects to the detail page (#1354).
+
 ## Common problems
 
 | Symptom | Likely cause | Quick fix |
@@ -31,6 +33,7 @@ journalctl --user -u messenger -f
 | Feedback saved, no admin mail | No eligible recipients, or the admins switched the email off | Check that an enabled, verified user has the Admin role and has *Feedback received* → E-Mail ticked under Settings → Notifications |
 | Cannot delete a user in EasyAdmin | User still owns a hospital or other rows reference the account | Reassign hospital ownership; disable the account if it must stay; see [admin-entity-coverage.md](admin-entity-coverage.md#user-accounts) |
 | Mail links point to `localhost` | Missing/wrong `APP_URL` in prod | Fix `APP_URL`, clear cache, restart worker |
+| Navigation entry missing, in the wrong place or not marked active | Permission of the entry or a parent, provider order, or a route not claimed by the entry | **Admin → System → Navigation tree**: find the entry and its visibility reason, or check the route; evaluate for the affected user. See [extension-points.md](../02-architecture/extension-points.md#navigation-tree) |
 
 ## Import-specific diagnosis
 

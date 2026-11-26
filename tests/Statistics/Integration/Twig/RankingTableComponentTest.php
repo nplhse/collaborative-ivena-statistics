@@ -71,7 +71,7 @@ final class RankingTableComponentTest extends KernelTestCase
         self::assertStringContainsString('data-testid="stats-top-lists-delta-count"', $html);
         self::assertStringContainsString('data-testid="stats-top-lists-delta-share"', $html);
         self::assertStringContainsString('+5', $html);
-        self::assertStringContainsString('-1,5%', $html);
+        self::assertStringContainsString('-1,5 pp', $html);
         self::assertStringNotContainsString('stats-top-lists-share-bar', $html);
         self::assertStringNotContainsString('card-footer', $html);
     }

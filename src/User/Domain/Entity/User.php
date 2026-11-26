@@ -8,11 +8,17 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Shared\Application\Locale\SupportedLocales;
 use App\Shared\Domain\Traits\HasPublicId;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
+use App\User\Domain\Security\UserRole;
 use App\User\Domain\Validator\UserUsernameConstraints;
 use App\User\Infrastructure\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Scheb\TwoFactorBundle\Model\BackupCodeInterface;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfiguration;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfigurationInterface;
+use Scheb\TwoFactorBundle\Model\Totp\TwoFactorInterface;
 use Symfony\Component\Clock\Clock;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -25,9 +31,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_USERNAME', fields: ['username'])]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[ORM\HasLifecycleCallbacks]
-class User implements UserInterface, PasswordAuthenticatedUserInterface, \Stringable
+class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFactorInterface, BackupCodeInterface, \Stringable
 {
     use HasPublicId;
+
+    public const int DISPLAY_NAME_MAX_LENGTH = 100;
+
+    /** Alphabet of the stand-in secret used when the stored one cannot be decrypted (`getTotpAuthenticationConfiguration()`). */
+    private const string BASE32_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -41,12 +52,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
         pattern: UserUsernameConstraints::PATTERN,
         message: 'validation.username.format',
     )]
+    #[Assert\Regex(
+        pattern: UserUsernameConstraints::DIGITS_ONLY_PATTERN,
+        message: 'validation.username.digits_only',
+        match: false,
+    )]
     private ?string $username = null;
 
     #[ORM\Column(length: 180, unique: true)]
     #[Assert\NotBlank]
     #[Assert\Email]
     private ?string $email = null;
+
+    /** Optional name shown to signed-in users instead of the username (#462). */
+    #[ORM\Column(length: self::DISPLAY_NAME_MAX_LENGTH, nullable: true)]
+    #[Assert\Length(max: self::DISPLAY_NAME_MAX_LENGTH)]
+    private ?string $displayName = null;
 
     /**
      * @var list<string> The user roles
@@ -69,6 +90,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
 
     #[ORM\Column(options: ['default' => true])]
     private bool $isEnabled = true;
+
+    /** Opt-in for signing in with a one-time link sent by email (#1355); off by default. */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $loginLinkEnabled = false;
+
+    /**
+     * Two-factor authentication with an authenticator app (#1357, ADR 040): the TOTP secret, encrypted with
+     * `APP_TWO_FACTOR_KEY` (`TwoFactorSecretCipher`). Set together with `$totpEnabledAt` once the first code is confirmed.
+     */
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Audit\AuditSensitive]
+    private ?string $totpSecretEncrypted = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $totpEnabledAt = null;
+
+    /**
+     * Password hashes of the unused backup codes; a used code is removed.
+     *
+     * @var list<string>
+     */
+    #[ORM\Column(options: ['default' => '[]'])]
+    #[Audit\AuditSensitive]
+    private array $backupCodeHashes = [];
+
+    /** Decrypted TOTP secret, filled after loading (`TwoFactorSecretLoader`); never persisted or serialized. */
+    private ?string $totpSecret = null;
 
     /**
      * Replaced by the preference override of `engagement.monthly_reminder` (ADR 016, step 7b). Kept
@@ -126,6 +174,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
     public function setEmail(string $email): static
     {
         $this->email = mb_strtolower(trim($email));
+
+        return $this;
+    }
+
+    public function getDisplayName(): ?string
+    {
+        return $this->displayName;
+    }
+
+    /**
+     * Trims the name and collapses inner whitespace; an empty name is stored as null.
+     */
+    public function setDisplayName(?string $displayName): static
+    {
+        $normalized = trim((string) preg_replace('/\s+/u', ' ', $displayName ?? ''));
+        $this->displayName = '' === $normalized ? null : $normalized;
 
         return $this;
     }
@@ -222,6 +286,159 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
         return $this;
     }
 
+    public function isLoginLinkEnabled(): bool
+    {
+        return $this->loginLinkEnabled;
+    }
+
+    public function setLoginLinkEnabled(bool $loginLinkEnabled): static
+    {
+        $this->loginLinkEnabled = $loginLinkEnabled;
+
+        return $this;
+    }
+
+    /**
+     * Whether a login link may be sent to and used by this user (#1355): only after opting in, never for
+     * administrators. Part of the login link signature (`security.yaml`), so opting out or becoming an administrator
+     * invalidates links that are still open.
+     */
+    public function isLoginLinkAllowed(): bool
+    {
+        return $this->loginLinkEnabled && !\in_array(UserRole::ADMIN, $this->getRoles(), true);
+    }
+
+    /**
+     * Two-factor authentication is on once the first code was confirmed (#1357). It stays on when the secret cannot be
+     * decrypted (missing or changed `APP_TWO_FACTOR_KEY`): codes are then rejected, backup codes still work.
+     */
+    #[\Override]
+    public function isTotpAuthenticationEnabled(): bool
+    {
+        return $this->totpEnabledAt instanceof \DateTimeImmutable && null !== $this->totpSecretEncrypted;
+    }
+
+    #[\Override]
+    public function getTotpAuthenticationUsername(): string
+    {
+        return $this->getUserIdentifier();
+    }
+
+    /**
+     * Without a decrypted secret a random one stands in, so no code matches: the check fails closed instead of skipping
+     * the second factor.
+     */
+    #[\Override]
+    public function getTotpAuthenticationConfiguration(): ?TotpConfigurationInterface
+    {
+        if (!$this->isTotpAuthenticationEnabled()) {
+            return null;
+        }
+
+        return new TotpConfiguration($this->totpSecret ?? $this->unusableSecret(), TotpConfiguration::ALGORITHM_SHA1, 30, 6);
+    }
+
+    public function getTotpSecretEncrypted(): ?string
+    {
+        return $this->totpSecretEncrypted;
+    }
+
+    public function getTotpEnabledAt(): ?\DateTimeImmutable
+    {
+        return $this->totpEnabledAt;
+    }
+
+    /** Called after loading with the decrypted secret, or null when it cannot be decrypted. */
+    public function revealTotpSecret(?string $totpSecret): void
+    {
+        $this->totpSecret = $totpSecret;
+    }
+
+    /**
+     * @param list<string> $backupCodeHashes
+     */
+    public function enableTotpAuthentication(string $encryptedSecret, string $secret, array $backupCodeHashes, \DateTimeImmutable $enabledAt): void
+    {
+        $this->totpSecretEncrypted = $encryptedSecret;
+        $this->totpSecret = $secret;
+        $this->backupCodeHashes = $backupCodeHashes;
+        $this->totpEnabledAt = $enabledAt;
+    }
+
+    public function disableTotpAuthentication(): void
+    {
+        $this->totpSecretEncrypted = null;
+        $this->totpSecret = null;
+        $this->backupCodeHashes = [];
+        $this->totpEnabledAt = null;
+    }
+
+    /**
+     * @param list<string> $backupCodeHashes
+     */
+    public function replaceBackupCodes(array $backupCodeHashes): void
+    {
+        $this->backupCodeHashes = $backupCodeHashes;
+    }
+
+    public function countBackupCodes(): int
+    {
+        return \count($this->backupCodeHashes);
+    }
+
+    /**
+     * Backup codes contain letters only, so six-digit TOTP codes are rejected without hashing.
+     */
+    #[\Override]
+    public function isBackupCode(string $code): bool
+    {
+        return null !== $this->findBackupCodeHash($code);
+    }
+
+    #[\Override]
+    public function invalidateBackupCode(string $code): void
+    {
+        $hash = $this->findBackupCodeHash($code);
+        if (null !== $hash) {
+            $this->backupCodeHashes = array_values(array_filter(
+                $this->backupCodeHashes,
+                static fn (string $stored): bool => $stored !== $hash,
+            ));
+        }
+    }
+
+    /** Upper case, letters only: "abcde-fghij" and "ABCDEFGHIJ" are the same code. */
+    public static function normalizeBackupCode(string $code): string
+    {
+        return (string) preg_replace('/[^A-Z]/', '', mb_strtoupper($code));
+    }
+
+    private function findBackupCodeHash(string $code): ?string
+    {
+        $normalized = self::normalizeBackupCode($code);
+        if ('' === $normalized || 1 === preg_match('/\d/', $code)) {
+            return null;
+        }
+
+        foreach ($this->backupCodeHashes as $hash) {
+            if (password_verify($normalized, $hash)) {
+                return $hash;
+            }
+        }
+
+        return null;
+    }
+
+    private function unusableSecret(): string
+    {
+        $secret = '';
+        foreach (str_split(random_bytes(20)) as $byte) {
+            $secret .= self::BASE32_ALPHABET[\ord($byte) & 31];
+        }
+
+        return $secret;
+    }
+
     public function getLocale(): ?string
     {
         return $this->locale;
@@ -310,6 +527,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
         $data = (array) $this;
         /* @psalm-suppress PossiblyNullArgument */
         $data["\0".self::class."\0password"] = hash('crc32c', $this->password ?? '');
+        // The decrypted TOTP secret never goes into the session; it is decrypted again when the user is refreshed.
+        unset($data["\0".self::class."\0totpSecret"]);
 
         return $data;
     }

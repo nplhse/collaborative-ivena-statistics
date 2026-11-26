@@ -1,6 +1,6 @@
 <turbo-frame
     id="{{ frameId }}"
-    src="{{ path('app_explore_user_activity', {publicId: profilePublicId, cursor: nextCursor}) }}"
+    src="{{ path('app_explore_user_activity', {username: profileUsername, cursor: nextCursor}) }}"
     loading="lazy"
     data-testid="profile-activity-next"
 >
@@ -8,7 +8,7 @@
         <div class="spinner-border spinner-border-sm text-secondary" role="status" aria-hidden="true"></div>
         <span class="visually-hidden">{{ 'label.user.activity.loading'|trans({}, 'user') }}</span>
         <div class="mt-2">
-            <a href="{{ path('app_explore_user_activity', {publicId: profilePublicId, cursor: nextCursor}) }}">
+            <a href="{{ path('app_explore_user_activity', {username: profileUsername, cursor: nextCursor}) }}">
                 {{ 'label.user.activity.load_more'|trans({}, 'user') }}
             </a>
         </div>

@@ -17,6 +17,7 @@ final readonly class AnalysisQuery
     /**
      * @param list<AnalysisMetricKey> $metricKeys
      * @param list<AnalysisFilter>    $filters
+     * @param list<int>               $referenceHospitalIds effective reference hospitals of the comparison (#1346)
      */
     public function __construct(
         public AnalysisDataSourceKey $dataSourceKey,
@@ -28,6 +29,7 @@ final readonly class AnalysisQuery
         public StatisticsPeriodBounds $periodBounds,
         public ExplorerHospitalPopulationMode $hospitalPopulationMode = ExplorerHospitalPopulationMode::Participating,
         public array $filters = [],
+        public array $referenceHospitalIds = [],
     ) {
     }
 

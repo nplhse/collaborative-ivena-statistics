@@ -40,9 +40,10 @@ php bin/console app:statistics:refresh-mviews
 | `reference` | Users (dependency) and the complete synthetic reference catalog |
 | `participation` | Reference catalog plus participating hospitals, owners and the demo grant |
 | `allocations` | Participation plus pattern-based synthetic allocations and imports |
-| `content` | English demo CMS pages |
+| `content` | English demo CMS pages, including a nested user guide (`/guide`, three levels, some pages for signed-in users only) |
 | `minimal` | Small scenario for fast smoke tests |
-| `dev` | Reference + allocations + content (full local demo) |
+| `encounters` | Allocations plus synthetic encounter data of the demo hospital of `foo` for the last three months; `foo` gets `ROLE_ENCOUNTER_BETA` and an encounter grant (`UPLOAD`, `REVIEW`, `VIEW_CASES`) for that hospital ([synthetic-data-generator.md](synthetic-data-generator.md#encounter-data)) |
+| `dev` | Reference + allocations + encounters + content (full local demo) |
 | `statistics` | Reference data, participation and allocations used by statistics integration tests |
 
 Examples:
@@ -107,11 +108,13 @@ Each active hospital gets one import per month. The number of allocations per da
 
 ## Reference data
 
-`ReferenceCatalogFixture` builds the synthetic catalog with `SyntheticReferenceCatalogBuilder` (seed 740, 60 hospitals) and loads it through the same validation and import as a real package (`app:reference:validate`, `app:reference:import`):
+`ReferenceCatalogFixture` builds the synthetic catalog with `SyntheticReferenceCatalogBuilder` (catalog seed 1269, 60 hospitals) and loads it through the same validation and import as a real package (`app:reference:validate`, `app:reference:import`):
 
-- Hesse with exactly the 24 dispatch areas the maps know; hospitals have addresses and coordinates inside their district.
+- Hesse with exactly the 24 dispatch areas the maps know and their 26 official districts (Kassel and Offenbach have two each). Fixtures store coarse shapes from `resources/geo/demo-districts.geojson` in the database (provider `demo`), without a network call; hospitals have addresses and coordinates inside their district.
 - The 208 official PZC indications with their official wording; raw labels are the official wording, generated variants (abbreviation, typo) and a few unmapped labels.
 - Departments and specialities with generated aliases, lookups and a few indication groups.
+
+Hospital coordinates take exactly one value from Faker, so a change of the demo shapes does not reshuffle later hospitals. The catalog seed keeps the size and care-tier mix of the participating hospitals that the presets were tuned on; a demo built before #1406 has other hospitals and is rebuilt once.
 
 The same seed gives the same package byte for byte (UUIDv5 ids). Participation is not part of the catalog: `HospitalParticipationFixture` makes every third hospital participate and gives the demo user `foo` one of the active hospitals of the profile.
 
@@ -145,6 +148,15 @@ See [../04-features/statistics/projection-and-materialized-views.md](../04-featu
 ## Purging in development
 
 `doctrine:fixtures:load` purges the database before loading. In `dev` and `test`, a materialized-view-aware purger drops overview MVs before truncate and recreates them afterward (`MaterializedViewAwareOrmPurger`).
+
+Loading fixtures is not a complete reset. Curated state that is seeded by a migration and reviewed in the app stays. Plugins name these tables and the work after the purge themselves (`FixturePurgeParticipantInterface`, tag `app.fixtures.purge_participant`, #1300); the ED visit plugin (`EdVisitFixturePurge`) keeps:
+
+- the MTS catalog (`encounter_mts_*`, [ADR 032](../02-architecture/decisions/032-mts-catalog-as-maintained-data.md));
+- the curated plausibility problem areas with their PZC codes and rules (`encounter_plausibility_area`, `_area_code`, `_area_diagram`, [ADR 033](../02-architecture/decisions/033-learning-plausibility-table.md), #1219).
+
+Plausibility snapshots and their cells are derived from the areas and from the purged data, so they are purged: the active, retired and learned snapshots are gone. After the purge, the plugin rebuilds one seed draft from the kept areas (`PlausibilityCuration::rebuildSeedDraft()`), in the same transaction as the purge and the fixtures. The draft is not activated: until an administrator or reviewer activates it on the plausibility page, the matcher's plausibility bonus is 0.
+
+For a complete reset, including the areas back to their migration seed, use `make reset` (drops the database, runs the migrations, loads the fixtures).
 
 ## Tests
 

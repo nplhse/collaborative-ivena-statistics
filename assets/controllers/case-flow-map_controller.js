@@ -8,7 +8,7 @@ import {
     prepareMapContainer,
     scheduleInvalidateSize,
 } from '../js/geo-map/createMap.js';
-import { loadGeoJson } from '../js/geo-map/loadGeoJson.js';
+import { addBoundaryAttributions, loadGeoJson } from '../js/geo-map/loadGeoJson.js';
 import {
     choroplethStyleForFeature,
     choroplethTooltip,
@@ -81,13 +81,14 @@ export default class extends Controller {
                     });
                 },
             }).addTo(this.map);
+            addBoundaryAttributions(this.map, geojson);
             this.labelLayer = syncChoroplethLabels(this.map, this.geoLayer, values, null);
 
             const bounds = this.geoLayer.getBounds();
             if (bounds.isValid()) {
                 this.map.fitBounds(bounds, { padding: [16, 16] });
             } else {
-                this.map.setView([50.55, 9.0], 8);
+                this.map.setView([51.1, 10.4], 6);
             }
 
             this.syncModeButtons();

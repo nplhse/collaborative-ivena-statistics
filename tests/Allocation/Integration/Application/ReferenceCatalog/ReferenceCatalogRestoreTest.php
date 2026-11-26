@@ -12,6 +12,8 @@ use App\Allocation\Application\ReferenceCatalog\Restore\ReferenceCatalogDependen
 use App\Allocation\Application\ReferenceCatalog\Restore\ReferenceCatalogRestoreBlockedException;
 use App\Allocation\Application\ReferenceCatalog\Restore\ReferenceCatalogRestorer;
 use App\Allocation\Application\ReferenceCatalog\Restore\RestoreBlocker;
+use App\Allocation\Domain\Entity\District;
+use App\Allocation\Domain\Entity\DistrictGeometry;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
@@ -34,6 +36,42 @@ use Zenstruck\Foundry\Test\Factories;
 final class ReferenceCatalogRestoreTest extends KernelTestCase
 {
     use Factories;
+
+    public function testRestoreKeepsDistrictGeometryAndAppliesThePackageToTheDistrict(): void
+    {
+        self::bootKernel();
+        $user = UserFactory::createOne();
+        $this->restorer()->restore($this->package(Data::complete()), $user);
+        $districtId = $this->storeGeometryFor('06412');
+        $this->connection()->executeStatement("UPDATE district SET name = 'Lokal geändert', dispatch_area_id = NULL WHERE ags = '06412'");
+
+        $this->restorer()->restore($this->package(Data::complete()), $user);
+
+        self::assertSame([(string) $districtId], $this->column("SELECT id FROM district WHERE ags = '06412'"), 'the row survives');
+        self::assertSame(['Frankfurt am Main'], $this->column("SELECT name FROM district WHERE ags = '06412'"));
+        self::assertSame([Data::AREA], $this->column("SELECT a.public_id FROM district d JOIN dispatch_area a ON a.id = d.dispatch_area_id WHERE d.ags = '06412'"));
+        self::assertSame(['{"type":"Polygon"}'], $this->column('SELECT geometry FROM district_geometry WHERE district_id = '.$districtId));
+    }
+
+    public function testRestoringAVersion1PackageKeepsAssignmentsOfAreasItStillHas(): void
+    {
+        self::bootKernel();
+        $user = UserFactory::createOne();
+        $complete = Data::complete();
+        $complete['districts'][1]['dispatch_area'] = Data::OTHER_AREA;
+        $this->restorer()->restore($this->package($complete), $user);
+        $this->storeGeometryFor('06412');
+
+        $version1 = Data::completeVersion1();
+        $version1['dispatch_areas'] = [$version1['dispatch_areas'][0]];
+        $this->restorer()->restore($this->package($version1), $user);
+
+        self::assertSame(
+            ['06412|'.Data::AREA, '09679|'],
+            $this->column("SELECT d.ags || '|' || COALESCE(a.public_id::text, '') FROM district d LEFT JOIN dispatch_area a ON a.id = d.dispatch_area_id ORDER BY d.ags"),
+        );
+        self::assertSame(['1'], $this->column('SELECT COUNT(*) FROM district_geometry'));
+    }
 
     public function testRestoreReplacesTheCatalogAndKeepsThePackageIds(): void
     {
@@ -203,6 +241,21 @@ final class ReferenceCatalogRestoreTest extends KernelTestCase
         self::assertNotNull($result->package);
 
         return $result->package;
+    }
+
+    private function storeGeometryFor(string $ags): int
+    {
+        $district = $this->em()->getRepository(District::class)->findOneBy(['ags' => $ags]);
+        self::assertInstanceOf(District::class, $district);
+        $geometry = new DistrictGeometry($district);
+        $geometry->storeGeometry('{"type":"Polygon"}', 'bkg', 'dl-de/by-2-0', '© BKG', null);
+        $this->em()->persist($geometry);
+        $this->em()->flush();
+        $id = $district->getId();
+        self::assertNotNull($id);
+        $this->em()->clear();
+
+        return $id;
     }
 
     /**

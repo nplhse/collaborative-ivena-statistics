@@ -8,8 +8,9 @@ import {
     prepareMapContainer,
     scheduleInvalidateSize,
 } from '../js/geo-map/createMap.js';
-import { loadGeoJson } from '../js/geo-map/loadGeoJson.js';
+import { addBoundaryAttributions, loadGeoJson } from '../js/geo-map/loadGeoJson.js';
 import { hospitalPinIcon } from '../js/geo-map/hospitalPin.js';
+import { isNeighbourArea, NEIGHBOUR_AREA_DASH } from '../js/geo-map/choropleth.js';
 
 const PARTICIPATING_PIN_COLOR = '#1864ab';
 const REFERENCE_PIN_COLOR = '#868e96';
@@ -68,18 +69,37 @@ export default class extends Controller {
                 onEachFeature: (feature, layer) => this.bindFeatureTooltip(feature, layer),
             }).addTo(this.map);
 
+            addBoundaryAttributions(this.map, geojson);
             this.renderMarkers();
 
-            if (this.geoLayer.getBounds().isValid()) {
-                this.map.fitBounds(this.geoLayer.getBounds(), { padding: [16, 16] });
+            const focusBounds = this.focusBounds();
+            if (focusBounds?.isValid()) {
+                this.map.fitBounds(focusBounds, { padding: [16, 16] });
             } else {
-                this.map.setView([50.55, 9.0], 8);
+                this.map.setView([51.1, 10.4], 6);
             }
 
             this.scheduleInvalidateSize();
         } catch (error) {
             this.showMapError(error);
         }
+    }
+
+    /** Areas with hospitals and participating hospitals; neighbouring areas and reference pins do not widen the view. */
+    focusBounds() {
+        const bounds = L.latLngBounds([]);
+        this.geoLayer.eachLayer((layer) => {
+            if (!isNeighbourArea(layer.feature)) {
+                bounds.extend(layer.getBounds());
+            }
+        });
+        for (const marker of this.payloadValue?.markers ?? []) {
+            if (marker.isParticipating) {
+                bounds.extend([marker.lat, marker.lng]);
+            }
+        }
+
+        return bounds;
     }
 
     renderMarkers() {
@@ -146,13 +166,16 @@ export default class extends Controller {
         const key = feature.properties?.key ?? '';
         const entry = this.choroplethByKey().get(key);
 
+        const dashArray = isNeighbourArea(feature) ? NEIGHBOUR_AREA_DASH : null;
+
         if (!entry) {
             return {
                 fillColor: '#e9ecef',
                 weight: 1.5,
                 opacity: 1,
                 color: '#343a40',
-                fillOpacity: 0.25,
+                fillOpacity: isNeighbourArea(feature) ? 0.1 : 0.25,
+                dashArray,
             };
         }
 
@@ -162,6 +185,7 @@ export default class extends Controller {
             opacity: 1,
             color: '#343a40',
             fillOpacity: 0.35,
+            dashArray,
         };
     }
 

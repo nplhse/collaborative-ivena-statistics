@@ -98,10 +98,10 @@
 
                         <input type="hidden"
                                name="scope"
-                               value="{{ context.scopeMode.value == 'assigned_hospitals' ? (context.appliedScope == 'hospital' ? 'hospital' : 'my_hospitals') : context.appliedScope }}"
+                               value="{{ context.scopeMode.value == 'assigned_hospital' ? 'hospital' : (context.scopeMode.value == 'assigned_hospitals' ? (context.appliedScope == 'hospital' ? 'hospital' : 'my_hospitals') : context.appliedScope) }}"
                                data-statistics-analysis-context-target="scope">
 
-                        {% if context.scopeMode.value == 'assigned_hospitals' %}
+                        {% if context.scopeMode.isAssigned() %}
                             {% if context.hospitalChoices|length > 0 %}
                                 <input type="hidden"
                                        name="hospital"
@@ -267,12 +267,15 @@
                     </div>
 
                     <div class="modal-footer d-flex justify-content-between align-items-center">
-                        <button type="button"
-                                class="btn btn-outline-secondary"
-                                data-action="statistics-analysis-context#resetToDefault"
-                                data-testid="stats-analysis-context-reset">
-                            {{ 'stats.analysis_context.reset'|trans({}, 'statistics') }}
-                        </button>
+                        <div class="d-flex gap-2">
+                            <button type="button"
+                                    class="btn btn-outline-secondary"
+                                    data-action="statistics-analysis-context#resetToDefault"
+                                    data-testid="stats-analysis-context-reset">
+                                {{ 'stats.analysis_context.reset'|trans({}, 'statistics') }}
+                            </button>
+                            <twig:Content:HelpLink key="statistics.filters" />
+                        </div>
                         <div class="d-flex gap-2">
                             <button type="button"
                                     class="btn btn-link link-secondary"

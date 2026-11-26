@@ -8,6 +8,8 @@ enum AnalysisMetricKey: string
 {
     case AllocationCount = 'allocation_count';
     case PercentOfTotal = 'percent_of_total';
+    /** Share within each series of the reference comparison (#1346); only valid while the comparison is effective. */
+    case PercentOfSeries = 'percent_of_series';
     case ResusRate = 'resus_rate';
     case CprRate = 'cpr_rate';
     case ShockRate = 'shock_rate';
@@ -57,7 +59,7 @@ enum AnalysisMetricKey: string
     {
         return match ($this) {
             self::AllocationCount, self::HospitalCount => ExplorerMetricCategory::Count,
-            self::PercentOfTotal => ExplorerMetricCategory::Distribution,
+            self::PercentOfTotal, self::PercentOfSeries => ExplorerMetricCategory::Distribution,
             self::ResusRate,
             self::CprRate,
             self::ShockRate,
@@ -88,6 +90,14 @@ enum AnalysisMetricKey: string
         };
     }
 
+    /**
+     * The share displays ("show percent"): of the total, or within each series of the reference comparison.
+     */
+    public function isShareDisplay(): bool
+    {
+        return self::PercentOfTotal === $this || self::PercentOfSeries === $this;
+    }
+
     public function isDistributionProfile(): bool
     {
         return ExplorerMetricCategory::DistributionProfile === $this->metricCategory();
@@ -111,6 +121,7 @@ enum AnalysisMetricKey: string
         return [
             self::AllocationCount,
             self::PercentOfTotal,
+            self::PercentOfSeries,
             self::ResusRate,
             self::CprRate,
             self::ShockRate,
@@ -148,7 +159,7 @@ enum AnalysisMetricKey: string
     {
         return array_values(array_filter(
             self::enabledAllocationsCatalog(),
-            static fn (self $key): bool => self::PercentOfTotal !== $key,
+            static fn (self $key): bool => !$key->isShareDisplay(),
         ));
     }
 
@@ -189,7 +200,7 @@ enum AnalysisMetricKey: string
     {
         return array_values(array_filter(
             self::enabledHospitalsCatalog(),
-            static fn (self $key): bool => self::PercentOfTotal !== $key,
+            static fn (self $key): bool => !$key->isShareDisplay(),
         ));
     }
 
@@ -256,7 +267,7 @@ enum AnalysisMetricKey: string
     {
         $values = [];
         foreach ($metricKeys as $metricKey) {
-            if ($metricKey === $visualMetricKey || self::PercentOfTotal === $metricKey) {
+            if ($metricKey === $visualMetricKey || $metricKey->isShareDisplay()) {
                 continue;
             }
 

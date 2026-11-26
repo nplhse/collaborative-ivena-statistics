@@ -103,7 +103,7 @@ final class CookieConsentCrudControllerTest extends WebTestCase
         $body = $crawler->text();
         self::assertStringContainsString($consent->getSubjectId(), $body);
         self::assertStringContainsString('Version', $body);
-        self::assertStringContainsString('v1', $body);
+        self::assertStringContainsString(CookieConsent::CURRENT_VERSION, $body);
         self::assertStringContainsString('Updated at', $body);
     }
 }

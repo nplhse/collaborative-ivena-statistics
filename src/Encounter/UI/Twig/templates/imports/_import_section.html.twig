@@ -1,0 +1,63 @@
+{# Encounter section of the import detail page (EncounterImportTypeExtension). No file content, no cell values.
+   Rejected rows and the duplicate count are in the run card of the page. Suspected duplicates are a count like
+   the deduplication counts of other imports, without a list; rejected rows are in the admin backend (#1622). #}
+{% if encounter_import.fileRejection is not null %}
+    <div class="alert alert-danger" role="alert" data-test="encounter-file-rejection">
+        <h4 class="alert-title">{{ 'encounter.import.rejected.title'|trans({}, 'encounter') }}</h4>
+        <div>{{ ('encounter.import.rejection.' ~ encounter_import.fileRejection.value)|trans({}, 'encounter') }}</div>
+        {% if encounter_import.sourceFileDeleted and encounter_import.fileRejection.deletesSourceFile %}
+            <div class="mt-1" data-test="encounter-source-deleted">{{ 'encounter.import.rejected.source_deleted'|trans({}, 'encounter') }}</div>
+        {% endif %}
+    </div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">{{ 'encounter.import.report.title'|trans({}, 'encounter') }}</h3>
+    </div>
+    <div class="card-body">
+        <div class="datagrid">
+            {% for key in ['inserted', 'skipped', 'suspectedDuplicates'] %}
+                <div class="datagrid-item">
+                    <div class="datagrid-title">{{ ('encounter.import.count.' ~ key)|trans({}, 'encounter') }}</div>
+                    <div class="datagrid-content" data-test="count-{{ key }}">{{ attribute(encounter_import, key)|format_number }}</div>
+                </div>
+            {% endfor %}
+            {# Only schemas that attach records to encounters count assignments (ADR 037). #}
+            {% for key in ['assigned', 'unassigned', 'conflicts'] %}
+                {% if attribute(encounter_import, key) is not null %}
+                    <div class="datagrid-item">
+                        <div class="datagrid-title">{{ ('encounter.import.count.' ~ key)|trans({}, 'encounter') }}</div>
+                        <div class="datagrid-content" data-test="count-{{ key }}">{{ attribute(encounter_import, key)|format_number }}</div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+            <div class="datagrid-item">
+                <div class="datagrid-title">{{ 'encounter.import.field.schema'|trans({}, 'encounter') }}</div>
+                <div class="datagrid-content" data-test="encounter-schema">{{ schema_label|trans }}</div>
+            </div>
+            <div class="datagrid-item">
+                <div class="datagrid-title">{{ 'encounter.import.field.profile'|trans({}, 'encounter') }}</div>
+                <div class="datagrid-content">{{ encounter_import.profile ?? '–' }}{% if encounter_import.profileVersion %} v{{ encounter_import.profileVersion }}{% endif %}</div>
+            </div>
+            <div class="datagrid-item">
+                <div class="datagrid-title">{{ 'encounter.import.field.tool_version'|trans({}, 'encounter') }}</div>
+                <div class="datagrid-content">{{ encounter_import.toolVersion ?? '–' }}</div>
+            </div>
+            <div class="datagrid-item">
+                <div class="datagrid-title">{{ 'encounter.import.field.source_file'|trans({}, 'encounter') }}</div>
+                <div class="datagrid-content" data-test="encounter-source-file">
+                    {% if encounter_import.sourceFileDeleted %}
+                        {% if encounter_import.sourceFileDeletedAt is not null %}
+                            {{ 'encounter.import.source_file.deleted_on'|trans({date: encounter_import.sourceFileDeletedAt|format_date('medium')}, 'encounter') }}
+                        {% else %}
+                            {{ 'encounter.import.source_file.deleted'|trans({}, 'encounter') }}
+                        {% endif %}
+                    {% else %}
+                        {{ 'encounter.import.source_file.kept_until'|trans({date: source_file_kept_until|format_date('medium'), days: source_file_retention_days}, 'encounter') }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

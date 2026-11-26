@@ -1,0 +1,359 @@
+{#
+    Detail page of one ED visit (#1178). Built from the visit alone; an allocation link is optional.
+    Clinical times come from the visit; the allocation's time is shown only as the expected IVENA arrival.
+#}
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% set d = 'encounter' %}
+
+{% set times = encounter.times %}
+{% set anchor_is_admission = times.edAdmissionAt is not null %}
+{% set anchor_at = times.edAdmissionAt ?? times.firstAssessmentContactAt ?? encounter.anchorAt %}
+{% set link = course.link %}
+{# A section is shown only when it holds a value (#1401). #}
+{% set has_triage = encounter.triage.category is not null or encounter.triage.diagram is not null or encounter.triage.indicator is not null or encounter.triage.painScore is not null %}
+{% set has_intervals = course.intervals|filter(value => value.minutes is not null) is not empty %}
+{% set has_times = course.timeline is not empty %}
+{% set has_vitals = encounter.vitals.reference is not null %}
+{% set has_disposition = encounter.disposition.code is not null or encounter.disposition.careLevel is not null or encounter.admittingDepartment is not null %}
+{% set has_clinical = has_triage or has_times or has_vitals or has_disposition or record_sections is not empty %}
+{# Back to the list of the visit's month. #}
+{% set list_url = path('app_explore_ed_visit_list', {publicId: hospital.publicIdString, from: anchor_at|date('Y-m-01'), to: anchor_at|date('Y-m-t')}) %}
+
+{% block title %}{{ 'encounter.visit.title'|trans({date: anchor_at|date('d.m.Y H:i')}, d) }} - {{ hospital.name }} - {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            <twig:Navigation:Sidebar menu="explore" />
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                { label: 'link.explore', path: path('app_explore_index') },
+                { label: 'encounter.visit_list.title', label_domain: 'encounter', translatable: true, path: list_url },
+                { label: 'encounter.visit.breadcrumb', label_domain: 'encounter', translatable: true },
+            ]"
+        />
+
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <span class="avatar avatar-lg rounded">
+                    <twig:ux:icon name="tabler:stethoscope" class="w-5 h-5" />
+                </span>
+            </div>
+            <div class="col">
+                <h1 class="fw-bold" data-testid="encounter-visit-title">{{ 'encounter.visit.title'|trans({date: anchor_at|date('d.m.Y, H:i')}, d) }}</h1>
+                <div class="list-inline list-inline-dots text-secondary">
+                    <div class="list-inline-item">
+                        <twig:ux:icon name="tabler:building-hospital" class="w-3 h-3" />
+                        {{ hospital.name }}
+                    </div>
+                    {% if not anchor_is_admission %}
+                        <div class="list-inline-item" data-testid="encounter-visit-anchor-assessment">{{ 'encounter.visit.anchor_assessment_hint'|trans({}, d) }}</div>
+                    {% endif %}
+                    <div class="list-inline-item"><span class="badge bg-azure-lt">{{ 'encounter.course.beta'|trans({}, d) }}</span></div>
+                </div>
+                <div class="d-flex flex-wrap gap-1 mt-2" data-testid="encounter-visit-sections">
+                    {% for item in [
+                        {anchor: 'triage', label: 'encounter.course.section.triage', icon: 'tabler:list-check', available: has_triage},
+                        {anchor: 'process-times', label: 'encounter.course.section.process_times', icon: 'tabler:clock', available: has_times},
+                        {anchor: 'vitals', label: 'encounter.course.section.vitals', icon: 'tabler:heartbeat', available: has_vitals},
+                        {anchor: 'disposition', label: 'encounter.course.section.disposition', icon: 'tabler:bed', available: has_disposition},
+                        {anchor: 'allocation', label: 'encounter.visit.section.allocation', icon: 'tabler:ambulance', available: link is not null},
+                    ] %}
+                        {% if item.available %}
+                            <a href="#{{ item.anchor }}" class="badge bg-blue-lt text-decoration-none" data-section="{{ item.anchor }}" data-available="1"><twig:ux:icon name="{{ item.icon }}" class="me-1" width="1em" height="1em" />{{ item.label|trans({}, d) }}</a>
+                        {% else %}
+                            <span class="badge bg-secondary-lt opacity-50" data-section="{{ item.anchor }}" data-available="0"><twig:ux:icon name="{{ item.icon }}" class="me-1" width="1em" height="1em" />{{ item.label|trans({}, d) }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-auto ms-auto d-none d-sm-block">
+                <a class="btn" href="{{ list_url }}" data-testid="encounter-visit-back">
+                    <twig:ux:icon name="tabler:chevron-left" class="w-3 h-3" />
+                    {{ 'label.back_to_list'|trans({}, 'messages') }}
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    {% set interval_icons = {
+        admission_to_assessment: 'tabler:clock-play',
+        admission_to_physician: 'tabler:stethoscope',
+        admission_to_discharge: 'tabler:clock-check',
+    } %}
+    {% set ed_source %}<span class="badge bg-secondary-lt" data-testid="encounter-visit-source"><twig:ux:icon name="tabler:stethoscope" class="me-1" width="1em" height="1em" />{{ 'encounter.visit.source.ed'|trans({}, d) }}</span>{% endset %}
+    <div data-testid="encounter-visit">
+        <twig:Card id="overview" class="mb-3" title="{{ 'encounter.visit.section.overview'|trans({}, d) }}">
+            <twig:block name="actions">{{ ed_source }}</twig:block>
+            <div class="datagrid" data-testid="encounter-visit-basic">
+                <div class="datagrid-item">
+                    <div class="datagrid-title">{{ 'encounter.course.event.ed_admission'|trans({}, d) }}</div>
+                    <div class="datagrid-content">{{ times.edAdmissionAt ? times.edAdmissionAt|date('d.m.Y H:i') : '–' }}</div>
+                </div>
+                <div class="datagrid-item">
+                    <div class="datagrid-title">{{ 'encounter.visit.field.age'|trans({}, d) }}</div>
+                    <div class="datagrid-content">{{ encounter.age }}</div>
+                </div>
+                <div class="datagrid-item">
+                    <div class="datagrid-title">{{ 'encounter.visit.field.sex'|trans({}, d) }}</div>
+                    <div class="datagrid-content">{{ ('encounter.review.value.sex_' ~ encounter.sex.value)|trans({}, d) }}</div>
+                </div>
+                <div class="datagrid-item">
+                    <div class="datagrid-title">{{ 'encounter.review.column.route'|trans({}, d) }}</div>
+                    <div class="datagrid-content">
+                        {{ ('encounter.arrival_route.' ~ encounter.arrivalRoute.value)|trans({}, d) }}{% if encounter.arrivalMode is not null and encounter.arrivalMode.value != 'self' %} ({{ ('encounter.review.value.mode_' ~ encounter.arrivalMode.value)|trans({}, d) }}){% endif %}
+                    </div>
+                </div>
+                <div class="datagrid-item">
+                    <div class="datagrid-title">{{ 'encounter.visit.field.referral'|trans({}, d) }}</div>
+                    <div class="datagrid-content">{{ encounter.referralSource ? ('encounter.visit.referral.' ~ encounter.referralSource.value)|trans({}, d) : '–' }}</div>
+                </div>
+                <div class="datagrid-item">
+                    <div class="datagrid-title">{{ 'encounter.visit.field.case_status'|trans({}, d) }}</div>
+                    <div class="datagrid-content">{{ encounter.caseStatus ? ('encounter.visit.case_status.' ~ encounter.caseStatus.value)|trans({}, d) : '–' }}</div>
+                </div>
+                <div class="datagrid-item">
+                    <div class="datagrid-title">{{ 'encounter.review.feature.work_accident'|trans({}, d) }}</div>
+                    <div class="datagrid-content">{{ (encounter.workAccident ? 'encounter.review.value.documented' : 'encounter.review.value.not_documented')|trans({}, d) }}</div>
+                </div>
+                <div class="datagrid-item" data-testid="encounter-visit-flags">
+                    <div class="datagrid-title">{{ 'encounter.visit.field.isolation'|trans({}, d) }}</div>
+                    <div class="datagrid-content">
+                        {% for code in encounter.isolation %}
+                            <span class="badge bg-orange-lt">{{ ('encounter.visit.isolation.' ~ code.value)|trans({}, d) }}</span>
+                        {% else %}
+                            –
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </twig:Card>
+
+        <div class="row g-3">
+            {% if has_clinical %}
+                <div class="col-lg-8 order-2 order-lg-1">
+                    {% if has_triage %}
+                        <twig:Card id="triage" class="mb-3" title="{{ 'encounter.course.section.triage'|trans({}, d) }}">
+                            <twig:block name="actions">{{ ed_source }}</twig:block>
+                            {% import '@EdVisit/visit/_course_macros.html.twig' as course_blocks %}
+                            {{ course_blocks.triage(
+                                encounter,
+                                encounter.triage.diagram ? encounter_mts_diagram_name(encounter.triage.diagram) : null,
+                                encounter.triage.indicator ? encounter_mts_indicator_name(encounter.triage.indicator) : null,
+                            ) }}
+                        </twig:Card>
+                    {% endif %}
+
+                    {% if has_times %}
+                        <twig:Card id="process-times" class="mb-3" title="{{ 'encounter.course.section.process_times'|trans({}, d) }}" padding="none">
+                            <twig:block name="actions">{{ ed_source }}</twig:block>
+                            {% if has_intervals %}
+                                <div class="card-body border-bottom">
+                                    <div class="row g-3" data-testid="encounter-visit-process-times">
+                                        {% for value in course.intervals %}
+                                            <div class="col-sm-4" data-testid="encounter-course-interval" data-interval="{{ value.interval.value }}" data-minutes="{{ value.minutes ?? '' }}">
+                                                <div class="text-secondary small">
+                                                    {% if interval_icons[value.interval.value] is defined %}<twig:ux:icon name="{{ interval_icons[value.interval.value] }}" class="me-1" width="1em" height="1em" />{% endif %}
+                                                    {{ ('encounter.process.' ~ value.interval.value ~ '.label')|trans({}, d) }}
+                                                </div>
+                                                <div class="h2 mb-0">
+                                                    {% if value.minutes is null %}–{% else %}{{ value.minutes }} <span class="fs-5 fw-normal text-secondary">{{ 'encounter.visit.unit.minutes'|trans({}, d) }}</span>{% endif %}
+                                                </div>
+                                                {% if value.minutes is not null and not value.plausible %}
+                                                    <span class="badge bg-warning-lt" data-testid="encounter-course-implausible">{{ 'encounter.course.implausible'|trans({}, d) }}</span>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% elseif not anchor_is_admission %}
+                                <div class="card-body border-bottom">
+                                    <p class="small text-secondary mb-0" data-testid="encounter-visit-no-process-times">{{ 'encounter.visit.process_times_none'|trans({}, d) }}</p>
+                                </div>
+                            {% endif %}
+                        <div class="table-responsive">
+                            <table class="table table-vcenter card-table" data-testid="encounter-course-timeline">
+                                <thead>
+                                    <tr>
+                                        <th class="w-1">{{ 'encounter.visit.timeline.time'|trans({}, d) }}</th>
+                                        <th>{{ 'encounter.visit.timeline.event'|trans({}, d) }}</th>
+                                        <th class="w-1 text-end text-nowrap">{{ 'encounter.visit.timeline.relative'|trans({}, d) }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for event in course.timeline %}
+                                        {% set expected = event.key == 'ivena_arrival' %}
+                                        <tr class="{{ expected ? 'text-secondary' : '' }}" data-testid="encounter-course-event" data-event="{{ event.key }}">
+                                            <td class="font-monospace text-nowrap{{ expected ? '' : ' fw-semibold' }}">{{ event.at|date('H:i') }}</td>
+                                            <td>
+                                                {% if expected %}
+                                                    <span class="fst-italic">{{ 'encounter.visit.expected_ivena_arrival'|trans({}, d) }}</span>
+                                                    <span class="badge bg-secondary-lt ms-1">{{ 'encounter.visit.timeline.from_ivena'|trans({}, d) }}</span>
+                                                {% else %}
+                                                    {{ ('encounter.course.event.' ~ event.key)|trans({}, d) }}
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-end text-nowrap text-secondary">
+                                                {% if event.key == 'ed_admission' %}
+                                                    {{ 'encounter.course.relative'|trans({minutes: 0}, d) }}
+                                                {% elseif event.minutesFromAdmission is not null %}
+                                                    {{ 'encounter.course.relative'|trans({minutes: (event.minutesFromAdmission > 0 ? '+' : '') ~ event.minutesFromAdmission}, d) }}
+                                                {% else %}
+                                                    –
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        </twig:Card>
+                    {% endif %}
+
+                    {% if has_vitals %}
+                        <twig:Card id="vitals" class="mb-3" title="{{ 'encounter.course.section.vitals'|trans({}, d) }}">
+                            <twig:block name="actions">{{ ed_source }}</twig:block>
+                            {% import '@EdVisit/visit/_course_macros.html.twig' as course_blocks %}
+                            {{ course_blocks.vitals(course, false) }}
+                        </twig:Card>
+                    {% endif %}
+
+                    {% if has_disposition %}
+                        <twig:Card id="disposition" class="mb-3" title="{{ 'encounter.course.section.disposition'|trans({}, d) }}">
+                            <twig:block name="actions">{{ ed_source }}</twig:block>
+                            {% import '@EdVisit/visit/_course_macros.html.twig' as course_blocks %}
+                            {{ course_blocks.disposition(encounter) }}
+                        </twig:Card>
+                    {% endif %}
+
+                    {# Records of other encounter schemas at this encounter (ADR 037). #}
+                    {% if record_sections is not empty %}
+                        <twig:Card id="further-data" class="mb-3" title="{{ 'encounter.visit.section.further'|trans({}, d) }}" padding="none">
+                            {% for section in record_sections %}
+                                <div class="card-body{{ loop.first ? '' : ' border-top' }}" data-record-section="{{ section.key }}">
+                                    {{ include(section.template, section.context) }}
+                                </div>
+                            {% endfor %}
+                        </twig:Card>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <div class="{{ has_clinical ? 'col-lg-4 order-1 order-lg-2' : 'col-12' }}">
+                <twig:Card id="allocation" class="mb-3" title="{{ 'encounter.visit.section.allocation'|trans({}, d) }}">
+                    <twig:block name="actions"><span class="badge bg-secondary-lt"><twig:ux:icon name="tabler:ambulance" class="me-1" width="1em" height="1em" />{{ 'encounter.visit.timeline.from_ivena'|trans({}, d) }}</span></twig:block>
+                        {% import '@Shared/_macros/badges.html.twig' as badges %}
+                    {% import '@EdVisit/visit/_course_macros.html.twig' as course_blocks %}
+                        <div data-testid="encounter-visit-link">
+                            {% if link is not null %}
+                                {% set allocation = link.allocation %}
+                                <div class="d-flex flex-wrap gap-1 mb-3">
+                                    <span class="badge {{ course.automatic ? 'bg-blue-lt' : 'bg-green-lt' }}" title="{{ (course.automatic ? 'encounter.course.origin.automatic_hint' : 'encounter.course.origin.confirmed_hint')|trans({}, d) }}" data-testid="encounter-visit-link-state" data-state="linked" data-origin="{{ course.automatic ? 'automatic' : 'confirmed' }}">{{ (course.automatic ? 'encounter.course.origin.automatic' : 'encounter.course.origin.confirmed')|trans({}, d) }}</span>
+                                    {% if course.agreementPercent is not null %}
+                                        {{ course_blocks.agreement_badge(link.score, 'encounter-visit-link-agreement') }}
+                                    {% endif %}
+                                </div>
+                                <div class="datagrid mb-3" data-testid="encounter-visit-allocation">
+                                    <div class="datagrid-item">
+                                        <div class="datagrid-title">{{ 'encounter.visit.field.indication'|trans({}, d) }}</div>
+                                        <div class="datagrid-content">
+                                            {% if allocation.indicationRaw is not null %}
+                                                {{ allocation.indicationRaw.name }} <span class="badge">{{ allocation.indicationRaw.code }}</span>
+                                            {% else %}–{% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="datagrid-item">
+                                        <div class="datagrid-title">{{ 'encounter.visit.field.urgency'|trans({}, d) }}</div>
+                                        <div class="datagrid-content">
+                                            {% if allocation.urgency is not null %}{{ badges.render('allocation_urgency', allocation.urgency.value) }}{% else %}–{% endif %}
+                                        </div>
+                                    </div>
+                                    {# Further allocation data follows the allocation's own access rule (ADR 011). #}
+                                    {% if is_granted('VIEW', allocation) %}
+                                        {% set resources = [
+                                            {on: allocation.requiresResus, label: 'field.requiresResus'|trans({}, 'messages')},
+                                            {on: allocation.requiresCathlab, label: 'field.requiresCathlab'|trans({}, 'messages')},
+                                        ]|filter(item => item.on) %}
+                                        {% set features = [
+                                            {on: allocation.isCPR, label: 'field.isCPR'|trans({}, 'messages')},
+                                            {on: allocation.isVentilated, label: 'allocations.field.isVentilated'|trans({}, 'allocation')},
+                                            {on: allocation.isShock, label: 'allocations.field.isShock'|trans({}, 'allocation')},
+                                            {on: allocation.isPregnant, label: 'allocations.field.isPregnant'|trans({}, 'allocation')},
+                                            {on: allocation.isWorkAccident, label: 'allocations.field.isWorkAccident'|trans({}, 'allocation')},
+                                        ]|filter(item => item.on) %}
+                                        <div class="datagrid-item" data-testid="encounter-visit-allocation-department">
+                                            <div class="datagrid-title">{{ 'label.speciality'|trans({}, 'messages') }}</div>
+                                            <div class="datagrid-content">
+                                                {% if allocation.department is not null %}{{ explore_entity_link(allocation.department) }}{% else %}–{% endif %}
+                                                {% if allocation.speciality is not null %}<span class="text-secondary">({{ explore_entity_link(allocation.speciality) }})</span>{% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="datagrid-item" data-testid="encounter-visit-allocation-transport">
+                                            <div class="datagrid-title">{{ 'field.transportType'|trans({}, 'messages') }}</div>
+                                            <div class="datagrid-content">
+                                                {{ allocation.transportType is not null ? allocation.transportType.label()|trans : 'field.transportType.unknown'|trans({}, 'messages') }}{% if allocation.isWithPhysician %} · {{ 'field.isWithPhysician.true'|trans({}, 'messages') }}{% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="datagrid-item" data-testid="encounter-visit-allocation-resources">
+                                            <div class="datagrid-title">{{ 'encounter.visit.field.resources'|trans({}, d) }}</div>
+                                            <div class="datagrid-content d-flex flex-wrap gap-1">
+                                                {% for item in resources %}<span class="badge bg-blue-lt">{{ item.label }}</span>{% else %}–{% endfor %}
+                                            </div>
+                                        </div>
+                                        {% if features is not empty %}
+                                            <div class="datagrid-item" data-testid="encounter-visit-allocation-features">
+                                                <div class="datagrid-title">{{ 'label.properties'|trans({}, 'messages') }}</div>
+                                                <div class="datagrid-content d-flex flex-wrap gap-1">
+                                                    {% for item in features %}<span class="badge bg-orange-lt">{{ item.label }}</span>{% endfor %}
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                        {% if allocation.infection is not null %}
+                                            <div class="datagrid-item" data-testid="encounter-visit-allocation-infection">
+                                                <div class="datagrid-title">{{ 'field.infection'|trans({}, 'messages') }}</div>
+                                                <div class="datagrid-content">{{ explore_entity_link(allocation.infection, {class: 'badge bg-orange text-orange-fg'}) }}</div>
+                                            </div>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                                {% if is_granted('VIEW', allocation) %}
+                                    <a class="btn btn-primary w-100" href="{{ path('app_explore_allocation_show', {publicId: allocation.publicIdString}) }}" data-testid="encounter-visit-case-file">
+                                        <twig:ux:icon name="tabler:ambulance" class="w-3 h-3 me-1" />
+                                        {{ 'encounter.visit.link.open_case_file'|trans({}, d) }}
+                                    </a>
+                                {% endif %}
+                            {% elseif proposals is not empty %}
+                                <span class="badge bg-yellow-lt mb-2" data-testid="encounter-visit-link-state" data-state="pending">{{ 'encounter.visit.link.pending'|trans({}, d) }}</span>
+                                <p class="small mb-2">{{ 'encounter.visit.link.pending_hint'|trans({count: proposals|length}, d) }}</p>
+                                <ul class="list-unstyled mb-0">
+                                    {% for proposal in proposals %}
+                                        <li class="d-flex flex-wrap align-items-center gap-2 mb-2" data-testid="encounter-visit-proposal">
+                                            <span class="fw-semibold">{{ 'encounter.visit.link.allocation'|trans({id: proposal.allocation.id}, d) }}</span>
+                                            {% if proposal.score is not null %}
+                                                {{ course_blocks.agreement_badge(proposal.score) }}
+                                            {% endif %}
+                                            <a class="btn btn-sm ms-auto" href="{{ path('app_tools_encounter_review_allocation', {id: hospital.id, allocationId: proposal.allocation.id}) }}" data-testid="encounter-visit-review-link">
+                                                {{ 'encounter.visit.link.open_review'|trans({}, d) }}
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <span class="badge bg-secondary-lt mb-2" data-testid="encounter-visit-link-state" data-state="unlinked">{{ 'encounter.visit.link.unlinked'|trans({}, d) }}</span>
+                                <p class="small text-secondary mb-0">{{ 'encounter.visit.link.unlinked_hint'|trans({}, d) }}</p>
+                            {% endif %}
+                        </div>
+                </twig:Card>
+            </div>
+        </div>
+    </div>
+{% endblock %}

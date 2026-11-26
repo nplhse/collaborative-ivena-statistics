@@ -89,7 +89,7 @@ final class InsightCompareMetricsQueryTest extends KernelTestCase
 
         self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
 
-        $filter = new StatisticsFilter(StatisticsFilterScope::Hospital, $hospital->getId(), null, StatisticsFilterPeriod::All);
+        $filter = new StatisticsFilter(StatisticsFilterScope::Hospital, $hospital->getId(), null, StatisticsFilterPeriod::Last12Months);
         $bounds = StatisticsPeriodResolver::resolve($filter);
         $scope = new StatisticsScopeCriteria([$hospital->getId()]);
 
@@ -184,7 +184,7 @@ final class InsightCompareMetricsQueryTest extends KernelTestCase
 
         self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
 
-        $filter = new StatisticsFilter(StatisticsFilterScope::Hospital, $hospital->getId(), null, StatisticsFilterPeriod::All);
+        $filter = new StatisticsFilter(StatisticsFilterScope::Hospital, $hospital->getId(), null, StatisticsFilterPeriod::Last12Months);
         $bounds = StatisticsPeriodResolver::resolve($filter);
         $scope = new StatisticsScopeCriteria([$hospital->getId()]);
 

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\Application;
 
+use App\Statistics\AnalysisExplorer\Application\Comparison\ExplorerReferenceComparisonPolicy;
+use App\Statistics\AnalysisExplorer\Application\Comparison\ReferenceComparisonDecision;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Domain\Entity\SavedExplorerView;
@@ -15,6 +17,7 @@ final readonly class SavedExplorerViewLoader
     private const string INVALID_CONFIG_WARNING = 'stats.analysis_explorer.saved_view.invalid_config';
 
     public function __construct(
+        private ExplorerReferenceComparisonPolicy $referenceComparisonPolicy,
         private SavedExplorerViewRepository $repository,
         private ExplorerConfigMapper $configMapper,
         private DefaultAnalysisViewFactoryRegistry $defaultAnalysisViewFactory,
@@ -74,13 +77,16 @@ final readonly class SavedExplorerViewLoader
                 $this->applyFilterOverlay($state, $filter);
             }
             $config = $this->configMapper->viewConfigFromState($state, $user);
-            $state = $this->configMapper->toStateArray($config);
+            // The page gets the configuration effective for this viewer, never the stored comparison (#1346).
+            $comparison = $this->referenceComparisonPolicy->effective($config, $user);
+            $state = $this->configMapper->toStateArray($comparison->config);
             if ($savedView->isSystem()) {
                 $state['title'] = $this->labelResolver->title($savedView);
             }
 
             return new SavedExplorerViewLoadResult(
                 state: $state,
+                warnings: $comparison->dropped ? [ReferenceComparisonDecision::NOTICE_KEY] : [],
                 view: $savedView,
             );
         } catch (\Throwable) {

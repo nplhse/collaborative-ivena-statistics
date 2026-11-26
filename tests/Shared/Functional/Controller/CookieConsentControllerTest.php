@@ -77,4 +77,21 @@ final class CookieConsentControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('input[name="analytics"][checked]');
     }
+
+    public function testWithoutSentryThereIsNoPerformanceOptionAndNoSentryNotice(): void
+    {
+        $client = self::createClient();
+        $crawler = $client->request(Request::METHOD_GET, '/cookies/preferences');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('input[name="performance"]');
+        self::assertStringNotContainsString('Sentry', (string) $client->getResponse()->getContent());
+
+        $token = $crawler->filter('input[name="_token"]')->first()->attr('value');
+        $client->request(Request::METHOD_POST, '/cookies/preferences', ['_token' => $token, 'analytics' => '1', 'performance' => '1']);
+        $client->followRedirect();
+
+        self::assertSelectorExists('input[name="analytics"][checked]');
+        self::assertSelectorNotExists('input[name="performance"]');
+    }
 }

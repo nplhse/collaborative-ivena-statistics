@@ -7,18 +7,23 @@ namespace App\Feedback\Application;
 final readonly class FeedbackSpamCheckResult
 {
     /**
-     * @param list<string> $reasons
+     * @param list<string> $reasons reason codes, never message content
      */
     public function __construct(
-        private bool $spam,
+        public FeedbackSpamVerdict $verdict,
         private int $score,
         private array $reasons = [],
     ) {
     }
 
-    public function isSpam(): bool
+    public function isRejected(): bool
     {
-        return $this->spam;
+        return FeedbackSpamVerdict::REJECT === $this->verdict;
+    }
+
+    public function isQuarantined(): bool
+    {
+        return FeedbackSpamVerdict::QUARANTINE === $this->verdict;
     }
 
     public function getScore(): int

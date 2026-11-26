@@ -1,0 +1,52 @@
+name: Detect code changes
+
+# Called by the other workflows instead of a workflow-level `paths-ignore` on pull requests: a workflow that
+# does not start reports no status, so the checks the rulesets require would stay pending on docs-only pull
+# requests. Jobs that depend on this output are skipped with `if:` instead, which counts as passed (#1183).
+on:
+    workflow_call:
+        outputs:
+            code:
+                description: "'true' unless the pull request only changes docs/** or Markdown files"
+                value: ${{ jobs.detect.outputs.code }}
+
+permissions:
+    contents: read
+
+jobs:
+    detect:
+        name: Detect code changes
+        runs-on: ubuntu-latest
+        permissions:
+            pull-requests: read
+        outputs:
+            code: ${{ steps.files.outputs.code }}
+        steps:
+            - name: Check the changed files
+              id: files
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  EVENT_NAME: ${{ github.event_name }}
+                  REPOSITORY: ${{ github.repository }}
+                  PR_NUMBER: ${{ github.event.pull_request.number }}
+              run: |
+                  set -euo pipefail
+                  if [ "$EVENT_NAME" != "pull_request" ]; then
+                      echo "code=true" >> "$GITHUB_OUTPUT"
+                      exit 0
+                  fi
+                  changed=$(gh api "repos/$REPOSITORY/pulls/$PR_NUMBER" --jq '.changed_files')
+                  files=$(gh api "repos/$REPOSITORY/pulls/$PR_NUMBER/files" --paginate --jq '.[].filename')
+                  listed=$(printf '%s\n' "$files" | grep -c . || true)
+                  # The files endpoint lists at most 3000 files; a longer pull request counts as a code change.
+                  # grep without -q reads the whole list: with -q it stops early, printf gets SIGPIPE, and pipefail
+                  # turned a code change into "docs only" for large pull requests (#1698).
+                  if [ "$listed" -lt "$changed" ]; then
+                      echo "The file list is incomplete ($listed of $changed files); the code checks run."
+                      echo "code=true" >> "$GITHUB_OUTPUT"
+                  elif printf '%s\n' "$files" | grep -vE '^docs/|\.md$' > /dev/null; then
+                      echo "code=true" >> "$GITHUB_OUTPUT"
+                  else
+                      echo "Only docs/** and Markdown files changed; the code checks are skipped."
+                      echo "code=false" >> "$GITHUB_OUTPUT"
+                  fi

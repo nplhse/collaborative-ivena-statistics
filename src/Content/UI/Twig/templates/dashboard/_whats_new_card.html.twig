@@ -1,0 +1,33 @@
+{# "What's new for you" (#1485): what the last update brings, only for accounts that existed before it. #}
+<div class="card" data-testid="dashboard-whats-new-card">
+    <div class="card-header">
+        <h3 class="card-title mb-0 d-inline-flex align-items-center gap-2">
+            <twig:ux:icon name="tabler:sparkles" class="text-primary" style="height: 1.25em;" />
+            {{ 'whats_new.card.title'|trans({}, 'onboarding') }}
+        </h3>
+    </div>
+    <div class="card-body d-flex flex-column gap-3">
+        <p class="text-secondary mb-0">{{ 'whats_new.card.intro'|trans({}, 'onboarding') }}</p>
+        <div class="border rounded overflow-hidden">
+            <ul class="list-unstyled mb-0">
+                {% for item in whatsNewCard.items %}
+                    <li class="p-3{% if not loop.last %} border-bottom{% endif %}" data-testid="whats-new-item-{{ item.key.value }}">
+                        <div class="fw-medium mb-1">{{ item.title|trans }}</div>
+                        <p class="text-secondary small mb-2">{{ item.description|trans }}</p>
+                        <a href="{{ item.actionUrl }}" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-1">
+                            {{ item.actionLabel|trans }}
+                            <twig:ux:icon name="tabler:arrow-right" style="height: 1.1em;" />
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <form method="post" action="{{ path('app_whats_new_dismiss', {releaseKey: whatsNewCard.releaseKey}) }}" class="mb-0">
+            <input type="hidden" name="_token" value="{{ csrf_token('whats_new_dismiss_' ~ whatsNewCard.releaseKey) }}">
+            <button type="submit" class="btn btn-ghost-secondary btn-sm d-inline-flex align-items-center gap-1" data-testid="whats-new-dismiss">
+                <twig:ux:icon name="tabler:check" style="height: 1.1em;" />
+                {{ 'whats_new.card.dismiss'|trans({}, 'onboarding') }}
+            </button>
+        </form>
+    </div>
+</div>

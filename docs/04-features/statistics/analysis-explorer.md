@@ -6,7 +6,7 @@ Interactive statistics explorer for ad-hoc allocation analyses. It replaces the 
 
 | Page | Route |
 |---|---|
-| Analysis library (subnav entry) | `/statistics/analysis/library` |
+| Analysis library (sidebar entry) | `/statistics/analysis/library` |
 | Analysis assistant | `/statistics/analysis/assistant` |
 | Analysis Explorer (default) | `/statistics/analysis/explorer` |
 | Analysis Explorer (saved view) | `/statistics/analysis/explorer/{view}` |
@@ -48,7 +48,7 @@ Favorites are stored in `saved_explorer_view_favorite` as a per-user relation to
 
 ### Library sections
 
-The analysis library **Overview** lists every analysis the viewer may open: system views, their own saved views, and — for participants — public views from other users. The active tab uses the same surface background and primary underline as the Insights subnav. A narrow filter column, laid out like the activity timeline, narrows the active tab by data source, origin, dimension, chart, grain, and username. Data source, origin, dimension, chart, and grain are dropdowns. Active filters are summarized above the results. Category filters follow the subject (allocations or hospitals), including user views via their data source. Cards are listed in a single column, 10 per page, with the same previous, numbered, and next links as the blog. The same row shows the visible range on the left, for example 11–20 of 27, and centers the page links. Library cards use the shared Card component. The title is a primary-colored link that opens the explorer and sits with the favorite control in the card header; provenance, description, and badges sit in the body. Data source sits with the dimension, grain, and chart badges; the hospitals source is labeled Kliniken. Clicking any of those badges applies that filter and keeps the other active filters. **Favorites** and **My views** stay personal. Switching among Overview, Favorites, and My views clears the library filters and keeps the statistics scope and period. Save as lets the creator choose private or public, defaulting to private. Visibility of an existing view changes only in the edit dialog. The creator can delete the view, including a public one, from the edit dialog after a confirmation. The viewer's own private views appear in the overview beside public views from other participants. A private view shows a lock beside the title in the library and on the explorer page; hovering the lock explains that only its owner can see it. Public views have no visibility badge; the author line identifies who created them. Cards and the explorer page show provenance on one line (`admin · 33 minutes ago` or `From the system · 2 months ago`). The saved description sits under the explorer title and on the card.
+The analysis library **Overview** lists every analysis the viewer may open: system views, their own saved views, and — for participants — public views from other users. The active tab uses a surface background and a primary underline. A narrow filter column, laid out like the activity timeline, narrows the active tab by data source, origin, dimension, chart, grain, and username. Data source, origin, dimension, chart, and grain are dropdowns. Active filters are summarized above the results. Category filters follow the subject (allocations or hospitals), including user views via their data source. Cards are listed in a single column, 10 per page, with the same previous, numbered, and next links as the blog. The same row shows the visible range on the left, for example 11–20 of 27, and centers the page links. Library cards use the shared Card component. The title is a primary-colored link that opens the explorer and sits with the favorite control in the card header; provenance, description, and badges sit in the body. Data source sits with the dimension, grain, and chart badges; the hospitals source is labeled Kliniken. Clicking any of those badges applies that filter and keeps the other active filters. **Favorites** and **My views** stay personal. Switching among Overview, Favorites, and My views clears the library filters and keeps the statistics scope and period. Save as lets the creator choose private or public, defaulting to private. Visibility of an existing view changes only in the edit dialog. The creator can delete the view, including a public one, from the edit dialog after a confirmation. The viewer's own private views appear in the overview beside public views from other participants. A private view shows a lock beside the title in the library and on the explorer page; hovering the lock explains that only its owner can see it. Public views have no visibility badge; the author line identifies who created them. Cards and the explorer page show provenance on one line (`admin · 33 minutes ago` or `From the system · 2 months ago`). The saved description sits under the explorer title and on the card.
 
 ### System view labels (i18n)
 
@@ -92,6 +92,7 @@ Opening the proposal goes to the blank explorer. When `guide` is present, `Analy
 - Legacy `/statistics/analytics/*` URLs redirect here; old saved Generic Analysis views are not migrated.
 - Charts display a single `visualMetric`; additional metrics appear in the table only.
 - Chart axis titles (`xAxisLabel` / `yAxisLabel`) render inside ApexCharts; the analysis title stays in the card header and is added to PNG exports only.
+- The value axis title uses the same translated metric label as the results table and the export (`stats.analysis_explorer.metric.<key>`; distribution profiles use their profile label). Every chartable metric therefore needs that key in EN and DE; `ExplorerChartMetricLabelTranslationTest` checks it.
 - Default locale remains `en`; German catalog exists for explorer keys in `statistics+intl-icu.de.xlf`.
 
 ## Architecture
@@ -181,6 +182,22 @@ This is separate from saved-view metadata (`savedViewDescription` / `ExplorerDes
 
 CSV export re-runs the normalizer + runner pipeline (same guards as `rerunAnalysis()`). Config is submitted via POST with CSRF as `appliedConfigState`. Scope, period, filters, axes and metrics come from that state — the same source as the chart and data table. URL query parameters are not overlaid onto the export (URL scope/period overlay applies only when loading a saved view).
 
+### Reference hospital comparison (#1346)
+
+A viewer with `HospitalPermission::Benchmarking` can compare up to **5 reference hospitals** with **the other hospitals in the selected scope** (allocations data source only). It is a synthetic series, not a separate benchmarking system.
+
+| Item | Behaviour |
+|---|---|
+| Switch | An opt-in extra in the filter drawer, as the last filter group "My hospital(s) in comparison" (singular or plural by the number of candidates; expanded only while a comparison is set), with one short help text: the switch "Compare with the other hospitals in the scope" is off unless the view has references. Switching it on reveals the candidates as checkboxes (at most the number the scope allows; further ticks are dropped). Switching it off and applying removes the references and, for the case count, the share the comparison preselected, so the previous view comes back. The section is hidden when no reference is possible (single-hospital scope, too few hospitals, no Benchmarking grant in the scope, other data sources). |
+| Groups | One series per reference hospital (its name) plus "Other hospitals in scope" / "Andere Kliniken im Scope" (`GenericAnalysis` dimension `reference_group`: `CASE WHEN hospital_id IN (:reference_hospitals) THEN hospital_id::text ELSE 'others' END`, ids always bound). The groups are disjoint and add up to the population without comparison. |
+| Preconditions | Allocations source; no manual column axis (the comparison takes the series slot; the form clears and disables the column field); a scope other than a single hospital; 1–5 distinct references; Benchmarking on every reference (admins: any hospital); every reference inside the scope; hospitals in scope − references ≥ `ScopePrivacyPolicy::MIN_HOSPITALS` (3), for **every** scope kind including "all" and "my hospitals". |
+| Hospitals in scope | `ScopeHospitalIdsQuery`: the distinct hospitals with allocations in `allocation_stats_projection` under the analysis scope conditions, independent of the period. |
+| Share within group | `percent_of_series` (count distributions only): count of the bucket in the group ÷ all counted cases of the group (after filters and the usual handling of missing values, before chart or export limits). A group without cases has no share ("–", empty CSV cell); an empty bucket in a group with cases is 0 %. "Other hospitals" is a case-weighted pool, not an average of hospital shares. Switching the comparison on preselects "show percent" if the metric is a count distribution; for averages and rates the display stays as it is. A later explicit choice is stored and kept. With the share on, the chart plots the shares. |
+| Effective view | `ExplorerReferenceComparisonPolicy::effective()` decides per viewer, in `AnalysisExecution` (live explorer), `SavedExplorerViewLoader` (saved and public views) and the CSV export. If the comparison is not available, the effective view has no references, no `percent_of_series` and no group labels (the rest is normalised again, so a grouped bar chart that only fits the comparison falls back), and shows the neutral notice `stats.analysis_explorer.reference_comparison.unavailable`. There is no partial comparison. The stored configuration is not changed by opening it. The page and the CSV only ever receive the effective configuration, so an unauthorised viewer of a public view, or an anonymous viewer of a system view (the only saved views anonymous viewers can open), never gets the reference ids or names. |
+| Table and CSV | Flat table with a "Group" column and the share within the group; no footer share (shares add up per group). The CSV uses the same group labels; never rows per other hospital. Without an effective comparison the group column is absent. |
+| Known limitation | The minimum counts hospitals of the scope, not hospitals that contribute cases after the analysis filters. After filtering, "Other hospitals in scope" can in effect contain a single contributing hospital. Minimum checks on contributing hospitals and stricter rules for small groups are #1347. |
+| Saving | Saving stores the configuration as it is in the explorer at that moment. If the comparison was not available when the view was opened (for example a grant was withdrawn), saving stores it without the comparison. |
+
 ### Chart row limit
 
 Charts can optionally show only the **top 5** or **top 10** row buckets (primary axis). Default is **all** rows — unlike Generic Analysis, which auto-limits categorical charts to top 5.
@@ -204,7 +221,7 @@ Charts can optionally show only the **top 5** or **top 10** row buckets (primary
   "dataSource": "allocations",
   "query": {
     "scope": { "group": "public", "detail": null },
-    "period": { "type": "all", "year": null, "quarter": null, "month": null },
+    "period": { "type": "last_12_months", "year": null, "quarter": null, "month": null },
     "metrics": ["allocation_count"],
     "visualMetric": "allocation_count",
     "rows": { "dimension": "time", "grain": "month" },
@@ -219,7 +236,7 @@ Charts can optionally show only the **top 5** or **top 10** row buckets (primary
 }
 ```
 
-v1–v3 configs with known fields are upgraded on load via `ExplorerConfigMapper` + `AnalysisAxisUpgradeMapper`. Unknown catalog keys fail. Serialisation always writes v4. `presentation.mode` is not part of v4.
+v1–v4 configs with known fields are upgraded on load via `ExplorerConfigMapper` + `AnalysisAxisUpgradeMapper`. Unknown catalog keys fail. Serialisation always writes v5, which adds `query.referenceHospitals` (list of hospital ids, empty without comparison, #1346); a v4 state loads unchanged, without a comparison. `presentation.mode` is not part of v5.
 
 ### Hospitals data source
 
@@ -236,11 +253,11 @@ v1–v3 configs with known fields are upgraded on load via `ExplorerConfigMapper
 
 ```json
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "dataSource": "hospitals",
   "query": {
     "scope": { "group": "public", "detail": null },
-    "period": { "type": "all", "year": null, "quarter": null, "month": null },
+    "period": { "type": "last_12_months", "year": null, "quarter": null, "month": null },
     "hospitalPopulation": "participating",
     "metrics": ["hospital_count"],
     "visualMetric": "hospital_count",
@@ -260,7 +277,7 @@ Saved views are bound to `configJson.dataSource`. When opening a saved view with
 
 UI-only LiveProps on the shell: `isEditOpen`, `configWarning`, `analysisRevision`, `appliedConfigState`, `locale`. Chart/table output is request-scoped (not persisted in LiveProps).
 
-## Config state format (schema version 4)
+## Config state format (schema version 5)
 
 Legacy v1/v2 examples are upgraded on load. Current serialisation format:
 
@@ -282,7 +299,7 @@ Analysis filters narrow the allocation set **before** row/column grouping. They 
 | `urgency` | `filterUrgency` | `equals` | Readable labels (emergency/inpatient/outpatient) |
 | `transport_type` | `filterTransportType` | `equals` | |
 | `gender` | `filterGender` | `equals` | |
-| `age_group` | `filterAgeGroup` | `equals` | Includes aggregate buckets |
+| `age_group` | `filterAgeGroup` | `equals` | Aggregate buckets `under_18`, `adults` (18 and over), `over_80` plus the age buckets `0_17`, `18_29` … `90_99`; cases without age are excluded, see [Age group filter](statistics-filter-and-scope.md#age-group-filter) |
 | `resus` / `cpr` / `ventilation` | boolean fields | `equals` | `0` / `1` |
 | `assignment` | `filterAssignmentId` | `equals` | |
 

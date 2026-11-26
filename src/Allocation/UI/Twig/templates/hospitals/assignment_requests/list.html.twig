@@ -1,0 +1,138 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'hospital_assignment_request.title.list'|trans({}, 'allocation') }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                { label: 'title.hospitals.my', path: path('app_hospitals_index') },
+                { label: 'hospital_assignment_request.title.list', label_domain: 'allocation' }
+            ]"
+        />
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col-12 col-md">
+                    <h2 class="page-title">{{ 'hospital_assignment_request.title.list'|trans({}, 'allocation') }}</h2>
+                </div>
+                <div class="col-12 col-md-auto ms-md-auto">
+                    <a class="btn btn-primary" href="{{ path('app_hospital_assignment_request_new') }}" data-testid="hospital-assignment-request-new">
+                        <twig:ux:icon name="tabler:plus" width="1em" height="1em" />&nbsp;{{ 'hospital_assignment_request.action.new'|trans({}, 'allocation') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    {% if requests is empty %}
+        <div class="card">
+            <div class="card-body">
+                <twig:EmptyState
+                    title="{{ 'hospital_assignment_request.empty.title'|trans({}, 'allocation') }}"
+                    description="{{ 'hospital_assignment_request.empty.description'|trans({}, 'allocation') }}"
+                    icon="tabler:building-hospital"
+                />
+            </div>
+        </div>
+    {% else %}
+        <div class="row row-cards" data-testid="hospital-assignment-requests">
+            {% for request in requests %}
+                {% set status = request.status.value %}
+                <div class="col-12">
+                    {# Anchor for links from the dashboard and the onboarding card (#1483). #}
+                    <div class="card hospital-assignment-request-card" id="request-{{ request.publicIdString }}" data-testid="hospital-assignment-request">
+                        <div class="card-header">
+                            <div>
+                                <h3 class="card-title">
+                                    {% if request.hospital %}
+                                        <a href="{{ path('app_explore_hospital_show', {publicId: request.hospital.publicIdString}) }}">{{ request.hospital.name }}</a>
+                                    {% else %}
+                                        {{ request.requestedHospitalName }}
+                                    {% endif %}
+                                </h3>
+                                {% if request.hospital %}
+                                    <div class="text-body-secondary small">{{ request.hospital.dispatchArea }} · {{ request.hospital.state }}</div>
+                                {% else %}
+                                    <span class="badge bg-azure-lt mt-1">{{ 'hospital_assignment_request.not_in_list'|trans({}, 'allocation') }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="card-actions d-flex align-items-center gap-2">
+                                {{ include('@Allocation/hospitals/assignment_requests/_status_badge.html.twig') }}
+                                {% if request.pending %}
+                                    <div class="dropdown">
+                                        <button
+                                            type="button"
+                                            class="btn btn-action"
+                                            data-bs-toggle="dropdown"
+                                            aria-expanded="false"
+                                            aria-label="{{ 'hospital_assignment_request.card.menu'|trans({}, 'allocation') }}"
+                                            title="{{ 'hospital_assignment_request.card.menu'|trans({}, 'allocation') }}"
+                                        >
+                                            <twig:ux:icon name="tabler:dots-vertical" class="icon" />
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                            <form method="post" action="{{ path('app_hospital_assignment_request_withdraw', {publicId: request.publicIdString}) }}" data-controller="confirm-submit" data-action="submit->confirm-submit#confirm" data-confirm-submit-message-value="{{ 'hospital_assignment_request.action.withdraw_confirm'|trans({}, 'allocation') }}">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('withdraw_hospital_assignment_request_' ~ request.publicIdString) }}">
+                                                <button type="submit" class="dropdown-item text-danger" data-testid="hospital-assignment-request-withdraw">
+                                                    <twig:ux:icon name="tabler:x" class="icon dropdown-item-icon" />
+                                                    {{ 'hospital_assignment_request.action.withdraw'|trans({}, 'allocation') }}
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="datagrid">
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ 'hospital_assignment_request.card.reason'|trans({}, 'allocation') }}</div>
+                                    <div class="datagrid-content">{{ ('hospital_assignment_request.reason.' ~ request.reason.value)|trans({}, 'allocation') }}</div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">{{ 'hospital_assignment_request.card.submitted'|trans({}, 'allocation') }}</div>
+                                    <div class="datagrid-content">{{ request.createdAt|format_date('medium') }}</div>
+                                </div>
+                                {% if request.closedAt %}
+                                    <div class="datagrid-item">
+                                        <div class="datagrid-title">{{ ('hospital_assignment_request.card.closed.' ~ status)|trans({}, 'allocation') }}</div>
+                                        <div class="datagrid-content">{{ request.closedAt|format_date('medium') }}</div>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            {% for label, text in {explanation: request.explanation, comment: request.comment} %}
+                                {% if text %}
+                                    <div class="mt-3">
+                                        <div class="datagrid-title">{{ ('hospital_assignment_request.card.' ~ label)|trans({}, 'allocation') }}</div>
+                                        <div class="text-break">{{ text|nl2br }}</div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if status == 'approved' %}
+                                <div class="d-flex align-items-center gap-2 mt-3 text-success" data-testid="hospital-assignment-request-outcome">
+                                    <twig:ux:icon name="tabler:circle-check" class="icon" />
+                                    {{ ('hospital_assignment_request.outcome.' ~ request.outcome.value)|trans({}, 'allocation') }}
+                                </div>
+                            {% endif %}
+                            {% if request.decisionMessage and status in ['approved', 'rejected'] %}
+                                <div class="alert {{ status == 'rejected' ? 'alert-danger' : 'alert-info' }} mt-3 mb-0" role="note" data-testid="hospital-assignment-request-message">
+                                    <div class="d-flex gap-2">
+                                        <twig:ux:icon name="tabler:message-circle" class="icon alert-icon" />
+                                        <div>
+                                            <h4 class="alert-title">{{ 'hospital_assignment_request.decision_message'|trans({}, 'allocation') }}</h4>
+                                            <div class="text-secondary text-break">{{ request.decisionMessage|nl2br }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}

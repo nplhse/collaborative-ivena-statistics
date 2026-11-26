@@ -16,6 +16,7 @@
 | CaseFlow | `/statistics/case-flow` | Regional flow metrics and maps |
 | ClosedDepartmentAssignments | `/statistics/closed-department-assignments` | Notzuweisungen / forced assignments (one lazy rankings frame for the six cards; KPI + grouping-sets slice on first paint) |
 | ClosureAnalytics | `/statistics/closure-analytics` | Hospital-local source groups, clusters and single intervals, speciality volume series, estimated observation coverage, overlap-aware actual closure time, timeline drilldown, and weekday/time heatmap |
+| Encounter analytics (beta) | `/statistics/encounter-analytics` | Descriptive encounter data of one hospital (ED visits, IVENA link, MTS triage, process times, disposition); page and figures from the ED visit plugin ([Statistics pages](../../02-architecture/extension-points.md#statistics-pages)), see [encounter README](../encounter/README.md#hospital-overview) |
 | HospitalPopulation | `/statistics/hospital-population/{section}` | Hospital population: Participation, Coverage, Beds, Allocations |
 | Isochrone origin heatmap | Overview / Insights / closed-department analysis (hospital scope) | Lazy travel-time isochrone map |
 
@@ -36,7 +37,7 @@
 | [closure-analytics.md](closure-analytics.md) | Interval-based closure analytics |
 | [closure-architecture.md](closure-architecture.md) | Source rows, analysis intervals, events, and the volume projection |
 | [hospital-population.md](hospital-population.md) | Hospital population dashboard (Participation / Coverage / Beds / Allocations) |
-| [directional-indicators.md](directional-indicators.md) | Shared delta colour, sign, and unit |
+| [directional-indicators.md](directional-indicators.md) | Shared delta colour (assessment), sign, and unit; compare tiles |
 | [ranking-table.md](ranking-table.md) | Ranking table separate from DataTable |
 | [isochrone-origin-heatmap.md](isochrone-origin-heatmap.md) | Hospital-scope travel-time isochrone heatmap |
 

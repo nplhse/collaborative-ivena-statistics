@@ -6,13 +6,16 @@ namespace App\Tests\Allocation\Functional\Controller\Hospitals;
 
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalLocation;
+use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
+use App\Allocation\Domain\HospitalPermissionMask;
 use App\Allocation\Infrastructure\Factory\AddressFactory;
 use App\Allocation\Infrastructure\Factory\AllocationFactory;
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
+use App\Allocation\Infrastructure\Factory\HospitalAccessGrantFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
@@ -21,6 +24,7 @@ use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
+use App\Tests\Support\Geo\DispatchAreaShapes;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -31,6 +35,7 @@ use Zenstruck\Foundry\Test\Factories;
 #[ResetDatabase]
 final class ShowHospitalControllerTest extends WebTestCase
 {
+    use DispatchAreaShapes;
     use Factories;
     use InteractsWithAuthenticatedUser;
 
@@ -67,6 +72,7 @@ final class ShowHospitalControllerTest extends WebTestCase
             'createdAt' => new \DateTimeImmutable('2025-01-02 03:04:05'),
         ]);
 
+        $this->giveDispatchAreasShapes();
         $crawler = $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getPublicIdString());
 
         self::assertResponseIsSuccessful();
@@ -86,7 +92,8 @@ final class ShowHospitalControllerTest extends WebTestCase
         self::assertSelectorNotExists('a.btn-primary[href="/hospitals/'.$hospital->getId().'/edit"]');
         self::assertSelectorExists('[data-testid="catalog-orientation-map"]');
         $map = $crawler->filter('[data-testid="catalog-orientation-map"]');
-        self::assertSame('frankfurt', $map->attr('data-catalog-orientation-map-highlight-key-value'));
+        self::assertSame($this->dispatchAreaKey('Frankfurt'), $map->attr('data-catalog-orientation-map-highlight-key-value'));
+        $this->assertHasMapFeature($this->dispatchAreaKey('Frankfurt'));
         self::assertSame('50.1109', $map->attr('data-catalog-orientation-map-marker-lat-value'));
         self::assertSame('8.6821', $map->attr('data-catalog-orientation-map-marker-lng-value'));
         self::assertSame('false', $map->attr('data-catalog-orientation-map-show-route-value'));
@@ -98,6 +105,49 @@ final class ShowHospitalControllerTest extends WebTestCase
         self::assertContains('/explore/dispatch_area/'.$dispatch->getPublicIdString(), $actionHrefs);
         self::assertNotContains('/explore/allocation?hospitalFilter='.$hospital->getId(), $actionHrefs);
         self::assertNotContains('/import?hospitalId='.$hospital->getId(), $actionHrefs);
+    }
+
+    public function testShowSaysSoWhenHospitalHasNoAddress(): void
+    {
+        $client = $this->createClientAsParticipant();
+
+        $address = AddressFactory::new(['street' => '', 'postalCode' => '', 'city' => '', 'state' => '', 'country' => ''])->create();
+        $hospital = HospitalFactory::createOne(['address' => $address]);
+
+        $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextSame('#hospital-address', 'No address on file.');
+    }
+
+    public function testShowSkipsMissingAddressParts(): void
+    {
+        $client = $this->createClientAsParticipant();
+
+        $address = AddressFactory::new(['street' => '', 'postalCode' => '', 'city' => 'Teststadt', 'state' => 'Hessen', 'country' => ''])->create();
+        $hospital = HospitalFactory::createOne(['address' => $address]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSame('Teststadt<br>Hessen', trim((string) preg_replace('/\s+/', '', $crawler->filter('#hospital-address em')->html())));
+    }
+
+    public function testShowDisplaysOwnerAndAuthorByDisplayNameWithAvatar(): void
+    {
+        $client = $this->createClientAsParticipant();
+
+        $owner = UserFactory::createOne(['username' => 'owner-user', 'displayName' => 'Olga Owner']);
+        $createdBy = UserFactory::createOne(['username' => 'area-user', 'displayName' => 'Anton Area']);
+        $hospital = HospitalFactory::createOne(['owner' => $owner, 'createdBy' => $createdBy]);
+
+        $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('#hospital-owned-by a[title="@owner-user"]', 'Olga Owner');
+        self::assertSelectorTextSame('#hospital-owned-by .avatar.avatar-inline', 'OO');
+        self::assertSelectorTextContains('#hospital-created-by a[title="@area-user"]', 'Anton Area');
+        self::assertSelectorTextSame('#hospital-created-by .avatar.avatar-inline', 'AA');
     }
 
     public function testOwnerSeesEditButtonOnOwnHospitalShowPage(): void
@@ -121,6 +171,62 @@ final class ShowHospitalControllerTest extends WebTestCase
         self::assertContains('/explore/allocation?hospitalFilter='.$hospital->getId(), $actionHrefs);
         self::assertContains('/import?hospitalId='.$hospital->getId(), $actionHrefs);
         self::assertTrue($this->containsBenchmarkingHospitalScope($actionHrefs, (int) $hospital->getId()));
+    }
+
+    public function testOwnerSeesWhoHasAccessWithAtMostFiveAvatars(): void
+    {
+        $client = self::createClient();
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        $hospital = HospitalFactory::createOne(['owner' => $owner]);
+        // Usernames sort the grants: grantee-1 … grantee-6; the first one has a display name.
+        foreach (range(1, 6) as $i) {
+            HospitalAccessGrantFactory::createOne([
+                'hospital' => $hospital,
+                'user' => UserFactory::createOne(['username' => 'grantee-'.$i, 'displayName' => 1 === $i ? 'Gina Grant' : null]),
+                'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::View]),
+                'createdBy' => $owner,
+            ]);
+        }
+
+        $client->loginUser($owner);
+        $crawler = $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        $summary = $crawler->filter('[data-testid="hospital-access-summary"]');
+        $avatars = $summary->filter('.avatar-list .avatar[data-avatar]');
+        self::assertCount(5, $avatars, 'at most five avatars');
+        self::assertSame('Gina Grant · @grantee-1', $avatars->first()->attr('aria-label'));
+        self::assertSame('GG', trim($avatars->first()->text()));
+        self::assertSame('grantee-2', $avatars->eq(1)->attr('aria-label'));
+        self::assertSame('+1', trim($summary->filter('[data-testid="hospital-access-summary-more"]')->text()));
+        self::assertSame('1 more person', $summary->filter('[data-testid="hospital-access-summary-more"]')->attr('aria-label'));
+        self::assertStringContainsString('6 people with permissions', $summary->text());
+        self::assertSame('/hospitals/'.$hospital->getId().'/edit/access', $summary->filter('[data-testid="hospital-access-summary-manage"]')->attr('href'));
+    }
+
+    public function testAccessSummaryWithoutGrantsSaysSoAndIsHiddenFromOtherParticipants(): void
+    {
+        $client = self::createClient();
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        $hospital = HospitalFactory::createOne(['owner' => $owner]);
+
+        $client->loginUser($owner);
+        $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('[data-testid="hospital-access-summary"]', 'Nobody has a permission for this hospital yet.');
+        self::assertSelectorNotExists('[data-testid="hospital-access-summary"] .avatar-list');
+
+        // Other participants cannot manage the grants and do not see who has access.
+        $client->loginUser(UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]));
+        $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('[data-testid="hospital-access-summary"]');
     }
 
     public function testOwnerYearHeatmapLinksToHospitalFilteredAllocationList(): void
@@ -249,7 +355,7 @@ final class ShowHospitalControllerTest extends WebTestCase
             if (
                 'hospital' === ($query['scope'] ?? null)
                 && (string) $hospitalId === (string) ($query['hospital'] ?? '')
-                && 'all' === ($query['period'] ?? null)
+                && 'last_12_months' === ($query['period'] ?? null)
                 && 'hospital_cohort' === ($query['comparison_scope'] ?? null)
                 && 'all_time' === ($query['comparison_period'] ?? null)
             ) {

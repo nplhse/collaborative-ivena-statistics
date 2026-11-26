@@ -25,7 +25,7 @@ final class BenchmarkIndicationMixViewModelFactoryTest extends KernelTestCase
         ]);
 
         $viewModel = $factory->create(
-            new Request(query: ['scope' => 'public', 'period' => 'all']),
+            new Request(query: ['scope' => 'public', 'period' => 'last_12_months']),
             $distribution,
         );
 

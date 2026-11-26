@@ -129,7 +129,7 @@ SQL,
                 count: $needsReview,
                 severity: IndicationRawReviewHealthCheckSeverity::Warn,
                 hintKey: 'catalog.quality.hint.needs_review_for_target',
-                actionUrl: $this->urlGenerator->generate('app_explore_indication_raw_review_worklist', [
+                actionUrl: $this->urlGenerator->generate('app_tools_indication_review', [
                     'segment' => 'needs_review',
                 ]),
             );
@@ -143,7 +143,7 @@ SQL,
                 count: $unreviewed,
                 severity: IndicationRawReviewHealthCheckSeverity::Warn,
                 hintKey: 'catalog.quality.hint.unreviewed_for_target',
-                actionUrl: $this->urlGenerator->generate('app_explore_indication_raw_review_worklist', [
+                actionUrl: $this->urlGenerator->generate('app_tools_indication_review', [
                     'segment' => 'unreviewed',
                 ]),
             );

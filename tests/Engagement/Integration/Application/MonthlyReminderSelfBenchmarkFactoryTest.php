@@ -31,7 +31,7 @@ final class MonthlyReminderSelfBenchmarkFactoryTest extends DatabaseKernelTestCa
         );
         $baselineFilter = $filterFactory->createPrimaryFilter(
             40,
-            StatisticsFilterPeriod::All,
+            StatisticsFilterPeriod::Last12Months,
             null,
             null,
         );
@@ -44,7 +44,7 @@ final class MonthlyReminderSelfBenchmarkFactoryTest extends DatabaseKernelTestCa
 
         self::assertSame(StatisticsFilterScope::Hospital, $baselineFilter->scope);
         self::assertSame(40, $baselineFilter->hospitalId);
-        self::assertSame(StatisticsFilterPeriod::All, $baselineFilter->period);
+        self::assertSame(StatisticsFilterPeriod::Last12Months, $baselineFilter->period);
         self::assertNull($baselineFilter->referenceYear);
         self::assertNull($baselineFilter->referenceMonth);
     }

@@ -62,13 +62,13 @@ final class ExportOrchestratorTest extends TestCase
         return new ExportOrchestrator(
             new ExporterRegistry([$exporter]),
             new \App\Shared\Application\Export\CsvStreamExportResponseFactory(),
-            $this->createMock(\App\Shared\Application\Export\ExportAuditLogger::class),
+            $this->createStub(\App\Shared\Application\Export\ExportAuditLogger::class),
         );
     }
 
     private function createExporterMock(int $count): ExporterInterface
     {
-        $exporter = $this->createMock(ExporterInterface::class);
+        $exporter = $this->createStub(ExporterInterface::class);
         $exporter->method('key')->willReturn(OwnHospitalAllocationsExporter::KEY);
         $exporter->method('count')->willReturn($count);
         $exporter->method('resolveScopeHospitalIds')->willReturn([1]);

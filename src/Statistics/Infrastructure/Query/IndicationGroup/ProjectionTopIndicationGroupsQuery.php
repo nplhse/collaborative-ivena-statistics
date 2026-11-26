@@ -36,7 +36,7 @@ final readonly class ProjectionTopIndicationGroupsQuery
             ->innerJoin(IndicationGroup::class, 'g', 'WITH', 'g MEMBER OF inorm.groups')
             ->select('g.id AS groupId', 'g.name AS label', 'COUNT(p.id) AS cnt')
             ->groupBy('groupId', 'label')
-            ->orderBy('cnt', 'DESC')
+            ->orderBy('cnt', \SortDirection::Descending)
             ->setMaxResults($limit);
 
         $this->filterApplier->applyCreatedAtRange($qb, 'p.createdAt', $from, $toExclusive);

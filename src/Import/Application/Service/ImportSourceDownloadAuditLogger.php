@@ -43,17 +43,8 @@ final readonly class ImportSourceDownloadAuditLogger
         $metadata = [
             'intent' => self::INTENT,
             'import_id' => $importId,
+            ...$this->auditContext->requestMetadata(),
         ];
-
-        $clientIp = $this->auditContext->getClientIp();
-        if (null !== $clientIp && '' !== $clientIp) {
-            $metadata['clientIp'] = $clientIp;
-        }
-
-        $userAgent = $this->auditContext->getUserAgent();
-        if (null !== $userAgent && '' !== $userAgent) {
-            $metadata['userAgent'] = $userAgent;
-        }
 
         $this->entityManager->persist(new AuditEntry(
             $this->clock->now(),
@@ -65,6 +56,7 @@ final readonly class ImportSourceDownloadAuditLogger
             (string) $importId,
             [],
             $metadata,
+            $this->auditContext->getSessionRef(),
         ));
         $this->entityManager->flush();
     }

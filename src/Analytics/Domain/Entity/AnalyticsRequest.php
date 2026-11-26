@@ -37,15 +37,6 @@ class AnalyticsRequest
     private int $httpStatus;
 
     #[ORM\Column]
-    private int $durationMs;
-
-    #[ORM\Column]
-    private int $dbQueryCount;
-
-    #[ORM\Column]
-    private int $dbTimeMs;
-
-    #[ORM\Column]
     private bool $isAuthenticated;
 
     #[ORM\Column(length: 64, nullable: true)]
@@ -66,21 +57,18 @@ class AnalyticsRequest
     #[ORM\Column(length: 16, enumType: DeviceType::class)]
     private DeviceType $deviceType;
 
-    /** @var list<string> */
-    #[ORM\Column(type: Types::JSON)]
-    private array $queryParamNames;
-
     /**
-     * @param list<string> $queryParamNames
+     * Whether the request counts as an access (page view, #950). Null for rows recorded
+     * before the classification existed and not yet backfilled.
      */
+    #[ORM\Column(nullable: true)]
+    private ?bool $countedAccess;
+
     public function __construct(
         \DateTimeImmutable $occurredAt,
         ?string $routeName,
         FeatureArea $featureArea,
         int $httpStatus,
-        int $durationMs,
-        int $dbQueryCount,
-        int $dbTimeMs,
         bool $isAuthenticated,
         ?string $userRole,
         ?string $analyticsUserKey,
@@ -88,15 +76,12 @@ class AnalyticsRequest
         ?string $sessionKey,
         BrowserFamily $browserFamily,
         DeviceType $deviceType,
-        array $queryParamNames,
+        ?bool $countedAccess = null,
     ) {
         $this->occurredAt = $occurredAt;
         $this->routeName = $routeName;
         $this->featureArea = $featureArea;
         $this->httpStatus = $httpStatus;
-        $this->durationMs = $durationMs;
-        $this->dbQueryCount = $dbQueryCount;
-        $this->dbTimeMs = $dbTimeMs;
         $this->isAuthenticated = $isAuthenticated;
         $this->userRole = $userRole;
         $this->analyticsUserKey = $analyticsUserKey;
@@ -104,7 +89,7 @@ class AnalyticsRequest
         $this->sessionKey = $sessionKey;
         $this->browserFamily = $browserFamily;
         $this->deviceType = $deviceType;
-        $this->queryParamNames = $queryParamNames;
+        $this->countedAccess = $countedAccess;
     }
 
     public function getId(): ?int
@@ -130,21 +115,6 @@ class AnalyticsRequest
     public function getHttpStatus(): int
     {
         return $this->httpStatus;
-    }
-
-    public function getDurationMs(): int
-    {
-        return $this->durationMs;
-    }
-
-    public function getDbQueryCount(): int
-    {
-        return $this->dbQueryCount;
-    }
-
-    public function getDbTimeMs(): int
-    {
-        return $this->dbTimeMs;
     }
 
     public function isAuthenticated(): bool
@@ -182,11 +152,8 @@ class AnalyticsRequest
         return $this->deviceType;
     }
 
-    /**
-     * @return list<string>
-     */
-    public function getQueryParamNames(): array
+    public function isCountedAccess(): ?bool
     {
-        return $this->queryParamNames;
+        return $this->countedAccess;
     }
 }

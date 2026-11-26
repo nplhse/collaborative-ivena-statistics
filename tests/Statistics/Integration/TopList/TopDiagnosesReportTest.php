@@ -66,7 +66,7 @@ final class TopDiagnosesReportTest extends KernelTestCase
         $report = self::getContainer()->get(TopDiagnosesReport::class);
         $context = new StatisticsContext(
             $user,
-            new StatisticsFilter(StatisticsFilterScope::Hospital, $hospital->getId(), null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::Hospital, $hospital->getId(), null, StatisticsFilterPeriod::Last12Months),
         );
 
         $widget = $report->build($context, 25);

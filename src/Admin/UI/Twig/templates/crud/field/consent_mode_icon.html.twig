@@ -1,23 +1,23 @@
 {% set mode = field.formattedValue %}
 
-{% if mode == 'analytics_enabled' %}
-    <span
-        class="badge bg-green-lt text-green-fg"
-        title="Analytics"
+{% if mode in ['analytics_enabled', 'analytics_performance'] %}
+    {% set label = mode == 'analytics_performance' ? 'Analytics + Performance' : 'Analytics' %}
+    <twig:ea:Badge
+        color="success"
+        title="{{ label }}"
         data-bs-toggle="tooltip"
         data-bs-placement="top"
-        aria-label="Analytics"
+        aria-label="{{ label }}"
     >
         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chart-line me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
             <path d="M4 19l16 0" />
             <path d="M4 15l4 -6l4 2l4 -5l4 4" />
         </svg>
-        Analytics
-    </span>
+        {{ label }}
+    </twig:ea:Badge>
 {% else %}
-    <span
-        class="badge bg-secondary-lt text-secondary-fg"
+    <twig:ea:Badge
         title="{{ 'label.admin.cookies.essential_only'|trans({}, 'messages') }}"
         data-bs-toggle="tooltip"
         data-bs-placement="top"
@@ -30,5 +30,5 @@
             <path d="M12 14l0 2" />
         </svg>
         {{ 'label.admin.cookies.essential_only'|trans({}, 'messages') }}
-    </span>
+    </twig:ea:Badge>
 {% endif %}

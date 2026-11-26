@@ -5,19 +5,21 @@ declare(strict_types=1);
 namespace App\Tests\Allocation\Functional\Controller\Allocations;
 
 use App\Allocation\Domain\Enum\AllocationTransportType;
+use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Allocation\Infrastructure\Factory\AllocationFactory;
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\InfectionFactory;
 use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
+use App\Import\Infrastructure\Factory\ImportFactory;
 use Symfony\Component\HttpFoundation\Request;
 
 final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
 {
     public function testIsInfectiousAndInfectionFiltersOnlyReturnMatchingAllocations(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
 
         $targetInfection = InfectionFactory::createOne(['name' => 'Influenza']);
@@ -43,7 +45,7 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
 
     public function testSpecificInfectionFilterWorksWithoutInfectiousPresenceParam(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
 
         $targetInfection = InfectionFactory::createOne(['name' => 'Influenza']);
@@ -68,7 +70,7 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
 
     public function testIsInfectiousZeroReturnsAllocationsWithoutInfection(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
 
         $infection = InfectionFactory::createOne(['name' => 'MRSA']);
@@ -91,7 +93,7 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
 
     public function testInfectionAnyReturnsAllocationsWithAnyInfection(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
 
         $infection = InfectionFactory::createOne(['name' => 'MRSA']);
@@ -110,7 +112,7 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
 
     public function testIsVentilatedFilterOnlyReturnsVentilatedAllocations(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
 
         $ventilatedAllocation = AllocationFactory::createOne(['isVentilated' => true]);
@@ -128,7 +130,7 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
 
     public function testDepartmentSpecialityAndTransportTypeFilters(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
 
         $department = DepartmentFactory::find(['name' => 'Kardiologie']);
@@ -171,7 +173,7 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
 
     public function testAssignmentOccasionAndDepartmentWasClosedFilters(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
 
         $assignment = AssignmentFactory::find(['name' => 'Test Assignment']);
@@ -208,7 +210,7 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
 
     public function testCreatedAtDateFilterShowsInclusiveRangeAndFiltersList(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
 
         $matchingAllocation = AllocationFactory::createOne([
@@ -239,7 +241,7 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
 
     public function testDepartmentWasClosedAllocationShowsRowHighlightAndIndicator(): void
     {
-        $client = $this->createClientAsParticipant();
+        $client = $this->createClientAsAdministrator();
         $this->seedDependencies();
 
         AllocationFactory::createOne(['departmentWasClosed' => true]);
@@ -259,5 +261,79 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
             $crawler->filter('[data-testid="department-was-closed-indicator"] .w-3.h-3 + *'),
             'Properties indicator should render icon only without trailing text.',
         );
+    }
+
+    public function testTransportTypeAndImportBadgesShowTranslatedLabels(): void
+    {
+        $client = $this->createClientAsAdministrator();
+        $this->seedDependencies();
+        $import = ImportFactory::createOne(['name' => 'Badge import']);
+        AllocationFactory::createOne(['import' => $import, 'transportType' => AllocationTransportType::GROUND]);
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            sprintf('/explore/allocation?transportType=G&importId=%d&limit=50', $import->getId()),
+        );
+
+        self::assertResponseIsSuccessful();
+        $badges = $crawler->filter('.badge.bg-blue-lt')->each(static fn ($badge): string => trim((string) preg_replace('/\s+/', ' ', $badge->text())));
+        self::assertContains('Transport type: Ground', $badges);
+        self::assertContains(sprintf('Import: %d', $import->getId()), $badges);
+        self::assertStringNotContainsString('stats.analysis_explorer', $crawler->text());
+        self::assertStringNotContainsString('label.importId', $crawler->text());
+    }
+
+    public function testClosureAtAssignmentFilterShowsActiveBadge(): void
+    {
+        $client = $this->createClientAsAdministrator();
+        $this->seedDependencies();
+        AllocationFactory::createOne();
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/allocation?closureAtAssignment=unknown&limit=50');
+
+        self::assertResponseIsSuccessful();
+        $badges = $crawler->filter('.badge.bg-blue-lt')->each(static fn ($badge): string => trim((string) preg_replace('/\s+/', ' ', $badge->text())));
+        self::assertContains('According to closure data: No closure data', $badges);
+        self::assertStringNotContainsString('closure_at_assignment', $crawler->text());
+    }
+
+    /**
+     * The drawer submits every field, empty ones as '' (closureAtAssignment included): two allocations of
+     * one urgency, one of another; filtering by the second urgency through the form must return that one.
+     */
+    public function testSubmittingTheFilterFormWithEmptyFieldsFiltersTheList(): void
+    {
+        $client = $this->createClientAsAdministrator();
+        $this->seedDependencies();
+        AllocationFactory::createMany(2, ['urgency' => AllocationUrgency::EMERGENCY]);
+        $matching = AllocationFactory::createOne(['urgency' => AllocationUrgency::INPATIENT]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/allocation?limit=50');
+        $form = $crawler->filter('#allocation-filter-form')->form();
+        self::assertSame('', $form->getValues()['closureAtAssignment']);
+
+        $crawler = $client->submit($form, ['urgency' => (string) AllocationUrgency::INPATIENT->value]);
+
+        self::assertResponseIsSuccessful();
+        self::assertSame([$matching->getPublicIdString()], $this->extractAllocationIds($crawler));
+    }
+
+    /**
+     * An empty legacy hospitalScope means no scope: the administrator still sees both allocations.
+     */
+    public function testEmptyHospitalScopeIsTreatedAsNoScope(): void
+    {
+        $client = $this->createClientAsAdministrator();
+        $this->seedDependencies();
+        $allocations = AllocationFactory::createMany(2);
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/allocation?hospitalScope=&limit=50');
+
+        self::assertResponseIsSuccessful();
+        $ids = $this->extractAllocationIds($crawler);
+        sort($ids);
+        $expected = array_map(static fn ($allocation): string => $allocation->getPublicIdString(), $allocations);
+        sort($expected);
+        self::assertSame($expected, $ids);
     }
 }

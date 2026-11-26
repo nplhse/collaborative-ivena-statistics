@@ -50,7 +50,7 @@ final class ExplorerAssistantFiltersType extends AbstractType
         $this->addChoice($builder, $allowed, 'urgency', 'filterUrgency', 'label.urgency', 'label.all_urgencies', $this->flipChoices($this->filterChoiceProvider->urgencyChoices()));
         $this->addChoice($builder, $allowed, 'transport_type', 'filterTransportType', 'label.transport_type', 'label.all_transport_types', $this->flipChoices($this->filterChoiceProvider->transportTypeChoices()));
         $this->addChoice($builder, $allowed, 'gender', 'filterGender', 'label.gender', 'label.all_genders', $this->flipChoices($this->filterChoiceProvider->genderChoices()));
-        $this->addChoice($builder, $allowed, 'age_group', 'filterAgeGroup', 'label.age_group', 'label.all_age_groups', $this->flipChoices($this->filterChoiceProvider->ageGroupChoices()));
+        $this->addChoice($builder, $allowed, 'age_group', 'filterAgeGroup', 'label.age_group', 'label.all_age_groups', $this->flipChoices($this->filterChoiceProvider->ageGroupChoices()), help: 'stats.filter.age_group.missing_age_hint');
         $this->addChoice($builder, $allowed, 'resus', 'filterResus', 'label.requires_resus', 'label.all', $booleanChoices, true);
         $this->addChoice($builder, $allowed, 'cpr', 'filterCpr', 'label.is_cpr', 'label.all', $booleanChoices, true);
         $this->addChoice($builder, $allowed, 'ventilation', 'filterVentilation', 'label.is_ventilated', 'label.all', $booleanChoices, true);
@@ -133,12 +133,13 @@ final class ExplorerAssistantFiltersType extends AbstractType
         string $placeholder,
         array $choices,
         bool $boolean = false,
+        ?string $help = null,
     ): void {
         if (!\in_array($dimension, $allowed, true)) {
             return;
         }
 
-        $form->add($field, PreTranslatedChoiceType::class, [
+        $options = [
             'label' => $label,
             'choices' => $choices,
             'required' => false,
@@ -147,7 +148,12 @@ final class ExplorerAssistantFiltersType extends AbstractType
             'attr' => [
                 'data-testid' => 'stats-analysis-explorer-assistant-filter-'.$dimension,
             ],
-        ]);
+        ];
+        if (null !== $help) {
+            $options['help'] = $this->translator->trans($help, [], 'statistics');
+        }
+
+        $form->add($field, PreTranslatedChoiceType::class, $options);
 
         if (!$boolean) {
             return;

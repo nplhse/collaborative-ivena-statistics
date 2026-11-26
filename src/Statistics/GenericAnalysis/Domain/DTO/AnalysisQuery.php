@@ -14,6 +14,7 @@ final readonly class AnalysisQuery
     /**
      * @param list<AnalysisFilter> $filters
      * @param list<string>         $metricKeys
+     * @param list<int>            $referenceHospitalIds reference hospitals of the comparison series (#1346); empty = none
      */
     public function __construct(
         public string $primaryDimensionKey,
@@ -26,6 +27,7 @@ final readonly class AnalysisQuery
         public bool $includeNullBuckets = false,
         public AnalysisDataSource $dataSource = AnalysisDataSource::Allocations,
         public HospitalPopulationMode $hospitalPopulationMode = HospitalPopulationMode::All,
+        public array $referenceHospitalIds = [],
     ) {
     }
 

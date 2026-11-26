@@ -171,7 +171,7 @@ final readonly class MonthlyReminderContentBuilder
             'month' => $period['reportingMonth'],
             StatisticsQueryKeys::COMPARISON_SCOPE => StatisticsFilterScope::Hospital->value,
             StatisticsQueryKeys::COMPARISON_HOSPITAL => $hospitalId,
-            StatisticsQueryKeys::COMPARISON_PERIOD => StatisticsFilterPeriod::All->value,
+            StatisticsQueryKeys::COMPARISON_PERIOD => StatisticsFilterPeriod::Last12Months->value,
         ], UrlGeneratorInterface::ABSOLUTE_URL);
         $benchmarkingUrl = $this->urlGenerator->generate('app_stats_benchmarking', [
             'scope' => StatisticsFilterScope::Hospital->value,
@@ -341,6 +341,14 @@ final readonly class MonthlyReminderContentBuilder
         return ($value >= 0 ? '+' : '').number_format($value, 1, '.', '').'%';
     }
 
+    /**
+     * Difference between two shares: percentage points, not a relative change.
+     */
+    private function formatSignedPercentagePoints(float $value, string $locale): string
+    {
+        return ($value >= 0 ? '+' : '').number_format($value, 1, '.', '').' '.$this->trans('monthly_reminder.unit.percentage_points', [], $locale);
+    }
+
     private function rejectionRateDelta(
         int $hospitalId,
         \DateTimeImmutable $reportingStart,
@@ -376,7 +384,7 @@ final readonly class MonthlyReminderContentBuilder
             return $this->trans('monthly_reminder.urgency.benchmark', [
                 'urgency' => $this->translator->trans(AllocationUrgency::EMERGENCY->label(), [], 'messages', $locale),
                 'percent' => number_format($bucket->primaryShare, 1, '.', ''),
-                'delta' => $this->formatSignedPercent($bucket->primaryShare - $bucket->comparisonShare),
+                'delta' => $this->formatSignedPercentagePoints($bucket->primaryShare - $bucket->comparisonShare, $locale),
                 'baseline' => $baselinePeriodLabel,
             ], $locale);
         }

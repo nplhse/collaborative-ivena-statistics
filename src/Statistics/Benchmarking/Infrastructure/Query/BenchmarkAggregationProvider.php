@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Benchmarking\Infrastructure\Query;
 
+use App\Statistics\Application\DTO\StatisticsDrawerFilter;
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\Mapping\AllocationStatsDayTimeBucketProjectionCode;
@@ -16,6 +17,7 @@ use App\Statistics\Benchmarking\Application\Contract\BenchmarkAggregationProvide
 use App\Statistics\Benchmarking\Infrastructure\Query\Dto\BenchmarkAggregationResult;
 use App\Statistics\Benchmarking\Infrastructure\Query\Dto\BenchmarkDistributionRow;
 use App\Statistics\Benchmarking\Infrastructure\Query\Dto\BenchmarkSideCounts;
+use App\Statistics\Infrastructure\Query\ProjectionDrawerFilterSql;
 use App\Statistics\Infrastructure\Query\ProjectionFeatureQuery;
 use Doctrine\DBAL\Connection;
 
@@ -84,6 +86,7 @@ final readonly class BenchmarkAggregationProvider implements BenchmarkAggregatio
         StatisticsPeriodBounds $primaryPeriod,
         StatisticsScopeCriteria $comparisonScope,
         StatisticsPeriodBounds $comparisonPeriod,
+        ?StatisticsDrawerFilter $drawerFilter = null,
     ): BenchmarkAggregationResult {
         if ($this->isEmptyScope($primaryScope) && $this->isEmptyScope($comparisonScope)) {
             return BenchmarkAggregationResult::empty();
@@ -106,10 +109,20 @@ final readonly class BenchmarkAggregationProvider implements BenchmarkAggregatio
 
         $params = array_merge($primaryParams, $comparisonParams);
         $types = array_merge($primaryTypes, $comparisonTypes);
-
-        $coreRow = $this->fetchOverviewCoreMetrics($primaryPred, $comparisonPred, $params, $types);
         [$primaryPredAliased] = BenchmarkSqlFilter::buildSidePredicate($primaryScope, $primaryPeriod, 'primary', 'p');
         [$comparisonPredAliased] = BenchmarkSqlFilter::buildSidePredicate($comparisonScope, $comparisonPeriod, 'comparison', 'p');
+
+        if ($drawerFilter instanceof StatisticsDrawerFilter && $drawerFilter->isActive()) {
+            [$drawerConditions, $drawerParams] = new ProjectionDrawerFilterSql()->apply($drawerFilter);
+            [$drawerConditionsAliased] = new ProjectionDrawerFilterSql()->apply($drawerFilter, 'p');
+            $primaryPred = $this->withConditions($primaryPred, $drawerConditions);
+            $comparisonPred = $this->withConditions($comparisonPred, $drawerConditions);
+            $primaryPredAliased = $this->withConditions($primaryPredAliased, $drawerConditionsAliased);
+            $comparisonPredAliased = $this->withConditions($comparisonPredAliased, $drawerConditionsAliased);
+            $params = [...$params, ...$drawerParams];
+        }
+
+        $coreRow = $this->fetchOverviewCoreMetrics($primaryPred, $comparisonPred, $params, $types);
         $distributionRows = $this->fetchOverviewDistributionRows(
             $primaryPredAliased,
             $comparisonPredAliased,
@@ -122,6 +135,14 @@ final readonly class BenchmarkAggregationProvider implements BenchmarkAggregatio
             $this->mapSideCounts($coreRow, 'comparison'),
             $distributionRows,
         );
+    }
+
+    /**
+     * @param list<string> $conditions
+     */
+    private function withConditions(string $predicate, array $conditions): string
+    {
+        return '('.implode(' AND ', [$predicate, ...$conditions]).')';
     }
 
     /**

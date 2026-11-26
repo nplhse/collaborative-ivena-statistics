@@ -51,7 +51,7 @@ final class ComparisonFilterInputFactoryTest extends TestCase
             StatisticsFilterScope::Public,
             null,
             null,
-            StatisticsFilterPeriod::All,
+            StatisticsFilterPeriod::Last12Months,
         );
 
         $input = $this->factory->fromQuery(
@@ -70,7 +70,7 @@ final class ComparisonFilterInputFactoryTest extends TestCase
             StatisticsFilterScope::Public,
             null,
             null,
-            StatisticsFilterPeriod::All,
+            StatisticsFilterPeriod::Last12Months,
         );
 
         $input = $this->factory->fromQuery(
@@ -89,7 +89,7 @@ final class ComparisonFilterInputFactoryTest extends TestCase
             StatisticsFilterScope::Public,
             null,
             null,
-            StatisticsFilterPeriod::All,
+            StatisticsFilterPeriod::Last12Months,
         );
 
         $input = $this->factory->fromQuery(
@@ -134,7 +134,7 @@ final class ComparisonFilterInputFactoryTest extends TestCase
             StatisticsFilterScope::Public,
             null,
             null,
-            StatisticsFilterPeriod::All,
+            StatisticsFilterPeriod::Last12Months,
         );
 
         $input = $this->factory->fromQuery(
@@ -153,7 +153,7 @@ final class ComparisonFilterInputFactoryTest extends TestCase
             StatisticsFilterScope::Public,
             null,
             null,
-            StatisticsFilterPeriod::All,
+            StatisticsFilterPeriod::Last12Months,
         );
 
         $input = $this->factory->fromQuery(
@@ -175,7 +175,7 @@ final class ComparisonFilterInputFactoryTest extends TestCase
             StatisticsFilterScope::Public,
             null,
             null,
-            StatisticsFilterPeriod::All,
+            StatisticsFilterPeriod::Last12Months,
         );
 
         $input = $this->factory->fromQuery(

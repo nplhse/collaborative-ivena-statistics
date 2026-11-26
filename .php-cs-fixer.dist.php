@@ -5,6 +5,9 @@ $finder = new PhpCsFixer\Finder()
     // to keep formatting/semantics changes scoped and predictable.
     ->in(__DIR__.'/src')
     ->in(__DIR__.'/tests')
+    // Encounter schema plugins (ADR 037); their migrations are excluded like the application's.
+    ->in(__DIR__.'/plugins')
+    ->exclude('migrations')
     ->exclude('var')
     // Fixtures for the wall clock PHPStan rules contain the patterns on purpose.
     ->exclude('PHPStan/Unit/Rules/data')

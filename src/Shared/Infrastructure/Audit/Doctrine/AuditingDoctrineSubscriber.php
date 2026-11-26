@@ -90,6 +90,7 @@ final class AuditingDoctrineSubscriber
         $actorId = $this->resolveActorUserId();
         $actor = null !== $actorId ? $em->getReference(User::class, $actorId) : null;
         $baseMetadata = $this->buildBaseMetadata();
+        $sessionRef = $this->auditContext->getSessionRef();
 
         foreach ($insertions as $entity) {
             $snapshot = $this->buildInsertSnapshot($em, $entity);
@@ -106,6 +107,7 @@ final class AuditingDoctrineSubscriber
                 $this->entityIdString($entity),
                 $snapshot,
                 $baseMetadata,
+                $sessionRef,
             );
             if (null === $this->entityIdString($entity)) {
                 $this->idBackfill[] = [$audit, $entity];
@@ -128,6 +130,7 @@ final class AuditingDoctrineSubscriber
                 $this->entityIdString($entity),
                 $filtered,
                 $baseMetadata,
+                $sessionRef,
             ));
         }
 
@@ -142,6 +145,7 @@ final class AuditingDoctrineSubscriber
                 $this->entityIdString($entity),
                 [],
                 $baseMetadata,
+                $sessionRef,
             ));
         }
 
@@ -185,15 +189,7 @@ final class AuditingDoctrineSubscriber
             }
         }
 
-        $ip = $this->auditContext->getClientIp();
-        if (null !== $ip && '' !== $ip) {
-            $metadata['clientIp'] = $ip;
-        }
-
-        $ua = $this->auditContext->getUserAgent();
-        if (null !== $ua && '' !== $ua) {
-            $metadata['userAgent'] = $ua;
-        }
+        $metadata = [...$metadata, ...$this->auditContext->requestMetadata()];
 
         return [] === $metadata ? null : $metadata;
     }

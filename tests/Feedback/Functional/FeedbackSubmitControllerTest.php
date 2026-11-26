@@ -9,6 +9,7 @@ use App\Kernel;
 use App\Tests\Support\Browser\CookieConsentTestHelper;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -178,7 +179,7 @@ final class FeedbackSubmitControllerTest extends WebTestCase
         self::assertSame(0, $repo->count([]));
     }
 
-    public function testVeryFastSubmissionIsSilentlyDropped(): void
+    public function testVeryFastSubmissionAloneIsAccepted(): void
     {
         $client = self::createClient();
         $this->acceptEssentialCookiesOnly($client);
@@ -193,7 +194,7 @@ final class FeedbackSubmitControllerTest extends WebTestCase
             '_redirect_target' => '/',
             'guestEmail' => 'fast@example.test',
             'category' => 'question',
-            'message' => 'Fast bot-like submission.',
+            'message' => 'Fast but legitimate submission.',
             'renderedAt' => (string) time(),
         ]);
 
@@ -201,9 +202,95 @@ final class FeedbackSubmitControllerTest extends WebTestCase
         $client->followRedirect();
         self::assertSelectorExists('.alert-success');
 
-        /** @var FeedbackRepository $repo */
+        $feedback = self::getContainer()->get(FeedbackRepository::class)->findOneBy([]);
+        self::assertNotNull($feedback, 'a short submission time alone is a weak signal');
+        self::assertFalse($feedback->isQuarantined());
+    }
+
+    public function testTextHoneypotFilledSubmissionIsSilentlyDropped(): void
+    {
+        $client = self::createClient();
+        $this->acceptEssentialCookiesOnly($client);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/');
+        self::assertResponseIsSuccessful();
+        $renderedAt = (string) $client->getCrawler()->filter('input[name="feedback_submit[renderedAt]"]')->attr('value');
+        self::assertMatchesRegularExpression('/^\d+$/', $renderedAt, 'the widget renders its render time');
+        self::assertCount(1, $client->getCrawler()->filter('.visually-hidden[aria-hidden="true"] input[name="feedback_submit[subject]"][tabindex="-1"][autocomplete="off"]'));
+
+        $this->submitFeedbackPost($client, [
+            '_token' => $this->csrfTokenFromFeedbackForm($client),
+            '_redirect_target' => '/',
+            'guestEmail' => 'subject-bot@example.test',
+            'category' => 'bug',
+            'message' => 'Bots fill every text field.',
+            'subject' => 'Great offer',
+        ]);
+
+        self::assertResponseRedirects();
+        $client->followRedirect();
+        self::assertSelectorExists('.alert-success');
+        self::assertSame(0, self::getContainer()->get(FeedbackRepository::class)->count([]));
+    }
+
+    public function testSuspectedSpamIsQuarantinedWithoutNotification(): void
+    {
+        $client = self::createClient();
+        $this->acceptEssentialCookiesOnly($client);
+        UserFactory::new()->asAdmin()->create(['email' => 'quarantine-admin@example.test']);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/');
+        self::assertResponseIsSuccessful();
+
+        $this->submitFeedbackPost($client, [
+            '_token' => $this->csrfTokenFromFeedbackForm($client),
+            '_redirect_target' => '/',
+            '_source_route' => '',
+            'guestEmail' => 'token-bot@example.test',
+            'category' => 'bug',
+            'message' => 'MEYJTJ679293MARTHHDF',
+        ]);
+
+        self::assertResponseRedirects();
+        $client->followRedirect();
+        self::assertSelectorExists('.alert-success', 'the response does not tell the sender about the quarantine');
+        self::assertSelectorTextNotContains('body', 'quarantine');
+
+        $feedback = self::getContainer()->get(FeedbackRepository::class)->findOneBy([]);
+        self::assertNotNull($feedback);
+        self::assertTrue($feedback->isQuarantined());
+        self::assertSame(['missing_page_context', 'token_only_message'], $feedback->getClassificationReasons());
+        self::assertSame(7, $feedback->getSpamScore());
+        self::assertSame(0, (int) self::getContainer()->get(Connection::class)->fetchOne('SELECT COUNT(*) FROM notification'));
+        self::assertEmailCount(0);
+    }
+
+    public function testRepeatedMessageFromAnotherAddressWithoutPageContextIsQuarantined(): void
+    {
+        $client = self::createClient();
+        $this->acceptEssentialCookiesOnly($client);
+
+        foreach (['first-bot@example.test', 'second-bot@example.test'] as $guestEmail) {
+            $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/');
+            $this->submitFeedbackPost($client, [
+                '_token' => $this->csrfTokenFromFeedbackForm($client),
+                '_redirect_target' => '/',
+                '_source_route' => '',
+                'guestEmail' => $guestEmail,
+                'category' => 'bug',
+                'message' => 'Hola, quería saber tu precio.',
+            ]);
+            self::assertResponseRedirects();
+        }
+
         $repo = self::getContainer()->get(FeedbackRepository::class);
-        self::assertSame(0, $repo->count([]));
+        $first = $repo->findOneBy(['guestEmail' => 'first-bot@example.test']);
+        $second = $repo->findOneBy(['guestEmail' => 'second-bot@example.test']);
+        self::assertNotNull($first);
+        self::assertNotNull($second);
+        self::assertFalse($first->isQuarantined(), 'a missing page context alone does not quarantine');
+        self::assertTrue($second->isQuarantined());
+        self::assertSame(['missing_page_context', 'duplicate_message'], $second->getClassificationReasons());
     }
 
     public function testAnonymousSubmissionWithSingleUrlIsAccepted(): void
@@ -235,7 +322,7 @@ final class FeedbackSubmitControllerTest extends WebTestCase
         self::assertNotNull($feedback);
     }
 
-    public function testAnonymousSubmissionWithMultipleUrlsIsSilentlyDropped(): void
+    public function testAnonymousSubmissionWithMultipleUrlsIsQuarantined(): void
     {
         $client = self::createClient();
         $this->acceptEssentialCookiesOnly($client);
@@ -259,7 +346,10 @@ final class FeedbackSubmitControllerTest extends WebTestCase
 
         /** @var FeedbackRepository $repo */
         $repo = self::getContainer()->get(FeedbackRepository::class);
-        self::assertSame(0, $repo->count([]));
+        $feedback = $repo->findOneBy([]);
+        self::assertNotNull($feedback, 'suspected spam is kept for review');
+        self::assertTrue($feedback->isQuarantined());
+        self::assertSame(['contains_url', 'multiple_urls'], $feedback->getClassificationReasons());
     }
 
     public function testMessageAboveMaxLengthGetsValidationFlash(): void
@@ -375,6 +465,9 @@ final class FeedbackSubmitControllerTest extends WebTestCase
 
         $values = [
             'feedback_submit[website]' => '',
+            'feedback_submit[subject]' => '',
+            // The widget script fills the page context in a browser (feedback-context_controller.js).
+            'feedback_submit[_source_route]' => 'app_default',
             'feedback_submit[renderedAt]' => (string) (time() - 10),
         ];
         foreach ($fields as $name => $value) {

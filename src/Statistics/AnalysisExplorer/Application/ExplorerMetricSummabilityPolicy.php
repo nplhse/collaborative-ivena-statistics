@@ -28,6 +28,6 @@ final readonly class ExplorerMetricSummabilityPolicy
     public function supportsPercentShare(AnalysisMetricKey $metricKey): bool
     {
         return $this->isSummable($metricKey)
-            && AnalysisMetricKey::PercentOfTotal !== $metricKey;
+            && !$metricKey->isShareDisplay();
     }
 }

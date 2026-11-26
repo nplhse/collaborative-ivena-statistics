@@ -1,0 +1,284 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Encounter\Integration\Infrastructure;
+
+use App\Allocation\Domain\Entity\Hospital;
+use App\Encounter\Domain\Entity\Encounter;
+use App\Encounter\Domain\Enum\EncounterInsertOutcome;
+use App\Encounter\Domain\Enum\Sex;
+use App\Import\Domain\Entity\Import;
+use Cois\Plugin\EdVisit\Domain\Entity\EdVisit;
+use Cois\Plugin\EdVisit\Domain\Entity\EncounterTimes;
+use Cois\Plugin\EdVisit\Infrastructure\Persistence\EncounterInsertStatement;
+use Cois\Plugin\EdVisit\Infrastructure\Repository\EncounterRepository;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
+use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Zenstruck\Foundry\Attribute\ResetDatabase;
+
+/**
+ * Two database sessions insert the same visit at the same time (ADR 029), and the encounter cleanup meets a
+ * write that holds the hospital lock (#1300).
+ *
+ * Session 1 inserts inside an open transaction. Session 2 sends the same insert asynchronously, so it
+ * really runs while session 1 holds the uncommitted row and has to wait for it. After session 1
+ * commits, session 2 inserts nothing. Both use the production statement of
+ * EncounterRepository::insertIfNew().
+ *
+ * DAMA's per-test transaction is invisible to other sessions, so this test commits a minimal hospital
+ * and import through its own connection (plain SQL, no audit rows) and removes them afterwards.
+ */
+#[ResetDatabase]
+#[RequiresPhpExtension('pgsql')]
+final class ConcurrentEncounterInsertTest extends KernelTestCase
+{
+    private Connection $setup;
+
+    /** @var array{user: int, state: int, dispatch_area: int, hospital: int, import: int}|null */
+    private ?array $ids = null;
+
+    #[\Override]
+    protected function setUp(): void
+    {
+        self::bootKernel();
+        $this->setup = DriverManager::getConnection($this->connectionParams());
+        $this->ids = $this->commitHospitalAndImport();
+    }
+
+    #[\Override]
+    protected function tearDown(): void
+    {
+        if (null !== $this->ids) {
+            $this->setup->executeStatement('DELETE FROM ed_visit WHERE import_id = ?', [$this->ids['import']]);
+            $this->setup->executeStatement('DELETE FROM encounter WHERE hospital_id = ?', [$this->ids['hospital']]);
+            $this->setup->executeStatement('DELETE FROM import WHERE id = ?', [$this->ids['import']]);
+            $this->setup->executeStatement('DELETE FROM hospital WHERE id = ?', [$this->ids['hospital']]);
+            $this->setup->executeStatement('DELETE FROM dispatch_area WHERE id = ?', [$this->ids['dispatch_area']]);
+            $this->setup->executeStatement('DELETE FROM state WHERE id = ?', [$this->ids['state']]);
+            $this->setup->executeStatement('DELETE FROM "user" WHERE id = ?', [$this->ids['user']]);
+        }
+
+        $this->setup->close();
+        parent::tearDown();
+    }
+
+    public function testTwoConcurrentInsertsOfTheSameFingerprintCreateOneVisitAndNoEmptyEncounter(): void
+    {
+        self::assertNotNull($this->ids);
+        $em = $this->entityManager();
+
+        // Session 1: encounter and visit inserted, transaction still open.
+        $this->setup->beginTransaction();
+        $hub = EncounterInsertStatement::forEncounter($em, $this->visit()->getEncounter());
+        $firstEncounter = (int) $this->setup->executeQuery($hub->sql, $hub->params, $hub->types)->fetchOne();
+        $visit = EncounterInsertStatement::forVisit($em, $this->visit(), $firstEncounter);
+        self::assertNotFalse($this->setup->executeQuery($visit->sql, $visit->params, $visit->types)->fetchOne());
+
+        // Session 2 follows EncounterRepository: savepoint, its own encounter, then the visit, sent without waiting.
+        $second = $this->pgsqlConnection();
+        pg_query($second, 'BEGIN');
+        pg_query($second, 'SAVEPOINT ed_visit_insert');
+        $secondHub = pg_query_params($second, $this->numberedPlaceholders($hub->sql), $this->databaseValues($hub));
+        self::assertNotFalse($secondHub);
+        $secondEncounter = (int) pg_fetch_result($secondHub, 0, 0);
+        $secondVisit = EncounterInsertStatement::forVisit($em, $this->visit(), $secondEncounter);
+        self::assertTrue(pg_send_query_params($second, $this->numberedPlaceholders($secondVisit->sql), $this->databaseValues($secondVisit)));
+        usleep(200_000);
+        self::assertTrue(pg_connection_busy($second), 'Session 2 waits for the uncommitted visit of session 1.');
+
+        $this->setup->commit();
+
+        $result = pg_get_result($second);
+        self::assertNotFalse($result);
+        self::assertSame(\PGSQL_TUPLES_OK, pg_result_status($result), (string) pg_result_error($result));
+        self::assertSame(0, pg_num_rows($result), 'Session 2 inserted no visit.');
+        pg_query($second, 'ROLLBACK TO SAVEPOINT ed_visit_insert');
+        pg_query($second, 'COMMIT');
+        pg_close($second);
+
+        self::assertSame(1, (int) $this->setup->fetchOne('SELECT COUNT(*) FROM encounter WHERE hospital_id = ?', [$this->ids['hospital']]), 'The duplicate left no encounter behind.');
+
+        // The application's own connection now sees the visit as known and leaves no encounter either.
+        self::assertSame(EncounterInsertOutcome::Duplicate, $this->repository()->insertIfNew($this->visit()));
+        self::assertSame(1, $this->repository()->countByImportId($this->ids['import']));
+        self::assertSame(1, (int) $em->getConnection()->fetchOne('SELECT COUNT(*) FROM encounter WHERE hospital_id = ?', [$this->ids['hospital']]));
+    }
+
+    public function testTheCleanupWaitsForAWriteThatHoldsTheHospitalLockAndKeepsItsEncounter(): void
+    {
+        self::assertNotNull($this->ids);
+        $hospital = $this->ids['hospital'];
+        $encounter = (int) $this->setup->fetchOne(
+            "INSERT INTO encounter (hospital_id, key_generation, case_key, anchor_at, age, sex, created_at) VALUES (?, 1, ?, '2026-10-12 23:58:00', 70, 'M', '2026-11-01 12:00:00') RETURNING id",
+            [$hospital, hash('sha256', 'case|race')],
+        );
+
+        // A write path: hospital lock, then a visit for the empty encounter, not yet committed.
+        $writer = $this->pgsqlConnection();
+        pg_query($writer, 'BEGIN');
+        pg_query_params($writer, 'SELECT pg_advisory_xact_lock(1307, $1)', [$hospital]);
+        $visit = EncounterInsertStatement::forVisit($this->entityManager(), $this->visit(), $encounter);
+        self::assertNotFalse(pg_query_params($writer, $this->numberedPlaceholders($visit->sql), $this->databaseValues($visit)));
+
+        // The cleanup runs as its own process with its own connection, as the scheduled job does.
+        $process = proc_open(
+            [\PHP_BINARY, 'bin/console', 'app:encounter:clean-up', '--hospital='.$hospital, '--env=test', '--no-interaction'],
+            [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
+            $pipes,
+            \dirname(__DIR__, 4),
+        );
+        self::assertIsResource($process);
+        $this->waitForLockWaiter($hospital);
+        self::assertTrue(proc_get_status($process)['running'], 'The cleanup waits for the hospital lock.');
+
+        pg_query($writer, 'COMMIT');
+        pg_close($writer);
+
+        $output = stream_get_contents($pipes[1]).stream_get_contents($pipes[2]);
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        self::assertSame(0, proc_close($process), $output);
+        self::assertSame(1, (int) $this->setup->fetchOne('SELECT COUNT(*) FROM encounter WHERE id = ?', [$encounter]), 'The encounter now has its visit and stays.');
+        self::assertSame(1, (int) $this->setup->fetchOne('SELECT COUNT(*) FROM ed_visit WHERE encounter_id = ?', [$encounter]));
+    }
+
+    private function waitForLockWaiter(int $hospital): void
+    {
+        $deadline = microtime(true) + 30;
+        while (microtime(true) < $deadline) {
+            $waiting = (int) $this->setup->fetchOne(
+                "SELECT COUNT(*) FROM pg_locks WHERE locktype = 'advisory' AND classid = 1307 AND objid = ? AND NOT granted",
+                [$hospital],
+            );
+            if ($waiting > 0) {
+                return;
+            }
+            usleep(100_000);
+        }
+
+        self::fail('The cleanup did not wait for the hospital lock.');
+    }
+
+    private function visit(): EdVisit
+    {
+        self::assertNotNull($this->ids);
+        $em = $this->entityManager();
+
+        return new EdVisit(
+            hospital: $em->getReference(Hospital::class, $this->ids['hospital']),
+            import: $em->getReference(Import::class, $this->ids['import']),
+            keyGeneration: 1,
+            visitFingerprint: hash('sha256', 'visit|race'),
+            caseKey: hash('sha256', 'case|race'),
+            age: 70,
+            sex: Sex::Male,
+            times: new EncounterTimes(edAdmissionAt: new \DateTimeImmutable('2026-10-12 23:58')),
+        );
+    }
+
+    /**
+     * @return array{user: int, state: int, dispatch_area: int, hospital: int, import: int}
+     */
+    private function commitHospitalAndImport(): array
+    {
+        return $this->setup->transactional(static function (Connection $db): array {
+            $suffix = bin2hex(random_bytes(4));
+            $now = '2026-11-01 12:00:00';
+
+            $user = (int) $db->fetchOne('INSERT INTO "user" (username, email, roles, password, created_at) VALUES (?, ?, ?, ?, ?) RETURNING id', ['race-'.$suffix, 'race-'.$suffix.'@example.test', '[]', 'x', $now]);
+            $state = (int) $db->fetchOne('INSERT INTO state (public_id, name, created_at, created_by_id) VALUES (gen_random_uuid(), ?, ?, ?) RETURNING id', ['Race state '.$suffix, $now, $user]);
+            $area = (int) $db->fetchOne('INSERT INTO dispatch_area (public_id, name, state_id, created_at, created_by_id) VALUES (gen_random_uuid(), ?, ?, ?, ?) RETURNING id', ['Race area '.$suffix, $state, $now, $user]);
+            $hospital = (int) $db->fetchOne(
+                'INSERT INTO hospital (public_id, name, location, size, beds, created_at, address_street, address_postal_code, address_city, address_state, address_country, dispatch_area_id, state_id, created_by_id)
+                 VALUES (gen_random_uuid(), ?, ?, ?, 100, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id',
+                ['Race hospital '.$suffix, 'Urban', 'Small', $now, 'Street 1', '12345', 'City', 'State', 'DE', $area, $state, $user],
+            );
+            $import = (int) $db->fetchOne(
+                'INSERT INTO import (name, status, type, file_path, file_extension, file_mime_type, file_size, row_count, run_count, run_time, created_at, hospital_id, created_by_id)
+                 VALUES (?, ?, ?, ?, ?, ?, 1, 1, 1, 1, ?, ?, ?) RETURNING id',
+                ['Race import '.$suffix, 'Completed', 'Closure', 'dummy/path', 'csv', 'text/csv', $now, $hospital, $user],
+            );
+
+            return ['user' => $user, 'state' => $state, 'dispatch_area' => $area, 'hospital' => $hospital, 'import' => $import];
+        });
+    }
+
+    private function pgsqlConnection(): \PgSql\Connection
+    {
+        $params = $this->connectionParams();
+        $dsn = sprintf(
+            "host='%s' port='%s' dbname='%s' user='%s' password='%s'",
+            (string) ($params['host'] ?? '127.0.0.1'),
+            (string) ($params['port'] ?? 5432),
+            (string) ($params['dbname'] ?? ''),
+            (string) ($params['user'] ?? ''),
+            (string) ($params['password'] ?? ''),
+        );
+        $connection = pg_connect($dsn, \PGSQL_CONNECT_FORCE_NEW);
+        self::assertInstanceOf(\PgSql\Connection::class, $connection);
+
+        return $connection;
+    }
+
+    private function numberedPlaceholders(string $sql): string
+    {
+        $position = 0;
+
+        return (string) preg_replace_callback('/\?/', static function () use (&$position): string {
+            return '$'.++$position;
+        }, $sql);
+    }
+
+    /**
+     * @return list<string|null>
+     */
+    private function databaseValues(EncounterInsertStatement $statement): array
+    {
+        $platform = $this->setup->getDatabasePlatform();
+        $values = [];
+        foreach ($statement->params as $i => $value) {
+            $converted = $statement->types[$i]->convertToDatabaseValue($value, $platform);
+            $values[] = match (true) {
+                null === $converted => null,
+                \is_bool($converted) => $converted ? 't' : 'f',
+                \is_scalar($converted) => (string) $converted,
+                default => throw new \LogicException('Unexpected database value for parameter '.$i.'.'),
+            };
+        }
+
+        return $values;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function connectionParams(): array
+    {
+        $connection = self::getContainer()->get(Connection::class);
+        self::assertInstanceOf(Connection::class, $connection);
+        $params = $connection->getParams();
+        unset($params['dama.connection_key'], $params['dbname_suffix'], $params['idle_connection_ttl']);
+
+        return $params;
+    }
+
+    private function entityManager(): EntityManagerInterface
+    {
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        self::assertInstanceOf(EntityManagerInterface::class, $em);
+
+        return $em;
+    }
+
+    private function repository(): EncounterRepository
+    {
+        $repository = self::getContainer()->get(EncounterRepository::class);
+        self::assertInstanceOf(EncounterRepository::class, $repository);
+
+        return $repository;
+    }
+}

@@ -43,7 +43,7 @@ final class OverviewPortalNavigationFactoryTest extends TestCase
         $url = $this->urlBuilder->buildFromTarget($request, $this->factory->resourcesOverTimeTarget());
 
         self::assertStringContainsString('/statistics/analysis/explorer/overview-clinical-resources', $url);
-        self::assertStringContainsString('period=all', $url);
+        self::assertStringContainsString('period=last_12_months', $url);
         self::assertStringNotContainsString('dimension=resources', $url);
     }
 
@@ -53,7 +53,7 @@ final class OverviewPortalNavigationFactoryTest extends TestCase
         $url = $this->urlBuilder->buildFromTarget($request, $this->factory->clinicalFeaturesOverTimeTarget());
 
         self::assertStringContainsString('/statistics/analysis/explorer/overview-clinical-features', $url);
-        self::assertStringContainsString('period=all', $url);
+        self::assertStringContainsString('period=last_12_months', $url);
         self::assertStringNotContainsString('dimension=features', $url);
     }
 

@@ -37,7 +37,7 @@ final readonly class ProjectionDiagnosisQuery
             ->select('inorm.id AS indicationId', 'inorm.publicId AS publicId', 'COALESCE(inorm.name, :unknown) AS label', 'COUNT(p.id) AS cnt')
             ->setParameter('unknown', 'Unknown')
             ->groupBy('indicationId', 'publicId', 'label')
-            ->orderBy('cnt', 'DESC')
+            ->orderBy('cnt', \SortDirection::Descending)
             ->setMaxResults($limit);
 
         /** @var list<array{indicationId:int|string|null,publicId:Uuid|string|null,label:string,cnt:numeric-string|int}> $rows */

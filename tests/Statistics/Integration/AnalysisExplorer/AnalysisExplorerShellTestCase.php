@@ -36,7 +36,7 @@ abstract class AnalysisExplorerShellTestCase extends WebTestCase
             $formName => array_merge([
                 'scopePeriod' => [
                     'scopeGroup' => 'public',
-                    'period' => 'all',
+                    'period' => 'last_12_months',
                 ],
                 'rowDimension' => 'time',
                 'rowGrain' => 'month',
@@ -64,7 +64,7 @@ abstract class AnalysisExplorerShellTestCase extends WebTestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
         $defaultConfig = $viewFactory->createDefault($filter);
 
@@ -84,7 +84,7 @@ abstract class AnalysisExplorerShellTestCase extends WebTestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
         $defaultConfig = $viewFactory->createDefault($filter);
 
@@ -108,7 +108,7 @@ abstract class AnalysisExplorerShellTestCase extends WebTestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
         $state = $mapper->toStateArray($viewFactory->createDefault($filter));
         $view = $service->create($user, 'My user view', $state, 'Original description');

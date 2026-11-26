@@ -98,30 +98,6 @@ final class OverviewBenchmarkSummaryFactoryTest extends TestCase
         self::assertSame('within', $items[0]->status);
     }
 
-    public function testBuildScorecardKpiCardsWrapsScorecardItems(): void
-    {
-        $factory = $this->factory();
-        $report = $this->report(
-            kpiMetrics: [
-                new BenchmarkMetric(
-                    BenchmarkMetricKey::WithPhysician,
-                    10.0,
-                    10.0,
-                    0.0,
-                    0.0,
-                    1.0,
-                    BenchmarkMetricFormat::Percent,
-                ),
-            ],
-        );
-
-        $cards = $factory->buildScorecardKpiCards($report);
-
-        self::assertCount(1, $cards);
-        self::assertSame('benchmark_with_physician', $cards[0]->key);
-        self::assertSame('10,0%', $cards[0]->displayValue);
-    }
-
     public function testBuildDeviationsReturnsEmptyWhenRatiosAreSuppressed(): void
     {
         $factory = $this->factory();

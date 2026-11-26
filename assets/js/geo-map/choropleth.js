@@ -41,6 +41,13 @@ export function choroplethScaleMax(valueByKey) {
     return maxVisibleChoroplethValue(valueByKey);
 }
 
+/** Dash pattern for dispatch areas without a hospital (GeoJSON property `neighbour`). */
+export const NEIGHBOUR_AREA_DASH = '5 4';
+
+export function isNeighbourArea(feature) {
+    return feature?.properties?.neighbour === true;
+}
+
 export function choroplethStyleForFeature(
     feature,
     valueByKey,
@@ -55,6 +62,8 @@ export function choroplethStyleForFeature(
     const selectedScope = isSelectedDispatchArea(entry, selectedDispatchAreaId);
     const selected = selectedOrigin || selectedScope;
     const outline = selectedOrigin ? '#0ca678' : '#e8590c';
+    const neighbour = isNeighbourArea(feature);
+    const dashArray = neighbour && !selected ? NEIGHBOUR_AREA_DASH : null;
 
     if (suppressed) {
         return {
@@ -62,7 +71,8 @@ export function choroplethStyleForFeature(
             weight: selected ? 3 : 1,
             opacity: 1,
             color: selected ? outline : '#868e96',
-            fillOpacity: 0.28,
+            fillOpacity: neighbour ? 0.14 : 0.28,
+            dashArray,
         };
     }
 
@@ -74,6 +84,7 @@ export function choroplethStyleForFeature(
         opacity: 1,
         color: selected ? outline : intensity > 0.55 ? '#08306b' : '#345e7d',
         fillOpacity: 0.58 + intensity * 0.32,
+        dashArray,
     };
 }
 

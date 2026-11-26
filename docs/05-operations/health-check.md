@@ -9,7 +9,7 @@ Related: [observability-sentry.md](observability-sentry.md), [deployment.md](dep
 | `status` | HTTP | Meaning |
 |--------|------|---------|
 | `healthy` | 200 | Database reachable, no failed Messenger messages, queues and scheduler jobs fine, storage fine |
-| `degraded` | 200 | Database OK, but the failed queue has messages, a queue falls behind, many messages are retried, a scheduler job is overdue or its last run failed, or storage is at `warning`, `stale`, `unavailable` or `incomplete`. Check the Admin ops dashboard |
+| `degraded` | 200 | Database OK, but the failed queue has messages, a queue falls behind, many messages are retried, a scheduler job is overdue or its last run failed, or storage is at `warning`, `stale`, `unavailable` or `incomplete`, or the maintenance mode is on. Check the Admin ops dashboard |
 | `unhealthy` | 503 | Database unreachable, processing stalled, a queue far behind, a scheduler job overdue by more than twice its interval, or storage `critical` / `exceeded` |
 
 The overall status is the worst of all checks. Public JSON includes only `status`, `checks.database` and `checks.storage` (no app `version`, no Messenger or scheduler details, no sizes or paths). Full details remain available in the Admin ops dashboard.
@@ -32,6 +32,11 @@ curl -sS https://<host>/health | jq
 | `messenger_stalled` | no | Ready messages without any handling attempt (ADR 019) |
 | `messenger_retries` | no | Retry rate of the last 24 hours (ADR 019) |
 | `scheduled_jobs` | no | Last finished run of every scheduler job (ADR 019) |
+| `media` | no | Latest stored media integrity check (ADR 039), one query: `ok`, `unchecked` before the first run (healthy), or `missing=<n> damaged=<n>` (degraded). Details: `php bin/console app:media:check` ([media storage](../04-features/content/media-storage.md#integrity-check)) |
+
+| `two_factor` | no | Two-factor key (ADR 040), at most two queries: `ok`, `disabled` without `APP_TWO_FACTOR_KEY` and without users of it (healthy), `missing_key users=<n>` or `key_mismatch` when accounts use two-factor authentication but their secrets cannot be decrypted (degraded; their codes fail, backup codes work) |
+| `maintenance` | no | Maintenance mode flag (#1680, [ADR 046](../02-architecture/decisions/046-maintenance-mode-by-flag-file.md)), no query: `off` (healthy) or `on` (degraded), so a mode left on after a deploy shows up. `/health` stays reachable during the maintenance ([maintenance mode](deployment.md#maintenance-mode)) |
+| `research_export` | no | Export connection of data extract requests (ADR 045), one query: `read_only` or `disabled` without `RESEARCH_DATABASE_URL` (healthy), `writable` when its role could change data or `unreachable` when it fails (degraded). Details: [data extract requests](../04-features/research/README.md#export-connection) |
 
 Further checks come from services implementing `App\Shared\Application\Health\HealthCheckContributorInterface` (autoconfigured tag `app.health_check_contributor`). They run after the database check, in container order, and only mark themselves public when their value is a plain status string.
 
@@ -64,7 +69,7 @@ Limits are configured under `app.messenger_monitoring.health` and `app.job_runs.
 | `messenger_retries` | more than 10 % of the attempts of the last 24 h were retried (from 20 attempts on) | – |
 | `scheduled_jobs` | a job has no finished run within its interval, or its last run failed | a job has no finished run within twice its interval |
 
-The value is `ok` or a short reason, for example `oldest message waits 45 min (low)` or `overdue: kpi_daily (9 h)`. A skipped run counts as a run. A job that never ran counts from the oldest `job_run` row, so a new job is not overdue right after its deploy. Runbooks: [messenger-monitoring.md](messenger-monitoring.md#runbooks).
+The value is `ok` or a short reason, for example `oldest message waits 45 min (low)` or `overdue: kpi_daily (9 h)`. A skipped run counts as a run. A job that never ran counts from the oldest `job_run` row or from the last Doctrine migration (`doctrine_migration_versions.executed_at`), whichever is later, so a job that a release adds is not overdue right after its deploy (#1562). A release that adds a scheduled job therefore also ships a migration, or `scheduled_jobs` may be `degraded` or `unhealthy` until the new job first runs. Runbooks: [messenger-monitoring.md](messenger-monitoring.md#runbooks).
 
 ## Uptime monitoring
 

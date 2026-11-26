@@ -1,0 +1,84 @@
+{% macro icon(action) -%}
+    {{- {
+        create: 'tabler:plus',
+        update: 'tabler:pencil',
+        delete: 'tabler:trash',
+        export: 'tabler:database-export',
+        download: 'tabler:download',
+        impersonate: 'tabler:arrows-exchange',
+        impersonate_exit: 'tabler:door-off',
+    }[action] ?? 'tabler:circle' -}}
+{%- endmacro %}
+
+{# Colour only repeats what the visible category label says. #}
+{% macro tone(entry) -%}
+    {%- if entry.outcome == 'failed' or entry.action == 'delete' -%}danger
+    {%- elseif entry.outcome == 'blocked' -%}warning
+    {%- elseif entry.outcome == 'success' -%}success
+    {%- else -%}default{%- endif -%}
+{%- endmacro %}
+
+{# Display name of the actor (#1240); the username stays available through actor_title(). #}
+{% macro actor_name(entry) -%}
+    {%- if entry.actorName is not null -%}{{ user_display_name(entry.actorDisplayName, entry.actorName) }}
+    {%- elseif entry.actorId is not null -%}{{ 'audit.timeline.deleted_user'|trans({id: entry.actorId}, 'admin') }}
+    {%- else -%}{{ 'audit.timeline.no_actor'|trans({}, 'admin') }}{%- endif -%}
+{%- endmacro %}
+
+{# "@username" when the visible actor name is a display name, else empty: for a title attribute. #}
+{% macro actor_title(entry) -%}
+    {%- if entry.actorName is not null and user_display_name(entry.actorDisplayName, entry.actorName) != entry.actorName -%}@{{ entry.actorName }}{%- endif -%}
+{%- endmacro %}
+
+{# Filter label of an actor from AuditFilterOptions: "Name (@username)", or the username alone. #}
+{% macro actor_option(actor) -%}
+    {%- if actor.name is null -%}{{ 'audit.timeline.deleted_user'|trans({id: actor.id}, 'admin') }}
+    {%- else -%}
+        {%- import '@Shared/_macros/users.html.twig' as users -%}
+        {{- users.label(actor.displayName, actor.name) -}}
+    {%- endif -%}
+{%- endmacro %}
+
+{# Summary line of one entry. Plain text only: it is the toggle of the expandable item. #}
+{% macro summary(entry, show_actor = true) %}
+    {% import _self as audit %}
+    {% if show_actor %}{% set actorTitle = audit.actor_title(entry)|trim %}<span class="ea-audit-actor"{% if actorTitle %} title="{{ actorTitle }}"{% endif %}>{{ audit.actor_name(entry) }}</span>{% endif %}
+    <span class="ea-audit-object">{{ entry.entityName }}{% if entry.entityId is not null %} #{{ entry.entityId }}{% endif %}</span>
+    {% if entry.intent is not null %}<code class="ea-audit-intent">{{ entry.intent }}</code>{% endif %}
+    {% if entry.changedFields is not empty %}
+        <span class="ea-audit-fields">
+            {{- entry.changedFields|slice(0, 4)|join(', ') -}}
+            {%- if entry.changedFields|length > 4 %} {{ 'audit.timeline.fields_more'|trans({count: entry.changedFields|length - 4}, 'admin') }}{% endif -%}
+        </span>
+    {% endif %}
+    {% if entry.outcome is not null %}<twig:ea:Badge>{{ ('audit.outcome.' ~ entry.outcome)|trans({}, 'admin') }}</twig:ea:Badge>{% endif %}
+    <twig:ea:Badge>{{ ('audit.origin.' ~ entry.origin)|trans({}, 'admin') }}</twig:ea:Badge>
+{% endmacro %}
+
+{# One entry as a TimelineItem whose details load on expansion. #}
+{# context: the entry belongs to the request but does not match the current filter. #}
+{% macro item(entry, show_actor = true, context = false) %}
+    {% import _self as audit %}
+    <twig:TimelineItem
+        :icon="audit.icon(entry.action)|trim"
+        :category="('audit.action.' ~ entry.action)|trans({}, 'admin')"
+        :time="entry.occurredAt"
+        :tone="context ? 'muted' : audit.tone(entry)|trim"
+        :detailsUrl="path('app_admin_dashboard_audit_entry_details', {id: entry.id})"
+        :detailsLabel="'audit.entry.show_details'|trans({}, 'admin')"
+        :detailsErrorLabel="'audit.entry.details_failed'|trans({}, 'admin')"
+        data-audit-entry="{{ entry.id }}"
+        data-audit-context="{{ context ? 'true' : 'false' }}"
+        class="{{ context ? 'ea-audit-context' : '' }}"
+    >{% import '@Admin/audit/_macros.html.twig' as audit %}{% if context %}<twig:ea:Badge title="{{ 'audit.request.context_help'|trans({}, 'admin') }}">{{ 'audit.request.context'|trans({}, 'admin') }}</twig:ea:Badge>{% endif %}{{ audit.summary(entry, show_actor) }}</twig:TimelineItem>
+{% endmacro %}
+
+{% macro value(value) %}
+    {%- if value.kind == 'null' -%}<span class="text-secondary">–</span>
+    {%- elseif value.kind == 'json' -%}<pre class="ea-audit-json mb-0">{{ value.text }}</pre>
+    {%- elseif value.kind == 'string' and value.text == '' -%}<span class="text-secondary">{{ 'audit.entry.empty_string'|trans({}, 'admin') }}</span>
+    {%- elseif value.kind == 'string' -%}<span class="text-break">{{ value.text }}</span>
+    {%- else -%}<code>{{ value.text }}</code>
+    {%- endif -%}
+    {%- if value.truncated %} <span class="text-secondary small">{{ 'audit.entry.truncated'|trans({}, 'admin') }}</span>{% endif -%}
+{% endmacro %}

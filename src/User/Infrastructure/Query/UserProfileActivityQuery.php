@@ -63,12 +63,12 @@ final readonly class UserProfileActivityQuery
             ->andWhere('IDENTITY(a.user) = :userId')
             ->setParameter('userId', $userId)
             ->setParameter('joinedType', UserActivityType::JOINED)
-            ->orderBy('joinedRank', 'ASC');
+            ->orderBy('joinedRank', \SortDirection::Ascending);
 
         $this->excludeUnpublishedPostActivities($qb);
 
-        $qb->addOrderBy('a.occurredAt', 'DESC')
-            ->addOrderBy('a.id', 'DESC')
+        $qb->addOrderBy('a.occurredAt', \SortDirection::Descending)
+            ->addOrderBy('a.id', \SortDirection::Descending)
             ->setMaxResults($limit);
 
         if ($cursor instanceof ProfileActivityCursor) {
@@ -125,6 +125,7 @@ final readonly class UserProfileActivityQuery
             throw new \LogicException('UserActivity must be persisted.');
         }
 
+        $user = $activity->getUser();
         $metadata = $activity->getMetadata();
         $type = ProfileActivityType::from($activity->getType()->value);
         $milestone = $metadata['milestone'] ?? null;
@@ -139,6 +140,10 @@ final readonly class UserProfileActivityQuery
             postTitle: $this->stringMetadata($metadata, 'title') ?? $this->stringMetadata($metadata, 'postTitle'),
             postSlug: $this->stringMetadata($metadata, 'slug') ?? $this->stringMetadata($metadata, 'postSlug'),
             excerpt: $this->stringMetadata($metadata, 'excerpt'),
+            id: $id,
+            actorUsername: $user->getUsername(),
+            actorId: $user->getId(),
+            actorDisplayName: $user->getDisplayName(),
         );
     }
 

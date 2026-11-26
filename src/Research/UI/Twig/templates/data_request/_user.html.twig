@@ -1,0 +1,10 @@
+{# A user with inline avatar and a link to the profile; `person` may be null for a deleted account. #}
+{% if person %}
+    {% set shown = user_display_name(person.displayName, person.username) %}
+    <span class="d-inline-flex align-items-center gap-1">
+        <twig:UserAvatar :user="person" size="inline" />
+        <a href="{{ path('app_explore_user_show', {username: person.username}) }}" class="link-secondary"{% if shown != person.username %} title="@{{ person.username }}"{% endif %}>{{ shown }}</a>
+    </span>
+{% else %}
+    <span>{{ 'data_request.deleted_account'|trans({}, 'research') }}</span>
+{% endif %}

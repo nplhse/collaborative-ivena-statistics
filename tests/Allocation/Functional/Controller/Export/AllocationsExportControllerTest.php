@@ -49,7 +49,7 @@ final class AllocationsExportControllerTest extends WebTestCase
         $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
         $client->loginUser($user);
 
-        $client->request(Request::METHOD_GET, '/hospitals/export/allocations');
+        $client->request(Request::METHOD_GET, '/tools/allocation-export');
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
@@ -60,20 +60,28 @@ final class AllocationsExportControllerTest extends WebTestCase
         $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'], 'username' => 'participant-no-hospital']);
         $client->loginUser($user);
 
-        $client->request(Request::METHOD_GET, '/hospitals/export/allocations');
+        $client->request(Request::METHOD_GET, '/tools/allocation-export');
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 
-    public function testOwnerCanOpenExportPageAndSeesNavLink(): void
+    /**
+     * The export is a tool since #1633: no entry in the top navigation, a card in "Export data" on the Tools page.
+     */
+    public function testOwnerFindsTheExportInToolsAndNotInTheTopNavigation(): void
     {
         [$client] = $this->createOwnerClient();
 
-        $client->request(Request::METHOD_GET, '/');
+        $crawler = $client->request(Request::METHOD_GET, '/');
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('a[href="/hospitals/export/allocations"]', 'Export');
+        self::assertCount(0, $crawler->filter('a[href="/tools/allocation-export"]'));
 
-        $client->request(Request::METHOD_GET, '/hospitals/export/allocations');
+        $client->request(Request::METHOD_GET, '/tools');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('[data-tool-key="allocation_export"]', 'Export allocations');
+        self::assertSelectorExists('[data-tool-key="allocation_export"] a[href="/tools/allocation-export"]');
+
+        $client->request(Request::METHOD_GET, '/tools/allocation-export');
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="export-allocations-prepare"]');
         self::assertSelectorExists('[data-testid="export-filter-section-hospital"]');
@@ -87,7 +95,7 @@ final class AllocationsExportControllerTest extends WebTestCase
         [$client, $owner] = $this->createOwnerClient();
         HospitalFactory::createOne(['owner' => $owner, 'name' => 'Second Export Hospital']);
 
-        $client->request(Request::METHOD_GET, '/hospitals/export/allocations');
+        $client->request(Request::METHOD_GET, '/tools/allocation-export');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('input[type="checkbox"][name*="[hospitals]"]:checked');
@@ -109,7 +117,7 @@ final class AllocationsExportControllerTest extends WebTestCase
         $this->seedAllocationDependencies($hospitalA);
         $client->loginUser($admin);
 
-        $client->request(Request::METHOD_GET, '/hospitals/export/allocations');
+        $client->request(Request::METHOD_GET, '/tools/allocation-export');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-controller="checkbox-select-all"]');
@@ -122,7 +130,7 @@ final class AllocationsExportControllerTest extends WebTestCase
     {
         [$client] = $this->createOwnerClient();
         $client->enableProfiler();
-        $client->request(Request::METHOD_GET, '/hospitals/export/allocations', server: [
+        $client->request(Request::METHOD_GET, '/tools/allocation-export', server: [
             'HTTP_Accept-Language' => 'de-DE,de;q=0.9',
         ]);
 
@@ -147,7 +155,7 @@ final class AllocationsExportControllerTest extends WebTestCase
     {
         [$client] = $this->createOwnerClient();
 
-        $crawler = $client->request(Request::METHOD_GET, '/hospitals/export/allocations');
+        $crawler = $client->request(Request::METHOD_GET, '/tools/allocation-export');
         self::assertResponseIsSuccessful();
 
         $form = $crawler->filter('#export-allocations-form')->form();
@@ -157,7 +165,7 @@ final class AllocationsExportControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_POST,
-            '/hospitals/export/allocations/estimate',
+            '/tools/allocation-export/estimate',
             $values,
             [],
             ['HTTP_TURBO_FRAME' => 'export-estimate'],
@@ -182,7 +190,7 @@ final class AllocationsExportControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_POST,
-            '/hospitals/export/allocations/estimate',
+            '/tools/allocation-export/estimate',
             [],
             [],
             ['HTTP_TURBO_FRAME' => 'export-estimate'],
@@ -203,20 +211,37 @@ final class AllocationsExportControllerTest extends WebTestCase
             $this->userAndIpRateLimitKey('allocations_export', $ownerId),
         );
 
-        $client->request(Request::METHOD_POST, '/hospitals/export/allocations/download');
+        $client->request(Request::METHOD_POST, '/tools/allocation-export/download');
 
         self::assertResponseStatusCodeSame(Response::HTTP_TOO_MANY_REQUESTS);
     }
 
-    public function testParticipantWithoutHospitalDoesNotSeeNavLink(): void
+    public function testParticipantWithoutHospitalDoesNotSeeTheTool(): void
     {
         $client = self::createClient();
         $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'], 'username' => 'nav-no-export']);
         $client->loginUser($user);
 
-        $crawler = $client->request(Request::METHOD_GET, '/');
+        $client->request(Request::METHOD_GET, '/tools');
         self::assertResponseIsSuccessful();
-        self::assertCount(0, $crawler->filter('a[href="/hospitals/export/allocations"]'));
+        self::assertSelectorNotExists('[data-tool-key="allocation_export"]');
+    }
+
+    /**
+     * The pre-#1633 URLs redirect permanently (308) with their query string, so old forms keep method and body.
+     */
+    public function testOldUrlsRedirectToTheTool(): void
+    {
+        [$client] = $this->createOwnerClient();
+
+        $client->request(Request::METHOD_GET, '/hospitals/export/allocations?from=2026-01-01');
+        self::assertResponseRedirects('/tools/allocation-export?from=2026-01-01', Response::HTTP_PERMANENTLY_REDIRECT);
+
+        $client->request(Request::METHOD_POST, '/hospitals/export/allocations/estimate');
+        self::assertResponseRedirects('/tools/allocation-export/estimate', Response::HTTP_PERMANENTLY_REDIRECT);
+
+        $client->request(Request::METHOD_POST, '/hospitals/export/allocations/download');
+        self::assertResponseRedirects('/tools/allocation-export/download', Response::HTTP_PERMANENTLY_REDIRECT);
     }
 
     public function testOwnerExportDownloadIsSuccessful(): void
@@ -327,7 +352,7 @@ final class AllocationsExportControllerTest extends WebTestCase
         $client = self::createClient();
         $client->disableReboot();
 
-        $mock = $this->createMock(ExportOrchestrator::class);
+        $mock = $this->createStub(ExportOrchestrator::class);
         $mock->method('estimate')->willReturn(new ExportEstimate(100, false, false, OwnHospitalAllocationsExporter::KEY));
         $mock->method('download')->willThrowException(new ExportBlockedException(ExportLimits::MAX_EXPORT_ROWS + 1, OwnHospitalAllocationsExporter::KEY));
         self::getContainer()->set(ExportOrchestrator::class, $mock);
@@ -340,28 +365,25 @@ final class AllocationsExportControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
     }
 
-    public function testNavExportAppearsBetweenImportAndBlog(): void
+    /**
+     * Since #1633 the header has no Export entry, also for a user who may export: Import is followed by Tools.
+     */
+    public function testHeaderHasNoExportEntryForAnOwner(): void
     {
         [$client] = $this->createOwnerClient();
 
         $crawler = $client->request(Request::METHOD_GET, '/');
         self::assertResponseIsSuccessful();
 
-        $navItems = $crawler->filter('#navbar-menu .nav-item .nav-link');
         $labels = [];
-        foreach ($navItems as $item) {
+        foreach ($crawler->filter('#navbar-menu .nav-item .nav-link') as $item) {
             $labels[] = trim(preg_replace('/\s+/', ' ', $item->textContent ?? '') ?? '');
         }
 
+        self::assertNotContains('Export', $labels);
         $importIndex = array_search('Import', $labels, true);
-        $exportIndex = array_search('Export', $labels, true);
-        $blogIndex = array_search('Blog', $labels, true);
-
         self::assertNotFalse($importIndex);
-        self::assertNotFalse($exportIndex);
-        self::assertNotFalse($blogIndex);
-        self::assertSame($importIndex + 1, $exportIndex);
-        self::assertSame($exportIndex + 1, $blogIndex);
+        self::assertSame('Tools', $labels[$importIndex + 1] ?? null);
     }
 
     /**
@@ -410,7 +432,7 @@ final class AllocationsExportControllerTest extends WebTestCase
      */
     private function submitEstimate(KernelBrowser $client): array
     {
-        $crawler = $client->request(Request::METHOD_GET, '/hospitals/export/allocations');
+        $crawler = $client->request(Request::METHOD_GET, '/tools/allocation-export');
         self::assertResponseIsSuccessful();
 
         $form = $crawler->filter('#export-allocations-form')->form();
@@ -420,7 +442,7 @@ final class AllocationsExportControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_POST,
-            '/hospitals/export/allocations/estimate',
+            '/tools/allocation-export/estimate',
             $values,
             [],
             ['HTTP_TURBO_FRAME' => 'export-estimate'],
@@ -441,14 +463,14 @@ final class AllocationsExportControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_POST,
-            '/hospitals/export/allocations/download',
+            '/tools/allocation-export/download',
             $formValues,
         );
     }
 
     private function mockOrchestratorEstimate(ExportEstimate $estimate): void
     {
-        $mock = $this->createMock(ExportOrchestrator::class);
+        $mock = $this->createStub(ExportOrchestrator::class);
         $mock->method('estimate')->willReturn($estimate);
         self::getContainer()->set(ExportOrchestrator::class, $mock);
     }

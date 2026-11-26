@@ -7,12 +7,14 @@ use Rector\Doctrine\Set\DoctrineSetList;
 use Rector\Symfony\Set\SymfonySetList;
 
 $entityPath = __DIR__.'/src/**/Domain/Entity/*';
+$pluginEntityPath = __DIR__.'/plugins/*/src/Domain/Entity/*';
 
-return RectorConfig::configure()
+$config = RectorConfig::configure()
     ->withPaths([
         __DIR__.'/config',
         __DIR__.'/src',
         __DIR__.'/tests',
+        __DIR__.'/plugins',
     ])
     ->withPhpSets(
         php84: true
@@ -34,15 +36,24 @@ return RectorConfig::configure()
     ->withSkip([
         // Fixtures for the wall clock PHPStan rules contain the patterns on purpose.
         __DIR__.'/tests/PHPStan/Unit/Rules/data',
-        Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector::class => [$entityPath],
-        Rector\Php81\Rector\Property\ReadOnlyPropertyRector::class => [$entityPath],
-        Rector\TypeDeclaration\Rector\Property\TypedPropertyFromAssignsRector::class => [$entityPath],
-        // PHP-CS-Fixer shortens the FQCN; Rector would otherwise rewrite it on every run.
-        Rector\Arguments\Rector\ClassMethod\ReplaceArgumentDefaultValueRector::class => [
-            __DIR__.'/src/Analytics/Infrastructure/Http/AnalyticsCookieManager.php',
-            __DIR__.'/src/Shared/Infrastructure/Consent/CookieConsentService.php',
-            __DIR__.'/src/Shared/Infrastructure/Locale/LocaleCookieManager.php',
-        ],
+        // Migrations of encounter schema plugins stay as generated, like the application's (not in the paths).
+        __DIR__.'/plugins/*/migrations',
+        Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector::class => [$entityPath, $pluginEntityPath],
+        Rector\Php81\Rector\Property\ReadOnlyPropertyRector::class => [$entityPath, $pluginEntityPath],
+        Rector\TypeDeclaration\Rector\Property\TypedPropertyFromAssignsRector::class => [$entityPath, $pluginEntityPath],
     ])
     ->withCache(__DIR__.'/var/cache/rector')
     ->withParallel();
+
+return static function (RectorConfig $rectorConfig) use ($config): void {
+    $config($rectorConfig);
+
+    // Rector's internal PHPStan caches reflection data with absolute vendor paths. In the shared system temp folder
+    // a removed worktree leaves paths behind that break Rector in every other checkout (#1132), so keep it per checkout.
+    $phpstanCacheDirectory = __DIR__.'/var/cache/rector-phpstan';
+    if (!is_dir($phpstanCacheDirectory)) {
+        mkdir($phpstanCacheDirectory, 0o777, true);
+    }
+
+    $rectorConfig->containerCacheDirectory($phpstanCacheDirectory);
+};

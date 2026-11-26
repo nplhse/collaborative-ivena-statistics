@@ -10,6 +10,7 @@ use App\Allocation\Domain\Enum\AllocationGender;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Kpi\Infrastructure\Repository\KpiDailyRepository;
 use App\Statistics\Application\DTO\StatisticsContext;
+use App\Statistics\Application\DTO\StatisticsDrawerFilter;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
@@ -42,6 +43,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 final readonly class MonthlyReportBuilder
 {
     private const int TOP_LIMIT = 5;
+
+    /** Months in the sparkline of the allocation tile, the report month included (#1239). */
+    public const int TREND_MONTHS = 6;
 
     /** @var array<string, string> */
     private const array GENDER_BAR_CLASSES = [
@@ -90,11 +94,16 @@ final readonly class MonthlyReportBuilder
 
         $scopeCriteria = $this->scopeResolver->resolveCriteria($monthContext);
         $bounds = StatisticsPeriodResolver::resolve($monthFilter);
+        // Every number of the report follows the filter drawer, numerators and denominators alike (#1039).
+        $drawerFilter = $context->drawerFilter instanceof StatisticsDrawerFilter && $context->drawerFilter->isActive()
+            ? $context->drawerFilter
+            : null;
         $overviewMetrics = ($this->overviewMetricsQuery)(
             OverviewQueryCriteria::fromPeriodBounds(
                 $bounds,
                 $scopeCriteria->hospitalIds,
                 $scopeCriteria->dispatchAreaId,
+                drawerFilter: $drawerFilter,
             ),
         );
 
@@ -172,6 +181,7 @@ final readonly class MonthlyReportBuilder
                 $previousMonthLabel,
                 $benchmarkingUrl,
                 $locale,
+                $drawerFilter,
             )
             : [];
 
@@ -187,6 +197,7 @@ final readonly class MonthlyReportBuilder
                     $period['previousMonthEndExclusive'],
                     $scopeCriteria->hospitalIds,
                     $scopeCriteria->dispatchAreaId,
+                    drawerFilter: $drawerFilter,
                 ),
             );
             $urgencySegments = $this->urgencySegments(
@@ -243,6 +254,7 @@ final readonly class MonthlyReportBuilder
                 $scopeCriteria,
                 $closedDepartmentDetailUrl,
                 $locale,
+                $drawerFilter,
             )
             : MonthlyReportClosedDepartmentView::empty($closedDepartmentDetailUrl);
 
@@ -252,8 +264,6 @@ final readonly class MonthlyReportBuilder
             month: $period['month'],
             hasData: $hasData,
             allocationCount: $allocationCount,
-            allocationMomPercent: $mom,
-            allocationYoyPercent: $yoy,
             withPhysicianPercent: $withPhysicianPercent,
             withPhysicianMomPercent: $withPhysicianMomPercent,
             meanTransportMinutes: $hasData ? $overviewMetrics->meanTransportMinutes : null,
@@ -272,6 +282,8 @@ final readonly class MonthlyReportBuilder
                 $period['monthEndExclusive'],
                 $scopeCriteria->hospitalIds,
                 $locale,
+                $drawerFilter,
+                $scopeCriteria->dispatchAreaId,
             ),
             importCreateUrl: $this->urlGenerator->generate('app_import_new'),
             dashboardUrl: $dashboardUrl,
@@ -287,7 +299,48 @@ final readonly class MonthlyReportBuilder
             nextEnabled: $period['navigationNextEnabled'],
             hasSourceData: $this->sourceDataProbe->hasSourceData($context->user, $monthFilter),
             canImport: $this->sourceDataProbe->canImport($context->user),
+            allocationTrend: $hasData
+                ? $this->buildAllocationTrend($period['monthStart'], $period['monthEndExclusive'], $scopeCriteria->hospitalIds, $scopeCriteria->dispatchAreaId, $drawerFilter, $locale)
+                : [],
         );
+    }
+
+    /**
+     * Allocations per calendar month for the sparkline of the allocation tile (#1239): the report month and the
+     * months before it, in the scope and filter drawer of the report, so the last point is the tile's value.
+     * Months before the first month with allocations are left out; later months without allocations count as 0.
+     * Fewer than two points show no trend.
+     *
+     * @param list<int>|null $hospitalIds
+     *
+     * @return list<array{label: string, value: int}>
+     */
+    private function buildAllocationTrend(
+        \DateTimeImmutable $monthStart,
+        \DateTimeImmutable $monthEndExclusive,
+        ?array $hospitalIds,
+        ?int $dispatchAreaId,
+        ?StatisticsDrawerFilter $drawerFilter,
+        string $locale,
+    ): array {
+        $firstMonth = $monthStart->modify(sprintf('-%d months', self::TREND_MONTHS - 1));
+        $counts = [];
+        foreach ($this->timeSeriesQuery->countByMonthInPeriod($firstMonth, $monthEndExclusive, $hospitalIds, $dispatchAreaId, $drawerFilter) as $row) {
+            $counts[sprintf('%04d-%02d', $row['year'], $row['month'])] = $row['count'];
+        }
+
+        $trend = [];
+        for ($month = $firstMonth; $month < $monthEndExclusive; $month = $month->modify('+1 month')) {
+            $count = $counts[$month->format('Y-m')] ?? 0;
+            if ([] === $trend && 0 === $count) {
+                continue;
+            }
+
+            $formatted = \IntlDateFormatter::formatObject($month, 'LLL yyyy', $locale);
+            $trend[] = ['label' => false !== $formatted ? $formatted : $month->format('Y-m'), 'value' => $count];
+        }
+
+        return \count($trend) >= 2 ? $trend : [];
     }
 
     /**
@@ -321,6 +374,7 @@ final readonly class MonthlyReportBuilder
         string $previousMonthLabel,
         string $benchmarkingUrl,
         string $locale,
+        ?StatisticsDrawerFilter $drawerFilter,
     ): array {
         $previousFilter = $this->filterForMonth(
             $monthFilter,
@@ -329,6 +383,7 @@ final readonly class MonthlyReportBuilder
         );
         $selfReport = $this->benchmarkReportService->buildForOverview(
             $this->benchmarkCriteriaFactory->create($monthContext, $previousFilter),
+            $drawerFilter,
         );
 
         $physicianMetric = $this->findMetric($selfReport->kpiMetrics, BenchmarkMetricKey::WithPhysician);
@@ -349,6 +404,11 @@ final readonly class MonthlyReportBuilder
             $previousMonthLabel,
             $periodLabel,
             $locale,
+            // The rejection rate counts rejected import rows, which never become allocations and have no urgency,
+            // age or other drawer field; with a drawer filter its insight says that it is unfiltered (#1039).
+            $drawerFilter instanceof StatisticsDrawerFilter
+                ? $this->translator->trans('stats.reports.monthly.insights.rejection_rate_unfiltered', [], 'statistics', $locale)
+                : null,
         );
     }
 
@@ -464,12 +524,14 @@ final readonly class MonthlyReportBuilder
         StatisticsScopeCriteria $scopeCriteria,
         string $detailUrl,
         string $locale,
+        ?StatisticsDrawerFilter $drawerFilter,
     ): MonthlyReportClosedDepartmentView {
-        $metrics = $this->closedDepartmentMetricsQuery->fetch($monthStart, $monthEndExclusive, $scopeCriteria);
+        $metrics = $this->closedDepartmentMetricsQuery->fetch($monthStart, $monthEndExclusive, $scopeCriteria, $drawerFilter);
         $previousMetrics = $this->closedDepartmentMetricsQuery->fetchKpis(
             $previousMonthStart,
             $previousMonthEndExclusive,
             $scopeCriteria,
+            $drawerFilter,
         );
 
         return new MonthlyReportClosedDepartmentView(
@@ -626,8 +688,10 @@ final readonly class MonthlyReportBuilder
         \DateTimeImmutable $monthEndExclusive,
         ?array $hospitalIds,
         string $locale,
+        ?StatisticsDrawerFilter $drawerFilter,
+        ?int $dispatchAreaId,
     ): array {
-        $byDay = $this->timeSeriesQuery->countByDayInPeriod($monthStart, $monthEndExclusive, $hospitalIds);
+        $byDay = $this->timeSeriesQuery->countByDayInPeriod($monthStart, $monthEndExclusive, $hospitalIds, $drawerFilter, $dispatchAreaId);
         $labels = [];
         $counts = [];
         $cursor = $monthStart;

@@ -388,7 +388,7 @@ final class ExplorerAssistantConfigFactoryTest extends TestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
     }
 }

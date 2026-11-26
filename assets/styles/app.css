@@ -33,6 +33,148 @@
     line-height: 1.3;
 }
 
+/*
+ * Generated user avatars (#462, UserAvatar component): Tabler's -lt tint as background, the initials
+ * mixed towards black (light) or white (dark mode) so every palette colour reaches at least 4.5:1.
+ */
+.avatar.user-avatar {
+    color: color-mix(in oklab, var(--user-avatar-color) 75%, black) !important;
+}
+
+[data-bs-theme='dark'] .avatar.user-avatar {
+    color: color-mix(in oklab, var(--user-avatar-color) 65%, white) !important;
+}
+
+/*
+ * Inline avatar (#1240) for running text such as bylines and "Created by": sized from the surrounding
+ * font, so it never grows the line. The avatar's own font is 0.65 of the text, so its em values are
+ * relative to that: 2.05em ≈ 1.33× the text size, the negative margins keep it inside the line box.
+ */
+.avatar.avatar-inline {
+    --tblr-avatar-font-size: 0.65em;
+    --tblr-avatar-size: 2.05em;
+    /* percent of the avatar: an em value would resolve against the font size Tabler sets on .icon */
+    --tblr-avatar-icon-size: 60%;
+    margin-block: -0.3em;
+    margin-inline-end: 0;
+    /* middle centres on the x-height; the shift moves it to the centre of the text line, where flex-centred icons sit */
+    position: relative;
+    top: -0.14em;
+    vertical-align: middle;
+}
+
+/*
+ * Stacked avatars (#1240, access card on the hospital page): Tabler overlaps them by half and the -lt tint
+ * is 90 % transparent, so initials collide and show through. Opaque tint on the card surface and a quarter
+ * overlap keep every pair of initials readable.
+ */
+.avatar-list-stacked > .avatar {
+    background-color: color-mix(in oklab, var(--tblr-secondary) 12%, var(--tblr-bg-surface)) !important;
+}
+
+/* Tabler sets the overlap with !important; the extra .avatar-list raises the specificity above it. */
+.avatar-list.avatar-list-stacked > .avatar:not(:first-child) {
+    margin-inline-start: -0.5rem !important;
+}
+
+.avatar-list-stacked > .avatar.user-avatar {
+    background-color: color-mix(in oklab, var(--user-avatar-color) 10%, var(--tblr-bg-surface)) !important;
+}
+
+/* Icon in running text next to an inline avatar (#1240): centres a 1em–1rem icon on the text line. */
+.icon-text {
+    vertical-align: -0.15em;
+}
+
+/*
+ * Light badges (#1287): Tabler's bg-{colour}-lt writes the full colour as text on a 10 % tint, which
+ * reaches only about 2:1 to 4.3:1. The text is mixed towards black (light) or white (dark mode), the
+ * same way as the avatars above. Measured on a card, every colour reaches at least 5.6:1 (light) and
+ * 5.3:1 (dark). Backgrounds stay as they are; other elements with bg-*-lt are not affected.
+ */
+.badge.bg-primary-lt { --app-badge-lt-color: var(--tblr-primary); }
+.badge.bg-secondary-lt { --app-badge-lt-color: var(--tblr-secondary); }
+.badge.bg-success-lt { --app-badge-lt-color: var(--tblr-success); }
+.badge.bg-info-lt { --app-badge-lt-color: var(--tblr-info); }
+.badge.bg-warning-lt { --app-badge-lt-color: var(--tblr-warning); }
+.badge.bg-danger-lt { --app-badge-lt-color: var(--tblr-danger); }
+.badge.bg-blue-lt { --app-badge-lt-color: var(--tblr-blue); }
+.badge.bg-azure-lt { --app-badge-lt-color: var(--tblr-azure); }
+.badge.bg-indigo-lt { --app-badge-lt-color: var(--tblr-indigo); }
+.badge.bg-purple-lt { --app-badge-lt-color: var(--tblr-purple); }
+.badge.bg-pink-lt { --app-badge-lt-color: var(--tblr-pink); }
+.badge.bg-red-lt { --app-badge-lt-color: var(--tblr-red); }
+.badge.bg-orange-lt { --app-badge-lt-color: var(--tblr-orange); }
+.badge.bg-yellow-lt { --app-badge-lt-color: var(--tblr-yellow); }
+.badge.bg-lime-lt { --app-badge-lt-color: var(--tblr-lime); }
+.badge.bg-green-lt { --app-badge-lt-color: var(--tblr-green); }
+.badge.bg-teal-lt { --app-badge-lt-color: var(--tblr-teal); }
+.badge.bg-cyan-lt { --app-badge-lt-color: var(--tblr-cyan); }
+
+:root {
+    --app-badge-lt-mix: black;
+}
+
+[data-bs-theme='dark'] {
+    --app-badge-lt-mix: white;
+}
+
+/* Two classes, so this also wins over text-{colour} classes next to bg-{colour}-lt. */
+.badge:is(
+        .bg-primary-lt,
+        .bg-secondary-lt,
+        .bg-success-lt,
+        .bg-info-lt,
+        .bg-warning-lt,
+        .bg-danger-lt,
+        .bg-blue-lt,
+        .bg-azure-lt,
+        .bg-indigo-lt,
+        .bg-purple-lt,
+        .bg-pink-lt,
+        .bg-red-lt,
+        .bg-orange-lt,
+        .bg-yellow-lt,
+        .bg-lime-lt,
+        .bg-green-lt,
+        .bg-teal-lt,
+        .bg-cyan-lt
+    ) {
+    color: color-mix(in oklab, var(--app-badge-lt-color) 65%, var(--app-badge-lt-mix)) !important;
+}
+
+/*
+ * User cell in lists (#462): the avatar keeps the same distance to the name as to the card edge,
+ * 1.25rem in the table and the 1rem inline padding of a DataTable card on small screens.
+ */
+.user-cell {
+    gap: var(--tblr-card-spacer-x, 1.25rem);
+}
+
+@container data-table-cards (max-width: 575.98px) {
+    .data-table-cards--sm .user-cell {
+        gap: 1rem;
+    }
+}
+
+@container data-table-cards (max-width: 767.98px) {
+    .data-table-cards--md .user-cell {
+        gap: 1rem;
+    }
+}
+
+@container data-table-cards (max-width: 991.98px) {
+    .data-table-cards--lg .user-cell {
+        gap: 1rem;
+    }
+}
+
+/* The navbar avatar of an admin who impersonates another user (#462). */
+.avatar.avatar-impersonating {
+    outline: 2px solid var(--tblr-warning);
+    outline-offset: 2px;
+}
+
 .import-processing-hero {
     --tblr-avatar-size: 3.5rem;
 }
@@ -318,6 +460,11 @@
     display: none;
 }
 
+/* Part of a cell value that only the card layout shows, for example the name next to an avatar-only cell (#1240). */
+.data-table-cards .data-table-cell__card-only {
+    display: none;
+}
+
 .data-table-cards > .table > thead > tr {
     flex-wrap: wrap;
     align-items: center;
@@ -461,6 +608,10 @@
         display: block;
         overflow-wrap: break-word;
         hyphens: auto;
+    }
+
+    .data-table-cards--sm .data-table-cell__card-only {
+        display: inline;
     }
 
     .data-table-cards--sm .data-table-cell__value {
@@ -643,6 +794,10 @@
         hyphens: auto;
     }
 
+    .data-table-cards--md .data-table-cell__card-only {
+        display: inline;
+    }
+
     .data-table-cards--md .data-table-cell__value {
         min-width: 0;
         overflow-wrap: anywhere;
@@ -821,6 +976,10 @@
         display: block;
         overflow-wrap: break-word;
         hyphens: auto;
+    }
+
+    .data-table-cards--lg .data-table-cell__card-only {
+        display: inline;
     }
 
     .data-table-cards--lg .data-table-cell__value {
@@ -1793,6 +1952,165 @@ a.catalog-year-heatmap-cell:focus-visible {
     display: inline-flex;
     align-items: center;
     gap: 3px;
+}
+
+/* Hospital selection of My Hospitals: a list that scrolls when a user holds many hospitals. */
+.my-hospitals-selection-menu {
+    max-width: min(24rem, calc(100vw - 2rem));
+    max-height: 22rem;
+    overflow-y: auto;
+}
+
+/* Hints in a My Hospitals card: a count that expands to the list; the chevron turns when open. */
+.my-hospitals-findings-chevron {
+    transition: transform 0.15s ease-in-out;
+}
+
+.my-hospitals-findings-toggle:not(.collapsed) .my-hospitals-findings-chevron {
+    transform: rotate(180deg);
+}
+
+/* File field of the import form (#977): a drop area around the native file input; the input stays usable. */
+.import-dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 14rem;
+    padding: 2rem 1rem;
+    text-align: center;
+    border: 2px dashed var(--tblr-border-color);
+    border-radius: var(--tblr-border-radius-lg);
+    cursor: pointer;
+    transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+}
+
+.import-dropzone:hover {
+    border-color: var(--tblr-primary);
+}
+
+.import-dropzone-icon {
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 0.75rem;
+}
+
+.import-dropzone .form-control {
+    width: 100%;
+    max-width: 32rem;
+}
+
+.import-dropzone.is-dragover {
+    border-color: var(--tblr-primary);
+    background-color: var(--tblr-primary-lt);
+}
+
+.import-upload-status[data-state='error'] {
+    color: var(--tblr-danger);
+}
+
+.import-upload-status[data-state='uploaded'] {
+    color: var(--tblr-success);
+}
+
+/* Options of the import upload form (#1352): a quiet toggle whose chevron turns when the options are open. */
+.import-options-chevron {
+    transition: transform 0.15s ease-in-out;
+}
+
+.import-options-toggle:not(.collapsed) .import-options-chevron {
+    transform: rotate(180deg);
+}
+
+/* No button background after a mouse click; keyboard focus keeps its ring (:focus-visible). */
+.import-options-toggle:hover,
+.import-options-toggle:active,
+.import-options-toggle:focus:not(:focus-visible) {
+    background-color: transparent;
+    box-shadow: none;
+}
+
+/* The icon box is as high as one line of text, so the icon sits centred on the (first) line of the hint. */
+.my-hospitals-finding-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    height: calc(1em * var(--tblr-body-line-height, 1.4285714286));
+}
+
+/* My Hospitals (#971): data coverage per hospital, one row per year, cells as in the import coverage calendar.
+   The twelve month columns share the card width; cells stay square (aspect-ratio) up to a maximum size. */
+.my-hospitals-coverage {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.my-hospitals-coverage-grid {
+    display: grid;
+    gap: 4px;
+    max-width: 30rem;
+}
+
+.my-hospitals-coverage-row {
+    display: grid;
+    grid-template-columns: 2.5rem repeat(12, minmax(0, 1fr));
+    gap: 4px;
+    align-items: center;
+    font-size: 0.75rem;
+    line-height: 1;
+    color: var(--tblr-secondary, #6c7a91);
+}
+
+.my-hospitals-coverage-month {
+    text-align: center;
+}
+
+.my-hospitals-coverage .import-coverage-cell,
+.my-hospitals-coverage-empty {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+}
+
+.my-hospitals-coverage-legend {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem 1rem;
+}
+
+.my-hospitals-coverage-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.my-hospitals-coverage-legend .import-coverage-cell {
+    --import-coverage-cell: 0.875rem;
+    flex: none;
+}
+
+.my-hospitals-coverage-legend-scale {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+/* No allocations in a finished month (mostly after the last import): white, unlike a gap between imports */
+.import-coverage-cell.is-no-data {
+    background: var(--tblr-bg-surface, #fff);
+    box-shadow: inset 0 0 0 1px var(--tblr-border-color, #e6e7e9);
+}
+
+/* Partly covered: hatched, so it never reads as a complete month */
+.import-coverage-cell.is-partial {
+    background-image: repeating-linear-gradient(135deg, transparent 0 3px, var(--tblr-bg-surface, #fff) 3px 5px);
+}
+
+.import-coverage-cell.is-in-progress {
+    outline: 1px dashed var(--tblr-primary, #206bc4);
+    outline-offset: -1px;
 }
 
 .import-coverage-gaps-table {
@@ -2796,10 +3114,6 @@ body.geo-map-expand-open {
     margin-bottom: 0;
 }
 
-.navbar-username {
-    max-width: 12rem;
-}
-
 header.navbar {
     overflow: visible;
 }
@@ -2975,4 +3289,127 @@ header.navbar .navbar-nav.flex-row .dropdown-menu {
 .notification-preferences td .form-check .form-check-input {
     float: none;
     margin: 0;
+}
+
+/* Settings overview (#970): the whole tile is one link, so its keyboard focus must be clearly visible. */
+.settings-tile:focus-visible {
+    outline: 2px solid var(--tblr-primary);
+    outline-offset: 2px;
+}
+
+/* Match validation item (#1057): expandable alternatives with a chevron that turns when open. */
+.encounter-validation-expand > summary {
+    cursor: pointer;
+    list-style: none;
+}
+
+.encounter-validation-expand > summary::-webkit-details-marker {
+    display: none;
+}
+
+.encounter-validation-expand__chevron {
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
+}
+
+.encounter-validation-expand[open] > summary .encounter-validation-expand__chevron {
+    transform: rotate(90deg);
+}
+
+/* My requests (#1483): links from the dashboard jump to one request; it stays clear of the sticky header and is marked. */
+.hospital-assignment-request-card {
+    scroll-margin-top: 5rem;
+}
+
+.hospital-assignment-request-card:target {
+    border-color: var(--tblr-primary);
+    box-shadow: 0 0 0 0.2rem rgba(var(--tblr-primary-rgb), 0.25);
+}
+
+/* Data catalog: links to a group or variable stop below the sticky navbar instead of under it. */
+.data-catalog-group,
+.data-catalog-table tr[id] {
+    scroll-margin-top: 5rem;
+}
+
+/* Data catalog: every group table uses the same column widths, so the columns line up across groups.
+   Below the minimum width the table scrolls inside .table-responsive. */
+.data-catalog-table {
+    table-layout: fixed;
+    min-width: 40rem;
+}
+
+.data-catalog-table__type {
+    width: 11rem;
+}
+
+.data-catalog-table__values {
+    width: 35%;
+}
+
+.data-catalog-table td {
+    overflow-wrap: anywhere;
+}
+
+/* Glossary: every section table uses the same column widths, so the columns line up across sections and
+   pages (#1507). Below the minimum width the table scrolls inside .table-responsive. */
+.glossary-table {
+    table-layout: fixed;
+    min-width: 40rem;
+}
+
+.glossary-table__code {
+    width: 9rem;
+}
+
+.glossary-table__label {
+    width: 25%;
+}
+
+.glossary-table__action {
+    width: 11rem;
+}
+
+.glossary-table td {
+    overflow-wrap: anywhere;
+}
+
+/* KpiCard sparkline (#1239): full width at the bottom of the card, thin and quiet. The SVG is stretched to the
+   card width, so the stroke keeps its width with non-scaling-stroke. */
+.sparkline.kpi-sparkline {
+    --tblr-sparkline-width: 100%;
+    --tblr-sparkline-height: 2rem;
+    --tblr-sparkline-stroke: color-mix(in oklab, var(--tblr-primary) 55%, transparent);
+    --tblr-sparkline-stroke-width: 1.25;
+    display: block;
+}
+
+.kpi-sparkline .sparkline-svg polyline {
+    vector-effect: non-scaling-stroke;
+}
+
+/* Hover target on each point of a KpiCard sparkline: the native title shows month and value, a dot marks the point. */
+.kpi-sparkline-point {
+    position: absolute;
+    width: 0.875rem;
+    height: 0.875rem;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    cursor: default;
+    /* Above the SVG, which Tabler appends after the points. */
+    z-index: 1;
+}
+
+.kpi-sparkline-point::after {
+    position: absolute;
+    inset: 0.25rem;
+    border-radius: 50%;
+    background: var(--tblr-primary);
+    content: '';
+    opacity: 0;
+    transition: opacity 0.15s ease-in-out;
+}
+
+.kpi-sparkline-point:hover::after {
+    opacity: 1;
 }

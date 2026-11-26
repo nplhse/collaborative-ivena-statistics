@@ -37,7 +37,7 @@ final readonly class CatalogMappingQualityWarningFactory
                 count: $result->count,
                 severity: $result->severity,
                 hintKey: '' !== $result->hint ? 'catalog.quality.hint.'.$result->id : '',
-                actionUrl: $this->urlGenerator->generate('app_explore_indication_raw_review_worklist'),
+                actionUrl: $this->urlGenerator->generate('app_tools_indication_review'),
             );
         }
 

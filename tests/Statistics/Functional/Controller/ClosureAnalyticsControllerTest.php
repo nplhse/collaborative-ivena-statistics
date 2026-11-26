@@ -69,7 +69,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="closure-filter-reasons"]');
         $this->assertSelectorExists('[data-testid="closure-filter-event-types"]');
         $this->assertSelectorNotExists('[data-testid="closure-filter-hospitals"]');
-        $this->assertSelectorExists('a[href="/statistics/closure-analytics"]');
+        $this->assertSelectorExists('[data-testid="sidebar-entry-closures-overview"].active');
     }
 
     public function testClosureAnalyticsRequiresClosureBetaRoleAndIsHiddenFromNavigation(): void
@@ -82,7 +82,8 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
 
         $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all_time');
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorNotExists('a[href="/statistics/closure-analytics"]');
+        $this->assertSelectorExists('[data-testid="sidebar-statistics"]');
+        $this->assertSelectorNotExists('[data-testid="sidebar-group-closures"]');
     }
 
     public function testDispatchAreaScopeIsNotSilentlyApplied(): void
@@ -257,7 +258,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $this->assertSelectorTextContains('#result-count', 'Showing 26-30 of 30 results.');
         $this->assertSelectorTextNotContains('[data-testid="stats-closure-intervals"]', 'Ungrouped individual closure');
         $this->assertSelectorTextContains('[data-testid="stats-closure-intervals"]', 'Individual closure');
-        $this->assertSelectorExists('[data-testid="stats-closure-intervals"] a.badge.bg-purple-lt.text-purple-lt-fg');
+        $this->assertSelectorExists('[data-testid="stats-closure-intervals"] a.badge.bg-purple-lt');
         $previousUrl = $client->getCrawler()->filter('.pagination a')->first()->attr('href');
         self::assertNotNull($previousUrl);
         self::assertStringContainsString('period=year', $previousUrl);
@@ -304,7 +305,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $this->assertSelectorTextContains('[data-testid="stats-closure-intervals"]', '100 records');
 
         $secondUser = UserFactory::createOne([
-            'roles' => [UserRole::USER, UserRole::PARTICIPANT, UserRole::CLOSURE_BETA],
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT],
         ]);
         $client->loginUser($secondUser);
         $client->request(Request::METHOD_GET, '/statistics/closure-analytics/details?scope=public&period=all_time');
@@ -425,7 +426,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         self::assertStringContainsString('closedHours', (string) $client->getResponse()->getContent());
         self::assertStringNotContainsString('closedShares', (string) $client->getResponse()->getContent());
 
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=last_12_months');
         $this->assertResponseIsSuccessful();
         $rollingChart = (string) $client->getResponse()->getContent();
         $currentMonth = $this->currentMonthStart();
@@ -434,7 +435,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics?scope=public&period=all&unitsColumns=name&unitsColumnOrder=name',
+            '/statistics/closure-analytics?scope=public&period=last_12_months&unitsColumns=name&unitsColumnOrder=name',
         );
         $this->assertResponseIsSuccessful();
         $unitHeaders = $client->getCrawler()->filter('[data-testid="stats-closure-units"] th')->each(
@@ -744,7 +745,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics/timeline/frame?scope=public&period=all',
+            '/statistics/closure-analytics/timeline/frame?scope=public&period=last_12_months',
         );
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="closure-timeline-grid"]');
@@ -753,7 +754,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics/timeline/frame?scope=public&period=all&timeline_grain=month&timeline_from='.$this->currentMonthStart()->format('Y-m-d'),
+            '/statistics/closure-analytics/timeline/frame?scope=public&period=last_12_months&timeline_grain=month&timeline_from='.$this->currentMonthStart()->format('Y-m-d'),
         );
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('.closure-timeline-cell--closed');
@@ -1451,7 +1452,7 @@ SQL,
     private function loginAsClosureBetaUser(KernelBrowser $client): User
     {
         $user = UserFactory::createOne([
-            'roles' => [UserRole::USER, UserRole::PARTICIPANT, UserRole::CLOSURE_BETA],
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT],
         ]);
         $client->followRedirects(true);
         $client->loginUser($user);

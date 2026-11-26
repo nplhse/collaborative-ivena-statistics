@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace App\Onboarding\Application;
 
-use App\Analytics\Application\UsageEvents\UsageAnalytics;
-use App\Analytics\Domain\Enum\FeatureArea;
-use App\Analytics\Domain\UsageEventName;
 use App\Onboarding\Application\Dto\OnboardingCardView;
 use App\Onboarding\Domain\Entity\UserOnboardingStep;
 use App\Onboarding\Domain\Enum\OnboardingStepKey;
@@ -21,7 +18,6 @@ final readonly class OnboardingProgressService
     public function __construct(
         private OnboardingStepCatalog $stepCatalog,
         private UserOnboardingStepRepository $stepRepository,
-        private UsageAnalytics $usageAnalytics,
     ) {
     }
 
@@ -68,6 +64,11 @@ final readonly class OnboardingProgressService
 
     public function markCompleted(User $user, OnboardingStepKey $stepKey): void
     {
+        // Completes only through clinic access (#1483).
+        if (OnboardingStepKey::RequestClinicAccess === $stepKey) {
+            throw new AccessDeniedHttpException('This onboarding step completes when clinic access is granted.');
+        }
+
         $persisted = $this->persistedCompletedMap($user);
         if (!$this->stepCatalog->isStepAvailableForUser($user, $stepKey, $persisted)) {
             throw new AccessDeniedHttpException('Onboarding step is not available for this user.');
@@ -82,12 +83,6 @@ final readonly class OnboardingProgressService
         }
 
         $this->stepRepository->save(new UserOnboardingStep($user, $stepKey));
-
-        $this->usageAnalytics->record(
-            UsageEventName::ONBOARDING_STEP_COMPLETED,
-            FeatureArea::Other,
-            ['step' => $stepKey->value],
-        );
     }
 
     /**

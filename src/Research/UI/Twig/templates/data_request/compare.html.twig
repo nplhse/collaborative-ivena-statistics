@@ -1,0 +1,24 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'data_request.compare.title'|trans({}, 'research') }} - {{ version.title }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                { label: 'my_requests.title', path: path('app_my_requests'), label_domain: 'shared' },
+                { label: 'data_request.title.list', path: path('app_data_requests'), label_domain: 'research' },
+                { label: 'data_request.title.show', path: path('app_data_requests_show', {publicId: dataRequest.publicIdString}), label_domain: 'research' },
+                { label: 'data_request.compare.title', label_domain: 'research' }
+            ]"
+        />
+        <div class="page-header d-print-none">
+            <h2 class="page-title">{{ 'data_request.compare.title'|trans({}, 'research') }}</h2>
+            <div class="text-secondary mt-1">{{ version.title }}</div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    {{ include('@Research/data_request/_compare.html.twig', {action: path('app_data_requests_compare', {publicId: dataRequest.publicIdString})}) }}
+{% endblock %}

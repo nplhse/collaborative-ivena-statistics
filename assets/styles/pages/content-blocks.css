@@ -96,3 +96,14 @@
         width: 100%;
     }
 }
+
+/* Help search terms on the target article and the hit it came from (#1590). */
+mark.help-search-term {
+    padding: 0 0.1em;
+    border-radius: 2px;
+}
+
+.list-group-item.help-search-hit--current {
+    background-color: var(--tblr-primary-lt);
+    box-shadow: inset 3px 0 0 var(--tblr-primary);
+}

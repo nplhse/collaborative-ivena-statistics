@@ -64,6 +64,12 @@ trait RefreshesStatisticsFunctionalDataTrait
             'tier' => HospitalTier::BASIC,
             'location' => HospitalLocation::URBAN,
         ]);
+        // Third hospital: state, dispatch area and cohort scopes need ScopePrivacyPolicy::MIN_HOSPITALS (3).
+        $hospitalC = HospitalFactory::createOne([
+            'name' => 'Dashboard Cohort Hospital C',
+            'tier' => HospitalTier::BASIC,
+            'location' => HospitalLocation::URBAN,
+        ]);
         SpecialityFactory::createOne(['name' => 'Dashboard Cohort Spec']);
         DepartmentFactory::createOne(['name' => 'Dashboard Cohort Dept']);
         AssignmentFactory::createOne(['name' => 'Dashboard Cohort Assign']);
@@ -73,8 +79,9 @@ trait RefreshesStatisticsFunctionalDataTrait
         $normalized = IndicationNormalizedFactory::createOne(['name' => 'Dashboard Cohort Norm']);
         $importA = ImportFactory::createOne(['name' => 'Dashboard Cohort Import A', 'hospital' => $hospitalA, 'createdBy' => $user]);
         $importB = ImportFactory::createOne(['name' => 'Dashboard Cohort Import B', 'hospital' => $hospitalB, 'createdBy' => $user]);
+        $importC = ImportFactory::createOne(['name' => 'Dashboard Cohort Import C', 'hospital' => $hospitalC, 'createdBy' => $user]);
 
-        foreach ([[$importA, $hospitalA], [$importB, $hospitalB]] as [$import, $hospital]) {
+        foreach ([[$importA, $hospitalA], [$importB, $hospitalB], [$importC, $hospitalC]] as [$import, $hospital]) {
             AllocationFactory::createOne([
                 'createdAt' => new \DateTimeImmutable('today'),
                 'import' => $import,
@@ -86,7 +93,7 @@ trait RefreshesStatisticsFunctionalDataTrait
             ]);
         }
 
-        $this->rebuildProjectionForImports([(int) $importA->getId(), (int) $importB->getId()]);
+        $this->rebuildProjectionForImports([(int) $importA->getId(), (int) $importB->getId(), (int) $importC->getId()]);
         $this->refreshOverviewMaterializedViews();
     }
 }

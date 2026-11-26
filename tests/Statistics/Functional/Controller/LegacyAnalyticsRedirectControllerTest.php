@@ -21,10 +21,10 @@ final class LegacyAnalyticsRedirectControllerTest extends WebTestCase
         $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analytics/library?scope=public&period=all',
+            '/statistics/analytics/library?scope=public&period=last_12_months',
         );
 
-        $this->assertResponseRedirects('/statistics/analysis/library?scope=public&period=all', 301);
+        $this->assertResponseRedirects('/statistics/analysis/library?scope=public&period=last_12_months', 301);
     }
 
     public function testAnalyticsViewRedirectsToMappedExplorerView(): void
@@ -32,10 +32,10 @@ final class LegacyAnalyticsRedirectControllerTest extends WebTestCase
         $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analytics/view/gender_distribution?scope=public&period=all',
+            '/statistics/analytics/view/gender_distribution?scope=public&period=last_12_months',
         );
 
-        $this->assertResponseRedirects('/statistics/analysis/explorer/gender-distribution?scope=public&period=all', 301);
+        $this->assertResponseRedirects('/statistics/analysis/explorer/gender-distribution?scope=public&period=last_12_months', 301);
     }
 
     public function testUnknownAnalyticsViewRedirectsToExplorerLibrary(): void
@@ -43,9 +43,9 @@ final class LegacyAnalyticsRedirectControllerTest extends WebTestCase
         $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analytics/view/resus_by_hour?scope=public&period=all',
+            '/statistics/analytics/view/resus_by_hour?scope=public&period=last_12_months',
         );
 
-        $this->assertResponseRedirects('/statistics/analysis/library?scope=public&period=all', 301);
+        $this->assertResponseRedirects('/statistics/analysis/library?scope=public&period=last_12_months', 301);
     }
 }

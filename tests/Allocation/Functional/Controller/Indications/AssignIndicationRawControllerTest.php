@@ -26,6 +26,6 @@ final class AssignIndicationRawControllerTest extends WebTestCase
 
         $client->request(Request::METHOD_GET, sprintf('/explore/indication/raw/assign/%s', $raw->getPublicIdString()));
 
-        self::assertResponseRedirects(sprintf('/explore/indication/raw/review/%s', $raw->getPublicIdString()));
+        self::assertResponseRedirects(sprintf('/tools/indication-review/%s', $raw->getPublicIdString()));
     }
 }

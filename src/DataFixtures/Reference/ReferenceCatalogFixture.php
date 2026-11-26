@@ -23,6 +23,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *
  * With `FIXTURES_REFERENCE_PACKAGE` the catalog of that package replaces the synthetic one, except
  * states, dispatch areas and hospitals, which stay synthetic (`ComposedReferenceCatalog`).
+ * The districts get their coarse demo shapes in the database, without a network call (ADR 041).
  */
 final class ReferenceCatalogFixture extends Fixture implements DependentFixtureInterface, FixtureGroupInterface
 {
@@ -33,6 +34,7 @@ final class ReferenceCatalogFixture extends Fixture implements DependentFixtureI
         private readonly ReferenceCatalogImportPlanner $planner,
         private readonly ReferenceCatalogImportApplier $applier,
         private readonly ComposedReferenceCatalog $composer,
+        private readonly DemoDistrictGeometries $geometries,
         #[Autowire(param: 'fixtures.reference_package')]
         private readonly string $referencePackage = '',
         #[Autowire(param: 'kernel.project_dir')]
@@ -54,6 +56,7 @@ final class ReferenceCatalogFixture extends Fixture implements DependentFixtureI
         }
 
         $this->applier->apply($plan, $this->getReference('admin', User::class));
+        $this->geometries->store();
     }
 
     private function catalog(): ReferenceCatalogPackage

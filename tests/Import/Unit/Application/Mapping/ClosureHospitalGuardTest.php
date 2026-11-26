@@ -40,6 +40,47 @@ final class ClosureHospitalGuardTest extends TestCase
         $this->guard->assertRow($profile, 'Universitätsklinikum Südstadt');
     }
 
+    public function testOverrideAcceptsASingleShortNameThatMatchesAnotherHospital(): void
+    {
+        $names = [
+            7 => 'Demo-Klinikum Talstadt',
+            9 => 'Klinikum Weststadt',
+        ];
+        $profile = $this->guard->profile(7, $names, ['Klinikum Weststadt'], hospitalOverride: true);
+
+        self::assertTrue($profile->hospitalOverride);
+        self::assertSame('Klinikum Weststadt', $profile->overriddenFileLabel);
+        $this->guard->assertRow($profile, 'Klinikum Weststadt');
+    }
+
+    public function testOverrideRecordsNoLabelWhenNothingConflicts(): void
+    {
+        $names = [7 => 'Demo-Klinikum Talstadt', 9 => 'Klinikum Weststadt'];
+
+        self::assertNull($this->guard->profile(7, $names, ['Demo-Klinikum Talstadt'], hospitalOverride: true)->overriddenFileLabel);
+        self::assertNull($this->guard->profile(7, $names, ['Unbekanntes Haus'], hospitalOverride: true)->overriddenFileLabel);
+        self::assertNull($this->guard->profile(7, $names, ['Klinikum Weststadt'])->overriddenFileLabel, 'Without the override the label is not recorded.');
+    }
+
+    public function testOverrideKeepsRejectingRowsOfAFileWithSeveralHospitals(): void
+    {
+        $names = [
+            7 => 'Demo-Klinikum Talstadt',
+            9 => 'Klinikum Weststadt',
+        ];
+        $profile = $this->guard->profile(7, $names, ['Klinikum Weststadt', 'Klinikum Oststadt'], hospitalOverride: true);
+
+        self::assertTrue($profile->multiple);
+        self::assertNull($profile->overriddenFileLabel);
+        $this->expectException(ImportException::class);
+        try {
+            $this->guard->assertRow($profile, 'Klinikum Weststadt');
+        } catch (ImportException $e) {
+            self::assertSame('HOSPITAL_MISMATCH', $e->getCodeStr());
+            throw $e;
+        }
+    }
+
     public function testSingleShortNameThatMatchesAnotherHospitalConflicts(): void
     {
         $names = [

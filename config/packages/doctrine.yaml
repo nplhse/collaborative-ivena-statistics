@@ -8,6 +8,12 @@ doctrine:
                 server_version: '16'
                 url: '%env(resolve:DATABASE_URL)%'
                 profiling_collect_backtrace: '%kernel.debug%'
+            # Export connection for data extract requests (#1635, ADR 045): in production the hosting's read-only
+            # user. Empty RESEARCH_DATABASE_URL keeps query checks, dry runs and exports disabled; there is no fallback
+            # to the application user. Only the Research runner uses it, never the ORM.
+            research:
+                server_version: '16'
+                url: '%env(resolve:RESEARCH_DATABASE_URL)%'
 
     orm:
         validate_xml_mapping: true
@@ -41,6 +47,11 @@ doctrine:
                 is_bundle: false
                 dir: '%kernel.project_dir%/src/Feedback/Domain/Entity'
                 prefix: 'App\Feedback\Domain\Entity'
+            Research:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Research/Domain/Entity'
+                prefix: 'App\Research\Domain\Entity'
             Shared:
                 type: attribute
                 is_bundle: false
@@ -71,6 +82,11 @@ doctrine:
                 is_bundle: false
                 dir: '%kernel.project_dir%/src/Kpi/Domain/Entity'
                 prefix: 'App\Kpi\Domain\Entity'
+            Encounter:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Encounter/Domain/Entity'
+                prefix: 'App\Encounter\Domain\Entity'
             Engagement:
                 type: attribute
                 is_bundle: false
@@ -110,8 +126,20 @@ doctrine:
 when@test:
     doctrine:
         dbal:
-            # "TEST_TOKEN" is typically set by ParaTest
-            dbname_suffix: '_test%env(default::TEST_TOKEN)%'
+            connections:
+                default:
+                    # Query-count tests read the profiler's db collector. Doctrine ties profiling to kernel.debug, and
+                    # the database tests run without debug in CI (#1343), so it is switched on here explicitly.
+                    # Backtraces stay tied to kernel.debug (off in CI): nothing asserts on them and they cost memory
+                    # per query.
+                    profiling: true
+                    # "TEST_DATABASE_SUFFIX" names the checkout: bin/worktree-init sets it per worktree in
+                    # .env.test.local, so parallel worktrees do not reset each other's test databases.
+                    # "TEST_TOKEN" is typically set by ParaTest and names the worker.
+                    dbname_suffix: '_test%env(default::TEST_DATABASE_SUFFIX)%%env(default::TEST_TOKEN)%'
+                # The export connection of data extract requests reads the same test database (#1635).
+                research:
+                    dbname_suffix: '_test%env(default::TEST_DATABASE_SUFFIX)%%env(default::TEST_TOKEN)%'
 
 when@prod:
     doctrine:

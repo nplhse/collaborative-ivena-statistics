@@ -1,0 +1,214 @@
+/*
+ * Contextual sidebar (ADR 035): own rules on top of Tabler's vertical navbar. Everything else (rail,
+ * hover preview, section titles, mobile collapse, content offset) is Tabler's.
+ */
+
+/*
+ * The top navbar keeps the full width and stays above the sidebar; the sidebar starts below it. In the demo
+ * environment the banner above the page (ADR 023) stays at the top as well, so the navbar and the sidebar start
+ * below it, on load and after scrolling (#1381). Without the banner its height is 0.
+ */
+@media (min-width: 992px) {
+    body:has(.page > .site-sidebar) > #demo-environment-banner {
+        position: sticky;
+        top: 0;
+        z-index: 1021;
+    }
+
+    .page:has(> .site-sidebar) > header.navbar {
+        position: sticky;
+        top: var(--site-banner-height, 0px);
+        z-index: 1020;
+        margin-inline-start: 0;
+    }
+
+    .page > .navbar-vertical.site-sidebar {
+        top: calc(var(--site-banner-height, 0px) + var(--site-header-height, 3.5rem));
+    }
+}
+
+/* Untitled section further down: a divider only. */
+.site-sidebar .nav-section-title.site-sidebar__divider {
+    min-height: 0.5rem;
+    padding-top: 0;
+    margin-top: 0.5rem;
+    border-top: var(--tblr-border-width) solid var(--tblr-border-color);
+}
+
+/* Nested groups open inside the sidebar, indented under the parent's label. */
+.site-sidebar .site-sidebar__tree {
+    flex-direction: column;
+    flex-grow: 0;
+    padding-inline-start: calc(var(--tblr-nav-link-icon-width, 1.25rem) + var(--tblr-nav-link-icon-margin-end, 0.5rem));
+}
+
+.site-sidebar .site-sidebar__tree .site-sidebar__tree {
+    padding-inline-start: 0.75rem;
+    margin-inline-start: 0.75rem;
+    border-inline-start: var(--tblr-border-width) solid var(--tblr-border-color);
+}
+
+.site-sidebar .site-sidebar__tree .nav-link {
+    padding-block: 0.3rem;
+    font-size: 0.8125rem;
+}
+
+.site-sidebar .site-sidebar__group,
+.site-sidebar .site-sidebar__fold {
+    width: 100%;
+    text-align: start;
+    background: none;
+    border: 0;
+}
+
+.site-sidebar .nav-link .site-sidebar__badge {
+    flex-shrink: 0;
+    margin-inline-start: auto;
+}
+
+.site-sidebar__group-chevron {
+    display: inline-flex;
+    margin-inline-start: auto;
+    color: var(--tblr-secondary);
+}
+
+.site-sidebar__badge + .site-sidebar__group-chevron {
+    margin-inline-start: 0.5rem;
+}
+
+.site-sidebar__group-chevron svg {
+    width: 1rem;
+    height: 1rem;
+    transition: transform 0.15s ease;
+}
+
+.site-sidebar__group[aria-expanded='true'] .site-sidebar__group-chevron svg {
+    transform: rotate(90deg);
+}
+
+.site-sidebar .site-sidebar__on-path > .site-sidebar__group {
+    font-weight: var(--tblr-font-weight-medium);
+    color: var(--tblr-navbar-active-color);
+}
+
+/*
+ * Fold toggle: icon and label say what a click does; it covers rail entries that run under it. It repeats
+ * Tabler's right edge of the vertical navbar (an inset shadow on the aside), which its background covers.
+ */
+.site-sidebar .site-sidebar__footer {
+    position: relative;
+    z-index: 2;
+    background: var(--tblr-navbar-bg);
+    box-shadow: inset calc(-1 * var(--tblr-navbar-border-width)) 0 0 0 var(--tblr-navbar-border-color);
+}
+
+.site-sidebar__fold {
+    color: var(--tblr-secondary);
+}
+
+[data-bs-sidebar^='folded'] .site-sidebar__when-open,
+:root:not([data-bs-sidebar^='folded']) .site-sidebar__when-folded {
+    display: none;
+}
+
+/* Right after a collapse the rail must not open again under the pointer. */
+.site-sidebar.is-hover-suppressed {
+    pointer-events: none;
+}
+
+/* Search field (#1248) above the tree; matches are marked in the labels. */
+.site-sidebar__search {
+    padding: 0.75rem 0.75rem 0;
+}
+
+.site-sidebar__search-input::-webkit-search-cancel-button {
+    cursor: pointer;
+}
+
+.site-sidebar mark.site-sidebar__match {
+    padding: 0;
+    color: inherit;
+    font-weight: var(--tblr-font-weight-bold);
+    background: color-mix(in srgb, var(--tblr-warning) 30%, transparent);
+    border-radius: 2px;
+}
+
+.site-sidebar__empty {
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+}
+
+/* Rail (folded, not hovered): no nested lists, chevrons or badges; the active group's icon stays marked. */
+@media (min-width: 992px) {
+    [data-bs-sidebar='folded'] .site-sidebar .site-sidebar__children,
+    [data-bs-sidebar='folded-hover'] .site-sidebar:not(:hover):not(:has(:focus-visible)) .site-sidebar__children,
+    [data-bs-sidebar='folded'] .site-sidebar .site-sidebar__group-chevron,
+    [data-bs-sidebar='folded-hover'] .site-sidebar:not(:hover):not(:has(:focus-visible)) .site-sidebar__group-chevron,
+    [data-bs-sidebar='folded'] .site-sidebar .site-sidebar__badge,
+    [data-bs-sidebar='folded-hover'] .site-sidebar:not(:hover):not(:has(:focus-visible)) .site-sidebar__badge {
+        display: none !important;
+    }
+
+    /* In the rail the search field is only its icon; focusing it (`/` or a click) opens Tabler's preview. */
+    [data-bs-sidebar='folded'] .site-sidebar .site-sidebar__search-input,
+    [data-bs-sidebar='folded-hover'] .site-sidebar:not(:hover):not(:has(:focus-visible)) .site-sidebar__search-input {
+        cursor: pointer;
+        color: transparent;
+        background: none;
+        border-color: transparent;
+        box-shadow: none;
+    }
+
+    [data-bs-sidebar='folded'] .site-sidebar .site-sidebar__search-input::placeholder,
+    [data-bs-sidebar='folded-hover'] .site-sidebar:not(:hover):not(:has(:focus-visible)) .site-sidebar__search-input::placeholder {
+        color: transparent;
+    }
+
+    [data-bs-sidebar='folded'] .site-sidebar .site-sidebar__on-path > .site-sidebar__group,
+    [data-bs-sidebar='folded-hover'] .site-sidebar:not(:hover):not(:has(:focus-visible)) .site-sidebar__on-path > .site-sidebar__group {
+        --tblr-nav-link-icon-color: var(--tblr-primary);
+        color: var(--tblr-primary);
+        background: var(--tblr-navbar-active-bg);
+    }
+}
+
+/* Below lg the sidebar is a second bar: "Statistics · Insights" and a chevron on one line. */
+@media (max-width: 991.98px) {
+    .site-sidebar .site-sidebar__view-toggler {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 0.5rem 0;
+        text-align: start;
+        border: 0;
+        box-shadow: none;
+    }
+
+    .site-sidebar .site-sidebar__footer {
+        display: none !important;
+    }
+}
+
+.site-sidebar__view-chevron {
+    display: inline-flex;
+    color: var(--tblr-secondary);
+}
+
+.site-sidebar__view-chevron svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    transition: transform 0.18s ease;
+}
+
+.site-sidebar__view-toggler[aria-expanded='true'] .site-sidebar__view-chevron svg {
+    transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .site-sidebar__group-chevron svg,
+    .site-sidebar__view-chevron svg {
+        transition: none;
+    }
+}

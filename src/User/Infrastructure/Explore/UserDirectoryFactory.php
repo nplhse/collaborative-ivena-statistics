@@ -60,14 +60,7 @@ final readonly class UserDirectoryFactory
                 continue;
             }
 
-            try {
-                $publicId = $user->getPublicIdString();
-            } catch (\LogicException) {
-                continue;
-            }
-
             $items[] = new UserListItem(
-                publicId: $publicId,
                 username: $username,
                 isAdmin: UserPublicRoleResolver::isAdmin($user),
                 isParticipant: UserPublicRoleResolver::isParticipant($user),
@@ -75,6 +68,8 @@ final readonly class UserDirectoryFactory
                 isUserOnly: UserPublicRoleResolver::isUserOnly($user),
                 hospitals: $hospitalsByUser[$id] ?? [],
                 createdAt: $user->getCreatedAt(),
+                userId: $id,
+                displayName: $user->getDisplayName(),
             );
         }
 

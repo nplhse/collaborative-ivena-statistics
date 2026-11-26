@@ -8,7 +8,7 @@
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
         {% block header_after %}
-            {{ include('@Shared/_includes/subnav_explore.html.twig') }}
+            <twig:Navigation:Sidebar menu="explore" />
         {% endblock %}
     {% endembed %}
 {% endblock %}
@@ -32,15 +32,16 @@
             <div class="col">
                 <h1 id="hospital-name" class="fw-bold">{{ hospital.name }}</h1>
                 <div class="list-inline list-inline-dots text-secondary">
+                    <twig:AdminObjectId :id="hospital.id" />
                     <div class="list-inline-item">
-                        <twig:ux:icon name="tabler:map" width="1em" height="1em" />
+                        <twig:ux:icon name="tabler:map" width="1em" height="1em" class="icon-text" />
                         {{ explore_entity_link(hospital.dispatchArea, {class: 'link-secondary'}) }}, {{ explore_entity_link(hospital.state, {class: 'link-secondary'}) }}
                     </div>
                     <div id="hospital-owned-by" class="list-inline-item">
-                        <twig:ux:icon name="tabler:user-square" width="1em" height="1em" />
                         {% if hospital.owner %}
-                            {{ users.link(hospital.owner) }}
+                            {{ users.link(hospital.owner, {avatar: 'inline'}) }}
                         {% else %}
+                            <twig:ux:icon name="tabler:user-square" width="1em" height="1em" class="icon-text" />
                             {{ 'label.without_owner'|trans({}, 'messages') }}
                         {% endif %}
                     </div>
@@ -55,6 +56,15 @@
                                 {{ 'label.edit'|trans({}, 'messages') }}
                             </a>
                         </span>
+                    {% endif %}
+                    {% if assignmentRequestState == 'available' %}
+                        <a class="btn btn-primary" href="{{ path('app_hospital_assignment_request_new', {hospital: hospital.publicIdString}) }}" data-testid="hospital-request-assignment">
+                            <twig:ux:icon name="tabler:user-plus" width="1em" height="1em" />&nbsp;{{ 'hospital_assignment_request.action.request_for_hospital'|trans({}, 'allocation') }}
+                        </a>
+                    {% elseif assignmentRequestState == 'pending' %}
+                        <a class="btn" href="{{ path('app_hospital_assignment_request_index') }}" data-testid="hospital-assignment-request-pending">
+                            <twig:ux:icon name="tabler:clock" width="1em" height="1em" />&nbsp;{{ 'hospital_assignment_request.action.pending'|trans({}, 'allocation') }}
+                        </a>
                     {% endif %}
                     <span class="d-none d-sm-inline">
                         <a class="btn" href="{{ path('app_explore_hospital_list') }}">
@@ -78,6 +88,7 @@
                 canImport: canImport|default(false),
             }) }}
             {{ include('@Allocation/catalog/_orientation_map.html.twig', {orientationMap: orientationMap}) }}
+            {{ include('@Allocation/hospitals/_activity_card.html.twig') }}
         </div>
         <div class="col-lg-4">
             <div class="row row-cards">
@@ -112,7 +123,7 @@
                             </div>
                             <div id="hospital-created-by" class="mb-2">
                                 <twig:ux:icon name="tabler:user" width="1.5em" height="1.5em" />
-                                {{ 'label.created_by'|trans({}, 'messages') }} <strong>{{ users.link(hospital.createdBy) }}</strong>
+                                {{ 'label.created_by'|trans({}, 'messages') }} <strong>{{ users.link(hospital.createdBy, {avatar: 'inline'}) }}</strong>
                             </div>
                             {% if hospital.updatedBy and hospital.updatedAt %}
                                 <div class="mt-1 mb-2">
@@ -121,7 +132,7 @@
                                 </div>
                                 <div class="mb-2">
                                     <twig:ux:icon name="tabler:user" width="1.5em" height="1.5em"  />
-                                    {{ 'label.updated_by'|trans({}, 'messages') }} <strong>{{ users.link(hospital.updatedBy) }}</strong>
+                                    {{ 'label.updated_by'|trans({}, 'messages') }} <strong>{{ users.link(hospital.updatedBy, {avatar: 'inline'}) }}</strong>
                                 </div>
                             {% endif %}
                             {% if hospital.isParticipating %}
@@ -139,17 +150,31 @@
                             {% endif %}
                     </twig:Card>
                 </div>
+                {% if accessGrants is not null %}
+                    <div class="col-12">
+                        {{ include('@Allocation/hospitals/_access_summary.html.twig', {hospital: hospital, grants: accessGrants}) }}
+                    </div>
+                {% endif %}
                 <div class="col-12">
                     <twig:Card>
                             <div class="card-title">
                                 {{ 'label.address'|trans({}, 'messages') }}
                             </div>
                             <div id="hospital-address" class="mb-2">
-                                <em>
-                                    {{ hospital.address.street }}<br />
-                                    {{ hospital.address.postalCode }}, {{ hospital.address.city }}<br />
-                                    {{ hospital.address.state }}, {{ hospital.address.country }}
-                                </em>
+                                {% set addressLines = [
+                                    hospital.address.street,
+                                    [hospital.address.postalCode, hospital.address.city]|filter(part => part is not empty)|join(', '),
+                                    [hospital.address.state, hospital.address.country]|filter(part => part is not empty)|join(', '),
+                                ]|filter(line => line is not empty) %}
+                                {% if addressLines is not empty %}
+                                    <em>
+                                        {% for line in addressLines %}
+                                            {{ line }}{% if not loop.last %}<br />{% endif %}
+                                        {% endfor %}
+                                    </em>
+                                {% else %}
+                                    <span class="text-secondary">{{ 'hospital.address.empty'|trans({}, 'allocation') }}</span>
+                                {% endif %}
                             </div>
                     </twig:Card>
                 </div>

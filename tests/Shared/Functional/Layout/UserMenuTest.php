@@ -29,7 +29,7 @@ final class UserMenuTest extends DatabaseWebTestCase
             $this->menuEntries($crawler),
         );
         self::assertSame(
-            '/explore/user/'.$user->getPublicIdString(),
+            '/explore/user/'.$user->getUsername(),
             $crawler->filter('[data-testid="user-menu-profile"]')->attr('href'),
         );
     }
@@ -42,7 +42,7 @@ final class UserMenuTest extends DatabaseWebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSame(
-            ['user-menu-profile', 'user-menu-hospitals', 'user-menu-notifications', 'user-menu-settings', 'user-menu-logout'],
+            ['user-menu-profile', 'user-menu-hospitals', 'user-menu-requests', 'user-menu-notifications', 'user-menu-settings', 'user-menu-logout'],
             $this->menuEntries($crawler),
         );
     }
@@ -56,7 +56,7 @@ final class UserMenuTest extends DatabaseWebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSame(
-            ['user-menu-profile', 'user-menu-hospitals', 'user-menu-notifications', 'user-menu-settings', 'user-menu-backend', 'user-menu-logout'],
+            ['user-menu-profile', 'user-menu-hospitals', 'user-menu-requests', 'user-menu-notifications', 'user-menu-settings', 'user-menu-backend', 'user-menu-logout'],
             $this->menuEntries($crawler),
         );
     }
@@ -114,5 +114,26 @@ final class UserMenuTest extends DatabaseWebTestCase
                 static fn (Crawler $node): ?string => $node->attr('data-testid'),
             ),
         ));
+    }
+
+    public function testNavbarShowsTheOwnAvatar(): void
+    {
+        $client = self::createClient();
+        $client->loginUser(UserFactory::createOne(['displayName' => 'Michael Müller']));
+
+        $client->request(Request::METHOD_GET, '/settings');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextSame('[data-testid="user-menu-avatar"][data-avatar="initials"]', 'MM');
+        self::assertSelectorNotExists('.navbar-username', 'the avatar replaces the visible username');
+        self::assertSelectorExists('.visually-hidden #user_name');
+        self::assertSelectorNotExists('[data-testid="user-menu-avatar"].avatar-impersonating');
+        self::assertSelectorExists('a[aria-label="Open user menu"] [data-controller="tooltip"][title="Michael Müller"]');
+        self::assertSelectorNotExists('[data-bs-toggle="dropdown"][data-controller~="tooltip"]', 'a dropdown toggle carries no second Bootstrap component (#1419)');
+
+        $client->loginUser(UserFactory::createOne());
+        $client->request(Request::METHOD_GET, '/settings');
+
+        self::assertSelectorExists('[data-testid="user-menu-avatar"][data-avatar="fallback"]');
     }
 }

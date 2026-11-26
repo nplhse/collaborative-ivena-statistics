@@ -1,8 +1,11 @@
 # Demo environment (ADR 023). Fixed here, not through env vars, so a variable set on the machine
 # cannot send mail to a real server or switch error reporting back on.
 parameters:
-    # Like dev: all mail goes to the local Mailpit (compose.override.yaml), never to a real server.
-    app.mailer_dsn: 'smtp://127.0.0.1:1025'
+    # DEMO_MAIL picks one of two fixed DSNs (DemoMailerDsnEnvVarProcessor), never a real server:
+    # "mailpit" (default, like dev) delivers to the local Mailpit (compose.override.yaml),
+    # "off" discards every mail, e.g. for a demo on a server without Mailpit.
+    env(DEMO_MAIL): 'mailpit'
+    app.mailer_dsn: '%env(demo_mailer_dsn:DEMO_MAIL)%'
 
 framework:
     # Own session cookie: cookies are per host, not per port, and a secure dev cookie on

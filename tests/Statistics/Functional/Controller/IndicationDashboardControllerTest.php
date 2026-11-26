@@ -72,12 +72,12 @@ final class IndicationDashboardControllerTest extends WebTestCase
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indications/'.$indication->getId(), [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         self::assertResponseIsSuccessful();
         self::assertSelectorNotExists('[data-testid="stats-indication-picker"]');
-        self::assertSelectorNotExists('[data-testid="stats-insights-subnav"]');
+        self::assertSelectorExists('[data-testid="sidebar-entry-insights-dimension-indications"].active');
         self::assertSelectorTextSame('[data-testid="stats-indication-heading-title"]', 'Dashboard Test Indication (1001)');
         self::assertSelectorExists('[data-testid="stats-indication-kpi"]');
         self::assertSelectorExists('[data-testid="stats-indication-gender"]');
@@ -130,7 +130,7 @@ final class IndicationDashboardControllerTest extends WebTestCase
 
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indications/999999', [
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         self::assertResponseStatusCodeSame(404);
@@ -177,13 +177,13 @@ final class IndicationDashboardControllerTest extends WebTestCase
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/assignments/'.$assignment->getId(), [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('[data-testid="stats-indication-heading-title"]', 'Dashboard Test Assignment');
         self::assertSelectorExists('[data-testid="stats-indication-kpi"]');
-        self::assertSelectorNotExists('[data-testid="stats-insights-subnav"]');
+        self::assertSelectorExists('[data-testid="sidebar-entry-insights-dimension-assignments"].active');
         self::assertSelectorNotExists('[data-testid="stats-indication-picker"]');
     }
 
@@ -229,7 +229,7 @@ final class IndicationDashboardControllerTest extends WebTestCase
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/infections/'.$infection->getId(), [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         self::assertResponseIsSuccessful();
@@ -248,7 +248,7 @@ final class IndicationDashboardControllerTest extends WebTestCase
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indications/'.$indication->getId(), [
             'scope' => 'hospital_cohort',
             'cohort' => 'urban_basic',
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         self::assertResponseRedirects();

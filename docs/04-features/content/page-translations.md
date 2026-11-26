@@ -6,6 +6,7 @@ Multilingual static pages in the Content bounded context. Architecture decision:
 
 - **Page** — shared identity, hierarchy, `PageKey`, visibility, sort order
 - **PageTranslation** — locale-specific `title`, `slug`, `path`, `content` (block JSON), publication `status`
+  and an optional short description `summary` (one sentence, at most 300 characters, #1578)
 
 URLs remain `/{path}` (no locale prefix). Paths are unique across all locales.
 
@@ -24,6 +25,79 @@ Independent of Symfony UI `default_locale`.
 3. Edit content in **Page translation** CRUD (reuses the existing block editor)
 4. On translation **detail**, use the relations panel for links to the parent page and sibling locales (edit / create missing)
 
+## Short description
+
+The short description (`summary`) is edited with the title, outside the draft. It is shown on the subpage cards and the
+help topic cards, in the help search instead of the text excerpt, and as the page's `<meta name="description">`.
+Subpage cards also show an estimated reading time, from the words of the saved content at 200 words per minute
+(`PageTranslation::getReadingMinutes()`).
+
+## Blocks
+
+| Block | Content |
+|---|---|
+| Rich text, image, call to action, quote, headline, highlight, accordion | editorial content |
+| Cards (`cards`, #1578) | one to four cards, each with an optional icon (`tabler:…`), title, short rich text and an optional link (a path on this site, an anchor or an http(s) address; label defaults to "Read more") |
+| Subpages (`child_pages`, #1578) | cards for the visible subpages of the page with title, short description and reading time; optionally numbered as steps |
+| Learn more (`read_more`, #1590) | an optional heading (default "Learn more") and one to eight curated links, usually at the end of the content. A link to a page on this site shows the page title and short description in the shown language unless a link text is given; any other address, and a page the viewer cannot see, is shown only with a link text |
+| Board members (`board_members`) | no settings; cards for all enabled users who hold `ROLE_BOARD_MEMBER` themselves (admins are not included through the role hierarchy), sorted by display name or username. Anonymous visitors see avatar and username only, following the display name rule of #462; participants also see the display name, the user's hospitals and a link to the profile |
+| Help search, help topics | see [help.md](help.md) |
+
+The admin checks card icons against the icon set when saving, because an unknown icon would fail when the page is
+shown. Rich text in cards and accordion items passes the same sanitizer as rich-text blocks.
+
+## Block editor
+
+Content blocks are edited in the translation form (`PageContentBlockType`, Stimulus controller
+`page-block-editor`).
+
+- Changing a block's type swaps its fields at once. Fields that keep their meaning are carried over: only the
+  rich-text body (`html`) between rich text and highlight. Fields that merely share a name, such as the `text`
+  of a quote and of a headline, are not.
+- If the change would discard content (`PageContentBlockType::contentFields()`), the editor asks first;
+  cancelling keeps the old type. Presentation settings (level, alignment, size, …) fall back to defaults.
+- The server applies the same rules (`PageContentBlockTypeChange`): when fields of the old type with content
+  arrive together with a new type (for example without JavaScript), the type change is refused and reported at
+  the block, and the content stays.
+- Invalid blocks are reported at the block; the input is kept.
+- Moving a block (arrow buttons, `collection-reorder` controller) only moves it on the page and updates its hidden
+  `position` field. Field names keep the key the block had when the page was loaded, so nested accordion items and
+  rich-text editors stay with their block. The server stores the blocks in position order
+  (`PageContentBlockOrder`), numbers validation messages by that order, and after a failed save the editor
+  restores the order from the submitted positions. Keyboard focus stays on the moved block and a screen reader
+  announcement reports the new position.
+
+### Drafts and autosave
+
+Decision: [ADR 036](../../02-architecture/decisions/036-page-editor-draft-copy.md).
+
+- On a saved translation the editor saves the content blocks as a draft (`draft_content`) about two seconds
+  after the last change. A status line under the page header shows "unsaved", "saving", "saved" or "failed"
+  (with retry). Leaving the page with unsaved changes asks for confirmation.
+- The draft may be incomplete and is never shown publicly. "Save changes" validates it and writes it into
+  `content`; for a published translation that is the moment the change goes live.
+- When a draft exists, the editor opens it and offers "discard draft", which returns to the saved version.
+- Autosave, explicit save and discard carry the draft revision they are based on; the server refuses older ones,
+  so a late autosave or a second tab cannot overwrite newer input or bring back a discarded draft. On a
+  conflict the editor asks to reload.
+- Title, slug, status and the table-of-contents switch are not part of the draft.
+- The editor has one "Language XX" action per other locale: it opens that translation's editor (with its own
+  draft) or, when the translation is missing, the form to create it. This action and "Back to page" save
+  pending changes as a draft before they leave; if that fails, the editor stays open and shows the error.
+- The page detail marks translations that have a draft ("Unsaved draft").
+
 ## Frontend language switch
 
 The existing navbar locale switcher uses page sibling targets when present: switching locale goes through `app_locale_switch` and redirects to the published sibling translation’s path (paths stay globally unique, no `/{locale}` prefix). If no sibling exists for the target locale, the switcher keeps the current URL.
+
+## Opening a page via the path of another locale
+
+A page view renders the translation identified by the path ([ADR 013](../../02-architecture/decisions/013-page-multilingual-content.md), point 8). The page navigation and the rest of the UI use the request locale (user setting, locale cookie or `Accept-Language`). To keep both in one language, `PageController` compares them:
+
+| Path translation | Published, viewable sibling in the request locale | Result |
+|---|---|---|
+| request locale | – | page is shown |
+| other locale | yes | `302 Found` to the sibling's path, query string kept |
+| other locale | no | requested translation is shown; request locale is not changed |
+
+The redirect is temporary on purpose: its target depends on the visitor's locale, and the requested URL stays a valid address of its own translation. The target translation has the request locale, so it is shown without a further redirect. Switching the language with the locale switcher sets the new locale before it redirects to the sibling path, so it does not trigger this redirect.

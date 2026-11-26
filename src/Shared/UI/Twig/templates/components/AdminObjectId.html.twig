@@ -1,0 +1,6 @@
+{% if id is not null and is_granted('ROLE_ADMIN') %}
+    <div{{ attributes.defaults({class: 'list-inline-item', 'data-testid': 'admin-object-id', title: 'label.admin_object_id.hint'|trans({}, 'shared')}) }}>
+        <twig:ux:icon name="tabler:id" width="1em" height="1em" class="icon-text" />
+        {{ 'label.admin_object_id'|trans({}, 'shared') }} <span class="font-monospace user-select-all">{{ id }}</span>
+    </div>
+{% endif %}

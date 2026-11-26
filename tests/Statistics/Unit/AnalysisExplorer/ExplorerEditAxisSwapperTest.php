@@ -173,7 +173,7 @@ final class ExplorerEditAxisSwapperTest extends KernelTestCase
         string $hospitalPopulation = 'participating',
     ): ExplorerEditFormData {
         return new ExplorerEditFormData(
-            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'all'),
+            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'last_12_months'),
             dataSource: $dataSource,
             rowDimension: $rowDimension,
             rowGrain: $rowGrain,

@@ -30,7 +30,7 @@ final class BenchmarkSelectionFormDataFactoryTest extends TestCase
         $comparison = new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::AllTime);
 
         $public = $this->factory->fromFilters(
-            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::Last12Months),
             $comparison,
         );
         self::assertSame('public', $public->primary->scopeGroup);
@@ -61,7 +61,7 @@ final class BenchmarkSelectionFormDataFactoryTest extends TestCase
         self::assertSame('urban_full', $cohortFilter->primary->scopeDetail);
 
         $myHospitals = $this->factory->fromFilters(
-            new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::All),
+            new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::Last12Months),
             $comparison,
         );
         self::assertSame('my_hospitals', $myHospitals->primary->scopeGroup);

@@ -63,7 +63,7 @@ final class PreparedLocationCommandsTest extends KernelTestCase
         $httpClient = new MockHttpClient(function (string $method, string $url) use (&$requests): MockResponse {
             $requests[] = $url;
 
-            return str_contains($url, '/geocode/') ? $this->geocodeResponse() : $this->isochroneResponse();
+            return str_contains($url, '/pelias/') ? $this->geocodeResponse() : $this->isochroneResponse();
         });
 
         $tester = $this->prepareTester($httpClient);
@@ -79,8 +79,8 @@ final class PreparedLocationCommandsTest extends KernelTestCase
 
         self::assertSame(Command::SUCCESS, $status, $tester->getDisplay());
         self::assertCount(2, $requests);
-        self::assertStringContainsString('/geocode/search/structured', $requests[0]);
-        self::assertStringContainsString('/v2/isochrones/driving-car', $requests[1]);
+        self::assertStringContainsString('https://api.heigit.org/pelias/v1/search/structured', $requests[0]);
+        self::assertStringContainsString('https://api.heigit.org/openrouteservice/v2/isochrones/driving-car', $requests[1]);
         $stored = $this->locationStore()->find('musterstadt');
         self::assertNotNull($stored);
         self::assertSame(50.5, $stored->latitude);

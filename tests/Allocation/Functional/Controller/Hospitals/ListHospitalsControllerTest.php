@@ -66,6 +66,25 @@ final class ListHospitalsControllerTest extends WebTestCase
         self::assertStringContainsString('area-user', trim($userRow));
     }
 
+    public function testLastChangeShowsAvatarAndDisplayNameBelowTheDate(): void
+    {
+        $client = $this->createClientAsAreaUser();
+        StateFactory::createOne(['name' => 'Hessen']);
+        DispatchAreaFactory::createOne();
+        HospitalFactory::createOne([
+            'createdBy' => UserFactory::createOne(['username' => 'list-editor', 'displayName' => 'Lena Liste']),
+            'updatedBy' => null,
+            'updatedAt' => null,
+        ]);
+
+        $client->request(Request::METHOD_GET, '/explore/hospital');
+
+        self::assertResponseIsSuccessful();
+        // Avatar and name in table and card (#1666); the avatar is decorative, the link carries the name.
+        self::assertSelectorTextSame('[data-testid="hospital-last-change-user"] .user-link > .avatar.avatar-xs[aria-hidden="true"]', 'LL');
+        self::assertSelectorTextSame('[data-testid="hospital-last-change-user"] .user-link > a[title="@list-editor"]', 'Lena Liste');
+    }
+
     public function testListUsesMobileCardsAndLabelsTheParticipationIcon(): void
     {
         $client = $this->createClientAsParticipant();

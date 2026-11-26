@@ -1,0 +1,3 @@
+<ol{{ attributes.defaults({class: nested ? 'timeline-list timeline-list-nested' : 'timeline-list'}) }}{% if label %} aria-label="{{ label }}"{% endif %}>
+    {% block content %}{% endblock %}
+</ol>

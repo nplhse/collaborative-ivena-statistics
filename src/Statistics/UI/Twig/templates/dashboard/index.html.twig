@@ -5,7 +5,7 @@
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
         {% block header_after %}
-            {{ include(('@Shared/_includes/subnav_stats.html.twig')) }}
+            <twig:Navigation:Sidebar menu="statistics" />
         {% endblock %}
     {% endembed %}
 {% endblock %}
@@ -33,7 +33,7 @@
                         {{ 'link.stats.dashboard'|trans({}, 'shared') }}
                     </h2>
                 </div>
-                {{ include('@Statistics/_header_controls.html.twig') }}
+                {{ include('@Statistics/_header_controls.html.twig', {statsHelpKey: 'statistics.overview'}) }}
             </div>
         </div>
     </div>
@@ -63,7 +63,8 @@
             <div class="row g-3 mt-1"
                  data-testid="stats-charts"
                  data-controller="indication-dashboard-charts"
-                 data-indication-dashboard-charts-payload-value="{{ executiveDashboard.charts.chartPayload|json_encode|e('html_attr') }}">
+                 data-indication-dashboard-charts-payload-value="{{ executiveDashboard.charts.chartPayload|json_encode|e('html_attr') }}"
+                 data-indication-dashboard-charts-cases-label-value="{{ 'stats.chart.series.cases'|trans({}, 'statistics') }}">
                 <div class="col-12">
                     <turbo-frame id="stats-overview-self-benchmark"
                                  src="{{ overviewSelfBenchmarkUrl }}"

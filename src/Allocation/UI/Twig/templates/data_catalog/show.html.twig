@@ -1,0 +1,173 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% set objectTitle = object.titleKey|trans({}, object.domain) %}
+
+{% block title %}{{ objectTitle }} - {{ 'data_catalog.title'|trans({}, 'allocation') }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="help_breadcrumbs()|merge([
+                    { label: 'data_catalog.title', label_domain: 'allocation', path: path('app_help_data_catalog_index') },
+                    { label: objectTitle, translatable: false }
+                ])"
+        />
+
+        <div class="page-header d-print-none">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="page-title">{{ objectTitle }}</h2>
+                    <div class="text-body-secondary mt-1">{{ object.descriptionKey|trans({}, object.domain) }}</div>
+                    <div class="mt-2 d-flex flex-wrap gap-2 small">
+                        <span class="badge bg-secondary-lt">{{ 'data_catalog.variable_count'|trans({count: object.variableCount}, 'allocation') }}</span>
+                        <span class="badge {{ object.contributedByPlugin ? 'bg-purple-lt' : 'bg-blue-lt' }}">
+                            {{ (object.contributedByPlugin ? 'data_catalog.origin.plugin' : 'data_catalog.origin.core')|trans({}, 'allocation') }}
+                        </span>
+                        <code class="small">{{ object.table }}</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div data-testid="data-catalog-object-detail" data-object-key="{{ object.key }}">
+        <nav class="d-flex flex-wrap gap-2 mb-3" aria-label="{{ 'data_catalog.groups'|trans({}, 'allocation') }}" data-testid="data-catalog-group-nav">
+            {% for group in object.groups %}
+                <a href="#{{ group.anchor }}" class="btn btn-sm btn-outline-secondary">{{ group.labelKey|trans({}, object.domain) }}</a>
+            {% endfor %}
+        </nav>
+
+        {% for group in object.groups %}
+            <section class="card mb-3 data-catalog-group" id="{{ group.anchor }}" data-testid="data-catalog-group" data-group-key="{{ group.key }}">
+                <div class="card-header">
+                    <h3 class="card-title">{{ group.labelKey|trans({}, object.domain) }}</h3>
+                    <div class="card-actions">
+                        <a href="#top" data-turbo="false" class="btn btn-sm btn-ghost-secondary btn-icon" title="{{ 'data_catalog.back_to_top'|trans({}, 'allocation') }}" aria-label="{{ 'data_catalog.back_to_top'|trans({}, 'allocation') }}" data-testid="data-catalog-back-to-top">
+                            <twig:ux:icon name="tabler:arrow-up" class="icon" />
+                        </a>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-vcenter card-table data-catalog-table">
+                        <colgroup>
+                            <col>
+                            <col class="data-catalog-table__type">
+                            <col class="data-catalog-table__values">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>{{ 'data_catalog.column.variable'|trans({}, 'allocation') }}</th>
+                                <th>{{ 'data_catalog.column.type'|trans({}, 'allocation') }}</th>
+                                <th>{{ 'data_catalog.column.values'|trans({}, 'allocation') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for variable in group.variables %}
+                                <tr id="{{ variable.anchor }}" data-testid="data-catalog-variable" data-variable-key="{{ variable.key }}">
+                                    <td class="align-top">
+                                        <a href="#{{ variable.anchor }}" class="fw-bold text-reset">{{ variable.labelKey|trans({}, variable.domain) }}</a>
+                                        <div class="text-secondary">{{ variable.descriptionKey|trans({}, variable.domain) }}</div>
+                                        <div class="small text-secondary mt-1">
+                                            <code>{{ variable.key }}</code>
+                                            <span class="ms-2 text-nowrap" title="{{ 'data_catalog.storage'|trans({}, 'allocation') }}"><twig:ux:icon name="tabler:database" class="w-3 h-3" /> <code data-testid="data-catalog-storage">{{ variable.table }}.{{ variable.column }}</code></span>
+                                        </div>
+                                    </td>
+                                    <td class="align-top" data-testid="data-catalog-type" data-type="{{ variable.type.value }}">
+                                        <span class="text-nowrap"><twig:ux:icon name="{{ variable.type.icon }}" class="text-secondary me-1" width="1.1em" height="1.1em" aria-hidden="true" />{{ variable.type.labelKey|trans({}, 'allocation') }}</span>
+                                        {% if variable.storageType is not null %}
+                                            <div class="small" title="{{ 'data_catalog.storage_type'|trans({}, 'allocation') }}"><code data-testid="data-catalog-storage-type">{{ variable.storageType }}</code></div>
+                                        {% endif %}
+                                        <div class="small text-secondary">
+                                            {{ (variable.nullable ? 'data_catalog.nullable.yes' : 'data_catalog.nullable.no')|trans({}, 'allocation') }}
+                                        </div>
+                                    </td>
+                                    <td class="align-top">
+                                        {% if variable.codes is not empty %}
+                                            {% set codeList %}
+                                                <ul class="list-unstyled mb-0" data-testid="data-catalog-codes">
+                                                    {% for code in variable.codes %}
+                                                        <li><code>{{ code.code }}</code>{% if code.labelKey is not null %} {{ code.labelKey|trans({}, code.domain) }}{% endif %}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% endset %}
+                                            {% if variable.collapsesCodes %}
+                                                <details data-testid="data-catalog-codes-toggle">
+                                                    <summary>{{ 'data_catalog.codes_count'|trans({count: variable.codes|length}, 'allocation') }}</summary>
+                                                    {{ codeList }}
+                                                </details>
+                                            {% else %}
+                                                {{ codeList }}
+                                            {% endif %}
+                                        {% elseif variable.range is not null %}
+                                            <span data-testid="data-catalog-range">
+                                                {{ variable.range.min is null ? '…' : variable.range.min|format_number }}
+                                                –
+                                                {{ variable.range.max is null ? '…' : variable.range.max|format_number }}
+                                                {% if variable.range.unitKey is not null %}{{ variable.range.unitKey|trans({}, variable.domain) }}{% endif %}
+                                            </span>
+                                        {% elseif variable.referenceObjectKey is not null %}
+                                            <a href="{{ path('app_help_data_catalog_show', {objectKey: variable.referenceObjectKey}) }}">
+                                                {{ ('data_catalog.object.' ~ variable.referenceObjectKey ~ '.title')|trans({}, variable.referenceObjectDomain) }}
+                                            </a>
+                                        {% elseif variable.referenceTable is not null %}
+                                            <span class="text-secondary">{{ 'data_catalog.reference_to'|trans({}, 'allocation') }}</span> <code>{{ variable.referenceTable }}</code>
+                                        {% elseif variable.type.isLocalTime %}
+                                            <div data-testid="data-catalog-time-zone">{{ 'data_catalog.time_zone'|trans({timezone: timezone}, 'allocation') }}</div>
+                                            <a href="#time-zone-note" class="badge bg-azure-lt text-decoration-none mt-1" data-testid="data-catalog-time-zone-link"><twig:ux:icon name="tabler:info-circle" class="me-1" width="1em" height="1em" aria-hidden="true" />{{ 'data_catalog.time_zone_note.link'|trans({}, 'allocation') }}</a>
+                                        {% else %}
+                                            <span class="text-secondary">—</span>
+                                        {% endif %}
+                                        {% if variable.glossary is not null %}
+                                            <div class="mt-1">
+                                                <a href="{{ path(variable.glossary.route, variable.glossary.parameters) }}{{ variable.glossary.section is not null ? '#' ~ variable.glossary.section }}" class="badge bg-azure-lt text-decoration-none" data-testid="data-catalog-glossary-link"><twig:ux:icon name="tabler:book" class="me-1" width="1em" height="1em" aria-hidden="true" />{{ 'data_catalog.glossary_link'|trans({}, 'allocation') }}</a>
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        {% endfor %}
+
+        {% if timeZoneExamples is not empty %}
+            <section class="card card-sm mb-3" id="time-zone-note" data-testid="data-catalog-time-zone-note">
+                <div class="card-header">
+                    <h3 class="card-title"><twig:ux:icon name="tabler:clock-hour-4" class="text-secondary me-2" width="1.25em" height="1.25em" aria-hidden="true" />{{ 'data_catalog.time_zone_note.title'|trans({}, 'allocation') }}</h3>
+                </div>
+                <div class="card-body small">
+                    <p>{{ 'data_catalog.time_zone_note.text'|trans({timezone: timezone}, 'allocation') }}</p>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="fw-bold mb-1">{{ 'data_catalog.time_zone_note.recipes'|trans({}, 'allocation') }}</div>
+                            <table class="table table-sm mb-0">
+                                <tbody>
+                                    <tr><th scope="row">SQL</th><td><code>created_at AT TIME ZONE '{{ timezone }}'</code></td></tr>
+                                    <tr><th scope="row">Python</th><td><code>s.dt.tz_localize("{{ timezone }}", ambiguous="infer")</code></td></tr>
+                                    <tr><th scope="row">R</th><td><code>lubridate::force_tz(x, "{{ timezone }}")</code></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="fw-bold mb-1">{{ 'data_catalog.time_zone_note.examples'|trans({}, 'allocation') }}</div>
+                            <table class="table table-sm mb-0" data-testid="data-catalog-time-zone-examples">
+                                <thead>
+                                    <tr><th>{{ timezone }}</th><th>UTC</th></tr>
+                                </thead>
+                                <tbody>
+                                    {% for example in timeZoneExamples %}
+                                        <tr><td><code>{{ example.local }}</code></td><td><code>{{ example.utc }}</code></td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <p class="text-secondary mt-3 mb-0">{{ 'data_catalog.time_zone_note.dst'|trans({}, 'allocation') }}</p>
+                </div>
+            </section>
+        {% endif %}
+    </div>
+{% endblock %}

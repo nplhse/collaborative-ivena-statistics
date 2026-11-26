@@ -1,0 +1,11 @@
+{# Status of a stored pair: origin, conflict marker and who decided. Expects `pair` with status, open_conflict, decided_by, decided_at. #}
+{% set variants = {auto_accepted: 'azure', proposed: 'yellow', confirmed: 'green', rejected: 'red'} %}
+<span class="d-inline-flex flex-wrap gap-1 align-items-center" data-test="encounter-review-status">
+    <twig:Badge :variant="variants[pair.status.value]">{{ ('encounter.review.status.' ~ pair.status.value)|trans({}, 'encounter') }}</twig:Badge>
+    {% if pair.open_conflict|default(false) %}
+        <twig:Badge variant="orange" data-test="encounter-review-conflict">{{ 'encounter.review.status.conflict'|trans({}, 'encounter') }}</twig:Badge>
+    {% endif %}
+    {% if pair.decided_at %}
+        <small class="text-secondary">{{ 'encounter.review.decided_by'|trans({user: pair.decided_by ?? '–', at: pair.decided_at|date('d.m.Y H:i')}, 'encounter') }}</small>
+    {% endif %}
+</span>

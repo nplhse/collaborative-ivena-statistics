@@ -30,7 +30,7 @@ final class IndicationRawReviewWorklistController extends AbstractController
     ) {
     }
 
-    #[Route('/explore/indication/raw/review', name: 'app_explore_indication_raw_review_worklist', methods: ['GET'])]
+    #[Route('/tools/indication-review', name: 'app_tools_indication_review', methods: ['GET'])]
     public function __invoke(
         #[MapQueryString] IndicationRawReviewWorklistQueryDTO $query,
     ): Response {
@@ -55,7 +55,7 @@ final class IndicationRawReviewWorklistController extends AbstractController
                     $this->translator->trans('indication.review.segment.'.$segment->value, [], 'allocation'),
                     $this->occurrenceQuery->countBySegment($segment->value),
                 ),
-                'path' => $this->generateUrl('app_explore_indication_raw_review_worklist', [
+                'path' => $this->generateUrl('app_tools_indication_review', [
                     ...$listQueryParams,
                     'segment' => $segment->value,
                 ]),

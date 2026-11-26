@@ -24,9 +24,12 @@
                     {% set pathSegment = translation.path|default('')|trim('/') %}
                     <td>
                         {% if translation.status == 'published' %}
-                            <span class="badge badge-success">Published</span>
+                            <twig:ea:Badge color="success">{{ 'label.published'|trans({}, 'admin') }}</twig:ea:Badge>
                         {% else %}
-                            <span class="badge badge-secondary">Draft</span>
+                            <twig:ea:Badge>{{ 'label.draft'|trans({}, 'admin') }}</twig:ea:Badge>
+                        {% endif %}
+                        {% if translation.hasDraft %}
+                            <twig:ea:Badge color="warning">{{ 'page.editor.draft.badge'|trans({}, 'content') }}</twig:ea:Badge>
                         {% endif %}
                     </td>
                     <td>{{ translation.title }}</td>
@@ -39,35 +42,36 @@
                     </td>
                     <td class="text-end text-nowrap">
                         {% if translation.status == 'published' and pathSegment != '' %}
-                            <a
-                                class="btn btn-sm btn-secondary"
+                            <twig:ea:Button
+                                htmlElement="a"
+                                size="sm"
                                 href="{{ path('app_page_show', {path: pathSegment}) }}"
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
                                 {{ 'admin.page.action.view_public'|trans({}, 'admin') }}
-                            </a>
+                            </twig:ea:Button>
                         {% endif %}
-                        <a class="btn btn-sm btn-primary" href="{{ ea_url()
+                        <twig:ea:Button htmlElement="a" color="primary" size="sm" href="{{ ea_url()
                             .setController('App\\Admin\\UI\\Http\\Controller\\Page\\PageTranslationCrudController')
                             .setAction('edit')
                             .setEntityId(translation.id) }}">
                             {{ 'action.edit'|trans({}, 'EasyAdminBundle') }}
-                        </a>
+                        </twig:ea:Button>
                     </td>
                 {% else %}
-                    <td><span class="badge badge-warning">{{ 'label.missing'|trans({}, 'content') }}</span></td>
+                    <td><twig:ea:Badge color="warning">{{ 'label.missing'|trans({}, 'content') }}</twig:ea:Badge></td>
                     <td>—</td>
                     <td>—</td>
                     <td class="text-end">
-                        <a class="btn btn-sm btn-success" href="{{ ea_url()
+                        <twig:ea:Button htmlElement="a" color="success" size="sm" href="{{ ea_url()
                             .setController('App\\Admin\\UI\\Http\\Controller\\Page\\PageTranslationCrudController')
                             .setAction('new')
                             .unset('entityId')
                             .set('pageId', page.id)
                             .set('locale', locale) }}">
-                            {{ 'action.new'|trans({}, 'EasyAdminBundle') }}
-                        </a>
+                            {{ 'admin.page.action.add_translation'|trans({}, 'admin') }}
+                        </twig:ea:Button>
                     </td>
                 {% endif %}
             </tr>

@@ -12,6 +12,7 @@ use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\StatisticsHospitalScopeLabelResolver;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Application\StatisticsScopeResolver;
@@ -49,12 +50,36 @@ final readonly class BenchmarkCriteriaFactory
         );
     }
 
+    /**
+     * Same scope on both sides, explicit period bounds (overview self-benchmark against the previous period, #1071).
+     */
+    public function createForPeriods(
+        StatisticsContext $context,
+        StatisticsPeriodBounds $primaryPeriod,
+        StatisticsPeriodBounds $comparisonPeriod,
+        string $comparisonPeriodLabel,
+    ): BenchmarkCriteria {
+        $scope = $this->statisticsScopeResolver->resolveCriteria($context);
+        $scopeLabel = $this->scopeLabel($context->filter, $context->user);
+
+        return new BenchmarkCriteria(
+            $scope,
+            $scope,
+            $primaryPeriod,
+            $comparisonPeriod,
+            $scopeLabel,
+            $scopeLabel,
+            $this->periodLabel($context->filter),
+            $comparisonPeriodLabel,
+        );
+    }
+
     private function periodLabel(StatisticsFilter $filter): string
     {
         $now = $this->clock->now();
 
         return match ($filter->period) {
-            StatisticsFilterPeriod::All => $this->translator->trans('stats.filter.period.all', [], 'statistics'),
+            StatisticsFilterPeriod::Last12Months => $this->translator->trans('stats.filter.period.last_12_months', [], 'statistics'),
             StatisticsFilterPeriod::AllTime => $this->translator->trans('stats.filter.period.all_time', [], 'statistics'),
             StatisticsFilterPeriod::Year => (string) ($filter->referenceYear ?? (int) $now->format('Y')),
             StatisticsFilterPeriod::Quarter => $this->translator->trans(

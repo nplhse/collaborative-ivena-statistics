@@ -114,15 +114,9 @@ final class ImportBulkReprocessServiceTest extends DatabaseKernelTestCase
 
     public function testAFailedDispatchOnlySkipsThatImport(): void
     {
-        $owner = $this->participant();
-        $hospital = $this->hospital($owner);
-        $queued = $this->import($owner, $hospital, 'queued');
-        $failing = $this->import($owner, $hospital, 'failing');
-        $failingId = (int) $failing->getId();
-        self::getContainer()->set(MessageBusInterface::class, new readonly class($failingId) implements MessageBusInterface {
-            public function __construct(private int $failingId)
-            {
-            }
+        // Replaced before any data is written: creating imports already uses the bus (My Hospitals cache warming).
+        $bus = new class implements MessageBusInterface {
+            public ?int $failingId = null;
 
             public function dispatch(object $message, array $stamps = []): Envelope
             {
@@ -132,7 +126,14 @@ final class ImportBulkReprocessServiceTest extends DatabaseKernelTestCase
 
                 return new Envelope($message, $stamps);
             }
-        });
+        };
+        self::getContainer()->set(MessageBusInterface::class, $bus);
+        $owner = $this->participant();
+        $hospital = $this->hospital($owner);
+        $queued = $this->import($owner, $hospital, 'queued');
+        $failing = $this->import($owner, $hospital, 'failing');
+        $failingId = (int) $failing->getId();
+        $bus->failingId = $failingId;
 
         $result = $this->service()->reprocess([$failingId, (int) $queued->getId()], $owner->getId(), static fn (): bool => true, static fn (): bool => true);
 

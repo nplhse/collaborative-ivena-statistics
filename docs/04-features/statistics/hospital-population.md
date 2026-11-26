@@ -12,7 +12,7 @@ Routes (`app_stats_hospital_population`):
 
 `GET /statistics/hospital-population/characteristics` redirects to `/beds`.
 
-Secondary navigation uses in-page tabs. The Statistics subnav entry **Hospitals** stays a single top-level item.
+Secondary navigation uses in-page tabs. The statistics sidebar entry **Hospitals** stays a single entry without children.
 
 ## Sections
 
@@ -44,7 +44,7 @@ Stimulus controllers:
 - `hospital-population-map_controller.js` (Participation)
 - `hospital-population-regional-table_controller.js` (Participation)
 
-Geo keys shared with Case Flow via `CaseFlowGeoKeyResolver`.
+Map keys are dispatch area ids, shared with Case Flow; the shapes come from `GET /statistics/geo/dispatch-areas.geojson` (ADR 041).
 
 ## Related
 

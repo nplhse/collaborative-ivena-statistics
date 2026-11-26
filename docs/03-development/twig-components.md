@@ -8,13 +8,17 @@ Use these instead of copying Tabler page-header, card, modal, badge, alert, filt
 |------|-----|
 | Page title, scope or period context, and primary actions | `PageHeader` |
 | A content section | `Card` |
+| A single key figure, optionally with a change | `KpiCard` |
 | An entity or catalog list (Explore, Import, Users) | `DataTable` |
 | A statistics ranking (Top Lists, Insights directories) | [`Statistics:RankingTable`](../04-features/statistics/ranking-table.md) |
+| Navigation through editorial pages (full tree or a section) | [`Content:PageNavigation`](../04-features/content/page-navigation.md) |
 | An empty result set | `EmptyState` |
 | A notice, flash, or validation message | `Alert` |
 | A short status | `Badge` |
+| A user's generated avatar (initials or neutral icon) | [`UserAvatar`](#useravatar) (User context) |
 | Currently applied filters | `ActiveFilters` |
 | A dialog or a destructive confirmation | `Modal` or `ConfirmModal` |
+| Events in time order with optional expandable details | `Timeline` and `TimelineItem` |
 
 ## Alert
 
@@ -73,6 +77,44 @@ Do **not** put reset-filter calls to action here — those belong on `EmptyState
 ```
 
 Empty `badges` renders nothing.
+
+## Timeline and TimelineItem
+
+A vertical list of events, newest or oldest first as the caller orders them. Presentation only: the
+caller decides order and grouping, the components know nothing about the data. First used by the audit
+timeline (#955).
+
+`Timeline` renders an `<ol>`; `label` sets its `aria-label`, `nested` draws a dashed line for a timeline
+inside an expanded item.
+
+`TimelineItem` renders one `<li>`:
+
+| Property | Default | Notes |
+|----------|---------|-------|
+| `icon` | `tabler:circle` | UX icon of the marker; decorative (`aria-hidden`) |
+| `category` | `null` | Visible label next to the time. Always set it: categories must not rely on colour alone |
+| `time` | `null` | Shown in `timezone` with `timeFormat`; the `datetime` attribute is UTC |
+| `timezone` / `timeFormat` | `Europe/Berlin` / `d.m.Y H:i:s` | |
+| `tone` | `default` | `default`, `primary`, `success`, `warning`, `danger`, `muted`; colours the marker only |
+| `detailsUrl` | `null` | Details loaded on first expansion by the Stimulus controller `timeline-details`. Without JavaScript, or when loading fails, a link to the URL stays |
+| `detailsLabel` / `detailsErrorLabel` | English texts | Pass translated texts |
+| `open` | `false` | Start expanded |
+
+Slots: `content` is the summary line, `body` holds details rendered with the page. An item with `body` or
+`detailsUrl` becomes a `<details>` element whose `<summary>` is the summary line, so it opens with Enter or
+Space and announces its state. Keep links out of `content` in that case; put them in the details.
+
+```twig
+<twig:Timeline label="Changes">
+    <twig:TimelineItem icon="tabler:pencil" category="Changed" :time="entry.occurredAt"
+        :detailsUrl="path('app_admin_dashboard_audit_entry_details', {id: entry.id})">
+        Hospital #12
+    </twig:TimelineItem>
+</twig:Timeline>
+```
+
+The styles (`.timeline-*`) live in `assets/styles/admin-kpi.css`, because only admin pages use the
+component so far. A frontend page that uses it needs them in its own stylesheet.
 
 ## FilterDrawer and FilterDrawerTrigger
 
@@ -194,19 +236,11 @@ Login and other auth forms keep their heading inside the body. A card header wou
 
 Nested cards need no extra API: put an inner `Card` in the body. Use `padding="none"` when the inner content should sit flush.
 
-### KPI composition
+### Key figures
 
-There is no separate KPI component. A status stripe plus the body slot is enough:
-
-```twig
-<twig:Card status="primary">
-    <div class="subheader">{{ 'stats.case_flow.kpi.total_cases'|trans({}, 'statistics') }}</div>
-    <div class="h1 mb-0">1.240</div>
-    <div class="text-secondary">in the selected period</div>
-</twig:Card>
-```
-
-Build new analysis KPI and status tiles this way instead of copying `.card` / `.subheader` markup.
+A single key figure goes into [`KpiCard`](#kpicard), which composes `Card`. Tiles that `KpiCard` cannot show yet,
+such as two comparisons, a ratio badge or a progress bar, stay on `Card` with the body slot. Do not copy `.card` or
+`.subheader` markup for them.
 
 ```twig
 <twig:Card title="Imports" status="warning" data-testid="import-run">
@@ -240,6 +274,100 @@ A statistics header that is only a title uses `headerClass`. A title that is its
     </twig:block>
     <div class="list-group list-group-flush">…</div>
 </twig:Card>
+```
+
+## KpiCard
+
+One key figure with an optional absolute change (#976). The markup follows Tabler's stat card:
+- an optional avatar icon
+- the label as `.subheader`
+- the value as `.h1`
+- the description, a supporting line such as a share
+- a trend line: an icon and the signed delta, then the comparison label
+
+It composes `Card`, so `href`, `class`, `data-testid` and other attributes behave as they do there. First used by
+the dashboard metric cards (`@Content/dashboard/_metric_cards.html.twig`) and the monthly report
+(`@Statistics/reports/types/monthly.html.twig`). The other KPI decks have not moved yet.
+
+The component formats and presents; it never calculates or interprets. The caller supplies the prepared value, the
+delta and whether a change is good or bad.
+
+| Property | Default | Notes |
+|----------|---------|--------|
+| `label` | required | Already translated |
+| `value` | `null` | Numbers use `format_number` with `fractionDigits`, so separators follow the locale. Strings are printed as given (pre-formatted durations, dates). `null` shows `—` and a hidden "not available"; `0` shows `0`. |
+| `unit` | `null` | Suffix after the value, and after the delta unless `deltaUnit` is set |
+| `description` | `null` | Supporting line between the value and the trend line |
+| `icon` | `null` | UX icon name in an `avatar`, decorative |
+| `delta` | `null` | Absolute change, in `deltaUnit` or the unit of the value. `null` renders no trend line. |
+| `deltaUnit` | `null` | Suffix after the delta when it differs from `unit`, for example percentage points next to a `%` value or a relative `%` change next to a count. Falls back to `unit`. |
+| `comparisonLabel` | `null` | Already translated, for example "last 30 days" |
+| `colorizeTrend` | `false` | Colours the trend icon only; the delta and comparison label stay grey. Off: the icon is grey. On: up is green, down is red, unchanged stays grey. |
+| `invertTrend` | `false` | With `colorizeTrend`, swaps green and red for figures where more is worse |
+| `href` | `null` | Linked card, as in `Card` |
+| `fractionDigits` | `0` | Maximum fraction digits for both `value` and `delta`. Trailing zeros are dropped: with `1`, `10.0` shows as `10` and `12.5` as `12.5`. |
+| `sparkline` | `[]` | Trend across the bottom of the card, oldest first: `list<{label, value}>`. Drawn by Tabler's sparkline (`.sparkline`, `data-bs-toggle="sparkline"`) as a thin, quiet line (`.kpi-sparkline` in `app.css`), one point per entry, so the caller decides how many points there are. Hovering a point shows its label and value (native `title` on a hover target that `getSparklinePoints()` places with Tabler's line geometry); the `tabler-sparkline` Stimulus controller also draws it on pages that Turbo renders later. Screen readers get the labels and values as text. Fewer than two points show nothing. |
+
+How the trend is shown:
+- The direction comes from the sign of the delta after rounding to `fractionDigits`. With one fraction digit, `0.04`
+  shows as an unchanged `0`, not as `+0.0` with an up arrow.
+- Up shows `tabler:trending-up` and a `+`. Down shows `tabler:trending-down`. Unchanged shows `tabler:minus`.
+- A visually hidden "Increase", "Decrease" or "No change" accompanies the icon, so the meaning never depends on colour.
+
+Limitations:
+- There is one delta per card.
+- The delta shares `fractionDigits` with the value. A count with a relative change in one fraction digit passes the
+  count as a pre-formatted string (see the monthly report, `@Statistics/reports/types/monthly.html.twig`).
+- Several comparison periods and status stripes are not supported yet. Extend the component when a page needs them.
+- The caller prepares the sparkline points; the component does not fill gaps or choose a period. The monthly report
+  passes the allocations of up to six months (`MonthlyReportBuilder::TREND_MONTHS`, #1239).
+
+A plain count:
+
+```twig
+<twig:KpiCard :label="'stats.case_flow.kpi.total_cases'|trans({}, 'statistics')" :value="1240" />
+```
+
+An increase with a coloured icon, as on the dashboard:
+
+```twig
+<twig:KpiCard
+    :label="'dashboard.metric.users'|trans({}, 'content')"
+    :value="metric.value"
+    icon="tabler:users"
+    :delta="metric.deltaLast30Days > 0 ? metric.deltaLast30Days : null"
+    :comparisonLabel="'dashboard.metrics.last_30_days'|trans({}, 'content')"
+    :colorizeTrend="true"
+    data-testid="dashboard-metric-users"
+/>
+```
+
+A coloured change where more is worse (translation keys and variables are illustrative):
+
+```twig
+<twig:KpiCard
+    :label="'stats.reports.monthly.closed_departments'|trans({}, 'statistics')"
+    :value="report.closedDepartments.count"
+    :delta="report.closedDepartments.changeFromPreviousMonth"
+    :comparisonLabel="'stats.reports.monthly.vs_previous_month'|trans({}, 'statistics')"
+    :colorizeTrend="true"
+    :invertTrend="true"
+/>
+```
+
+A share with a change in percentage points, where the delta needs its own unit:
+
+```twig
+<twig:KpiCard
+    :label="'stats.reports.monthly.kpi.with_physician'|trans({}, 'statistics')"
+    :value="report.withPhysicianPercent"
+    unit="%"
+    :delta="report.withPhysicianMomPercent"
+    :deltaUnit="'stats.unit.percentage_points.short'|trans({}, 'statistics')"
+    :comparisonLabel="'stats.reports.monthly.kpi.mom'|trans({}, 'statistics')"
+    :colorizeTrend="true"
+    :fractionDigits="1"
+/>
 ```
 
 ## Modal and ConfirmModal
@@ -288,7 +416,7 @@ Extra HTML attributes (`data-testid`) are merged onto the root element.
 
 ## Badge
 
-Canonical short status chip: `badge bg-{variant}-lt text-{variant}-lt-fg`. Not a notice (`Alert`) and not an applied-filter chip (`ActiveFilters`).
+Canonical short status chip: `badge bg-{variant}-lt`. Tabler's `bg-{variant}-lt` sets both the light background and the text colour; Tabler has no `text-{variant}-lt-fg` class. For every `.badge.bg-{colour}-lt` (component or plain markup), `assets/styles/app.css` mixes the text colour towards black (light) or white (dark mode) so it reaches at least 4.5:1 (#1287); do not add `text-{colour}` classes for contrast. Not a notice (`Alert`) and not an applied-filter chip (`ActiveFilters`).
 
 Variants: `secondary` (default), `green`, `red`, `yellow`, `azure`, `purple`, `blue`, `orange`. Unknown values fall back to `secondary`. Text comes from the default slot or `label`. Extra attributes (`class`, `data-testid`) merge onto the `span`.
 
@@ -300,6 +428,65 @@ Do **not** restyle Explore DataTable cells with this component. Hospital, urgenc
 <twig:Badge variant="green" data-testid="user-badge-self">
     {{ 'label.user.self_profile'|trans({}, 'user') }}
 </twig:Badge>
+```
+
+## AdminObjectId
+
+Internal numeric ID of an object for administrators (#1354): `src/Shared/UI/Twig/Components/AdminObjectId.php`, template `@Shared/components/AdminObjectId.html.twig`. Renders a `list-inline-item` ("ID 40", selectable, title "Internal ID, visible to administrators only.") only with `ROLE_ADMIN` and a non-null `id`; for everyone else it renders nothing. Put it as the first item of the detail page's header metadata (`list-inline list-inline-dots`), so the ID sits in the same place on every page. Extra attributes merge onto the item.
+
+```twig
+<div class="list-inline list-inline-dots text-secondary">
+    <twig:AdminObjectId :id="hospital.id" />
+    ...
+</div>
+```
+
+To let administrators also open the page by that ID, mark its controller with `#[OpensById]` ([extension points](../02-architecture/extension-points.md#explore-detail-pages-open-by-id)).
+
+## UserAvatar
+
+Generated avatar of a user (#462), defined in the User context: `src/User/UI/Twig/Components/UserAvatar.php`, template `@User/components/UserAvatar.html.twig`. Tabler `avatar` markup, round by default.
+
+- **Initials** come from the optional `User::$displayName`: first letter of the first and of the last whitespace-separated word, uppercased ("Michael Müller" → `MM`, "Ada" → `A`). Words that do not start with a letter are skipped.
+- **Colour** is `PALETTE[userId % 8]` with `blue, azure, indigo, purple, pink, red, green, teal` as `bg-{colour}-lt`. The class `.user-avatar` in `assets/styles/app.css` mixes the initials towards black (light mode) or white (dark mode); measured on a card, every palette colour reaches at least 5:1 in both modes. Changing the palette order changes every user's colour.
+- **Fallback:** without a display name, or for anonymous visitors, the avatar shows the `tabler:user` icon on Tabler's neutral avatar background.
+- **Visibility:** `can_see_display_names()` and `user_display_name(displayName, username)` (`App\User\UI\Twig\UserDisplayNameExtension`) hold the one rule: signed-in viewers see display names and initials, anonymous visitors see the username and the icon. Use `user_display_name()` for the text next to the avatar.
+- Nothing is stored and nothing is queried while rendering: pass a `User` or the scalar fields a DTO already carries.
+
+| Property | Default | Notes |
+|----------|---------|-------|
+| `user` | `null` | `User` entity; wins over the scalar fields |
+| `userId`, `displayName`, `username` | `null` | Scalars from a DTO (activity rows, directory, profile) |
+| `size` | `sm` | `inline`, `xs`, `sm`, `md`, `lg`, `xl`; unknown values fall back to `sm`. `inline` scales with the surrounding font and keeps the line height (running text) |
+| `decorative` | `true` | `aria-hidden` next to a visible name; `false` adds `role="img"`, `aria-label` and `title` |
+
+Extra attributes (`class`, `data-testid`) merge onto the `span`.
+
+Stacked lists (Tabler `avatar-list avatar-list-stacked`, for example the access card on the hospital page, `@Allocation/hospitals/_access_summary.html.twig`) get an opaque tint and a quarter overlap from `assets/styles/app.css`, so overlapping initials stay readable. Avatars without a visible name next to them use `decorative: false` with `aria-label` and `title` ("Name · @username") and the `tooltip` Stimulus controller.
+
+```twig
+<twig:UserAvatar :user="comment.author" />
+<strong>{{ user_display_name(comment.author.displayName, comment.author.username) }}</strong>
+
+<twig:UserAvatar :userId="activity.actorId" :displayName="activity.actorDisplayName" :username="activity.actorUsername" size="sm" />
+```
+
+### User links (`users.link`)
+
+For a `User` entity, prefer the macro `users.link()` in `@Shared/_macros/users.html.twig` over a hand-written avatar and name (#1240). It prints the name through `user_display_name()`, adds `title="@username"` when the visible name differs from the username, and links to the profile `/explore/user/{username}` (#1353). Build profile links from the username, never from the user's public ID: the profile lookup ignores the case and redirects to the canonical spelling, and the old UUID URLs only redirect until v0.4-beta.
+
+| Option | Default | Notes |
+|--------|---------|-------|
+| `empty` | `—` | Text when the user is `null` |
+| `requireParticipant` | `false` | Link only for viewers with `ROLE_PARTICIPANT` |
+| `target` | `_top` | So DataTable rows and Turbo Frames navigate the full page |
+| `avatar` | `false` | `inline`, `xs` or `sm` adds a decorative `UserAvatar` before the name |
+
+Sizes: `inline` in running text (bylines, owner lines, "Created by"), where a fixed size would grow the line; `xs` and `sm` in table cells and lists. Icons in the same line as an inline avatar get the class `icon-text` (`assets/styles/app.css`), which centres them on the text like the avatar.
+
+```twig
+{% import '@Shared/_macros/users.html.twig' as users %}
+{{ 'label.created_by'|trans({}, 'messages') }} <strong>{{ users.link(hospital.createdBy, {avatar: 'inline'}) }}</strong>
 ```
 
 ## DataTable
@@ -325,6 +512,8 @@ Not a Live Component: sort, page size, and page links are GET URLs so list state
 ### Column config
 
 `property + label + type + options`. Types: `text`, `number`, `datetime`, `link`, `user`, `badge`, `boolean`, `actions`, `custom` (`cellTemplate` with `row` / `column` / `context`).
+
+`user` renders [`users.link()`](#useravatar) with an `xs` avatar before the name, in the table and in the card layout (#1666).
 
 Available vs visible columns: each column has a stable `key` and `visible` (default
 true). Set `columnVisibilityEnabled` on the table and `configurable: true` on the
@@ -491,6 +680,7 @@ Opt-in layout for narrow tables (#692): when the table is narrower than its brea
 - `mobileTitleColumns`: further column keys shown inside the title box, below the title, right-aligned and without a label (for example the urgency badge under the indication).
 - `mobileColumnOrder`: column keys that come first in the card, right below the title; the other fields keep the table order (CSS `order`, no effect in the table).
 - Column option `mobileLabel: false` drops a cell's card label when the cell labels its parts itself: wrap each part in `.data-table-cell__pair` with a `.data-table-cell__label` (shown in cards only), as `@Allocation/allocations/_cell_timestamps.html.twig` does.
+- `.data-table-cell__card-only` marks part of a value that only the card layout shows. Mark it `aria-hidden` when the visible part already carries the accessible name. User references show avatar and name in both layouts (#1666), so they do not need it.
 - One markup for all widths, switched by CSS only (`.data-table-cards` in `assets/styles/app.css`, Tabler variables, so light and dark mode follow the theme). Container query conditions cannot use CSS variables, so the CSS has one `@container` block per breakpoint; keep the three blocks identical apart from the width. Labels are real elements rendered in Twig from the same translated column labels as the headers, inside the same loop over the visible columns, so hidden and reordered columns stay correct.
 - Accessibility: the table gets explicit `role` attributes, because Safari/VoiceOver drops table semantics when CSS changes the `display` of table elements. `<thead>` is clipped (`.visually-hidden` technique), not removed, so cells keep their column header and `aria-sort`; a header becomes visible while its sort link has keyboard focus. Card labels are `aria-hidden` so screen readers do not announce the column twice.
 - Sorting on phones goes through the sort menu, which card tables always show (also without the column picker).
@@ -524,7 +714,7 @@ Closure events (about 1,140 px) and recurring profiles (about 1,570 px) are wide
 
 ### Footer
 
-Left: page-size 25/50/100, then the result range (`#result-count`) to its right. Right: offset page numbers or cursor previous/next. Hidden when there are no rows; an invisible `#result-count` remains so Turbo can update the page-header copy. Offset vs cursor is detected from the paginator type: any `Symfony\UX\Pagination\CursorPaginationInterface` (the UX `CursorPagination` or the hand-written `CursorPaginator`) gets previous/next links, every other `PaginationInterface` gets page numbers through `ux_pagination`. DataTable builds the previous/next URLs itself from `getPreviousCursor()` / `getNextCursor()` so they keep the table's route, filters, sort and page size; the query parameter is `cursorParam` (default `cursor`). The result range shows an estimate when the paginator offers `estimatedNumResults`, otherwise a generic line.
+Left: page-size 25/50/100, then the result range (`#result-count`) to its right. Right: offset page numbers or cursor previous/next. Hidden when there are no rows; an invisible `#result-count` remains so Turbo can update the page-header copy. Offset vs cursor is detected from the paginator type: any `Symfony\UX\Pagination\CursorPaginationInterface` (the UX `CursorPagination` or the hand-written `CursorPaginator`) gets previous/next links, every other `PaginationInterface` gets page numbers through `ux_pagination`. DataTable builds the previous/next URLs itself from `getPreviousCursor()` / `getNextCursor()` so they keep the table's route, filters, sort and page size; the query parameter is `cursorParam` (default `cursor`). The result range shows the count when the paginator offers a `resultCount` (`ResultCount`: exact, or "more than" for a lower bound), otherwise a generic line.
 
 List pages also show the same range in the PageHeader `context` slot (`#page-result-count`). The `result-count-mirror` Stimulus controller copies `#result-count` into the header after `turbo:frame-load`.
 
@@ -557,6 +747,21 @@ Distinguish three reasons when a list or report has no rows:
 ```
 
 Statistics reports and the Analysis Explorer split "no source data" from "this scope or period is empty" and from extra filters. An import button appears only for the first of those, and only with import permission.
+
+## Navigation:Primary, Navigation:Sidebar and Navigation:Footer
+
+Render the top navbar entries, the contextual sidebar and the footer link columns from the navigation tree
+([ADR 035](../02-architecture/decisions/035-navigation-tree-and-contextual-sidebar.md)). Both are plain
+server-rendered components without props of their own; entries, order, permissions and the active area
+come from `NavigationBuilder` and the providers tagged `shared.navigation`
+([extension points](../02-architecture/extension-points.md#navigation-tree)). To add or move an entry,
+change a provider, not the templates.
+
+| Component | Used in | Output |
+|---|---|---|
+| `<twig:Navigation:Primary />` | `@Shared/_embeds/header.html.twig` | `<li class="nav-item">` per entry of the primary menu, `data-testid="nav-{id}"`, `active` and `aria-current="page"` on the current area; optional prop `area` (`statistics`, `explore`) for pages whose route has no entry |
+| `<twig:Navigation:Sidebar menu="statistics" />`, `menu="explore"` | `header_after` block of every statistics and explore page | Tabler vertical navbar with groups, nested groups (Bootstrap `collapse`), fold toggle (Stimulus `site-sidebar`), the search field that filters the tree (`/` focuses it; rules in ADR 035, filter in `assets/lib/navigation-filter.js`) and the mobile bar; test ids `sidebar-{menu}`, `sidebar-group-{id}`, `sidebar-entry-{id}`, `sidebar-fold-toggle`, `sidebar-search`, `sidebar-search-empty`; CSS in `assets/styles/navigation.css` |
+| `<twig:Navigation:Footer />` | `@Shared/_includes/footer.html.twig` | one column per footer group with links (`data-testid="footer-nav-column-{group}"`, links `footer-nav-{id}`); empty columns are omitted |
 
 ## Related
 

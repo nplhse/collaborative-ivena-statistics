@@ -88,7 +88,7 @@ final class CreateDemoHospitalCommandTest extends KernelTestCase
         self::assertIsArray($user);
         self::assertSame(['demo', 'demo@demo.invalid'], [$user['username'], $user['email']], 'the first demo participant is called demo');
         self::assertTrue($user['is_enabled'] && $user['is_verified']);
-        self::assertEqualsCanonicalizing(['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA'], json_decode((string) $user['roles'], true));
+        self::assertEqualsCanonicalizing(['ROLE_USER', 'ROLE_PARTICIPANT'], json_decode((string) $user['roles'], true));
         self::assertMatchesRegularExpression('/Participant password\s+Ivena!1234/', $display, 'the known demo password');
         self::assertStringContainsString('a new account "demo", password Ivena!1234', $display, 'the summary names the account');
         $setup = self::getContainer()->get(DemoHospitalSetup::class);
@@ -171,8 +171,10 @@ final class CreateDemoHospitalCommandTest extends KernelTestCase
         $exitCode = $tester->execute(['--hospital' => $publicId, '--annual-volume' => 3650, '--months' => 6, '--closure-share' => 0.05, '--yes' => true], ['interactive' => false]);
 
         self::assertSame(Command::FAILURE, $exitCode);
-        self::assertStringContainsString('already has generated data in 2026-08', $tester->getDisplay());
-        self::assertStringContainsString('--existing=replace', $tester->getDisplay());
+        // The console wraps the message at a width that depends on the hospital's name.
+        $display = (string) preg_replace('/\s+/', ' ', str_replace('!', ' ', $tester->getDisplay()));
+        self::assertStringContainsString('already has generated data in 2026-08', $display);
+        self::assertStringContainsString('--existing=replace', $display);
         self::assertSame($before, [$this->countRows('"user"'), $this->countRows('hospital'), $this->countRows('hospital_access_grant'), $this->countRows('import')], 'the transaction was rolled back');
         self::assertSame(0, $this->countRows('generation_run'));
     }

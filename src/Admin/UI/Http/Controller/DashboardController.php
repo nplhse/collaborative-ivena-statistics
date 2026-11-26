@@ -10,7 +10,6 @@ use App\Admin\Application\Service\OperationalDashboardService;
 use App\Admin\Infrastructure\Repository\MessengerStatsRepository;
 use App\Admin\UI\Http\Controller\Allocation\AllocationCrudController;
 use App\Admin\UI\Http\Controller\Assignment\AssignmentCrudController;
-use App\Admin\UI\Http\Controller\Audit\AuditLogCrudController;
 use App\Admin\UI\Http\Controller\Blog\PostCategoryCrudController;
 use App\Admin\UI\Http\Controller\Blog\PostCommentCrudController;
 use App\Admin\UI\Http\Controller\Blog\PostCrudController;
@@ -18,9 +17,12 @@ use App\Admin\UI\Http\Controller\Blog\PostTagCrudController;
 use App\Admin\UI\Http\Controller\Consent\CookieConsentCrudController;
 use App\Admin\UI\Http\Controller\Department\DepartmentCrudController;
 use App\Admin\UI\Http\Controller\DispatchArea\DispatchAreaCrudController;
+use App\Admin\UI\Http\Controller\DispatchArea\DistrictCrudController;
 use App\Admin\UI\Http\Controller\Engagement\MonthlyReminderDispatchCrudController;
 use App\Admin\UI\Http\Controller\Feedback\FeedbackCrudController;
+use App\Admin\UI\Http\Controller\Feedback\FeedbackQuarantineCrudController;
 use App\Admin\UI\Http\Controller\Hospital\HospitalAccessGrantCrudController;
+use App\Admin\UI\Http\Controller\Hospital\HospitalAssignmentRequestCrudController;
 use App\Admin\UI\Http\Controller\Hospital\HospitalCrudController;
 use App\Admin\UI\Http\Controller\Import\ImportBatchRunCrudController;
 use App\Admin\UI\Http\Controller\Import\ImportBatchRunItemCrudController;
@@ -35,6 +37,7 @@ use App\Admin\UI\Http\Controller\MciCase\MciCaseCrudController;
 use App\Admin\UI\Http\Controller\Media\MediaCrudController;
 use App\Admin\UI\Http\Controller\Occasion\OccasionCrudController;
 use App\Admin\UI\Http\Controller\Onboarding\UserOnboardingStepCrudController;
+use App\Admin\UI\Http\Controller\Page\HelpArticleCrudController;
 use App\Admin\UI\Http\Controller\Page\PageCrudController;
 use App\Admin\UI\Http\Controller\Page\PageTranslationCrudController;
 use App\Admin\UI\Http\Controller\SecondaryTransport\SecondaryTransportCrudController;
@@ -42,8 +45,11 @@ use App\Admin\UI\Http\Controller\Speciality\SpecialityCrudController;
 use App\Admin\UI\Http\Controller\State\StateCrudController;
 use App\Admin\UI\Http\Controller\Statistics\SavedExplorerViewCrudController;
 use App\Admin\UI\Http\Controller\User\UserCrudController;
+use App\Allocation\Infrastructure\Repository\HospitalAssignmentRequestRepository;
+use App\Analytics\Application\Service\AccessTrendService;
 use App\Analytics\Application\Service\AnalyticsDashboardService;
 use App\Feedback\Infrastructure\Repository\FeedbackRepository;
+use App\Kpi\Application\DTO\KpiChangeDto;
 use App\Kpi\Application\Service\KpiDashboardService;
 use App\Storage\Application\View\StorageReportService;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
@@ -56,8 +62,10 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
 
@@ -68,28 +76,42 @@ final class DashboardController extends AbstractDashboardController
     public function __construct(
         private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
         private readonly FeedbackRepository $feedbackRepository,
+        private readonly HospitalAssignmentRequestRepository $assignmentRequestRepository,
         private readonly KpiDashboardService $kpiDashboardService,
         private readonly OperationalDashboardService $operationalDashboardService,
         private readonly MessengerStatsRepository $messengerStatsRepository,
         private readonly AnalyticsDashboardService $analyticsDashboardService,
         private readonly StorageReportService $storageReportService,
         private readonly MessengerMonitoringService $messengerMonitoringService,
+        private readonly AccessTrendService $accessTrendService,
+        private readonly RequestStack $requestStack,
     ) {
     }
 
     #[\Override]
     public function index(): Response
     {
+        $health = $this->operationalDashboardService->getHealthStatus();
+        $period = KpiDashboardService::periodFromQuery($this->requestStack->getCurrentRequest()?->query->getString('period') ?? '');
+        $activeUsers = $this->analyticsDashboardService->getActiveUsers();
+
         return $this->render('@Admin/dashboard/index.html.twig', [
-            'kpi_cards' => $this->kpiDashboardService->getCards(),
-            'kpi_chart' => $this->kpiDashboardService->getChart(),
-            'failed_imports' => $this->kpiDashboardService->getFailedImportsDashboard(),
-            'ops_cards' => $this->operationalDashboardService->getOpsCards(),
+            'kpi_users' => $activeUsers,
+            'kpi_users_change' => new KpiChangeDto(
+                null === $activeUsers['previousMau'] ? null : KpiDashboardService::percentChange($activeUsers['mau'], $activeUsers['previousMau']),
+                KpiChangeDto::UNIT_PERCENT,
+            ),
+            'kpi_usage_trend' => $this->analyticsDashboardService->getUsageTrend(),
+            'kpi_users_url' => $this->adminUrlGenerator->setRoute('app_admin_dashboard_operations_usage_analytics_overview')->generateUrl(),
+            'kpi_period' => $period,
+            'kpi_periods' => KpiDashboardService::PERIODS,
+            'kpi_cards' => $this->kpiDashboardService->getCards($period),
+            'kpi_chart' => $this->kpiDashboardService->getChart($period),
+            'ops_messenger' => $this->operationalDashboardService->getMessengerStatus($health),
             'ops_storage' => $this->operationalDashboardService->getStorageSummary(),
             'ops_storage_url' => $this->adminUrlGenerator->setRoute('app_admin_dashboard_operations_storage')->generateUrl(),
-            'ops_health' => $this->operationalDashboardService->getHealthStatus(),
+            'ops_health' => $health,
             'recent_notifications' => $this->operationalDashboardService->getRecentNotificationEvents(),
-            'dashboard_sections' => $this->buildDashboardSections(),
         ]);
     }
 
@@ -142,35 +164,11 @@ final class DashboardController extends AbstractDashboardController
         ]);
     }
 
-    #[AdminRoute(path: '/operations/usage-analytics/adoption', name: 'operations_usage_analytics_adoption')]
-    public function usageAnalyticsAdoption(): Response
+    #[AdminRoute(path: '/operations/usage-analytics/accesses', name: 'operations_usage_analytics_accesses')]
+    public function usageAnalyticsAccesses(): Response
     {
-        return $this->render('@Admin/operations/usage_analytics/adoption.html.twig', [
-            'adoption' => $this->analyticsDashboardService->getAdoption(),
-        ]);
-    }
-
-    #[AdminRoute(path: '/operations/usage-analytics/journeys', name: 'operations_usage_analytics_journeys')]
-    public function usageAnalyticsJourneys(): Response
-    {
-        return $this->render('@Admin/operations/usage_analytics/journeys.html.twig', [
-            'journeys' => $this->analyticsDashboardService->getJourneys(),
-        ]);
-    }
-
-    #[AdminRoute(path: '/operations/usage-analytics/filters', name: 'operations_usage_analytics_filters')]
-    public function usageAnalyticsFilters(): Response
-    {
-        return $this->render('@Admin/operations/usage_analytics/filters.html.twig', [
-            'filters' => $this->analyticsDashboardService->getFilters(),
-        ]);
-    }
-
-    #[AdminRoute(path: '/operations/usage-analytics/performance', name: 'operations_usage_analytics_performance')]
-    public function usageAnalyticsPerformance(): Response
-    {
-        return $this->render('@Admin/operations/usage_analytics/performance.html.twig', [
-            'performance' => $this->analyticsDashboardService->getPerformance(),
+        return $this->render('@Admin/operations/usage_analytics/accesses.html.twig', [
+            'trend' => $this->accessTrendService->getTrend(),
         ]);
     }
 
@@ -248,6 +246,17 @@ final class DashboardController extends AbstractDashboardController
         return $this->redirectToFailedMessagesIndex();
     }
 
+    private function routeExists(string $route): bool
+    {
+        try {
+            $this->generateUrl($route);
+
+            return true;
+        } catch (RouteNotFoundException) {
+            return false;
+        }
+    }
+
     private function redirectToFailedMessagesIndex(): RedirectResponse
     {
         return $this->redirect(
@@ -255,209 +264,6 @@ final class DashboardController extends AbstractDashboardController
                 ->setRoute('app_admin_dashboard_operations_failed_messages')
                 ->generateUrl(),
         );
-    }
-
-    /**
-     * @return list<array{title: string, tiles: list<array{label: string, description: string|null, icon: string, url: string, badge: array{value: int, style: string}|null}>}>
-     */
-    private function buildDashboardSections(): array
-    {
-        $openFeedbackCount = $this->feedbackRepository->countOpen();
-
-        $sections = $this->dashboardSections();
-        $built = [];
-
-        foreach ($sections as $section) {
-            $tiles = [];
-
-            foreach ($section['tiles'] as $tile) {
-                $badge = null;
-                if (isset($tile['badge_key']) && 'feedback' === $tile['badge_key']) {
-                    $badge = [
-                        'value' => $openFeedbackCount,
-                        'style' => $openFeedbackCount > 0 ? 'info' : 'primary',
-                    ];
-                }
-
-                if (isset($tile['route'])) {
-                    $url = $this->adminUrlGenerator->setRoute($tile['route'])->generateUrl();
-                } elseif (isset($tile['controller'])) {
-                    $url = $this->adminUrlGenerator->setController($tile['controller'])->generateUrl();
-                } else {
-                    throw new \LogicException('Dashboard tile must define either route or controller.');
-                }
-
-                $tiles[] = [
-                    'label' => $tile['label'],
-                    'description' => $tile['description'] ?? null,
-                    'icon' => $tile['icon'],
-                    'url' => $url,
-                    'badge' => $badge,
-                ];
-            }
-
-            $built[] = [
-                'title' => $section['title'],
-                'tiles' => $tiles,
-            ];
-        }
-
-        return $built;
-    }
-
-    /**
-     * @return list<array{title: string, tiles: list<array{label: string, description?: string, icon: string, controller?: class-string, route?: string, badge_key?: string}>}>
-     */
-    private function dashboardSections(): array
-    {
-        return [
-            [
-                'title' => 'Management',
-                'tiles' => [
-                    [
-                        'label' => 'Feedback',
-                        'description' => 'Review and respond to user feedback',
-                        'icon' => 'fas fa-comment-dots',
-                        'controller' => FeedbackCrudController::class,
-                        'badge_key' => 'feedback',
-                    ],
-                    [
-                        'label' => 'Onboarding steps',
-                        'description' => 'Review user onboarding progress',
-                        'icon' => 'fas fa-shoe-prints',
-                        'controller' => UserOnboardingStepCrudController::class,
-                    ],
-                    [
-                        'label' => 'Users',
-                        'description' => 'Manage user accounts and permissions',
-                        'icon' => 'fas fa-users',
-                        'controller' => UserCrudController::class,
-                    ],
-                ],
-            ],
-            [
-                'title' => 'Data',
-                'tiles' => [
-                    [
-                        'label' => 'Data',
-                        'description' => 'Reference data and allocations',
-                        'icon' => 'fas fa-layer-group',
-                        'controller' => AllocationCrudController::class,
-                    ],
-                    [
-                        'label' => 'Import Rejects',
-                        'description' => 'Review failed import records',
-                        'icon' => 'fas fa-triangle-exclamation',
-                        'controller' => ImportRejectCrudController::class,
-                    ],
-                    [
-                        'label' => 'Imports',
-                        'description' => 'View import history and status',
-                        'icon' => 'fa fa-database',
-                        'controller' => ImportCrudController::class,
-                    ],
-                ],
-            ],
-            [
-                'title' => 'Content',
-                'tiles' => [
-                    [
-                        'label' => 'Blog',
-                        'description' => 'Manage blog posts and related content',
-                        'icon' => 'fas fa-book',
-                        'controller' => PostCrudController::class,
-                    ],
-                    [
-                        'label' => 'Pages',
-                        'description' => 'Edit static pages and site content',
-                        'icon' => 'fas fa-file',
-                        'controller' => PageCrudController::class,
-                    ],
-                    [
-                        'label' => 'Media',
-                        'description' => 'Upload images and PDFs for pages and blog',
-                        'icon' => 'fas fa-photo-film',
-                        'controller' => MediaCrudController::class,
-                    ],
-                ],
-            ],
-            [
-                'title' => 'Usage analytics',
-                'tiles' => [
-                    [
-                        'label' => 'Overview',
-                        'description' => 'Requests, retention, feature areas',
-                        'icon' => 'fas fa-gauge-high',
-                        'route' => 'app_admin_dashboard_operations_usage_analytics_overview',
-                    ],
-                    [
-                        'label' => 'Adoption',
-                        'description' => 'Events, roles, engagement depth',
-                        'icon' => 'fas fa-chart-line',
-                        'route' => 'app_admin_dashboard_operations_usage_analytics_adoption',
-                    ],
-                    [
-                        'label' => 'Journeys',
-                        'description' => 'Onboarding funnel, navigation, time-to-first',
-                        'icon' => 'fas fa-route',
-                        'route' => 'app_admin_dashboard_operations_usage_analytics_journeys',
-                    ],
-                    [
-                        'label' => 'Filters',
-                        'description' => 'Filter parameter adoption',
-                        'icon' => 'fas fa-filter',
-                        'route' => 'app_admin_dashboard_operations_usage_analytics_filters',
-                    ],
-                    [
-                        'label' => 'Performance',
-                        'description' => 'Latency and DB load by feature area',
-                        'icon' => 'fas fa-tachometer-alt',
-                        'route' => 'app_admin_dashboard_operations_usage_analytics_performance',
-                    ],
-                ],
-            ],
-            [
-                'title' => 'System',
-                'tiles' => [
-                    [
-                        'label' => 'Audit log',
-                        'description' => 'Browse system audit entries',
-                        'icon' => 'fas fa-clipboard-list',
-                        'controller' => AuditLogCrudController::class,
-                    ],
-                    [
-                        'label' => 'Cookie consents',
-                        'description' => 'View recorded cookie consent choices',
-                        'icon' => 'fas fa-cookie-bite',
-                        'controller' => CookieConsentCrudController::class,
-                    ],
-                    [
-                        'label' => 'Disk usage',
-                        'description' => 'Storage by category, location and history',
-                        'icon' => 'fas fa-hard-drive',
-                        'route' => 'app_admin_dashboard_operations_storage',
-                    ],
-                    [
-                        'label' => 'Messenger',
-                        'description' => 'Message handling, queues, retries and failures',
-                        'icon' => 'fas fa-tower-broadcast',
-                        'route' => 'app_admin_dashboard_operations_messenger',
-                    ],
-                    [
-                        'label' => 'Failed messages',
-                        'description' => 'Inspect messenger failed queue',
-                        'icon' => 'fas fa-triangle-exclamation',
-                        'route' => 'app_admin_dashboard_operations_failed_messages',
-                    ],
-                    [
-                        'label' => 'Monthly reminders',
-                        'description' => 'Scheduler reminder dispatch history',
-                        'icon' => 'fas fa-envelope',
-                        'controller' => MonthlyReminderDispatchCrudController::class,
-                    ],
-                ],
-            ],
-        ];
     }
 
     #[\Override]
@@ -470,48 +276,91 @@ final class DashboardController extends AbstractDashboardController
     #[\Override]
     public function configureMenuItems(): iterable
     {
-        yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
-        yield MenuItem::linkToRoute('Back to frontend', 'fas fa-backward-fast', 'app_default');
-        yield MenuItem::section('Management');
-        yield MenuItem::subMenu('Users', 'fas fa-users')->setSubItems([
+        yield MenuItem::linkToDashboard(new TranslatableMessage('menu.dashboard', domain: 'admin'), 'fa fa-home');
+        yield MenuItem::linkToRoute(new TranslatableMessage('menu.back_to_frontend', domain: 'admin'), 'fas fa-backward-fast', 'app_default');
+        yield MenuItem::section(new TranslatableMessage('menu.section.management', domain: 'admin'));
+        // Pending hospital assignment requests (#975) show their count on the entry and, collapsed, on the group.
+        $pendingAssignmentRequests = $this->assignmentRequestRepository->countPending();
+        $assignmentRequestMenu = MenuItem::linkTo(HospitalAssignmentRequestCrudController::class, new TranslatableMessage('menu.users.assignment_requests', domain: 'admin'), 'fas fa-user-plus');
+        $usersMenu = MenuItem::subMenu(new TranslatableMessage('menu.users', domain: 'admin'), 'fas fa-users')
+            ->setCssClass('ea-sidebar-link-summary-badge');
+        if ($pendingAssignmentRequests > 0) {
+            $assignmentRequestMenu->setBadge($pendingAssignmentRequests, 'warning');
+            $usersMenu->setBadge($pendingAssignmentRequests, 'warning');
+        }
+
+        yield $usersMenu->setSubItems([
             MenuItem::linkTo(UserCrudController::class, new TranslatableMessage('menu.users.accounts', domain: 'admin'), 'fas fa-user'),
-            MenuItem::linkTo(HospitalAccessGrantCrudController::class, 'Hospital Access', 'fas fa-key'),
-            MenuItem::linkTo(UserOnboardingStepCrudController::class, 'Onboarding steps', 'fas fa-shoe-prints'),
+            $assignmentRequestMenu,
+            MenuItem::linkTo(HospitalAccessGrantCrudController::class, new TranslatableMessage('menu.users.hospital_access', domain: 'admin'), 'fas fa-key'),
+            MenuItem::linkTo(UserOnboardingStepCrudController::class, new TranslatableMessage('menu.users.onboarding_steps', domain: 'admin'), 'fas fa-shoe-prints'),
         ]);
 
         $openFeedbackCount = $this->feedbackRepository->countOpen();
-        yield MenuItem::linkTo(FeedbackCrudController::class, 'Feedback', 'fas fa-comment-dots')
-            ->setBadge($openFeedbackCount, $openFeedbackCount > 0 ? 'info' : 'primary');
+        $quarantinedFeedbackCount = $this->feedbackRepository->countQuarantined();
+        // Collapsed, the group badge shows the open normal feedback; expanded, it is hidden by CSS
+        // (ea-sidebar-link-summary-badge) and each entry shows its own count. The quarantine count
+        // has another colour; quarantined content is shown only after the reviewer opens it.
+        $inboxMenu = MenuItem::linkTo(FeedbackCrudController::class, new TranslatableMessage('menu.feedback.inbox', domain: 'admin'), 'fas fa-inbox');
+        $quarantineMenu = MenuItem::linkTo(FeedbackQuarantineCrudController::class, new TranslatableMessage('menu.feedback.quarantine', domain: 'admin'), 'fas fa-shield-halved');
+        $feedbackMenu = MenuItem::subMenu(new TranslatableMessage('menu.feedback', domain: 'admin'), 'fas fa-comment-dots')
+            ->setCssClass('ea-sidebar-link-summary-badge');
+        if ($openFeedbackCount > 0) {
+            $inboxMenu->setBadge($openFeedbackCount, 'info');
+            $feedbackMenu->setBadge($openFeedbackCount, 'info');
+        }
 
-        yield MenuItem::section('Data');
-        yield MenuItem::subMenu('Data', 'fas fa-layer-group')->setSubItems([
-            MenuItem::linkTo(AllocationCrudController::class, 'Allocations', 'fas fa-list'),
-            MenuItem::linkTo(AssignmentCrudController::class, 'Assignments', 'fas fa-list'),
-            MenuItem::linkTo(DepartmentCrudController::class, 'Departments', 'fas fa-list'),
-            MenuItem::linkTo(DispatchAreaCrudController::class, 'Dispatch Areas', 'fas fa-list'),
-            MenuItem::linkTo(HospitalCrudController::class, 'Hospitals', 'fas fa-list'),
-            MenuItem::linkTo(IndicationNormalizedCrudController::class, 'Indication Normalized', 'fas fa-list'),
-            MenuItem::linkTo(IndicationGroupCrudController::class, 'Indication Groups', 'fas fa-object-group'),
-            MenuItem::linkTo(IndicationRawCrudController::class, 'Indication Raw', 'fas fa-list'),
-            MenuItem::linkTo(InfectionCrudController::class, 'Infections', 'fas fa-list'),
-            MenuItem::linkTo(MciCaseCrudController::class, 'MCI Cases', 'fas fa-list'),
-            MenuItem::linkTo(OccasionCrudController::class, 'Occasions', 'fas fa-list'),
-            MenuItem::linkTo(SecondaryTransportCrudController::class, 'Secondary Transports', 'fas fa-list'),
-            MenuItem::linkTo(SpecialityCrudController::class, 'Specialities', 'fas fa-list'),
-            MenuItem::linkTo(StateCrudController::class, 'States', 'fas fa-list'),
-        ]);
-        yield MenuItem::subMenu('Imports', 'fa fa-database')->setSubItems([
-            MenuItem::linkTo(ImportCrudController::class, 'Imports', 'fa fa-database'),
-            MenuItem::linkTo(ImportRejectCrudController::class, 'Import Rejects', 'fas fa-triangle-exclamation'),
-            MenuItem::subMenu('Batch Activities', 'fas fa-layer-group')->setSubItems([
-                MenuItem::linkTo(ImportBatchRunCrudController::class, 'Import batch runs', 'fas fa-layer-group'),
-                MenuItem::linkTo(ImportBatchRunItemCrudController::class, 'Import batch items', 'fas fa-list-check'),
-            ]),
-        ]);
-        yield MenuItem::linkTo(SavedExplorerViewCrudController::class, 'Explorer views', 'fas fa-chart-bar');
+        if ($quarantinedFeedbackCount > 0) {
+            $quarantineMenu->setBadge($quarantinedFeedbackCount, 'warning');
+        }
 
-        yield MenuItem::section('Content');
-        yield MenuItem::subMenu('Blog', 'fas fa-book')->setSubItems([
+        $feedbackMenu->setSubItems([$inboxMenu, $quarantineMenu]);
+
+        yield $feedbackMenu;
+
+        yield MenuItem::section(new TranslatableMessage('menu.section.data', domain: 'admin'));
+        yield MenuItem::subMenu(new TranslatableMessage('menu.data', domain: 'admin'), 'fas fa-layer-group')->setSubItems([
+            MenuItem::linkTo(AllocationCrudController::class, new TranslatableMessage('menu.data.allocations', domain: 'admin'), 'fas fa-list'),
+            MenuItem::linkTo(AssignmentCrudController::class, new TranslatableMessage('menu.data.assignments', domain: 'admin'), 'fas fa-list'),
+            MenuItem::linkTo(DepartmentCrudController::class, new TranslatableMessage('menu.data.departments', domain: 'admin'), 'fas fa-list'),
+            MenuItem::linkTo(DispatchAreaCrudController::class, new TranslatableMessage('menu.data.dispatch_areas', domain: 'admin'), 'fas fa-list'),
+            MenuItem::linkTo(DistrictCrudController::class, new TranslatableMessage('menu.data.districts', domain: 'admin'), 'fas fa-list'),
+            MenuItem::linkTo(HospitalCrudController::class, new TranslatableMessage('menu.data.hospitals', domain: 'admin'), 'fas fa-list'),
+            MenuItem::linkTo(IndicationNormalizedCrudController::class, new TranslatableMessage('menu.data.indications_normalized', domain: 'admin'), 'fas fa-list'),
+            MenuItem::linkTo(IndicationGroupCrudController::class, new TranslatableMessage('menu.data.indication_groups', domain: 'admin'), 'fas fa-object-group'),
+            MenuItem::linkTo(IndicationRawCrudController::class, new TranslatableMessage('menu.data.indications_raw', domain: 'admin'), 'fas fa-list'),
+            MenuItem::linkTo(InfectionCrudController::class, new TranslatableMessage('menu.data.infections', domain: 'admin'), 'fas fa-list'),
+            MenuItem::linkTo(MciCaseCrudController::class, new TranslatableMessage('menu.data.mci_cases', domain: 'admin'), 'fas fa-list'),
+            MenuItem::linkTo(OccasionCrudController::class, new TranslatableMessage('menu.data.occasions', domain: 'admin'), 'fas fa-list'),
+            MenuItem::linkTo(SecondaryTransportCrudController::class, new TranslatableMessage('menu.data.secondary_transports', domain: 'admin'), 'fas fa-list'),
+            MenuItem::linkTo(SpecialityCrudController::class, new TranslatableMessage('menu.data.specialities', domain: 'admin'), 'fas fa-list'),
+            MenuItem::linkTo(StateCrudController::class, new TranslatableMessage('menu.data.states', domain: 'admin'), 'fas fa-list'),
+        ]);
+        // The ED visit plugin owns these pages; they are linked by route name because no context may use Encounter
+        // (deptrac), and only while the plugin is installed (#1300).
+        $mtsCatalogItems = array_values(array_filter([
+            'app_admin_dashboard_encounter_mts_diagram_index' => MenuItem::linkToRoute(new TranslatableMessage('menu.data.mts_catalog.diagrams', domain: 'admin'), 'fas fa-sitemap', 'app_admin_dashboard_encounter_mts_diagram_index'),
+            'app_admin_dashboard_encounter_mts_indicator_index' => MenuItem::linkToRoute(new TranslatableMessage('menu.data.mts_catalog.indicators', domain: 'admin'), 'fas fa-list', 'app_admin_dashboard_encounter_mts_indicator_index'),
+            'app_admin_dashboard_encounter_mts_alias_index' => MenuItem::linkToRoute(new TranslatableMessage('menu.data.mts_catalog.aliases', domain: 'admin'), 'fas fa-right-left', 'app_admin_dashboard_encounter_mts_alias_index'),
+            'app_admin_dashboard_encounter_mts_assignment_index' => MenuItem::linkToRoute(new TranslatableMessage('menu.data.mts_catalog.assignments', domain: 'admin'), 'fas fa-link', 'app_admin_dashboard_encounter_mts_assignment_index'),
+            // Pilot page for administrators and catalog reviewers (ADR 033), outside the back office.
+            'app_tools_encounter_plausibility' => MenuItem::linkToRoute(new TranslatableMessage('menu.data.mts_catalog.plausibility', domain: 'admin'), 'fas fa-table-cells', 'app_tools_encounter_plausibility'),
+        ], $this->routeExists(...), \ARRAY_FILTER_USE_KEY));
+        if ([] !== $mtsCatalogItems) {
+            yield MenuItem::subMenu(new TranslatableMessage('menu.data.mts_catalog', domain: 'admin'), 'fas fa-stethoscope')->setSubItems($mtsCatalogItems);
+        }
+
+        yield MenuItem::subMenu(new TranslatableMessage('menu.imports', domain: 'admin'), 'fa fa-database')->setSubItems([
+            MenuItem::linkTo(ImportCrudController::class, new TranslatableMessage('menu.imports.imports', domain: 'admin'), 'fa fa-database'),
+            MenuItem::linkTo(ImportRejectCrudController::class, new TranslatableMessage('menu.imports.rejects', domain: 'admin'), 'fas fa-triangle-exclamation'),
+            // EasyAdmin renders two menu levels only, so the batch pages sit directly in this submenu.
+            MenuItem::linkTo(ImportBatchRunCrudController::class, new TranslatableMessage('menu.imports.batch_runs', domain: 'admin'), 'fas fa-layer-group'),
+            MenuItem::linkTo(ImportBatchRunItemCrudController::class, new TranslatableMessage('menu.imports.batch_items', domain: 'admin'), 'fas fa-list-check'),
+        ]);
+        yield MenuItem::linkTo(SavedExplorerViewCrudController::class, new TranslatableMessage('menu.explorer_views', domain: 'admin'), 'fas fa-chart-bar');
+
+        yield MenuItem::section(new TranslatableMessage('menu.section.content', domain: 'admin'));
+        yield MenuItem::subMenu(new TranslatableMessage('menu.blog', domain: 'admin'), 'fas fa-book')->setSubItems([
             MenuItem::linkTo(PostCrudController::class, new TranslatableMessage('menu.blog.posts', domain: 'shared'), 'fas fa-align-left'),
             MenuItem::linkTo(PostCategoryCrudController::class, new TranslatableMessage('menu.blog.categories', domain: 'shared'), 'fas fa-folder'),
             MenuItem::linkTo(PostCommentCrudController::class, new TranslatableMessage('menu.blog.comments', domain: 'shared'), 'fas fa-comments'),
@@ -519,22 +368,21 @@ final class DashboardController extends AbstractDashboardController
         ]);
         yield MenuItem::linkTo(PageCrudController::class, new TranslatableMessage('label.pages', domain: 'content'), 'fas fa-file');
         yield MenuItem::linkTo(PageTranslationCrudController::class, new TranslatableMessage('label.page_translations', domain: 'content'), 'fas fa-language');
+        yield MenuItem::linkTo(HelpArticleCrudController::class, new TranslatableMessage('label.help_articles', domain: 'content'), 'fas fa-circle-question');
         yield MenuItem::linkTo(MediaCrudController::class, new TranslatableMessage('label.media_library', domain: 'content'), 'fas fa-photo-film');
 
-        yield MenuItem::section('Usage analytics');
-        yield MenuItem::linkToRoute('Overview', 'fas fa-gauge-high', 'app_admin_dashboard_operations_usage_analytics_overview');
-        yield MenuItem::linkToRoute('Adoption', 'fas fa-chart-line', 'app_admin_dashboard_operations_usage_analytics_adoption');
-        yield MenuItem::linkToRoute('Journeys', 'fas fa-route', 'app_admin_dashboard_operations_usage_analytics_journeys');
-        yield MenuItem::linkToRoute('Filters', 'fas fa-filter', 'app_admin_dashboard_operations_usage_analytics_filters');
-        yield MenuItem::linkToRoute('Performance', 'fas fa-tachometer-alt', 'app_admin_dashboard_operations_usage_analytics_performance');
+        yield MenuItem::section(new TranslatableMessage('usage_analytics.menu.section', domain: 'admin'));
+        yield MenuItem::linkToRoute(new TranslatableMessage('usage_analytics.menu.overview', domain: 'admin'), 'fas fa-gauge-high', 'app_admin_dashboard_operations_usage_analytics_overview');
+        yield MenuItem::linkToRoute(new TranslatableMessage('usage_analytics.menu.accesses', domain: 'admin'), 'fas fa-chart-column', 'app_admin_dashboard_operations_usage_analytics_accesses');
 
-        yield MenuItem::section('System');
-        yield MenuItem::linkTo(AuditLogCrudController::class, 'Audit log', 'fas fa-clipboard-list');
-        yield MenuItem::linkTo(CookieConsentCrudController::class, 'Cookie consents', 'fas fa-cookie-bite');
+        yield MenuItem::section(new TranslatableMessage('menu.section.system', domain: 'admin'));
+        yield MenuItem::linkToRoute(new TranslatableMessage('audit.timeline.title', domain: 'admin'), 'fas fa-clipboard-list', 'app_admin_dashboard_audit_timeline');
+        yield MenuItem::linkTo(CookieConsentCrudController::class, new TranslatableMessage('menu.system.cookie_consents', domain: 'admin'), 'fas fa-cookie-bite');
         yield MenuItem::linkToRoute(new TranslatableMessage('storage.menu.disk_usage', domain: 'storage'), 'fas fa-hard-drive', 'app_admin_dashboard_operations_storage');
         yield MenuItem::linkToRoute(new TranslatableMessage('ops.messenger.menu', domain: 'admin'), 'fas fa-tower-broadcast', 'app_admin_dashboard_operations_messenger');
-        yield MenuItem::linkToRoute('Failed messages', 'fas fa-triangle-exclamation', 'app_admin_dashboard_operations_failed_messages');
+        yield MenuItem::linkToRoute(new TranslatableMessage('menu.system.failed_messages', domain: 'admin'), 'fas fa-triangle-exclamation', 'app_admin_dashboard_operations_failed_messages');
+        yield MenuItem::linkToRoute(new TranslatableMessage('navigation.inspector.menu_label', domain: 'admin'), 'fas fa-sitemap', 'app_admin_dashboard_operations_navigation_index');
         yield MenuItem::linkTo(JobRunCrudController::class, new TranslatableMessage('admin.job_run.menu', domain: 'admin'), 'fas fa-stopwatch');
-        yield MenuItem::linkTo(MonthlyReminderDispatchCrudController::class, 'Monthly reminders', 'fas fa-envelope');
+        yield MenuItem::linkTo(MonthlyReminderDispatchCrudController::class, new TranslatableMessage('menu.system.monthly_reminders', domain: 'admin'), 'fas fa-envelope');
     }
 }

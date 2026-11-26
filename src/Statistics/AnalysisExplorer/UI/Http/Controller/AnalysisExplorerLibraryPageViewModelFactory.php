@@ -700,6 +700,8 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
             'isSystem' => $view->isSystem(),
             'isPublic' => $view->isPublic(),
             'authorName' => $author['name'],
+            'authorDisplayName' => $author['displayName'],
+            'authorUserId' => $author['userId'],
             'authorUrl' => $author['url'],
             'activityKind' => $activity['kind'],
             'activityRelative' => $activity['relativeLabel'],

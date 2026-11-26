@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application;
 
-use App\Import\Application\Service\ImportListAccess;
+use App\Import\Application\Service\ImportUploadTargets;
+use App\Import\Domain\Enum\ImportType;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery;
 use App\User\Domain\Entity\User;
@@ -15,7 +16,7 @@ final readonly class StatisticsSourceDataProbe
         private ProjectionTimeSeriesQuery $timeSeriesQuery,
         private StatisticsScopeResolver $scopeResolver,
         private StatisticsContextFactory $contextFactory,
-        private ImportListAccess $importListAccess,
+        private ImportUploadTargets $uploadTargets,
     ) {
     }
 
@@ -30,6 +31,7 @@ final readonly class StatisticsSourceDataProbe
 
     public function canImport(?User $user): bool
     {
-        return $user instanceof User && [] !== $this->importListAccess->resolveAccessibleHospitalIds($user);
+        // The empty states offer an allocation import (#1351).
+        return $user instanceof User && $this->uploadTargets->canUpload($user, ImportType::ALLOCATION);
     }
 }

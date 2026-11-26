@@ -1,0 +1,4 @@
+{# @var field \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto #}
+{# Like EasyAdmin's text field, but without the title attribute that would show the full raw value on hover.
+   The formatted value must already be escaped (formatValue() results are rendered as Markup). #}
+<span>{{ field.formattedValue }}</span>

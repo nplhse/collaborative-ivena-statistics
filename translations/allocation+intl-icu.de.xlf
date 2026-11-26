@@ -205,6 +205,30 @@
         <source>help.export.department_was_closed_filter</source>
         <target>Nur Zuweisungen exportieren, bei denen der Fachbereich abgemeldet war.</target>
       </trans-unit>
+      <trans-unit id="caaDe01" resname="label.closure_at_assignment">
+        <source>label.closure_at_assignment</source>
+        <target>Laut Abmeldezeiten</target>
+      </trans-unit>
+      <trans-unit id="caaDe02" resname="label.closure_at_assignment.all">
+        <source>label.closure_at_assignment.all</source>
+        <target>Alle</target>
+      </trans-unit>
+      <trans-unit id="caaDe03" resname="closure_at_assignment.closed">
+        <source>closure_at_assignment.closed</source>
+        <target>Abgemeldet</target>
+      </trans-unit>
+      <trans-unit id="caaDe04" resname="closure_at_assignment.open">
+        <source>closure_at_assignment.open</source>
+        <target>Nicht abgemeldet</target>
+      </trans-unit>
+      <trans-unit id="caaDe05" resname="closure_at_assignment.unknown">
+        <source>closure_at_assignment.unknown</source>
+        <target>Keine Abmeldedaten</target>
+      </trans-unit>
+      <trans-unit id="caaDe06" resname="help.closure_at_assignment_filter">
+        <source>help.closure_at_assignment_filter</source>
+        <target>Nur für Kliniken und Zeiträume mit importierten Abmeldezeiten.</target>
+      </trans-unit>
       <trans-unit id="ExpLblDe01" resname="label.export.hospitals_select_all">
         <source>label.export.hospitals_select_all</source>
         <target>Alle auswählen</target>
@@ -256,6 +280,10 @@
       <trans-unit id="HlpNoHospDe" resname="help.no_hospitals_assigned">
         <source>help.no_hospitals_assigned</source>
         <target>Ihrem Konto sind leider keine Krankenhäuser zugewiesen.</target>
+      </trans-unit>
+      <trans-unit id="hospAddrEmptyDe" resname="hospital.address.empty">
+        <source>hospital.address.empty</source>
+        <target>Keine Adresse hinterlegt.</target>
       </trans-unit>
       <trans-unit id="Dec60f9ece" resname="hospital.size.Large">
         <source>hospital.size.Large</source>
@@ -463,7 +491,23 @@
       </trans-unit>
       <trans-unit id="IndRevWLDe" resname="title.indication.review_worklist">
         <source>title.indication.review_worklist</source>
-        <target>Indikations-Review-Arbeitsliste</target>
+        <target>Indikations-Review</target>
+      </trans-unit>
+      <trans-unit id="ToolsIndRevTitleDe" resname="tools.indication_review.title">
+        <source>tools.indication_review.title</source>
+        <target>Indikations-Review</target>
+      </trans-unit>
+      <trans-unit id="ToolsAlcExpTiDe" resname="tools.allocation_export.title">
+        <source>tools.allocation_export.title</source>
+        <target>Zuweisungen exportieren</target>
+      </trans-unit>
+      <trans-unit id="ToolsAlcExpDescDe" resname="tools.allocation_export.description">
+        <source>tools.allocation_export.description</source>
+        <target>Zuweisungen Ihrer Krankenhäuser für einen Zeitraum als CSV-Datei herunterladen.</target>
+      </trans-unit>
+      <trans-unit id="ToolsIndRevDescDe" resname="tools.indication_review.description">
+        <source>tools.indication_review.description</source>
+        <target>Original-Indikationen aus den Importen prüfen und dem Indikationskatalog zuordnen.</target>
       </trans-unit>
       <trans-unit id="De976594cc" resname="title.indication.sample_allocations">
         <source>title.indication.sample_allocations</source>
@@ -579,7 +623,7 @@
       </trans-unit>
       <trans-unit id="CatMapHintDe" resname="catalog.orientation_map.hint">
         <source>catalog.orientation_map.hint</source>
-        <target>Hessen-Pilot auf Basis der Leitstellengrenzen. Die Karte dient der Orientierung und ist keine flächengenaue Verwaltungsgrenze.</target>
+        <target>Auf Basis der Kreisgrenzen des Leitstellenbereichs. Die Karte dient der Orientierung und ist keine flächengenaue Verwaltungsgrenze.</target>
       </trans-unit>
       <trans-unit id="AllocOdSecDe" resname="allocation.section.origin_destination">
         <source>allocation.section.origin_destination</source>
@@ -897,6 +941,10 @@
         <source>catalog.glossary.column.code</source>
         <target>Code</target>
       </trans-unit>
+      <trans-unit id="catGlDeStoredAs" resname="catalog.glossary.stored_as">
+        <source>catalog.glossary.stored_as</source>
+        <target>Gespeichert als</target>
+      </trans-unit>
       <trans-unit id="CatGlColLabDe" resname="catalog.glossary.column.label">
         <source>catalog.glossary.column.label</source>
         <target>Bezeichnung</target>
@@ -1149,6 +1197,18 @@
         <source>empty.allocation.no_permission.description</source>
         <target>Zuweisungen erscheinen, nachdem ein IVENA-Datensatz importiert wurde. Die Importberechtigung wird je Klinik vergeben.</target>
       </trans-unit>
+      <trans-unit id="emptyAlcNhTiDe" resname="empty.allocation.no_hospital.title">
+        <source>empty.allocation.no_hospital.title</source>
+        <target>Keine eigene Klinik</target>
+      </trans-unit>
+      <trans-unit id="emptyAlcNhDeDe" resname="empty.allocation.no_hospital.description">
+        <source>empty.allocation.no_hospital.description</source>
+        <target>Unter Erkunden sehen Sie nur die Zuweisungen der Kliniken, für die Sie Zugang haben. Beantragen Sie den Zugang zu Ihrer Klinik, um deren Zuweisungen zu sehen.</target>
+      </trans-unit>
+      <trans-unit id="emptyAlcNhCtaDe" resname="empty.allocation.no_hospital.cta">
+        <source>empty.allocation.no_hospital.cta</source>
+        <target>Klinikzugang beantragen</target>
+      </trans-unit>
       <trans-unit id="emptyCovTiDe" resname="empty.hospital.coverage.title">
         <source>empty.hospital.coverage.title</source>
         <target>Noch keine Zuweisungen für diese Klinik</target>
@@ -1167,15 +1227,15 @@
       </trans-unit>
       <trans-unit id="emptyOwnTiDe" resname="empty.owned.title">
         <source>empty.owned.title</source>
-        <target>Deinem Konto ist keine Klinik zugeordnet</target>
+        <target>Ihrem Konto ist keine Klinik zugeordnet</target>
       </trans-unit>
       <trans-unit id="emptyOwnDeDe" resname="empty.owned.description">
         <source>empty.owned.description</source>
-        <target>Klinikzugänge vergibt eine Klinikadministration. Das Onboarding auf dem Dashboard erklärt, wie du Zugang anfragen kannst.</target>
+        <target>Beantragen Sie die Zuordnung zu der Klinik, für die Sie arbeiten. Ein:e Administrator:in entscheidet, welchen Zugang Sie erhalten.</target>
       </trans-unit>
       <trans-unit id="emptyOwnCtaDe" resname="empty.owned.cta">
         <source>empty.owned.cta</source>
-        <target>Zum Dashboard</target>
+        <target>Klinikzuordnung beantragen</target>
       </trans-unit>
       <trans-unit id="emptyGrnTiDe" resname="empty.access_grants.title">
         <source>empty.access_grants.title</source>
@@ -1192,6 +1252,1806 @@
       <trans-unit id="CatDeptAlHintDe" resname="catalog.department.aliases.hint">
         <source>catalog.department.aliases.hint</source>
         <target>Andere Schreibweisen aus Importen. Kein amtliches Verzeichnis.</target>
+      </trans-unit>
+      <trans-unit id="myHospSumAllocDe" resname="my_hospitals.summary.allocations">
+        <source>my_hospitals.summary.allocations</source>
+        <target>Verfügbare Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="myHospSumPeriodDe" resname="my_hospitals.summary.data_period">
+        <source>my_hospitals.summary.data_period</source>
+        <target>Datenzeitraum</target>
+      </trans-unit>
+      <trans-unit id="myHospSumNoDataDe" resname="my_hospitals.summary.no_data">
+        <source>my_hospitals.summary.no_data</source>
+        <target>Noch keine Daten</target>
+      </trans-unit>
+      <trans-unit id="myHospSumNoUpDe" resname="my_hospitals.summary.no_upload">
+        <source>my_hospitals.summary.no_upload</source>
+        <target>Noch kein Upload</target>
+      </trans-unit>
+      <trans-unit id="myHospSumBasisDe" resname="my_hospitals.summary.basis">
+        <source>my_hospitals.summary.basis</source>
+        <target>Basis: {count} von {total} Krankenhäusern</target>
+      </trans-unit>
+      <trans-unit id="myHospHeadCountDe" resname="my_hospitals.header.count">
+        <source>my_hospitals.header.count</source>
+        <target>{count, plural, one {# Krankenhaus} other {# Krankenhäuser}}</target>
+      </trans-unit>
+      <trans-unit id="myHospHeadSelectedDe" resname="my_hospitals.header.selected">
+        <source>my_hospitals.header.selected</source>
+        <target>1 von {total} Krankenhäusern</target>
+      </trans-unit>
+      <trans-unit id="myHospSelAllDe" resname="my_hospitals.selection.all">
+        <source>my_hospitals.selection.all</source>
+        <target>Alle Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="myHospFindCountDe" resname="my_hospitals.finding.count">
+        <source>my_hospitals.finding.count</source>
+        <target>{count, plural, one {# Hinweis} other {# Hinweise}}</target>
+      </trans-unit>
+      <trans-unit id="myHospFindImportFailedDe" resname="my_hospitals.finding.import_failed">
+        <source>my_hospitals.finding.import_failed</source>
+        <target>Der Import vom {date} ist fehlgeschlagen.</target>
+      </trans-unit>
+      <trans-unit id="myHospFindImportCancelledDe" resname="my_hospitals.finding.import_cancelled">
+        <source>my_hospitals.finding.import_cancelled</source>
+        <target>Der Import vom {date} wurde abgebrochen.</target>
+      </trans-unit>
+      <trans-unit id="myHospFindImportRejectsDe" resname="my_hospitals.finding.import_rejects">
+        <source>my_hospitals.finding.import_rejects</source>
+        <target>Aus dem Import vom {date} {amount, plural, one {konnte # Zeile} other {konnten # Zeilen}} nicht übernommen werden.</target>
+      </trans-unit>
+      <trans-unit id="myHospFindImportDayGapsDe" resname="my_hospitals.finding.import_day_gaps">
+        <source>my_hospitals.finding.import_day_gaps</source>
+        <target>Der Import vom {date} enthält {amount, plural, one {# Tag} other {# Tage}} ohne Einträge.</target>
+      </trans-unit>
+      <trans-unit id="myHospFindNotUpdatedDe" resname="my_hospitals.finding.not_updated">
+        <source>my_hospitals.finding.not_updated</source>
+        <target>Die neueste Zuweisung ist vom {date}, also {amount} Tage alt.</target>
+      </trans-unit>
+      <trans-unit id="myHospFindPossibleGapDe" resname="my_hospitals.finding.possible_gap">
+        <source>my_hospitals.finding.possible_gap</source>
+        <target>{amount, plural, one {Für {month} liegen keine Daten vor} other {Von {month} bis {end} liegen keine Daten vor}}, obwohl Importe die Zeit davor und danach abdecken. Vielleicht fehlt ein Import.</target>
+      </trans-unit>
+      <trans-unit id="myHospFindVolumeChangeDe" resname="my_hospitals.finding.volume_change">
+        <source>my_hospitals.finding.volume_change</source>
+        <target>{month}: {amount} % {direction, select, up {mehr} other {weniger}} Zuweisungen als in den Monaten davor.</target>
+      </trans-unit>
+      <trans-unit id="myHospSumWithDataDe" resname="my_hospitals.summary.with_data">
+        <source>my_hospitals.summary.with_data</source>
+        <target>aus {count, plural, one {# Krankenhaus} other {# Krankenhäusern}} mit Daten</target>
+      </trans-unit>
+      <trans-unit id="myHospSumPeriodHintDe" resname="my_hospitals.summary.data_period_hint">
+        <source>my_hospitals.summary.data_period_hint</source>
+        <target>Erste bis neueste Zuweisung</target>
+      </trans-unit>
+      <trans-unit id="myHospSumImportsDe" resname="my_hospitals.summary.imports">
+        <source>my_hospitals.summary.imports</source>
+        <target>Importe</target>
+      </trans-unit>
+      <trans-unit id="myHospSumLastUpOnDe" resname="my_hospitals.summary.last_upload_on">
+        <source>my_hospitals.summary.last_upload_on</source>
+        <target>Letzter Upload am {date}</target>
+      </trans-unit>
+      <trans-unit id="myHospSumCovDe" resname="my_hospitals.summary.coverage">
+        <source>my_hospitals.summary.coverage</source>
+        <target>Vollständige Monate</target>
+      </trans-unit>
+      <trans-unit id="myHospSumCovHintDe" resname="my_hospitals.summary.coverage_hint">
+        <source>my_hospitals.summary.coverage_hint</source>
+        <target>In den letzten 12 Monaten vollständig abgedeckt</target>
+      </trans-unit>
+      <trans-unit id="myHospCovValueDe" resname="my_hospitals.coverage_value">
+        <source>my_hospitals.coverage_value</source>
+        <target>{covered} von {total}</target>
+      </trans-unit>
+      <trans-unit id="myHospCardOwnedDe" resname="my_hospitals.card.owned">
+        <source>my_hospitals.card.owned</source>
+        <target>Inhaber</target>
+      </trans-unit>
+      <trans-unit id="myHospCardSharedDe" resname="my_hospitals.card.shared">
+        <source>my_hospitals.card.shared</source>
+        <target>Für dich freigegeben</target>
+      </trans-unit>
+      <trans-unit id="myHospCardAllocDe" resname="my_hospitals.card.allocations">
+        <source>my_hospitals.card.allocations</source>
+        <target>Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="myHospCardPeriodDe" resname="my_hospitals.card.data_period">
+        <source>my_hospitals.card.data_period</source>
+        <target>Datenzeitraum</target>
+      </trans-unit>
+      <trans-unit id="myHospCardCovDe" resname="my_hospitals.card.coverage">
+        <source>my_hospitals.card.coverage</source>
+        <target>Vollständige Monate</target>
+      </trans-unit>
+      <trans-unit id="myHospCardImportsDe" resname="my_hospitals.card.imports">
+        <source>my_hospitals.card.imports</source>
+        <target>Importe</target>
+      </trans-unit>
+      <trans-unit id="myHospCardImpPartialDe" resname="my_hospitals.card.imports_partial">
+        <source>my_hospitals.card.imports_partial</source>
+        <target>davon {count} teilweise</target>
+      </trans-unit>
+      <trans-unit id="myHospCardImpPendingDe" resname="my_hospitals.card.imports_pending">
+        <source>my_hospitals.card.imports_pending</source>
+        <target>{count} in Bearbeitung</target>
+      </trans-unit>
+      <trans-unit id="myHospCardLastUpDe" resname="my_hospitals.card.last_upload">
+        <source>my_hospitals.card.last_upload</source>
+        <target>Letzter Upload</target>
+      </trans-unit>
+      <trans-unit id="myHospCardOwnDe" resname="my_hospitals.card.own_uploads">
+        <source>my_hospitals.card.own_uploads</source>
+        <target>Deine Uploads</target>
+      </trans-unit>
+      <trans-unit id="myHospCardNoDataDe" resname="my_hospitals.card.no_data">
+        <source>my_hospitals.card.no_data</source>
+        <target>Für dieses Krankenhaus wurden noch keine Zuweisungen importiert.</target>
+      </trans-unit>
+      <trans-unit id="myHospCardNoDataProbDe" resname="my_hospitals.card.no_data_problems">
+        <source>my_hospitals.card.no_data_problems</source>
+        <target>Noch keine Zuweisungen: Die bisherigen Importe wurden nicht abgeschlossen. Prüfe die Importe.</target>
+      </trans-unit>
+      <trans-unit id="myHospCardNoDataPendDe" resname="my_hospitals.card.no_data_pending">
+        <source>my_hospitals.card.no_data_pending</source>
+        <target>Noch keine Zuweisungen: Ein Import wird gerade verarbeitet.</target>
+      </trans-unit>
+      <trans-unit id="myHospActStatsDe" resname="my_hospitals.action.statistics">
+        <source>my_hospitals.action.statistics</source>
+        <target>Statistiken ansehen</target>
+      </trans-unit>
+      <trans-unit id="myHospActImportsDe" resname="my_hospitals.action.imports">
+        <source>my_hospitals.action.imports</source>
+        <target>Importe ansehen</target>
+      </trans-unit>
+      <trans-unit id="myHospActUploadDe" resname="my_hospitals.action.upload">
+        <source>my_hospitals.action.upload</source>
+        <target>Neuen Import hochladen</target>
+      </trans-unit>
+      <trans-unit id="myHospSuccessRateDe" resname="my_hospitals.success_rate">
+        <source>my_hospitals.success_rate</source>
+        <target>{rate} % erfolgreich</target>
+      </trans-unit>
+      <trans-unit id="myHospSumNoImportsDe" resname="my_hospitals.summary.no_imports">
+        <source>my_hospitals.summary.no_imports</source>
+        <target>Noch keine Importe</target>
+      </trans-unit>
+      <trans-unit id="myHospCardImpSuccessDe" resname="my_hospitals.card.imports_success">
+        <source>my_hospitals.card.imports_success</source>
+        <target>{successful} von {finished} erfolgreich</target>
+      </trans-unit>
+      <trans-unit id="myHospCardMenuDe" resname="my_hospitals.card.menu">
+        <source>my_hospitals.card.menu</source>
+        <target>Weitere Aktionen</target>
+      </trans-unit>
+      <trans-unit id="myHospStCoveredDe" resname="my_hospitals.month.state.covered">
+        <source>my_hospitals.month.state.covered</source>
+        <target>{allocations, plural, one {# Zuweisung} other {# Zuweisungen}}, vollständig abgedeckt</target>
+      </trans-unit>
+      <trans-unit id="myHospStPartialDe" resname="my_hospitals.month.state.partial">
+        <source>my_hospitals.month.state.partial</source>
+        <target>{allocations, plural, one {# Zuweisung} other {# Zuweisungen}}, {covered} von {days} Tagen abgedeckt</target>
+      </trans-unit>
+      <trans-unit id="myHospStMissingDe" resname="my_hospitals.month.state.missing">
+        <source>my_hospitals.month.state.missing</source>
+        <target>Kein Import deckt diesen Monat ab (mögliche Lücke)</target>
+      </trans-unit>
+      <trans-unit id="myHospStOutsideDe" resname="my_hospitals.month.state.outside">
+        <source>my_hospitals.month.state.outside</source>
+        <target>Noch keine Daten geliefert</target>
+      </trans-unit>
+      <trans-unit id="myHospStInProgressDe" resname="my_hospitals.month.state.in_progress">
+        <source>my_hospitals.month.state.in_progress</source>
+        <target>Bisher {allocations, plural, one {# Zuweisung} other {# Zuweisungen}}, Monat läuft noch</target>
+      </trans-unit>
+      <trans-unit id="myHospLegPartialDe" resname="my_hospitals.legend.partial">
+        <source>my_hospitals.legend.partial</source>
+        <target>Teilweise abgedeckt</target>
+      </trans-unit>
+      <trans-unit id="myHospLegMissingDe" resname="my_hospitals.legend.missing">
+        <source>my_hospitals.legend.missing</source>
+        <target>Lücke zwischen Importen</target>
+      </trans-unit>
+      <trans-unit id="myHospLegOutsideDe" resname="my_hospitals.legend.outside">
+        <source>my_hospitals.legend.outside</source>
+        <target>Ohne Daten</target>
+      </trans-unit>
+      <trans-unit id="myHospLegInProgDe" resname="my_hospitals.legend.in_progress">
+        <source>my_hospitals.legend.in_progress</source>
+        <target>Laufender Monat</target>
+      </trans-unit>
+      <trans-unit id="myHospCovTitleDe" resname="my_hospitals.coverage.title">
+        <source>my_hospitals.coverage.title</source>
+        <target>Datenabdeckung</target>
+      </trans-unit>
+      <trans-unit id="myHospCovSubDe" resname="my_hospitals.coverage.subtitle">
+        <source>my_hospitals.coverage.subtitle</source>
+        <target>Alle Monate seit den ersten Daten, eine Zeile pro Jahr</target>
+      </trans-unit>
+      <trans-unit id="myHospLegLessDe" resname="my_hospitals.legend.less">
+        <source>my_hospitals.legend.less</source>
+        <target>Weniger</target>
+      </trans-unit>
+      <trans-unit id="myHospLegMoreDe" resname="my_hospitals.legend.more">
+        <source>my_hospitals.legend.more</source>
+        <target>Mehr</target>
+      </trans-unit>
+      <trans-unit id="myHospLegVolumeDe" resname="my_hospitals.legend.volume">
+        <source>my_hospitals.legend.volume</source>
+        <target>Volumen</target>
+      </trans-unit>
+      <trans-unit id="myHospStNoAllocDe" resname="my_hospitals.month.state.no_allocations">
+        <source>my_hospitals.month.state.no_allocations</source>
+        <target>Von einem Import abgedeckt, aber ohne Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="hospBadgeDeLocUrban" resname="hospital.badge.location.Urban">
+        <source>hospital.badge.location.Urban</source>
+        <target>Städtisch</target>
+      </trans-unit>
+      <trans-unit id="hospBadgeDeLocMixed" resname="hospital.badge.location.Mixed">
+        <source>hospital.badge.location.Mixed</source>
+        <target>Gemischt</target>
+      </trans-unit>
+      <trans-unit id="hospBadgeDeLocRural" resname="hospital.badge.location.Rural">
+        <source>hospital.badge.location.Rural</source>
+        <target>Ländlich</target>
+      </trans-unit>
+      <trans-unit id="hospBadgeDeTierBasic" resname="hospital.badge.tier.Basic">
+        <source>hospital.badge.tier.Basic</source>
+        <target>Basis</target>
+      </trans-unit>
+      <trans-unit id="hospBadgeDeTierExt" resname="hospital.badge.tier.Extended">
+        <source>hospital.badge.tier.Extended</source>
+        <target>Erweitert</target>
+      </trans-unit>
+      <trans-unit id="hospBadgeDeTierFull" resname="hospital.badge.tier.Full">
+        <source>hospital.badge.tier.Full</source>
+        <target>Umfassend</target>
+      </trans-unit>
+      <trans-unit id="hospBadgeDeSizeSmall" resname="hospital.badge.size.Small">
+        <source>hospital.badge.size.Small</source>
+        <target>Klein</target>
+      </trans-unit>
+      <trans-unit id="hospBadgeDeSizeMedium" resname="hospital.badge.size.Medium">
+        <source>hospital.badge.size.Medium</source>
+        <target>Mittel</target>
+      </trans-unit>
+      <trans-unit id="hospBadgeDeSizeLarge" resname="hospital.badge.size.Large">
+        <source>hospital.badge.size.Large</source>
+        <target>Groß</target>
+      </trans-unit>
+      <trans-unit id="hagMatrixUserDe" resname="label.hospital_access_grants.matrix.user">
+        <source>label.hospital_access_grants.matrix.user</source>
+        <target>Benutzer</target>
+      </trans-unit>
+      <trans-unit id="hagSummary0De" resname="hospital.access_summary.title">
+        <source>hospital.access_summary.title</source>
+        <target>Zugriff</target>
+      </trans-unit>
+      <trans-unit id="hagSummary1De" resname="hospital.access_summary.empty">
+        <source>hospital.access_summary.empty</source>
+        <target>Noch niemand hat eine Berechtigung für dieses Krankenhaus.</target>
+      </trans-unit>
+      <trans-unit id="hagSummary2De" resname="hospital.access_summary.count">
+        <source>hospital.access_summary.count</source>
+        <target>{count, plural, one {# Person mit Berechtigung} other {# Personen mit Berechtigung}}</target>
+      </trans-unit>
+      <trans-unit id="hagSummary3De" resname="hospital.access_summary.more">
+        <source>hospital.access_summary.more</source>
+        <target>{count, plural, one {# weitere Person} other {# weitere Personen}}</target>
+      </trans-unit>
+      <trans-unit id="hagSummary4De" resname="hospital.access_summary.manage">
+        <source>hospital.access_summary.manage</source>
+        <target>Zugriff verwalten</target>
+      </trans-unit>
+      <trans-unit id="ttlHospActivityDe" resname="title.hospital.activity">
+        <source>title.hospital.activity</source>
+        <target>Aktivität</target>
+      </trans-unit>
+      <trans-unit id="dcDe001" resname="data_catalog.title">
+        <source>data_catalog.title</source>
+        <target>Datenkatalog</target>
+      </trans-unit>
+      <trans-unit id="dcDe002" resname="data_catalog.subtitle">
+        <source>data_catalog.subtitle</source>
+        <target>Welche Daten gespeichert sind: Felder, Typen, erlaubte Werte und Bereiche.</target>
+      </trans-unit>
+      <trans-unit id="dcDe003" resname="data_catalog.tile">
+        <source>data_catalog.tile</source>
+        <target>Gespeicherte Variablen nachschlagen</target>
+      </trans-unit>
+      <trans-unit id="dcDe004" resname="data_catalog.variable_count">
+        <source>data_catalog.variable_count</source>
+        <target>{count, plural, one {# Variable} other {# Variablen}}</target>
+      </trans-unit>
+      <trans-unit id="dcDe005" resname="data_catalog.origin.core">
+        <source>data_catalog.origin.core</source>
+        <target>Kern</target>
+      </trans-unit>
+      <trans-unit id="dcDe006" resname="data_catalog.origin.plugin">
+        <source>data_catalog.origin.plugin</source>
+        <target>Plugin</target>
+      </trans-unit>
+      <trans-unit id="dcDe007" resname="data_catalog.groups">
+        <source>data_catalog.groups</source>
+        <target>Gruppen</target>
+      </trans-unit>
+      <trans-unit id="dcDe185" resname="data_catalog.back_to_top">
+        <source>data_catalog.back_to_top</source>
+        <target>Nach oben</target>
+      </trans-unit>
+      <trans-unit id="dcDe008" resname="data_catalog.column.variable">
+        <source>data_catalog.column.variable</source>
+        <target>Variable</target>
+      </trans-unit>
+      <trans-unit id="dcDe009" resname="data_catalog.column.type">
+        <source>data_catalog.column.type</source>
+        <target>Typ</target>
+      </trans-unit>
+      <trans-unit id="dcDe010" resname="data_catalog.column.values">
+        <source>data_catalog.column.values</source>
+        <target>Werte</target>
+      </trans-unit>
+      <trans-unit id="dcDe011" resname="data_catalog.storage">
+        <source>data_catalog.storage</source>
+        <target>Gespeichert in Tabelle.Spalte</target>
+      </trans-unit>
+      <trans-unit id="dcDe303" resname="data_catalog.storage_type">
+        <source>data_catalog.storage_type</source>
+        <target>Spaltentyp in der Datenbank</target>
+      </trans-unit>
+      <trans-unit id="dcDe312" resname="data_catalog.glossary_link">
+        <source>data_catalog.glossary_link</source>
+        <target>Definitionen im Glossar</target>
+      </trans-unit>
+      <trans-unit id="dcDe304" resname="data_catalog.codes_count">
+        <source>data_catalog.codes_count</source>
+        <target>{count, plural, one {# Code} other {# Codes}}</target>
+      </trans-unit>
+      <trans-unit id="dcDe305" resname="data_catalog.time_zone">
+        <source>data_catalog.time_zone</source>
+        <target>Zeitzone {timezone}</target>
+      </trans-unit>
+      <trans-unit id="dcDe306" resname="data_catalog.time_zone_note.title">
+        <source>data_catalog.time_zone_note.title</source>
+        <target>Genauen Zeitpunkt rekonstruieren</target>
+      </trans-unit>
+      <trans-unit id="dcDe307" resname="data_catalog.time_zone_note.text">
+        <source>data_catalog.time_zone_note.text</source>
+        <target>Zeiten werden als Uhrzeit in {timezone} gespeichert. Zusammen mit dieser Zeitzone ergeben sie den genauen Zeitpunkt, zum Beispiel in UTC.</target>
+      </trans-unit>
+      <trans-unit id="dcDe308" resname="data_catalog.time_zone_note.recipes">
+        <source>data_catalog.time_zone_note.recipes</source>
+        <target>In Auswertungen</target>
+      </trans-unit>
+      <trans-unit id="dcDe309" resname="data_catalog.time_zone_note.dst">
+        <source>data_catalog.time_zone_note.dst</source>
+        <target>Bei der Zeitumstellung im Herbst kommt eine Stunde Uhrzeit zweimal vor; Werte aus dieser Stunde sind ohne weitere Angaben nicht eindeutig.</target>
+      </trans-unit>
+      <trans-unit id="dcDe310" resname="data_catalog.time_zone_note.link">
+        <source>data_catalog.time_zone_note.link</source>
+        <target>Siehe Hinweis</target>
+      </trans-unit>
+      <trans-unit id="dcDe311" resname="data_catalog.time_zone_note.examples">
+        <source>data_catalog.time_zone_note.examples</source>
+        <target>Beispiel</target>
+      </trans-unit>
+      <trans-unit id="dcDe012" resname="data_catalog.nullable.yes">
+        <source>data_catalog.nullable.yes</source>
+        <target>kann fehlen</target>
+      </trans-unit>
+      <trans-unit id="dcDe013" resname="data_catalog.nullable.no">
+        <source>data_catalog.nullable.no</source>
+        <target>immer vorhanden</target>
+      </trans-unit>
+      <trans-unit id="dcDe014" resname="data_catalog.reference_to">
+        <source>data_catalog.reference_to</source>
+        <target>Verweis auf</target>
+      </trans-unit>
+      <trans-unit id="dcDe015" resname="data_catalog.unit.years">
+        <source>data_catalog.unit.years</source>
+        <target>Jahre</target>
+      </trans-unit>
+      <trans-unit id="dcDe016" resname="data_catalog.type.integer">
+        <source>data_catalog.type.integer</source>
+        <target>Integer</target>
+      </trans-unit>
+      <trans-unit id="dcDe017" resname="data_catalog.type.decimal">
+        <source>data_catalog.type.decimal</source>
+        <target>Decimal</target>
+      </trans-unit>
+      <trans-unit id="dcDe018" resname="data_catalog.type.datetime">
+        <source>data_catalog.type.datetime</source>
+        <target>DateTime</target>
+      </trans-unit>
+      <trans-unit id="dcDe019" resname="data_catalog.type.date">
+        <source>data_catalog.type.date</source>
+        <target>Date</target>
+      </trans-unit>
+      <trans-unit id="dcDe020" resname="data_catalog.type.time">
+        <source>data_catalog.type.time</source>
+        <target>Time</target>
+      </trans-unit>
+      <trans-unit id="dcDe021" resname="data_catalog.type.boolean">
+        <source>data_catalog.type.boolean</source>
+        <target>Boolean</target>
+      </trans-unit>
+      <trans-unit id="dcDe022" resname="data_catalog.type.code">
+        <source>data_catalog.type.code</source>
+        <target>Enum</target>
+      </trans-unit>
+      <trans-unit id="dcDe023" resname="data_catalog.type.text">
+        <source>data_catalog.type.text</source>
+        <target>String</target>
+      </trans-unit>
+      <trans-unit id="dcDe024" resname="data_catalog.type.reference">
+        <source>data_catalog.type.reference</source>
+        <target>Referenz</target>
+      </trans-unit>
+      <trans-unit id="dcDe184" resname="data_catalog.type.code_set">
+        <source>data_catalog.type.code_set</source>
+        <target>Enum-Set</target>
+      </trans-unit>
+      <trans-unit id="dcDe025" resname="data_catalog.group.identification">
+        <source>data_catalog.group.identification</source>
+        <target>Identifikation</target>
+      </trans-unit>
+      <trans-unit id="dcDe026" resname="data_catalog.group.time">
+        <source>data_catalog.group.time</source>
+        <target>Zeit</target>
+      </trans-unit>
+      <trans-unit id="dcDe027" resname="data_catalog.group.patient">
+        <source>data_catalog.group.patient</source>
+        <target>Patient</target>
+      </trans-unit>
+      <trans-unit id="dcDe028" resname="data_catalog.group.urgency">
+        <source>data_catalog.group.urgency</source>
+        <target>Dringlichkeit</target>
+      </trans-unit>
+      <trans-unit id="dcDe029" resname="data_catalog.group.clinical">
+        <source>data_catalog.group.clinical</source>
+        <target>Klinik</target>
+      </trans-unit>
+      <trans-unit id="dcDe030" resname="data_catalog.group.resources">
+        <source>data_catalog.group.resources</source>
+        <target>Ressourcen</target>
+      </trans-unit>
+      <trans-unit id="dcDe031" resname="data_catalog.group.transport">
+        <source>data_catalog.group.transport</source>
+        <target>Transport</target>
+      </trans-unit>
+      <trans-unit id="dcDe032" resname="data_catalog.group.destination">
+        <source>data_catalog.group.destination</source>
+        <target>Ziel</target>
+      </trans-unit>
+      <trans-unit id="dcDe033" resname="data_catalog.group.context">
+        <source>data_catalog.group.context</source>
+        <target>Einsatzkontext</target>
+      </trans-unit>
+      <trans-unit id="dcDe034" resname="data_catalog.group.geography">
+        <source>data_catalog.group.geography</source>
+        <target>Geografie</target>
+      </trans-unit>
+      <trans-unit id="dcDe035" resname="data_catalog.object.allocation.title">
+        <source>data_catalog.object.allocation.title</source>
+        <target>Zuweisung</target>
+      </trans-unit>
+      <trans-unit id="dcDe036" resname="data_catalog.object.allocation.description">
+        <source>data_catalog.object.allocation.description</source>
+        <target>Eine Zuweisung eines Patienten durch den Rettungsdienst an eine Klinik, aus dem IVENA-Export.</target>
+      </trans-unit>
+      <trans-unit id="dcDe037" resname="data_catalog.variable.allocation.created_at.label">
+        <source>data_catalog.variable.allocation.created_at.label</source>
+        <target>Zuweisungszeitpunkt</target>
+      </trans-unit>
+      <trans-unit id="dcDe038" resname="data_catalog.variable.allocation.created_at.description">
+        <source>data_catalog.variable.allocation.created_at.description</source>
+        <target>Zeitpunkt, zu dem die Zuweisung in IVENA angelegt wurde (Ortszeit).</target>
+      </trans-unit>
+      <trans-unit id="dcDe039" resname="data_catalog.variable.allocation.arrival_at.label">
+        <source>data_catalog.variable.allocation.arrival_at.label</source>
+        <target>Ankunftszeit</target>
+      </trans-unit>
+      <trans-unit id="dcDe040" resname="data_catalog.variable.allocation.arrival_at.description">
+        <source>data_catalog.variable.allocation.arrival_at.description</source>
+        <target>Ankunftszeit in der Klinik laut IVENA (Ortszeit).</target>
+      </trans-unit>
+      <trans-unit id="dcDe041" resname="data_catalog.variable.allocation.age.label">
+        <source>data_catalog.variable.allocation.age.label</source>
+        <target>Alter</target>
+      </trans-unit>
+      <trans-unit id="dcDe042" resname="data_catalog.variable.allocation.age.description">
+        <source>data_catalog.variable.allocation.age.description</source>
+        <target>Alter des Patienten in Jahren.</target>
+      </trans-unit>
+      <trans-unit id="dcDe043" resname="data_catalog.variable.allocation.gender.label">
+        <source>data_catalog.variable.allocation.gender.label</source>
+        <target>Geschlecht</target>
+      </trans-unit>
+      <trans-unit id="dcDe044" resname="data_catalog.variable.allocation.gender.description">
+        <source>data_catalog.variable.allocation.gender.description</source>
+        <target>Geschlecht des Patienten laut IVENA.</target>
+      </trans-unit>
+      <trans-unit id="dcDe045" resname="data_catalog.variable.allocation.is_pregnant.label">
+        <source>data_catalog.variable.allocation.is_pregnant.label</source>
+        <target>Schwanger</target>
+      </trans-unit>
+      <trans-unit id="dcDe046" resname="data_catalog.variable.allocation.is_pregnant.description">
+        <source>data_catalog.variable.allocation.is_pregnant.description</source>
+        <target>Die Patientin ist schwanger.</target>
+      </trans-unit>
+      <trans-unit id="dcDe047" resname="data_catalog.variable.allocation.urgency.label">
+        <source>data_catalog.variable.allocation.urgency.label</source>
+        <target>Dringlichkeit</target>
+      </trans-unit>
+      <trans-unit id="dcDe048" resname="data_catalog.variable.allocation.urgency.description">
+        <source>data_catalog.variable.allocation.urgency.description</source>
+        <target>Sichtungskategorie SK1 bis SK3.</target>
+      </trans-unit>
+      <trans-unit id="dcDe049" resname="data_catalog.variable.allocation.indication_raw.label">
+        <source>data_catalog.variable.allocation.indication_raw.label</source>
+        <target>Indikation (Original)</target>
+      </trans-unit>
+      <trans-unit id="dcDe050" resname="data_catalog.variable.allocation.indication_raw.description">
+        <source>data_catalog.variable.allocation.indication_raw.description</source>
+        <target>Indikation (PZC) wie in IVENA gemeldet.</target>
+      </trans-unit>
+      <trans-unit id="dcDe051" resname="data_catalog.variable.allocation.indication_normalized.label">
+        <source>data_catalog.variable.allocation.indication_normalized.label</source>
+        <target>Indikation (normalisiert)</target>
+      </trans-unit>
+      <trans-unit id="dcDe052" resname="data_catalog.variable.allocation.indication_normalized.description">
+        <source>data_catalog.variable.allocation.indication_normalized.description</source>
+        <target>Der Original-Indikation zugeordnete normalisierte Indikation.</target>
+      </trans-unit>
+      <trans-unit id="dcDe053" resname="data_catalog.variable.allocation.secondary_indication_raw.label">
+        <source>data_catalog.variable.allocation.secondary_indication_raw.label</source>
+        <target>Sekundäre Indikation (Original)</target>
+      </trans-unit>
+      <trans-unit id="dcDe054" resname="data_catalog.variable.allocation.secondary_indication_raw.description">
+        <source>data_catalog.variable.allocation.secondary_indication_raw.description</source>
+        <target>Zweite Indikation wie in IVENA gemeldet.</target>
+      </trans-unit>
+      <trans-unit id="dcDe055" resname="data_catalog.variable.allocation.secondary_indication_normalized.label">
+        <source>data_catalog.variable.allocation.secondary_indication_normalized.label</source>
+        <target>Sekundäre Indikation (normalisiert)</target>
+      </trans-unit>
+      <trans-unit id="dcDe056" resname="data_catalog.variable.allocation.secondary_indication_normalized.description">
+        <source>data_catalog.variable.allocation.secondary_indication_normalized.description</source>
+        <target>Normalisierte Form der zweiten Indikation.</target>
+      </trans-unit>
+      <trans-unit id="dcDe057" resname="data_catalog.variable.allocation.is_cpr.label">
+        <source>data_catalog.variable.allocation.is_cpr.label</source>
+        <target>Reanimation</target>
+      </trans-unit>
+      <trans-unit id="dcDe058" resname="data_catalog.variable.allocation.is_cpr.description">
+        <source>data_catalog.variable.allocation.is_cpr.description</source>
+        <target>Der Patient wird reanimiert.</target>
+      </trans-unit>
+      <trans-unit id="dcDe059" resname="data_catalog.variable.allocation.is_ventilated.label">
+        <source>data_catalog.variable.allocation.is_ventilated.label</source>
+        <target>Beatmet</target>
+      </trans-unit>
+      <trans-unit id="dcDe060" resname="data_catalog.variable.allocation.is_ventilated.description">
+        <source>data_catalog.variable.allocation.is_ventilated.description</source>
+        <target>Der Patient wird beatmet.</target>
+      </trans-unit>
+      <trans-unit id="dcDe061" resname="data_catalog.variable.allocation.is_shock.label">
+        <source>data_catalog.variable.allocation.is_shock.label</source>
+        <target>Schock</target>
+      </trans-unit>
+      <trans-unit id="dcDe062" resname="data_catalog.variable.allocation.is_shock.description">
+        <source>data_catalog.variable.allocation.is_shock.description</source>
+        <target>Der Patient ist im Schock.</target>
+      </trans-unit>
+      <trans-unit id="dcDe063" resname="data_catalog.variable.allocation.infection.label">
+        <source>data_catalog.variable.allocation.infection.label</source>
+        <target>Infektion</target>
+      </trans-unit>
+      <trans-unit id="dcDe064" resname="data_catalog.variable.allocation.infection.description">
+        <source>data_catalog.variable.allocation.infection.description</source>
+        <target>Gemeldete Infektionskrankheit.</target>
+      </trans-unit>
+      <trans-unit id="dcDe065" resname="data_catalog.variable.allocation.assessment_airway.label">
+        <source>data_catalog.variable.allocation.assessment_airway.label</source>
+        <target>Atemweg (A)</target>
+      </trans-unit>
+      <trans-unit id="dcDe066" resname="data_catalog.variable.allocation.assessment_airway.description">
+        <source>data_catalog.variable.allocation.assessment_airway.description</source>
+        <target>Atemweg nach ABCD-Einschätzung.</target>
+      </trans-unit>
+      <trans-unit id="dcDe067" resname="data_catalog.variable.allocation.assessment_breathing.label">
+        <source>data_catalog.variable.allocation.assessment_breathing.label</source>
+        <target>Atmung (B)</target>
+      </trans-unit>
+      <trans-unit id="dcDe068" resname="data_catalog.variable.allocation.assessment_breathing.description">
+        <source>data_catalog.variable.allocation.assessment_breathing.description</source>
+        <target>Atmung nach ABCD-Einschätzung.</target>
+      </trans-unit>
+      <trans-unit id="dcDe069" resname="data_catalog.variable.allocation.assessment_circulation.label">
+        <source>data_catalog.variable.allocation.assessment_circulation.label</source>
+        <target>Kreislauf (C)</target>
+      </trans-unit>
+      <trans-unit id="dcDe070" resname="data_catalog.variable.allocation.assessment_circulation.description">
+        <source>data_catalog.variable.allocation.assessment_circulation.description</source>
+        <target>Kreislauf nach ABCD-Einschätzung.</target>
+      </trans-unit>
+      <trans-unit id="dcDe071" resname="data_catalog.variable.allocation.assessment_disability.label">
+        <source>data_catalog.variable.allocation.assessment_disability.label</source>
+        <target>Bewusstsein (D)</target>
+      </trans-unit>
+      <trans-unit id="dcDe072" resname="data_catalog.variable.allocation.assessment_disability.description">
+        <source>data_catalog.variable.allocation.assessment_disability.description</source>
+        <target>Bewusstseinslage nach ABCD-Einschätzung.</target>
+      </trans-unit>
+      <trans-unit id="dcDe073" resname="data_catalog.variable.allocation.requires_resus.label">
+        <source>data_catalog.variable.allocation.requires_resus.label</source>
+        <target>Schockraum angefordert</target>
+      </trans-unit>
+      <trans-unit id="dcDe074" resname="data_catalog.variable.allocation.requires_resus.description">
+        <source>data_catalog.variable.allocation.requires_resus.description</source>
+        <target>Für den Patienten wurde ein Schockraum angefordert.</target>
+      </trans-unit>
+      <trans-unit id="dcDe075" resname="data_catalog.variable.allocation.requires_cathlab.label">
+        <source>data_catalog.variable.allocation.requires_cathlab.label</source>
+        <target>Herzkatheter angefordert</target>
+      </trans-unit>
+      <trans-unit id="dcDe076" resname="data_catalog.variable.allocation.requires_cathlab.description">
+        <source>data_catalog.variable.allocation.requires_cathlab.description</source>
+        <target>Für den Patienten wurde ein Herzkatheterlabor angefordert.</target>
+      </trans-unit>
+      <trans-unit id="dcDe077" resname="data_catalog.variable.allocation.transport_type.label">
+        <source>data_catalog.variable.allocation.transport_type.label</source>
+        <target>Transportart</target>
+      </trans-unit>
+      <trans-unit id="dcDe078" resname="data_catalog.variable.allocation.transport_type.description">
+        <source>data_catalog.variable.allocation.transport_type.description</source>
+        <target>Boden- oder Lufttransport.</target>
+      </trans-unit>
+      <trans-unit id="dcDe079" resname="data_catalog.variable.allocation.is_with_physician.label">
+        <source>data_catalog.variable.allocation.is_with_physician.label</source>
+        <target>Arztbegleitung</target>
+      </trans-unit>
+      <trans-unit id="dcDe080" resname="data_catalog.variable.allocation.is_with_physician.description">
+        <source>data_catalog.variable.allocation.is_with_physician.description</source>
+        <target>Ein Arzt begleitet den Transport.</target>
+      </trans-unit>
+      <trans-unit id="dcDe081" resname="data_catalog.variable.allocation.secondary_transport.label">
+        <source>data_catalog.variable.allocation.secondary_transport.label</source>
+        <target>Sekundärtransport</target>
+      </trans-unit>
+      <trans-unit id="dcDe082" resname="data_catalog.variable.allocation.secondary_transport.description">
+        <source>data_catalog.variable.allocation.secondary_transport.description</source>
+        <target>Art des Sekundärtransports, falls es einer ist.</target>
+      </trans-unit>
+      <trans-unit id="dcDe083" resname="data_catalog.variable.allocation.hospital.label">
+        <source>data_catalog.variable.allocation.hospital.label</source>
+        <target>Klinik</target>
+      </trans-unit>
+      <trans-unit id="dcDe084" resname="data_catalog.variable.allocation.hospital.description">
+        <source>data_catalog.variable.allocation.hospital.description</source>
+        <target>Zielklinik der Zuweisung.</target>
+      </trans-unit>
+      <trans-unit id="dcDe085" resname="data_catalog.variable.allocation.speciality.label">
+        <source>data_catalog.variable.allocation.speciality.label</source>
+        <target>Fachgebiet</target>
+      </trans-unit>
+      <trans-unit id="dcDe086" resname="data_catalog.variable.allocation.speciality.description">
+        <source>data_catalog.variable.allocation.speciality.description</source>
+        <target>Fachgebiet, dem zugewiesen wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe087" resname="data_catalog.variable.allocation.department.label">
+        <source>data_catalog.variable.allocation.department.label</source>
+        <target>Fachbereich</target>
+      </trans-unit>
+      <trans-unit id="dcDe088" resname="data_catalog.variable.allocation.department.description">
+        <source>data_catalog.variable.allocation.department.description</source>
+        <target>Fachbereich, dem zugewiesen wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe089" resname="data_catalog.variable.allocation.department_was_closed.label">
+        <source>data_catalog.variable.allocation.department_was_closed.label</source>
+        <target>Fachbereich war abgemeldet</target>
+      </trans-unit>
+      <trans-unit id="dcDe090" resname="data_catalog.variable.allocation.department_was_closed.description">
+        <source>data_catalog.variable.allocation.department_was_closed.description</source>
+        <target>IVENA-Angabe, ob der Fachbereich bei der Zuweisung abgemeldet war.</target>
+      </trans-unit>
+      <trans-unit id="dcDe091" resname="data_catalog.variable.allocation.assignment.label">
+        <source>data_catalog.variable.allocation.assignment.label</source>
+        <target>Zuweisungstyp</target>
+      </trans-unit>
+      <trans-unit id="dcDe092" resname="data_catalog.variable.allocation.assignment.description">
+        <source>data_catalog.variable.allocation.assignment.description</source>
+        <target>Art der Zuweisung, zum Beispiel Rettungsdienst oder Einweisung.</target>
+      </trans-unit>
+      <trans-unit id="dcDe093" resname="data_catalog.variable.allocation.occasion.label">
+        <source>data_catalog.variable.allocation.occasion.label</source>
+        <target>Anlass</target>
+      </trans-unit>
+      <trans-unit id="dcDe094" resname="data_catalog.variable.allocation.occasion.description">
+        <source>data_catalog.variable.allocation.occasion.description</source>
+        <target>Einsatzanlass laut IVENA.</target>
+      </trans-unit>
+      <trans-unit id="dcDe095" resname="data_catalog.variable.allocation.is_work_accident.label">
+        <source>data_catalog.variable.allocation.is_work_accident.label</source>
+        <target>Arbeitsunfall</target>
+      </trans-unit>
+      <trans-unit id="dcDe096" resname="data_catalog.variable.allocation.is_work_accident.description">
+        <source>data_catalog.variable.allocation.is_work_accident.description</source>
+        <target>Es handelt sich um einen Arbeitsunfall.</target>
+      </trans-unit>
+      <trans-unit id="dcDe097" resname="data_catalog.variable.allocation.dispatch_area.label">
+        <source>data_catalog.variable.allocation.dispatch_area.label</source>
+        <target>Leitstellenbereich</target>
+      </trans-unit>
+      <trans-unit id="dcDe098" resname="data_catalog.variable.allocation.dispatch_area.description">
+        <source>data_catalog.variable.allocation.dispatch_area.description</source>
+        <target>Leitstellenbereich, aus dem zugewiesen wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe099" resname="data_catalog.variable.allocation.state.label">
+        <source>data_catalog.variable.allocation.state.label</source>
+        <target>Bundesland</target>
+      </trans-unit>
+      <trans-unit id="dcDe100" resname="data_catalog.variable.allocation.state.description">
+        <source>data_catalog.variable.allocation.state.description</source>
+        <target>Bundesland des Leitstellenbereichs.</target>
+      </trans-unit>
+      <trans-unit id="dcDe101" resname="data_catalog.group.incident">
+        <source>data_catalog.group.incident</source>
+        <target>Ereignis</target>
+      </trans-unit>
+      <trans-unit id="dcDe102" resname="data_catalog.group.master_data">
+        <source>data_catalog.group.master_data</source>
+        <target>Stammdaten</target>
+      </trans-unit>
+      <trans-unit id="dcDe103" resname="data_catalog.group.structure">
+        <source>data_catalog.group.structure</source>
+        <target>Struktur</target>
+      </trans-unit>
+      <trans-unit id="dcDe104" resname="data_catalog.object.mci_case.title">
+        <source>data_catalog.object.mci_case.title</source>
+        <target>MANV-Fall</target>
+      </trans-unit>
+      <trans-unit id="dcDe105" resname="data_catalog.object.mci_case.description">
+        <source>data_catalog.object.mci_case.description</source>
+        <target>Ein einer Klinik zugewiesener Patient eines Massenanfalls von Verletzten (MANV), aus dem IVENA-Export.</target>
+      </trans-unit>
+      <trans-unit id="dcDe106" resname="data_catalog.object.hospital.title">
+        <source>data_catalog.object.hospital.title</source>
+        <target>Klinik</target>
+      </trans-unit>
+      <trans-unit id="dcDe107" resname="data_catalog.object.hospital.description">
+        <source>data_catalog.object.hospital.description</source>
+        <target>Stammdaten einer Klinik: Struktur, Lage und Teilnahme.</target>
+      </trans-unit>
+      <trans-unit id="dcDe108" resname="data_catalog.variable.mci_case.created_at.label">
+        <source>data_catalog.variable.mci_case.created_at.label</source>
+        <target>Zuweisungszeitpunkt</target>
+      </trans-unit>
+      <trans-unit id="dcDe109" resname="data_catalog.variable.mci_case.created_at.description">
+        <source>data_catalog.variable.mci_case.created_at.description</source>
+        <target>Zeitpunkt, zu dem der MANV-Fall in IVENA angelegt wurde (Ortszeit).</target>
+      </trans-unit>
+      <trans-unit id="dcDe110" resname="data_catalog.variable.mci_case.arrival_at.label">
+        <source>data_catalog.variable.mci_case.arrival_at.label</source>
+        <target>Ankunftszeit</target>
+      </trans-unit>
+      <trans-unit id="dcDe111" resname="data_catalog.variable.mci_case.arrival_at.description">
+        <source>data_catalog.variable.mci_case.arrival_at.description</source>
+        <target>Ankunftszeit in der Klinik laut IVENA (Ortszeit).</target>
+      </trans-unit>
+      <trans-unit id="dcDe112" resname="data_catalog.variable.mci_case.mci_id.label">
+        <source>data_catalog.variable.mci_case.mci_id.label</source>
+        <target>MANV-ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe113" resname="data_catalog.variable.mci_case.mci_id.description">
+        <source>data_catalog.variable.mci_case.mci_id.description</source>
+        <target>Kennung des MANV-Ereignisses; Fälle mit derselben ID gehören zum selben Ereignis.</target>
+      </trans-unit>
+      <trans-unit id="dcDe114" resname="data_catalog.variable.mci_case.mci_title.label">
+        <source>data_catalog.variable.mci_case.mci_title.label</source>
+        <target>MANV-Titel</target>
+      </trans-unit>
+      <trans-unit id="dcDe115" resname="data_catalog.variable.mci_case.mci_title.description">
+        <source>data_catalog.variable.mci_case.mci_title.description</source>
+        <target>Titel des MANV-Ereignisses, wie in IVENA eingegeben.</target>
+      </trans-unit>
+      <trans-unit id="dcDe116" resname="data_catalog.variable.mci_case.age.label">
+        <source>data_catalog.variable.mci_case.age.label</source>
+        <target>Alter</target>
+      </trans-unit>
+      <trans-unit id="dcDe117" resname="data_catalog.variable.mci_case.age.description">
+        <source>data_catalog.variable.mci_case.age.description</source>
+        <target>Alter des Patienten in Jahren.</target>
+      </trans-unit>
+      <trans-unit id="dcDe118" resname="data_catalog.variable.mci_case.gender.label">
+        <source>data_catalog.variable.mci_case.gender.label</source>
+        <target>Geschlecht</target>
+      </trans-unit>
+      <trans-unit id="dcDe119" resname="data_catalog.variable.mci_case.gender.description">
+        <source>data_catalog.variable.mci_case.gender.description</source>
+        <target>Geschlecht des Patienten laut IVENA.</target>
+      </trans-unit>
+      <trans-unit id="dcDe120" resname="data_catalog.variable.mci_case.is_pregnant.label">
+        <source>data_catalog.variable.mci_case.is_pregnant.label</source>
+        <target>Schwanger</target>
+      </trans-unit>
+      <trans-unit id="dcDe121" resname="data_catalog.variable.mci_case.is_pregnant.description">
+        <source>data_catalog.variable.mci_case.is_pregnant.description</source>
+        <target>Die Patientin ist schwanger.</target>
+      </trans-unit>
+      <trans-unit id="dcDe122" resname="data_catalog.variable.mci_case.urgency.label">
+        <source>data_catalog.variable.mci_case.urgency.label</source>
+        <target>Dringlichkeit</target>
+      </trans-unit>
+      <trans-unit id="dcDe123" resname="data_catalog.variable.mci_case.urgency.description">
+        <source>data_catalog.variable.mci_case.urgency.description</source>
+        <target>Sichtungskategorie SK1 bis SK3.</target>
+      </trans-unit>
+      <trans-unit id="dcDe124" resname="data_catalog.variable.mci_case.indication_raw.label">
+        <source>data_catalog.variable.mci_case.indication_raw.label</source>
+        <target>Indikation (Original)</target>
+      </trans-unit>
+      <trans-unit id="dcDe125" resname="data_catalog.variable.mci_case.indication_raw.description">
+        <source>data_catalog.variable.mci_case.indication_raw.description</source>
+        <target>Indikation (PZC) wie in IVENA gemeldet.</target>
+      </trans-unit>
+      <trans-unit id="dcDe126" resname="data_catalog.variable.mci_case.indication_normalized.label">
+        <source>data_catalog.variable.mci_case.indication_normalized.label</source>
+        <target>Indikation (normalisiert)</target>
+      </trans-unit>
+      <trans-unit id="dcDe127" resname="data_catalog.variable.mci_case.indication_normalized.description">
+        <source>data_catalog.variable.mci_case.indication_normalized.description</source>
+        <target>Der Original-Indikation zugeordnete normalisierte Indikation.</target>
+      </trans-unit>
+      <trans-unit id="dcDe128" resname="data_catalog.variable.mci_case.is_cpr.label">
+        <source>data_catalog.variable.mci_case.is_cpr.label</source>
+        <target>Reanimation</target>
+      </trans-unit>
+      <trans-unit id="dcDe129" resname="data_catalog.variable.mci_case.is_cpr.description">
+        <source>data_catalog.variable.mci_case.is_cpr.description</source>
+        <target>Der Patient wird reanimiert.</target>
+      </trans-unit>
+      <trans-unit id="dcDe130" resname="data_catalog.variable.mci_case.is_ventilated.label">
+        <source>data_catalog.variable.mci_case.is_ventilated.label</source>
+        <target>Beatmet</target>
+      </trans-unit>
+      <trans-unit id="dcDe131" resname="data_catalog.variable.mci_case.is_ventilated.description">
+        <source>data_catalog.variable.mci_case.is_ventilated.description</source>
+        <target>Der Patient wird beatmet.</target>
+      </trans-unit>
+      <trans-unit id="dcDe132" resname="data_catalog.variable.mci_case.is_shock.label">
+        <source>data_catalog.variable.mci_case.is_shock.label</source>
+        <target>Schock</target>
+      </trans-unit>
+      <trans-unit id="dcDe133" resname="data_catalog.variable.mci_case.is_shock.description">
+        <source>data_catalog.variable.mci_case.is_shock.description</source>
+        <target>Der Patient ist im Schock.</target>
+      </trans-unit>
+      <trans-unit id="dcDe134" resname="data_catalog.variable.mci_case.infection.label">
+        <source>data_catalog.variable.mci_case.infection.label</source>
+        <target>Infektion</target>
+      </trans-unit>
+      <trans-unit id="dcDe135" resname="data_catalog.variable.mci_case.infection.description">
+        <source>data_catalog.variable.mci_case.infection.description</source>
+        <target>Gemeldete Infektionskrankheit.</target>
+      </trans-unit>
+      <trans-unit id="dcDe136" resname="data_catalog.variable.mci_case.requires_resus.label">
+        <source>data_catalog.variable.mci_case.requires_resus.label</source>
+        <target>Schockraum angefordert</target>
+      </trans-unit>
+      <trans-unit id="dcDe137" resname="data_catalog.variable.mci_case.requires_resus.description">
+        <source>data_catalog.variable.mci_case.requires_resus.description</source>
+        <target>Für den Patienten wurde ein Schockraum angefordert.</target>
+      </trans-unit>
+      <trans-unit id="dcDe138" resname="data_catalog.variable.mci_case.requires_cathlab.label">
+        <source>data_catalog.variable.mci_case.requires_cathlab.label</source>
+        <target>Herzkatheter angefordert</target>
+      </trans-unit>
+      <trans-unit id="dcDe139" resname="data_catalog.variable.mci_case.requires_cathlab.description">
+        <source>data_catalog.variable.mci_case.requires_cathlab.description</source>
+        <target>Für den Patienten wurde ein Herzkatheterlabor angefordert.</target>
+      </trans-unit>
+      <trans-unit id="dcDe140" resname="data_catalog.variable.mci_case.transport_type.label">
+        <source>data_catalog.variable.mci_case.transport_type.label</source>
+        <target>Transportart</target>
+      </trans-unit>
+      <trans-unit id="dcDe141" resname="data_catalog.variable.mci_case.transport_type.description">
+        <source>data_catalog.variable.mci_case.transport_type.description</source>
+        <target>Boden- oder Lufttransport.</target>
+      </trans-unit>
+      <trans-unit id="dcDe142" resname="data_catalog.variable.mci_case.is_with_physician.label">
+        <source>data_catalog.variable.mci_case.is_with_physician.label</source>
+        <target>Arztbegleitung</target>
+      </trans-unit>
+      <trans-unit id="dcDe143" resname="data_catalog.variable.mci_case.is_with_physician.description">
+        <source>data_catalog.variable.mci_case.is_with_physician.description</source>
+        <target>Ein Arzt begleitet den Transport.</target>
+      </trans-unit>
+      <trans-unit id="dcDe144" resname="data_catalog.variable.mci_case.hospital.label">
+        <source>data_catalog.variable.mci_case.hospital.label</source>
+        <target>Klinik</target>
+      </trans-unit>
+      <trans-unit id="dcDe145" resname="data_catalog.variable.mci_case.hospital.description">
+        <source>data_catalog.variable.mci_case.hospital.description</source>
+        <target>Zielklinik des MANV-Patienten.</target>
+      </trans-unit>
+      <trans-unit id="dcDe146" resname="data_catalog.variable.mci_case.speciality.label">
+        <source>data_catalog.variable.mci_case.speciality.label</source>
+        <target>Fachgebiet</target>
+      </trans-unit>
+      <trans-unit id="dcDe147" resname="data_catalog.variable.mci_case.speciality.description">
+        <source>data_catalog.variable.mci_case.speciality.description</source>
+        <target>Fachgebiet, dem zugewiesen wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe148" resname="data_catalog.variable.mci_case.department.label">
+        <source>data_catalog.variable.mci_case.department.label</source>
+        <target>Fachbereich</target>
+      </trans-unit>
+      <trans-unit id="dcDe149" resname="data_catalog.variable.mci_case.department.description">
+        <source>data_catalog.variable.mci_case.department.description</source>
+        <target>Fachbereich, dem zugewiesen wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe150" resname="data_catalog.variable.mci_case.department_was_closed.label">
+        <source>data_catalog.variable.mci_case.department_was_closed.label</source>
+        <target>Fachbereich war abgemeldet</target>
+      </trans-unit>
+      <trans-unit id="dcDe151" resname="data_catalog.variable.mci_case.department_was_closed.description">
+        <source>data_catalog.variable.mci_case.department_was_closed.description</source>
+        <target>IVENA-Angabe, ob der Fachbereich bei der Zuweisung abgemeldet war.</target>
+      </trans-unit>
+      <trans-unit id="dcDe152" resname="data_catalog.variable.mci_case.occasion.label">
+        <source>data_catalog.variable.mci_case.occasion.label</source>
+        <target>Anlass</target>
+      </trans-unit>
+      <trans-unit id="dcDe153" resname="data_catalog.variable.mci_case.occasion.description">
+        <source>data_catalog.variable.mci_case.occasion.description</source>
+        <target>Einsatzanlass laut IVENA.</target>
+      </trans-unit>
+      <trans-unit id="dcDe154" resname="data_catalog.variable.mci_case.dispatch_area.label">
+        <source>data_catalog.variable.mci_case.dispatch_area.label</source>
+        <target>Leitstellenbereich</target>
+      </trans-unit>
+      <trans-unit id="dcDe155" resname="data_catalog.variable.mci_case.dispatch_area.description">
+        <source>data_catalog.variable.mci_case.dispatch_area.description</source>
+        <target>Leitstellenbereich, aus dem zugewiesen wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe156" resname="data_catalog.variable.mci_case.state.label">
+        <source>data_catalog.variable.mci_case.state.label</source>
+        <target>Bundesland</target>
+      </trans-unit>
+      <trans-unit id="dcDe157" resname="data_catalog.variable.mci_case.state.description">
+        <source>data_catalog.variable.mci_case.state.description</source>
+        <target>Bundesland des Leitstellenbereichs.</target>
+      </trans-unit>
+      <trans-unit id="dcDe158" resname="data_catalog.variable.hospital.name.label">
+        <source>data_catalog.variable.hospital.name.label</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="dcDe159" resname="data_catalog.variable.hospital.name.description">
+        <source>data_catalog.variable.hospital.name.description</source>
+        <target>Name der Klinik.</target>
+      </trans-unit>
+      <trans-unit id="dcDe160" resname="data_catalog.variable.hospital.is_participating.label">
+        <source>data_catalog.variable.hospital.is_participating.label</source>
+        <target>Teilnehmend</target>
+      </trans-unit>
+      <trans-unit id="dcDe161" resname="data_catalog.variable.hospital.is_participating.description">
+        <source>data_catalog.variable.hospital.is_participating.description</source>
+        <target>Die Klinik nimmt an der gemeinsamen Statistik teil.</target>
+      </trans-unit>
+      <trans-unit id="dcDe162" resname="data_catalog.variable.hospital.participating_since.label">
+        <source>data_catalog.variable.hospital.participating_since.label</source>
+        <target>Teilnahme seit</target>
+      </trans-unit>
+      <trans-unit id="dcDe163" resname="data_catalog.variable.hospital.participating_since.description">
+        <source>data_catalog.variable.hospital.participating_since.description</source>
+        <target>Datum, ab dem die Klinik teilnimmt.</target>
+      </trans-unit>
+      <trans-unit id="dcDe164" resname="data_catalog.variable.hospital.size.label">
+        <source>data_catalog.variable.hospital.size.label</source>
+        <target>Größe</target>
+      </trans-unit>
+      <trans-unit id="dcDe165" resname="data_catalog.variable.hospital.size.description">
+        <source>data_catalog.variable.hospital.size.description</source>
+        <target>Größenklasse nach Bettenzahl.</target>
+      </trans-unit>
+      <trans-unit id="dcDe166" resname="data_catalog.variable.hospital.beds.label">
+        <source>data_catalog.variable.hospital.beds.label</source>
+        <target>Betten</target>
+      </trans-unit>
+      <trans-unit id="dcDe167" resname="data_catalog.variable.hospital.beds.description">
+        <source>data_catalog.variable.hospital.beds.description</source>
+        <target>Bettenzahl aus den Klinikstammdaten.</target>
+      </trans-unit>
+      <trans-unit id="dcDe168" resname="data_catalog.variable.hospital.tier.label">
+        <source>data_catalog.variable.hospital.tier.label</source>
+        <target>Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="dcDe169" resname="data_catalog.variable.hospital.tier.description">
+        <source>data_catalog.variable.hospital.tier.description</source>
+        <target>Stufe der Notfallversorgung der Klinik.</target>
+      </trans-unit>
+      <trans-unit id="dcDe170" resname="data_catalog.variable.hospital.location.label">
+        <source>data_catalog.variable.hospital.location.label</source>
+        <target>Lage</target>
+      </trans-unit>
+      <trans-unit id="dcDe171" resname="data_catalog.variable.hospital.location.description">
+        <source>data_catalog.variable.hospital.location.description</source>
+        <target>Städtische, gemischte oder ländliche Lage.</target>
+      </trans-unit>
+      <trans-unit id="dcDe172" resname="data_catalog.variable.hospital.postal_code.label">
+        <source>data_catalog.variable.hospital.postal_code.label</source>
+        <target>Postleitzahl</target>
+      </trans-unit>
+      <trans-unit id="dcDe173" resname="data_catalog.variable.hospital.postal_code.description">
+        <source>data_catalog.variable.hospital.postal_code.description</source>
+        <target>Postleitzahl der Klinikadresse.</target>
+      </trans-unit>
+      <trans-unit id="dcDe174" resname="data_catalog.variable.hospital.city.label">
+        <source>data_catalog.variable.hospital.city.label</source>
+        <target>Ort</target>
+      </trans-unit>
+      <trans-unit id="dcDe175" resname="data_catalog.variable.hospital.city.description">
+        <source>data_catalog.variable.hospital.city.description</source>
+        <target>Ort der Klinikadresse.</target>
+      </trans-unit>
+      <trans-unit id="dcDe176" resname="data_catalog.variable.hospital.latitude.label">
+        <source>data_catalog.variable.hospital.latitude.label</source>
+        <target>Breitengrad</target>
+      </trans-unit>
+      <trans-unit id="dcDe177" resname="data_catalog.variable.hospital.latitude.description">
+        <source>data_catalog.variable.hospital.latitude.description</source>
+        <target>Geografische Breite der Klinik (WGS 84).</target>
+      </trans-unit>
+      <trans-unit id="dcDe178" resname="data_catalog.variable.hospital.longitude.label">
+        <source>data_catalog.variable.hospital.longitude.label</source>
+        <target>Längengrad</target>
+      </trans-unit>
+      <trans-unit id="dcDe179" resname="data_catalog.variable.hospital.longitude.description">
+        <source>data_catalog.variable.hospital.longitude.description</source>
+        <target>Geografische Länge der Klinik (WGS 84).</target>
+      </trans-unit>
+      <trans-unit id="dcDe180" resname="data_catalog.variable.hospital.dispatch_area.label">
+        <source>data_catalog.variable.hospital.dispatch_area.label</source>
+        <target>Leitstellenbereich</target>
+      </trans-unit>
+      <trans-unit id="dcDe181" resname="data_catalog.variable.hospital.dispatch_area.description">
+        <source>data_catalog.variable.hospital.dispatch_area.description</source>
+        <target>Leitstellenbereich, zu dem die Klinik gehört.</target>
+      </trans-unit>
+      <trans-unit id="dcDe182" resname="data_catalog.variable.hospital.state.label">
+        <source>data_catalog.variable.hospital.state.label</source>
+        <target>Bundesland</target>
+      </trans-unit>
+      <trans-unit id="dcDe183" resname="data_catalog.variable.hospital.state.description">
+        <source>data_catalog.variable.hospital.state.description</source>
+        <target>Bundesland, in dem die Klinik liegt.</target>
+      </trans-unit>
+      <trans-unit id="dcDe186" resname="data_catalog.object.dispatch_area.title">
+        <source>data_catalog.object.dispatch_area.title</source>
+        <target>Leitstellenbereich</target>
+      </trans-unit>
+      <trans-unit id="dcDe187" resname="data_catalog.object.dispatch_area.description">
+        <source>data_catalog.object.dispatch_area.description</source>
+        <target>Bereich einer Leitstelle; auf ihn beziehen sich die Herkunft der Zuweisungen und der Standort der Kliniken.</target>
+      </trans-unit>
+      <trans-unit id="dcDe188" resname="data_catalog.variable.dispatch_area.name.label">
+        <source>data_catalog.variable.dispatch_area.name.label</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="dcDe189" resname="data_catalog.variable.dispatch_area.name.description">
+        <source>data_catalog.variable.dispatch_area.name.description</source>
+        <target>Name des Leitstellenbereichs, wie er im IVENA-Export verwendet wird.</target>
+      </trans-unit>
+      <trans-unit id="dcDe190" resname="data_catalog.variable.dispatch_area.state.label">
+        <source>data_catalog.variable.dispatch_area.state.label</source>
+        <target>Bundesland</target>
+      </trans-unit>
+      <trans-unit id="dcDe191" resname="data_catalog.variable.dispatch_area.state.description">
+        <source>data_catalog.variable.dispatch_area.state.description</source>
+        <target>Bundesland, zu dem der Leitstellenbereich gehört.</target>
+      </trans-unit>
+      <trans-unit id="dcDe192" resname="data_catalog.object.state.title">
+        <source>data_catalog.object.state.title</source>
+        <target>Bundesland</target>
+      </trans-unit>
+      <trans-unit id="dcDe193" resname="data_catalog.object.state.description">
+        <source>data_catalog.object.state.description</source>
+        <target>Bundesland; fasst Leitstellenbereiche und Kliniken zusammen.</target>
+      </trans-unit>
+      <trans-unit id="dcDe194" resname="data_catalog.variable.state.name.label">
+        <source>data_catalog.variable.state.name.label</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="dcDe195" resname="data_catalog.variable.state.name.description">
+        <source>data_catalog.variable.state.name.description</source>
+        <target>Name des Bundeslands.</target>
+      </trans-unit>
+      <trans-unit id="dcDe196" resname="data_catalog.object.speciality.title">
+        <source>data_catalog.object.speciality.title</source>
+        <target>Fachgebiet</target>
+      </trans-unit>
+      <trans-unit id="dcDe197" resname="data_catalog.object.speciality.description">
+        <source>data_catalog.object.speciality.description</source>
+        <target>Übergreifendes medizinisches Fachgebiet des Ziels, z. B. Innere Medizin oder Chirurgie.</target>
+      </trans-unit>
+      <trans-unit id="dcDe198" resname="data_catalog.variable.speciality.name.label">
+        <source>data_catalog.variable.speciality.name.label</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="dcDe199" resname="data_catalog.variable.speciality.name.description">
+        <source>data_catalog.variable.speciality.name.description</source>
+        <target>Name des Fachgebiets, wie er im IVENA-Export verwendet wird.</target>
+      </trans-unit>
+      <trans-unit id="dcDe200" resname="data_catalog.object.department.title">
+        <source>data_catalog.object.department.title</source>
+        <target>Fachbereich</target>
+      </trans-unit>
+      <trans-unit id="dcDe201" resname="data_catalog.object.department.description">
+        <source>data_catalog.object.department.description</source>
+        <target>Spezialisierte klinische Einheit innerhalb eines Fachgebiets, z. B. Kardiologie.</target>
+      </trans-unit>
+      <trans-unit id="dcDe202" resname="data_catalog.variable.department.name.label">
+        <source>data_catalog.variable.department.name.label</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="dcDe203" resname="data_catalog.variable.department.name.description">
+        <source>data_catalog.variable.department.name.description</source>
+        <target>Name des Fachbereichs, wie er im IVENA-Export verwendet wird.</target>
+      </trans-unit>
+      <trans-unit id="dcDe204" resname="data_catalog.object.indication_normalized.title">
+        <source>data_catalog.object.indication_normalized.title</source>
+        <target>Indikation (normalisiert)</target>
+      </trans-unit>
+      <trans-unit id="dcDe205" resname="data_catalog.object.indication_normalized.description">
+        <source>data_catalog.object.indication_normalized.description</source>
+        <target>Normalisierte Indikation (Patientenzuweisungscode, PZC), der die Rohindikationen aus dem Import zugeordnet werden. Eine Indikation kann zu mehreren Indikationsgruppen gehören.</target>
+      </trans-unit>
+      <trans-unit id="dcDe206" resname="data_catalog.variable.indication_normalized.code.label">
+        <source>data_catalog.variable.indication_normalized.code.label</source>
+        <target>Code</target>
+      </trans-unit>
+      <trans-unit id="dcDe207" resname="data_catalog.variable.indication_normalized.code.description">
+        <source>data_catalog.variable.indication_normalized.code.description</source>
+        <target>Numerischer Patientenzuweisungscode (PZC) der Indikation.</target>
+      </trans-unit>
+      <trans-unit id="dcDe208" resname="data_catalog.variable.indication_normalized.name.label">
+        <source>data_catalog.variable.indication_normalized.name.label</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="dcDe209" resname="data_catalog.variable.indication_normalized.name.description">
+        <source>data_catalog.variable.indication_normalized.name.description</source>
+        <target>Bezeichnung der Indikation.</target>
+      </trans-unit>
+      <trans-unit id="dcDe210" resname="data_catalog.object.indication_group.title">
+        <source>data_catalog.object.indication_group.title</source>
+        <target>Indikationsgruppe</target>
+      </trans-unit>
+      <trans-unit id="dcDe211" resname="data_catalog.object.indication_group.description">
+        <source>data_catalog.object.indication_group.description</source>
+        <target>Gruppierung verwandter Indikationen für vergleichende Analysen. Eine Indikationsgruppe enthält mehrere Indikationen.</target>
+      </trans-unit>
+      <trans-unit id="dcDe212" resname="data_catalog.variable.indication_group.name.label">
+        <source>data_catalog.variable.indication_group.name.label</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="dcDe213" resname="data_catalog.variable.indication_group.name.description">
+        <source>data_catalog.variable.indication_group.name.description</source>
+        <target>Name der Indikationsgruppe.</target>
+      </trans-unit>
+      <trans-unit id="dcDe214" resname="data_catalog.variable.indication_group.category.label">
+        <source>data_catalog.variable.indication_group.category.label</source>
+        <target>Kategorie</target>
+      </trans-unit>
+      <trans-unit id="dcDe215" resname="data_catalog.variable.indication_group.category.description">
+        <source>data_catalog.variable.indication_group.category.description</source>
+        <target>Übergeordnete Kategorie der Gruppe, z. B. die PZC-Kategorie ihrer Codes.</target>
+      </trans-unit>
+      <trans-unit id="dcDe216" resname="data_catalog.object.assignment.title">
+        <source>data_catalog.object.assignment.title</source>
+        <target>Zuweisungstyp</target>
+      </trans-unit>
+      <trans-unit id="dcDe217" resname="data_catalog.object.assignment.description">
+        <source>data_catalog.object.assignment.description</source>
+        <target>Wer die Zuweisung veranlasst hat, z. B. Patient, Arzt oder Rettungsdienst.</target>
+      </trans-unit>
+      <trans-unit id="dcDe218" resname="data_catalog.variable.assignment.name.label">
+        <source>data_catalog.variable.assignment.name.label</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="dcDe219" resname="data_catalog.variable.assignment.name.description">
+        <source>data_catalog.variable.assignment.name.description</source>
+        <target>Name des Zuweisungstyps, wie er im IVENA-Export verwendet wird.</target>
+      </trans-unit>
+      <trans-unit id="dcDe220" resname="data_catalog.object.infection.title">
+        <source>data_catalog.object.infection.title</source>
+        <target>Infektion</target>
+      </trans-unit>
+      <trans-unit id="dcDe221" resname="data_catalog.object.infection.description">
+        <source>data_catalog.object.infection.description</source>
+        <target>Mögliche Infektionskrankheit, die in der Zielklinik eine Isolierung erfordern kann.</target>
+      </trans-unit>
+      <trans-unit id="dcDe222" resname="data_catalog.variable.infection.name.label">
+        <source>data_catalog.variable.infection.name.label</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="dcDe223" resname="data_catalog.variable.infection.name.description">
+        <source>data_catalog.variable.infection.name.description</source>
+        <target>Name der Infektion, wie er im IVENA-Export verwendet wird.</target>
+      </trans-unit>
+      <trans-unit id="dcDe224" resname="data_catalog.object.occasion.title">
+        <source>data_catalog.object.occasion.title</source>
+        <target>Anlass</target>
+      </trans-unit>
+      <trans-unit id="dcDe225" resname="data_catalog.object.occasion.description">
+        <source>data_catalog.object.occasion.description</source>
+        <target>Herkunft oder Kontext des Notfalls, z. B. öffentlicher Raum, Arztpraxis oder häusliches Umfeld.</target>
+      </trans-unit>
+      <trans-unit id="dcDe226" resname="data_catalog.variable.occasion.name.label">
+        <source>data_catalog.variable.occasion.name.label</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="dcDe227" resname="data_catalog.variable.occasion.name.description">
+        <source>data_catalog.variable.occasion.name.description</source>
+        <target>Name des Anlasses, wie er im IVENA-Export verwendet wird.</target>
+      </trans-unit>
+      <trans-unit id="dcDe228" resname="data_catalog.object.secondary_transport.title">
+        <source>data_catalog.object.secondary_transport.title</source>
+        <target>Sekundärtransport</target>
+      </trans-unit>
+      <trans-unit id="dcDe229" resname="data_catalog.object.secondary_transport.description">
+        <source>data_catalog.object.secondary_transport.description</source>
+        <target>Art des Sekundärtransports für Interhospital- oder Folgetransporte.</target>
+      </trans-unit>
+      <trans-unit id="dcDe230" resname="data_catalog.variable.secondary_transport.name.label">
+        <source>data_catalog.variable.secondary_transport.name.label</source>
+        <target>Name</target>
+      </trans-unit>
+      <trans-unit id="dcDe231" resname="data_catalog.variable.secondary_transport.name.description">
+        <source>data_catalog.variable.secondary_transport.name.description</source>
+        <target>Name der Sekundärtransportart, wie er im IVENA-Export verwendet wird.</target>
+      </trans-unit>
+      <trans-unit id="dcDe232" resname="data_catalog.group.record">
+        <source>data_catalog.group.record</source>
+        <target>Datensatz</target>
+      </trans-unit>
+      <trans-unit id="dcDe233" resname="data_catalog.variable.allocation.id.label">
+        <source>data_catalog.variable.allocation.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe234" resname="data_catalog.variable.allocation.id.description">
+        <source>data_catalog.variable.allocation.id.description</source>
+        <target>Eindeutiger numerischer Schlüssel der Zuweisung in der Datenbank; andere Tabellen verweisen darauf.</target>
+      </trans-unit>
+      <trans-unit id="dcDe235" resname="data_catalog.variable.mci_case.id.label">
+        <source>data_catalog.variable.mci_case.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe236" resname="data_catalog.variable.mci_case.id.description">
+        <source>data_catalog.variable.mci_case.id.description</source>
+        <target>Eindeutiger numerischer Schlüssel des MANV-Falls in der Datenbank; andere Tabellen verweisen darauf.</target>
+      </trans-unit>
+      <trans-unit id="dcDe237" resname="data_catalog.variable.hospital.id.label">
+        <source>data_catalog.variable.hospital.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe238" resname="data_catalog.variable.hospital.id.description">
+        <source>data_catalog.variable.hospital.id.description</source>
+        <target>Eindeutiger numerischer Schlüssel der Klinik in der Datenbank; andere Tabellen verweisen darauf.</target>
+      </trans-unit>
+      <trans-unit id="dcDe239" resname="data_catalog.variable.hospital.created_at.label">
+        <source>data_catalog.variable.hospital.created_at.label</source>
+        <target>Angelegt am</target>
+      </trans-unit>
+      <trans-unit id="dcDe240" resname="data_catalog.variable.hospital.created_at.description">
+        <source>data_catalog.variable.hospital.created_at.description</source>
+        <target>Zeitpunkt, zu dem der Datensatz der Klinik in der Datenbank gespeichert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe241" resname="data_catalog.variable.hospital.updated_at.label">
+        <source>data_catalog.variable.hospital.updated_at.label</source>
+        <target>Geändert am</target>
+      </trans-unit>
+      <trans-unit id="dcDe242" resname="data_catalog.variable.hospital.updated_at.description">
+        <source>data_catalog.variable.hospital.updated_at.description</source>
+        <target>Zeitpunkt der letzten Änderung des Datensatzes der Klinik; leer, wenn er nie geändert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe243" resname="data_catalog.variable.dispatch_area.id.label">
+        <source>data_catalog.variable.dispatch_area.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe244" resname="data_catalog.variable.dispatch_area.id.description">
+        <source>data_catalog.variable.dispatch_area.id.description</source>
+        <target>Eindeutiger numerischer Schlüssel des Leitstellenbereichs in der Datenbank; andere Tabellen verweisen darauf.</target>
+      </trans-unit>
+      <trans-unit id="dcDe245" resname="data_catalog.variable.dispatch_area.created_at.label">
+        <source>data_catalog.variable.dispatch_area.created_at.label</source>
+        <target>Angelegt am</target>
+      </trans-unit>
+      <trans-unit id="dcDe246" resname="data_catalog.variable.dispatch_area.created_at.description">
+        <source>data_catalog.variable.dispatch_area.created_at.description</source>
+        <target>Zeitpunkt, zu dem der Datensatz des Leitstellenbereichs in der Datenbank gespeichert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe247" resname="data_catalog.variable.dispatch_area.updated_at.label">
+        <source>data_catalog.variable.dispatch_area.updated_at.label</source>
+        <target>Geändert am</target>
+      </trans-unit>
+      <trans-unit id="dcDe248" resname="data_catalog.variable.dispatch_area.updated_at.description">
+        <source>data_catalog.variable.dispatch_area.updated_at.description</source>
+        <target>Zeitpunkt der letzten Änderung des Datensatzes des Leitstellenbereichs; leer, wenn er nie geändert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe249" resname="data_catalog.variable.state.id.label">
+        <source>data_catalog.variable.state.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe250" resname="data_catalog.variable.state.id.description">
+        <source>data_catalog.variable.state.id.description</source>
+        <target>Eindeutiger numerischer Schlüssel des Bundeslands in der Datenbank; andere Tabellen verweisen darauf.</target>
+      </trans-unit>
+      <trans-unit id="dcDe251" resname="data_catalog.variable.state.created_at.label">
+        <source>data_catalog.variable.state.created_at.label</source>
+        <target>Angelegt am</target>
+      </trans-unit>
+      <trans-unit id="dcDe252" resname="data_catalog.variable.state.created_at.description">
+        <source>data_catalog.variable.state.created_at.description</source>
+        <target>Zeitpunkt, zu dem der Datensatz des Bundeslands in der Datenbank gespeichert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe253" resname="data_catalog.variable.state.updated_at.label">
+        <source>data_catalog.variable.state.updated_at.label</source>
+        <target>Geändert am</target>
+      </trans-unit>
+      <trans-unit id="dcDe254" resname="data_catalog.variable.state.updated_at.description">
+        <source>data_catalog.variable.state.updated_at.description</source>
+        <target>Zeitpunkt der letzten Änderung des Datensatzes des Bundeslands; leer, wenn er nie geändert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe255" resname="data_catalog.variable.indication_normalized.id.label">
+        <source>data_catalog.variable.indication_normalized.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe256" resname="data_catalog.variable.indication_normalized.id.description">
+        <source>data_catalog.variable.indication_normalized.id.description</source>
+        <target>Eindeutiger numerischer Schlüssel der Indikation in der Datenbank; andere Tabellen verweisen darauf.</target>
+      </trans-unit>
+      <trans-unit id="dcDe257" resname="data_catalog.variable.indication_normalized.created_at.label">
+        <source>data_catalog.variable.indication_normalized.created_at.label</source>
+        <target>Angelegt am</target>
+      </trans-unit>
+      <trans-unit id="dcDe258" resname="data_catalog.variable.indication_normalized.created_at.description">
+        <source>data_catalog.variable.indication_normalized.created_at.description</source>
+        <target>Zeitpunkt, zu dem der Datensatz der Indikation in der Datenbank gespeichert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe259" resname="data_catalog.variable.indication_normalized.updated_at.label">
+        <source>data_catalog.variable.indication_normalized.updated_at.label</source>
+        <target>Geändert am</target>
+      </trans-unit>
+      <trans-unit id="dcDe260" resname="data_catalog.variable.indication_normalized.updated_at.description">
+        <source>data_catalog.variable.indication_normalized.updated_at.description</source>
+        <target>Zeitpunkt der letzten Änderung des Datensatzes der Indikation; leer, wenn er nie geändert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe261" resname="data_catalog.variable.indication_group.id.label">
+        <source>data_catalog.variable.indication_group.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe262" resname="data_catalog.variable.indication_group.id.description">
+        <source>data_catalog.variable.indication_group.id.description</source>
+        <target>Eindeutiger numerischer Schlüssel der Indikationsgruppe in der Datenbank; andere Tabellen verweisen darauf.</target>
+      </trans-unit>
+      <trans-unit id="dcDe263" resname="data_catalog.variable.indication_group.created_at.label">
+        <source>data_catalog.variable.indication_group.created_at.label</source>
+        <target>Angelegt am</target>
+      </trans-unit>
+      <trans-unit id="dcDe264" resname="data_catalog.variable.indication_group.created_at.description">
+        <source>data_catalog.variable.indication_group.created_at.description</source>
+        <target>Zeitpunkt, zu dem der Datensatz der Indikationsgruppe in der Datenbank gespeichert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe265" resname="data_catalog.variable.indication_group.updated_at.label">
+        <source>data_catalog.variable.indication_group.updated_at.label</source>
+        <target>Geändert am</target>
+      </trans-unit>
+      <trans-unit id="dcDe266" resname="data_catalog.variable.indication_group.updated_at.description">
+        <source>data_catalog.variable.indication_group.updated_at.description</source>
+        <target>Zeitpunkt der letzten Änderung des Datensatzes der Indikationsgruppe; leer, wenn er nie geändert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe267" resname="data_catalog.variable.speciality.id.label">
+        <source>data_catalog.variable.speciality.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe268" resname="data_catalog.variable.speciality.id.description">
+        <source>data_catalog.variable.speciality.id.description</source>
+        <target>Eindeutiger numerischer Schlüssel des Fachgebiets in der Datenbank; andere Tabellen verweisen darauf.</target>
+      </trans-unit>
+      <trans-unit id="dcDe269" resname="data_catalog.variable.speciality.created_at.label">
+        <source>data_catalog.variable.speciality.created_at.label</source>
+        <target>Angelegt am</target>
+      </trans-unit>
+      <trans-unit id="dcDe270" resname="data_catalog.variable.speciality.created_at.description">
+        <source>data_catalog.variable.speciality.created_at.description</source>
+        <target>Zeitpunkt, zu dem der Datensatz des Fachgebiets in der Datenbank gespeichert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe271" resname="data_catalog.variable.speciality.updated_at.label">
+        <source>data_catalog.variable.speciality.updated_at.label</source>
+        <target>Geändert am</target>
+      </trans-unit>
+      <trans-unit id="dcDe272" resname="data_catalog.variable.speciality.updated_at.description">
+        <source>data_catalog.variable.speciality.updated_at.description</source>
+        <target>Zeitpunkt der letzten Änderung des Datensatzes des Fachgebiets; leer, wenn er nie geändert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe273" resname="data_catalog.variable.department.id.label">
+        <source>data_catalog.variable.department.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe274" resname="data_catalog.variable.department.id.description">
+        <source>data_catalog.variable.department.id.description</source>
+        <target>Eindeutiger numerischer Schlüssel des Fachbereichs in der Datenbank; andere Tabellen verweisen darauf.</target>
+      </trans-unit>
+      <trans-unit id="dcDe275" resname="data_catalog.variable.department.created_at.label">
+        <source>data_catalog.variable.department.created_at.label</source>
+        <target>Angelegt am</target>
+      </trans-unit>
+      <trans-unit id="dcDe276" resname="data_catalog.variable.department.created_at.description">
+        <source>data_catalog.variable.department.created_at.description</source>
+        <target>Zeitpunkt, zu dem der Datensatz des Fachbereichs in der Datenbank gespeichert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe277" resname="data_catalog.variable.department.updated_at.label">
+        <source>data_catalog.variable.department.updated_at.label</source>
+        <target>Geändert am</target>
+      </trans-unit>
+      <trans-unit id="dcDe278" resname="data_catalog.variable.department.updated_at.description">
+        <source>data_catalog.variable.department.updated_at.description</source>
+        <target>Zeitpunkt der letzten Änderung des Datensatzes des Fachbereichs; leer, wenn er nie geändert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe279" resname="data_catalog.variable.assignment.id.label">
+        <source>data_catalog.variable.assignment.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe280" resname="data_catalog.variable.assignment.id.description">
+        <source>data_catalog.variable.assignment.id.description</source>
+        <target>Eindeutiger numerischer Schlüssel des Zuweisungstyps in der Datenbank; andere Tabellen verweisen darauf.</target>
+      </trans-unit>
+      <trans-unit id="dcDe281" resname="data_catalog.variable.assignment.created_at.label">
+        <source>data_catalog.variable.assignment.created_at.label</source>
+        <target>Angelegt am</target>
+      </trans-unit>
+      <trans-unit id="dcDe282" resname="data_catalog.variable.assignment.created_at.description">
+        <source>data_catalog.variable.assignment.created_at.description</source>
+        <target>Zeitpunkt, zu dem der Datensatz des Zuweisungstyps in der Datenbank gespeichert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe283" resname="data_catalog.variable.assignment.updated_at.label">
+        <source>data_catalog.variable.assignment.updated_at.label</source>
+        <target>Geändert am</target>
+      </trans-unit>
+      <trans-unit id="dcDe284" resname="data_catalog.variable.assignment.updated_at.description">
+        <source>data_catalog.variable.assignment.updated_at.description</source>
+        <target>Zeitpunkt der letzten Änderung des Datensatzes des Zuweisungstyps; leer, wenn er nie geändert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe285" resname="data_catalog.variable.infection.id.label">
+        <source>data_catalog.variable.infection.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe286" resname="data_catalog.variable.infection.id.description">
+        <source>data_catalog.variable.infection.id.description</source>
+        <target>Eindeutiger numerischer Schlüssel der Infektion in der Datenbank; andere Tabellen verweisen darauf.</target>
+      </trans-unit>
+      <trans-unit id="dcDe287" resname="data_catalog.variable.infection.created_at.label">
+        <source>data_catalog.variable.infection.created_at.label</source>
+        <target>Angelegt am</target>
+      </trans-unit>
+      <trans-unit id="dcDe288" resname="data_catalog.variable.infection.created_at.description">
+        <source>data_catalog.variable.infection.created_at.description</source>
+        <target>Zeitpunkt, zu dem der Datensatz der Infektion in der Datenbank gespeichert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe289" resname="data_catalog.variable.infection.updated_at.label">
+        <source>data_catalog.variable.infection.updated_at.label</source>
+        <target>Geändert am</target>
+      </trans-unit>
+      <trans-unit id="dcDe290" resname="data_catalog.variable.infection.updated_at.description">
+        <source>data_catalog.variable.infection.updated_at.description</source>
+        <target>Zeitpunkt der letzten Änderung des Datensatzes der Infektion; leer, wenn er nie geändert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe291" resname="data_catalog.variable.occasion.id.label">
+        <source>data_catalog.variable.occasion.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe292" resname="data_catalog.variable.occasion.id.description">
+        <source>data_catalog.variable.occasion.id.description</source>
+        <target>Eindeutiger numerischer Schlüssel des Anlasses in der Datenbank; andere Tabellen verweisen darauf.</target>
+      </trans-unit>
+      <trans-unit id="dcDe293" resname="data_catalog.variable.occasion.created_at.label">
+        <source>data_catalog.variable.occasion.created_at.label</source>
+        <target>Angelegt am</target>
+      </trans-unit>
+      <trans-unit id="dcDe294" resname="data_catalog.variable.occasion.created_at.description">
+        <source>data_catalog.variable.occasion.created_at.description</source>
+        <target>Zeitpunkt, zu dem der Datensatz des Anlasses in der Datenbank gespeichert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe295" resname="data_catalog.variable.occasion.updated_at.label">
+        <source>data_catalog.variable.occasion.updated_at.label</source>
+        <target>Geändert am</target>
+      </trans-unit>
+      <trans-unit id="dcDe296" resname="data_catalog.variable.occasion.updated_at.description">
+        <source>data_catalog.variable.occasion.updated_at.description</source>
+        <target>Zeitpunkt der letzten Änderung des Datensatzes des Anlasses; leer, wenn er nie geändert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe297" resname="data_catalog.variable.secondary_transport.id.label">
+        <source>data_catalog.variable.secondary_transport.id.label</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="dcDe298" resname="data_catalog.variable.secondary_transport.id.description">
+        <source>data_catalog.variable.secondary_transport.id.description</source>
+        <target>Eindeutiger numerischer Schlüssel der Sekundärtransportart in der Datenbank; andere Tabellen verweisen darauf.</target>
+      </trans-unit>
+      <trans-unit id="dcDe299" resname="data_catalog.variable.secondary_transport.created_at.label">
+        <source>data_catalog.variable.secondary_transport.created_at.label</source>
+        <target>Angelegt am</target>
+      </trans-unit>
+      <trans-unit id="dcDe300" resname="data_catalog.variable.secondary_transport.created_at.description">
+        <source>data_catalog.variable.secondary_transport.created_at.description</source>
+        <target>Zeitpunkt, zu dem der Datensatz der Sekundärtransportart in der Datenbank gespeichert wurde.</target>
+      </trans-unit>
+      <trans-unit id="dcDe301" resname="data_catalog.variable.secondary_transport.updated_at.label">
+        <source>data_catalog.variable.secondary_transport.updated_at.label</source>
+        <target>Geändert am</target>
+      </trans-unit>
+      <trans-unit id="dcDe302" resname="data_catalog.variable.secondary_transport.updated_at.description">
+        <source>data_catalog.variable.secondary_transport.updated_at.description</source>
+        <target>Zeitpunkt der letzten Änderung des Datensatzes der Sekundärtransportart; leer, wenn er nie geändert wurde.</target>
+      </trans-unit>
+      <trans-unit id="harTitleNewDe" resname="hospital_assignment_request.title.new">
+        <source>hospital_assignment_request.title.new</source>
+        <target>Klinikzuordnung beantragen</target>
+      </trans-unit>
+      <trans-unit id="harTitleListDe" resname="hospital_assignment_request.title.list">
+        <source>hospital_assignment_request.title.list</source>
+        <target>Meine Zuordnungsanträge</target>
+      </trans-unit>
+      <trans-unit id="harIntroDe" resname="hospital_assignment_request.intro">
+        <source>hospital_assignment_request.intro</source>
+        <target>Beantragen Sie die Zuordnung zu einer Klinik, für die Sie arbeiten. Ein:e Administrator:in prüft den Antrag und entscheidet, welchen Zugang Sie erhalten.</target>
+      </trans-unit>
+      <trans-unit id="harFieldHospitalDe" resname="hospital_assignment_request.field.hospital">
+        <source>hospital_assignment_request.field.hospital</source>
+        <target>Klinik</target>
+      </trans-unit>
+      <trans-unit id="harFieldHospitalHelpDe" resname="hospital_assignment_request.field.hospital_help">
+        <source>hospital_assignment_request.field.hospital_help</source>
+        <target>Wählen Sie Ihre Klinik aus der Liste. Ist sie nicht aufgeführt, geben Sie ihren Namen ein: Ein:e Administrator:in ordnet ihn zu.</target>
+      </trans-unit>
+      <trans-unit id="harFieldHospitalPlaceholderDe" resname="hospital_assignment_request.field.hospital_placeholder">
+        <source>hospital_assignment_request.field.hospital_placeholder</source>
+        <target>Namen der Klinik eingeben</target>
+      </trans-unit>
+      <trans-unit id="harFieldReasonDe" resname="hospital_assignment_request.field.reason">
+        <source>hospital_assignment_request.field.reason</source>
+        <target>Ihr Bezug zur Klinik</target>
+      </trans-unit>
+      <trans-unit id="harFieldExplanationDe" resname="hospital_assignment_request.field.explanation">
+        <source>hospital_assignment_request.field.explanation</source>
+        <target>Erläuterung</target>
+      </trans-unit>
+      <trans-unit id="harFieldExplanationHelpDe" resname="hospital_assignment_request.field.explanation_help">
+        <source>hospital_assignment_request.field.explanation_help</source>
+        <target>Pflicht bei „Sonstiges“.</target>
+      </trans-unit>
+      <trans-unit id="harFieldCommentDe" resname="hospital_assignment_request.field.comment">
+        <source>hospital_assignment_request.field.comment</source>
+        <target>Kommentar an die Administrator:innen (optional)</target>
+      </trans-unit>
+      <trans-unit id="uploadAuthAllocation0De" resname="hospital_assignment_request.field.upload_authority">
+        <source>hospital_assignment_request.field.upload_authority</source>
+        <target>Ich bin berechtigt, für diese Klinik Daten hochzuladen.</target>
+      </trans-unit>
+      <trans-unit id="uploadAuthAllocation1De" resname="hospital_assignment_request.field.upload_authority_help">
+        <source>hospital_assignment_request.field.upload_authority_help</source>
+        <target>Nur wenn Sie Daten hochladen werden. Andernfalls bestätigen Sie es vor dem ersten Upload.</target>
+      </trans-unit>
+      <trans-unit id="harReasonEdLeadershipDe" resname="hospital_assignment_request.reason.ed_leadership">
+        <source>hospital_assignment_request.reason.ed_leadership</source>
+        <target>Leitung der Notaufnahme</target>
+      </trans-unit>
+      <trans-unit id="harReasonHospitalManagementDe" resname="hospital_assignment_request.reason.hospital_management">
+        <source>hospital_assignment_request.reason.hospital_management</source>
+        <target>Klinikleitung</target>
+      </trans-unit>
+      <trans-unit id="harReasonDataSubmissionDe" resname="hospital_assignment_request.reason.data_submission">
+        <source>hospital_assignment_request.reason.data_submission</source>
+        <target>Verantwortlich für die Datenlieferung</target>
+      </trans-unit>
+      <trans-unit id="harReasonOtherDe" resname="hospital_assignment_request.reason.other">
+        <source>hospital_assignment_request.reason.other</source>
+        <target>Sonstiges</target>
+      </trans-unit>
+      <trans-unit id="harActionSubmitDe" resname="hospital_assignment_request.action.submit">
+        <source>hospital_assignment_request.action.submit</source>
+        <target>Antrag senden</target>
+      </trans-unit>
+      <trans-unit id="harActionNewDe" resname="hospital_assignment_request.action.new">
+        <source>hospital_assignment_request.action.new</source>
+        <target>Klinikzuordnung beantragen</target>
+      </trans-unit>
+      <trans-unit id="harActionWithdrawDe" resname="hospital_assignment_request.action.withdraw">
+        <source>hospital_assignment_request.action.withdraw</source>
+        <target>Antrag zurückziehen</target>
+      </trans-unit>
+      <trans-unit id="harActionWithdrawConfirmDe" resname="hospital_assignment_request.action.withdraw_confirm">
+        <source>hospital_assignment_request.action.withdraw_confirm</source>
+        <target>Diesen Antrag zurückziehen?</target>
+      </trans-unit>
+      <trans-unit id="harActionRequestForHospitalDe" resname="hospital_assignment_request.action.request_for_hospital">
+        <source>hospital_assignment_request.action.request_for_hospital</source>
+        <target>Zuordnung beantragen</target>
+      </trans-unit>
+      <trans-unit id="harActionPendingDe" resname="hospital_assignment_request.action.pending">
+        <source>hospital_assignment_request.action.pending</source>
+        <target>Antrag offen</target>
+      </trans-unit>
+      <trans-unit id="harWhatHappensTitleDe" resname="hospital_assignment_request.what_happens.title">
+        <source>hospital_assignment_request.what_happens.title</source>
+        <target>Wie es weitergeht</target>
+      </trans-unit>
+      <trans-unit id="harWhatHappensTextDe" resname="hospital_assignment_request.what_happens.text">
+        <source>hospital_assignment_request.what_happens.text</source>
+        <target>Ein:e Administrator:in prüft Ihren Antrag. Sie werden über die Entscheidung benachrichtigt und sehen den Stand unter „Meine Zuordnungsanträge“. Ein Antrag allein gibt Ihnen noch keinen Zugang.</target>
+      </trans-unit>
+      <trans-unit id="harStatusPendingDe" resname="hospital_assignment_request.status.pending">
+        <source>hospital_assignment_request.status.pending</source>
+        <target>Offen</target>
+      </trans-unit>
+      <trans-unit id="harStatusApprovedDe" resname="hospital_assignment_request.status.approved">
+        <source>hospital_assignment_request.status.approved</source>
+        <target>Angenommen</target>
+      </trans-unit>
+      <trans-unit id="harStatusRejectedDe" resname="hospital_assignment_request.status.rejected">
+        <source>hospital_assignment_request.status.rejected</source>
+        <target>Abgelehnt</target>
+      </trans-unit>
+      <trans-unit id="harStatusWithdrawnDe" resname="hospital_assignment_request.status.withdrawn">
+        <source>hospital_assignment_request.status.withdrawn</source>
+        <target>Zurückgezogen</target>
+      </trans-unit>
+      <trans-unit id="harNotInListDe" resname="hospital_assignment_request.not_in_list">
+        <source>hospital_assignment_request.not_in_list</source>
+        <target>Nicht in der Liste</target>
+      </trans-unit>
+      <trans-unit id="harOutcomeAccessGrantDe" resname="hospital_assignment_request.outcome.access_grant">
+        <source>hospital_assignment_request.outcome.access_grant</source>
+        <target>Sie haben Zugang zu dieser Klinik erhalten.</target>
+      </trans-unit>
+      <trans-unit id="harOutcomeOwnershipDe" resname="hospital_assignment_request.outcome.ownership">
+        <source>hospital_assignment_request.outcome.ownership</source>
+        <target>Sie sind jetzt Eigentümerin oder Eigentümer dieser Klinik.</target>
+      </trans-unit>
+      <trans-unit id="harDecisionMessageDe" resname="hospital_assignment_request.decision_message">
+        <source>hospital_assignment_request.decision_message</source>
+        <target>Nachricht der Administrator:innen</target>
+      </trans-unit>
+      <trans-unit id="harCardMenuDe" resname="hospital_assignment_request.card.menu">
+        <source>hospital_assignment_request.card.menu</source>
+        <target>Aktionen</target>
+      </trans-unit>
+      <trans-unit id="harCardReasonDe" resname="hospital_assignment_request.card.reason">
+        <source>hospital_assignment_request.card.reason</source>
+        <target>Bezug zur Klinik</target>
+      </trans-unit>
+      <trans-unit id="harCardSubmittedDe" resname="hospital_assignment_request.card.submitted">
+        <source>hospital_assignment_request.card.submitted</source>
+        <target>Gestellt am</target>
+      </trans-unit>
+      <trans-unit id="harCardClosedApprovedDe" resname="hospital_assignment_request.card.closed.approved">
+        <source>hospital_assignment_request.card.closed.approved</source>
+        <target>Angenommen am</target>
+      </trans-unit>
+      <trans-unit id="harCardClosedRejectedDe" resname="hospital_assignment_request.card.closed.rejected">
+        <source>hospital_assignment_request.card.closed.rejected</source>
+        <target>Abgelehnt am</target>
+      </trans-unit>
+      <trans-unit id="harCardClosedWithdrawnDe" resname="hospital_assignment_request.card.closed.withdrawn">
+        <source>hospital_assignment_request.card.closed.withdrawn</source>
+        <target>Zurückgezogen am</target>
+      </trans-unit>
+      <trans-unit id="harCardExplanationDe" resname="hospital_assignment_request.card.explanation">
+        <source>hospital_assignment_request.card.explanation</source>
+        <target>Erläuterung</target>
+      </trans-unit>
+      <trans-unit id="harCardCommentDe" resname="hospital_assignment_request.card.comment">
+        <source>hospital_assignment_request.card.comment</source>
+        <target>Ihr Kommentar</target>
+      </trans-unit>
+      <trans-unit id="harEmptyTitleDe" resname="hospital_assignment_request.empty.title">
+        <source>hospital_assignment_request.empty.title</source>
+        <target>Noch keine Anträge</target>
+      </trans-unit>
+      <trans-unit id="harEmptyDescriptionDe" resname="hospital_assignment_request.empty.description">
+        <source>hospital_assignment_request.empty.description</source>
+        <target>Beantragen Sie die Zuordnung zu der Klinik, für die Sie arbeiten.</target>
+      </trans-unit>
+      <trans-unit id="harFlashSubmittedDe" resname="hospital_assignment_request.flash.submitted">
+        <source>hospital_assignment_request.flash.submitted</source>
+        <target>Ihr Antrag wurde gesendet. Sie werden über die Entscheidung benachrichtigt.</target>
+      </trans-unit>
+      <trans-unit id="harFlashWithdrawnDe" resname="hospital_assignment_request.flash.withdrawn">
+        <source>hospital_assignment_request.flash.withdrawn</source>
+        <target>Ihr Antrag wurde zurückgezogen.</target>
+      </trans-unit>
+      <trans-unit id="harRefusedAlreadyAssignedDe" resname="hospital_assignment_request.refused.already_assigned">
+        <source>hospital_assignment_request.refused.already_assigned</source>
+        <target>Sie haben bereits Zugang zu dieser Klinik.</target>
+      </trans-unit>
+      <trans-unit id="harRefusedAlreadyPendingDe" resname="hospital_assignment_request.refused.already_pending">
+        <source>hospital_assignment_request.refused.already_pending</source>
+        <target>Für diese Klinik gibt es bereits einen offenen Antrag von Ihnen.</target>
+      </trans-unit>
+      <trans-unit id="harRefusedNotOwnDe" resname="hospital_assignment_request.refused.not_own">
+        <source>hospital_assignment_request.refused.not_own</source>
+        <target>Dieser Antrag gehört einer anderen Person.</target>
+      </trans-unit>
+      <trans-unit id="harRefusedNotPendingDe" resname="hospital_assignment_request.refused.not_pending">
+        <source>hospital_assignment_request.refused.not_pending</source>
+        <target>Dieser Antrag wurde bereits entschieden oder zurückgezogen.</target>
+      </trans-unit>
+      <trans-unit id="harRefDeHospitalAssignmentRequestRefusedChangedMeanwhile" resname="hospital_assignment_request.refused.changed_meanwhile">
+        <source>hospital_assignment_request.refused.changed_meanwhile</source>
+        <target>Der Antrag wurde inzwischen geändert. Bitte prüfen Sie ihn erneut und entscheiden Sie neu.</target>
+      </trans-unit>
+      <trans-unit id="harRefDeHospitalAssignmentRequestRefusedOwnerChanged" resname="hospital_assignment_request.refused.owner_changed">
+        <source>hospital_assignment_request.refused.owner_changed</source>
+        <target>Die Eigentümerschaft der Klinik hat sich inzwischen geändert. Bitte prüfen Sie die Übertragung erneut.</target>
+      </trans-unit>
+      <trans-unit id="harRefDeHospitalAssignmentRequestRefusedHospitalRequired" resname="hospital_assignment_request.refused.hospital_required">
+        <source>hospital_assignment_request.refused.hospital_required</source>
+        <target>Ordnen Sie den Antrag zuerst einer bestehenden Klinik zu.</target>
+      </trans-unit>
+      <trans-unit id="harRefDeHospitalAssignmentRequestRefusedPreviousOwnerChoiceRequired" resname="hospital_assignment_request.refused.previous_owner_choice_required">
+        <source>hospital_assignment_request.refused.previous_owner_choice_required</source>
+        <target>Wählen Sie, was mit dem Zugang der bisherigen Eigentümerschaft geschieht.</target>
+      </trans-unit>
+      <trans-unit id="harRefDeHospitalAssignmentRequestRefusedInvalidPermissions" resname="hospital_assignment_request.refused.invalid_permissions">
+        <source>hospital_assignment_request.refused.invalid_permissions</source>
+        <target>Wählen Sie mindestens die Berechtigung, die Klinik zu sehen.</target>
+      </trans-unit>
+      <trans-unit id="dataSourcestitleDe" resname="data_sources.title">
+        <source>data_sources.title</source>
+        <target>Datenquellen und Lizenzen</target>
+      </trans-unit>
+      <trans-unit id="dataSourcesintroDe" resname="data_sources.intro">
+        <source>data_sources.intro</source>
+        <target>Diese Installation nutzt die folgenden geografischen Datenquellen. Hier stehen ihre Verwendung, Lizenz und der jeweilige Quellenvermerk.</target>
+      </trans-unit>
+      <trans-unit id="dataSourcesfielduseDe" resname="data_sources.field.use">
+        <source>data_sources.field.use</source>
+        <target>Verwendung</target>
+      </trans-unit>
+      <trans-unit id="dataSourcesfieldlicenceDe" resname="data_sources.field.licence">
+        <source>data_sources.field.licence</source>
+        <target>Lizenz</target>
+      </trans-unit>
+      <trans-unit id="dataSourcesfieldattributionDe" resname="data_sources.field.attribution">
+        <source>data_sources.field.attribution</source>
+        <target>Quellenvermerk</target>
+      </trans-unit>
+      <trans-unit id="dataSourcesuseboundariesDe" resname="data_sources.use.boundaries">
+        <source>data_sources.use.boundaries</source>
+        <target>Kreisgrenzen</target>
+      </trans-unit>
+      <trans-unit id="dataSourcesusegeocodingDe" resname="data_sources.use.geocoding">
+        <source>data_sources.use.geocoding</source>
+        <target>Geokodierung von Klinikadressen</target>
+      </trans-unit>
+      <trans-unit id="dataSourcesuseisochronesDe" resname="data_sources.use.isochrones">
+        <source>data_sources.use.isochrones</source>
+        <target>Fahrzeit-Isochronen</target>
+      </trans-unit>
+      <trans-unit id="dataSourcesusetilesDe" resname="data_sources.use.tiles">
+        <source>data_sources.use.tiles</source>
+        <target>Kartenhintergrund</target>
+      </trans-unit>
+      <trans-unit id="dataSourcesconfigured_tilesDe" resname="data_sources.configured_tiles">
+        <source>data_sources.configured_tiles</source>
+        <target>Konfigurierter Kartendienst</target>
+      </trans-unit>
+      <trans-unit id="dataSourceslicence_of_providerDe" resname="data_sources.licence_of_provider">
+        <source>data_sources.licence_of_provider</source>
+        <target>Siehe Quellenvermerk des Anbieters</target>
       </trans-unit>
     </body>
   </file>

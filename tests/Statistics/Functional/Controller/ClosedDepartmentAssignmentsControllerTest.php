@@ -42,7 +42,7 @@ final class ClosedDepartmentAssignmentsControllerTest extends WebTestCase
 
         $this->loginAsRoleUser($client);
         $client->enableProfiler();
-        $crawler = $client->request(Request::METHOD_GET, '/statistics/closed-department-assignments?scope=public&period=all');
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/closed-department-assignments?scope=public&period=last_12_months');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('[data-testid="stats-closed-department-heading-subtitle"]', 'Assignments despite a closed department');
@@ -157,7 +157,7 @@ final class ClosedDepartmentAssignmentsControllerTest extends WebTestCase
         $this->loginAsRoleUser($client);
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/closed-department-assignments/rankings?scope=public&period=all&closedCount=4',
+            '/statistics/closed-department-assignments/rankings?scope=public&period=last_12_months&closedCount=4',
         );
 
         $this->assertResponseIsSuccessful();
@@ -190,7 +190,7 @@ final class ClosedDepartmentAssignmentsControllerTest extends WebTestCase
         $this->loginAsRoleUser($client);
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/closed-department-assignments/cards/indication?scope=public&period=all&closedCount=4',
+            '/statistics/closed-department-assignments/cards/indication?scope=public&period=last_12_months&closedCount=4',
         );
 
         $this->assertResponseIsSuccessful();
@@ -213,7 +213,7 @@ final class ClosedDepartmentAssignmentsControllerTest extends WebTestCase
         $this->loginAsRoleUser($client);
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closed-department-assignments/cards/dispatch-area?scope=public&period=all&closedCount=4',
+            '/statistics/closed-department-assignments/cards/dispatch-area?scope=public&period=last_12_months&closedCount=4',
         );
 
         $this->assertResponseIsSuccessful();
@@ -228,7 +228,7 @@ final class ClosedDepartmentAssignmentsControllerTest extends WebTestCase
         $this->seedClosedAllocations();
 
         $this->loginAsRoleUser($client);
-        $crawler = $client->request(Request::METHOD_GET, '/statistics/closed-department-assignments/details?scope=public&period=all');
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/closed-department-assignments/details?scope=public&period=last_12_months');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('turbo-frame#stats-closed-department-details');
@@ -241,9 +241,11 @@ final class ClosedDepartmentAssignmentsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-closed-department-clinical"] .progress-bar.bg-secondary');
         $this->assertSelectorNotExists('[data-testid="stats-closed-department-dispatch-areas"]');
         $this->assertSelectorExists('[data-testid="stats-closed-department-inline-compare-hint"]');
-        $this->assertSelectorTextContains('[data-testid="stats-closed-department-urgency"]', '+100,0%');
-        $this->assertSelectorExists('[data-testid="stats-closed-department-urgency"] .text-green');
-        $this->assertSelectorExists('[data-testid="stats-closed-department-urgency"] .text-red');
+        $this->assertSelectorTextContains('[data-testid="stats-closed-department-urgency"]', '+100,0 pp');
+        // Share differences are descriptive, so they carry no assessment colour (#1230).
+        $this->assertSelectorExists('[data-testid="stats-closed-department-urgency"] span.text-secondary[aria-label]');
+        $this->assertSelectorNotExists('[data-testid="stats-closed-department-urgency"] .text-green');
+        $this->assertSelectorNotExists('[data-testid="stats-closed-department-urgency"] .text-red');
 
         $payloadJson = (string) $crawler->filter('[data-controller="closed-department-assignments-charts"]')
             ->attr('data-closed-department-assignments-charts-payload-value');
@@ -260,7 +262,7 @@ final class ClosedDepartmentAssignmentsControllerTest extends WebTestCase
         $this->seedRegularOnlyAllocations();
 
         $this->loginAsRoleUser($client);
-        $client->request(Request::METHOD_GET, '/statistics/closed-department-assignments?scope=public&period=all');
+        $client->request(Request::METHOD_GET, '/statistics/closed-department-assignments?scope=public&period=last_12_months');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-closed-department-empty"]');
@@ -278,7 +280,7 @@ final class ClosedDepartmentAssignmentsControllerTest extends WebTestCase
         $this->seedClosedAllocations();
 
         $this->loginAsParticipant($client);
-        $client->request(Request::METHOD_GET, '/statistics/closed-department-assignments?scope=public&period=all');
+        $client->request(Request::METHOD_GET, '/statistics/closed-department-assignments?scope=public&period=last_12_months');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-closed-department-explore-all"]');

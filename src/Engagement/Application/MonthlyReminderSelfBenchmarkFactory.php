@@ -29,7 +29,7 @@ final readonly class MonthlyReminderSelfBenchmarkFactory
         );
         $baselineFilter = $this->filterFactory->createPrimaryFilter(
             $hospitalId,
-            StatisticsFilterPeriod::All,
+            StatisticsFilterPeriod::Last12Months,
             null,
             null,
         );

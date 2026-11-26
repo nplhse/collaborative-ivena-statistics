@@ -5,26 +5,31 @@ declare(strict_types=1);
 namespace App\Allocation\Infrastructure\Repository;
 
 use App\Allocation\Application\Contracts\HospitalLookupInterface;
+use App\Allocation\Application\Contracts\MyHospitalsReaderInterface;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\Domain\Entity\HospitalAccessGrant;
 use App\Allocation\Domain\Entity\State;
 use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
 use App\Allocation\UI\Http\DTO\HospitalQueryParametersDTO;
+use App\Shared\Infrastructure\Doctrine\SortDirections;
 use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * @extends ServiceEntityRepository<Hospital>
  */
-final class HospitalRepository extends ServiceEntityRepository implements HospitalLookupInterface
+final class HospitalRepository extends ServiceEntityRepository implements HospitalLookupInterface, MyHospitalsReaderInterface
 {
     use PublicIdRepositoryTrait;
 
@@ -98,6 +103,39 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
         return $names;
     }
 
+    /**
+     * Every hospital as a choice of the hospital assignment request form (#975), by name: public id and a label
+     * with the city, so hospitals of the same name can be told apart.
+     *
+     * @return list<array{publicId: string, label: string}>
+     */
+    public function findAssignmentRequestChoices(): array
+    {
+        /** @var list<array{publicId: Uuid|string, name: string|null, city: string|null}> $rows */
+        $rows = $this->createQueryBuilder('h')
+            ->select('h.publicId', 'h.name', 'h.address.city AS city')
+            ->orderBy('h.name', 'ASC')
+            ->addOrderBy('h.id', 'ASC')
+            ->getQuery()
+            ->getArrayResult();
+
+        $choices = [];
+        foreach ($rows as $row) {
+            $name = trim((string) $row['name']);
+            if ('' === $name) {
+                continue;
+            }
+
+            $city = trim((string) $row['city']);
+            $choices[] = [
+                'publicId' => $row['publicId'] instanceof Uuid ? $row['publicId']->toRfc4122() : (string) $row['publicId'],
+                'label' => '' === $city ? $name : sprintf('%s (%s)', $name, $city),
+            ];
+        }
+
+        return $choices;
+    }
+
     public function countParticipating(): int
     {
         return (int) $this->createQueryBuilder('h')
@@ -126,7 +164,7 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
     public function getQueryBuilderForHospitalsWithPermission(User $user, HospitalPermission $permission): QueryBuilder
     {
         $qb = $this->createQueryBuilder('h')
-            ->orderBy('h.name', 'ASC');
+            ->orderBy('h.name', \SortDirection::Ascending);
 
         if (\in_array(UserRole::ADMIN, $user->getRoles(), true)) {
             return $qb;
@@ -169,20 +207,40 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
     }
 
     /**
-     * @return list<Hospital>
+     * Unlike {@see getQueryBuilderForHospitalsWithPermission()} there is no admin bypass.
+     *
+     * @return list<array{hospital: Hospital, owned: bool, grantPermissions: int|null}>
      */
-    public function findOwnedByUser(User $user): array
+    #[\Override]
+    public function findOwnedOrGrantedForUser(User $user): array
     {
-        /** @var list<Hospital> $hospitals */
-        $hospitals = $this->createQueryBuilder('h')
-            ->innerJoin('h.owner', 'o')
-            ->andWhere('o = :user')
-            ->setParameter('user', $user->getId())
-            ->orderBy('h.name', 'ASC')
+        $userId = $user->getId();
+        if (null === $userId) {
+            return [];
+        }
+
+        /** @var list<array{0: Hospital, ownerId: int|string|null, grantPermissions: int|string|null}> $rows */
+        $rows = $this->createQueryBuilder('h')
+            // State and dispatch area are shown on every card; fetch them here instead of one query per hospital.
+            ->addSelect('s', 'da', 'IDENTITY(h.owner) AS ownerId', 'g.permissions AS grantPermissions')
+            ->leftJoin('h.state', 's')
+            ->leftJoin('h.dispatchArea', 'da')
+            ->leftJoin(HospitalAccessGrant::class, 'g', Join::WITH, 'g.hospital = h AND IDENTITY(g.user) = :userId')
+            ->andWhere('IDENTITY(h.owner) = :userId OR g.id IS NOT NULL')
+            ->setParameter('userId', $userId, Types::INTEGER)
+            ->orderBy('h.name', \SortDirection::Ascending)
+            ->addOrderBy('h.id', \SortDirection::Ascending)
             ->getQuery()
             ->getResult();
 
-        return $hospitals;
+        return array_map(
+            static fn (array $row): array => [
+                'hospital' => $row[0],
+                'owned' => null !== $row['ownerId'] && (int) $row['ownerId'] === $userId,
+                'grantPermissions' => null === $row['grantPermissions'] ? null : (int) $row['grantPermissions'],
+            ],
+            $rows,
+        );
     }
 
     public function hospitalListQuery(HospitalQueryParametersDTO $queryParametersDTO): QueryBuilder
@@ -229,8 +287,8 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
         }
 
         // The id tie-breaker keeps rows with equal sort values on a stable page.
-        $qb->orderBy($field, $queryParametersDTO->orderBy)
-            ->addOrderBy('h.id', $queryParametersDTO->orderBy);
+        $qb->orderBy($field, SortDirections::fromString($queryParametersDTO->orderBy))
+            ->addOrderBy('h.id', SortDirections::fromString($queryParametersDTO->orderBy));
 
         if (null !== $queryParametersDTO->search) {
             $qb->andWhere($qb->expr()->like('h.name', ':search'))
@@ -269,7 +327,7 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
         /** @var list<array{id: int|string, name: string}> $rows */
         $rows = $this->createQueryBuilder('h')
             ->select('h.id AS id', 'h.name AS name')
-            ->orderBy('h.name', 'ASC')
+            ->orderBy('h.name', \SortDirection::Ascending)
             ->getQuery()
             ->getArrayResult();
 
@@ -334,7 +392,7 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
     {
         $rows = $this->getQueryBuilderForHospitalsWithPermission($user, HospitalPermission::Export)
             ->select('h.id AS id', 'h.name AS name')
-            ->orderBy('h.name', 'ASC')
+            ->orderBy('h.name', \SortDirection::Ascending)
             ->getQuery()
             ->getArrayResult();
 
@@ -366,8 +424,8 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
             ->innerJoin('h.state', 's')
             ->andWhere('h.state = :state')
             ->setParameter('state', $stateId, Types::INTEGER)
-            ->orderBy('h.name', 'ASC')
-            ->addOrderBy('h.id', 'ASC')
+            ->orderBy('h.name', \SortDirection::Ascending)
+            ->addOrderBy('h.id', \SortDirection::Ascending)
             ->getQuery()
             ->getResult();
 
@@ -389,8 +447,8 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
         $hospitals = $this->createQueryBuilder('h')
             ->andWhere('h.dispatchArea = :dispatchArea')
             ->setParameter('dispatchArea', $dispatchAreaId, Types::INTEGER)
-            ->orderBy('h.name', 'ASC')
-            ->addOrderBy('h.id', 'ASC')
+            ->orderBy('h.name', \SortDirection::Ascending)
+            ->addOrderBy('h.id', \SortDirection::Ascending)
             ->getQuery()
             ->getResult();
 
@@ -407,7 +465,7 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
             ->addSelect('o')
             ->innerJoin('h.owner', 'o')
             ->andWhere('h.isParticipating = true')
-            ->orderBy('h.id', 'ASC')
+            ->orderBy('h.id', \SortDirection::Ascending)
             ->getQuery()
             ->getResult();
 

@@ -29,6 +29,8 @@ final readonly class ImportDataCoverageCalculator
         return match ($import->getType()) {
             ImportType::CLOSURE => $this->reader->closureCoverage($importId),
             ImportType::ALLOCATION => $this->reader->allocationCoverage($importId),
+            // Calculated by the encounter import from its own rows (Import does not read encounter tables).
+            ImportType::ENCOUNTER => $import->getDataCoverage(),
             null => null,
         };
     }

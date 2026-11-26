@@ -1,0 +1,53 @@
+{# Inside the Card content, `this` is the Card; keep a handle on the KpiCard. #}
+{% set kpi = this %}
+<twig:Card :href="href" {{ ...attributes }}>
+    <div class="d-flex align-items-start gap-3">
+        {% if icon %}
+            <span class="avatar avatar-sm bg-primary-lt text-primary flex-shrink-0" aria-hidden="true">
+                {{ ux_icon(icon, {style: 'height: 1.25em;'}) }}
+            </span>
+        {% endif %}
+        <div class="min-w-0 flex-fill">
+            <div class="subheader text-wrap">{{ label }}</div>
+            <div class="h1 mb-0">
+                {%- if value is null -%}
+                    <span aria-hidden="true">—</span><span class="visually-hidden">{{ 'kpi.value.unavailable'|trans({}, 'shared') }}</span>
+                {%- elseif kpi.numericValue -%}
+                    {{ value|format_number({max_fraction_digit: fractionDigits}) }}
+                {%- else -%}
+                    {{ value }}
+                {%- endif -%}
+                {%- if unit and value is not null %} <span class="fs-3 text-secondary">{{ unit }}</span>{% endif -%}
+            </div>
+            {% if description %}
+                <div class="text-secondary small mt-1">{{ description }}</div>
+            {% endif %}
+            {% if kpi.trendDirection %}
+                <div class="d-flex flex-wrap align-items-center gap-1 small mt-1" data-kpi-trend="{{ kpi.trendDirection }}">
+                    <span class="d-inline-flex align-items-center gap-1 lh-1 text-secondary">
+                        {{ ux_icon(kpi.trendIcon, {class: 'flex-shrink-0 ' ~ kpi.trendClass, style: 'height: 1em;', 'aria-hidden': 'true'}) }}
+                        <span>{{ kpi.deltaSign }}{{ kpi.roundedDelta|format_number({max_fraction_digit: fractionDigits}) }}{% if kpi.deltaUnitLabel %} {{ kpi.deltaUnitLabel }}{% endif %}</span>
+                    </span>
+                    {% if comparisonLabel %}
+                        <span class="text-secondary">{{ comparisonLabel }}</span>
+                    {% endif %}
+                    <span class="visually-hidden">{{ ('kpi.trend.' ~ kpi.trendDirection)|trans({}, 'shared') }}</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    {% if kpi.hasSparkline %}
+        {# Tabler draws it on page load; the controller also covers pages that Turbo renders later. #}
+        <span class="sparkline kpi-sparkline mt-3"
+              data-bs-toggle="sparkline"
+              data-controller="tabler-sparkline"
+              data-bs-values="{{ kpi.sparklineValues }}"
+              aria-hidden="true"
+              data-testid="kpi-sparkline">
+            {%- for point in kpi.sparklinePoints -%}
+                <span class="kpi-sparkline-point" style="left: {{ point.left }}%; top: {{ point.top }}%;" title="{{ point.label }}: {{ point.value|format_number }}"></span>
+            {%- endfor -%}
+        </span>
+        <span class="visually-hidden">{{ 'kpi.sparkline.label'|trans({points: kpi.sparkline|map(point => point.label ~ ': ' ~ point.value|format_number)|join(', ')}, 'shared') }}</span>
+    {% endif %}
+</twig:Card>

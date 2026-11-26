@@ -1,0 +1,314 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Encounter\UI\Import;
+
+use App\Allocation\Domain\Entity\Hospital;
+use App\Encounter\Application\Contract\EncounterImportReaderInterface;
+use App\Encounter\Application\Contract\EncounterKeyStateReaderInterface;
+use App\Encounter\Application\Contract\EncounterUploadHospitalsInterface;
+use App\Encounter\Application\Dimension\EncounterDimensionRegistry;
+use App\Encounter\Application\Import\EncounterSchemaHandlerRegistry;
+use App\Encounter\Application\Security\EncounterAttribute;
+use App\Encounter\Contract\Display\ImportRecordsLink;
+use App\Encounter\Contract\Display\ImportRecordsLinkProviderInterface;
+use App\Encounter\Domain\Entity\EncounterImport;
+use App\Import\Application\Contracts\ImportTypeExtensionInterface;
+use App\Import\Application\DTO\ImportTypeAdminDetail;
+use App\Import\Application\DTO\ImportTypeDetailSection;
+use App\Import\Application\DTO\ImportTypeRecordAction;
+use App\Import\Application\Service\ImportFileStorage;
+use App\Import\Domain\Entity\Import;
+use App\Import\Domain\Enum\ImportType;
+use App\User\Application\Terms\TermsVersion;
+use App\User\Domain\Entity\User;
+use App\User\Domain\Security\UserRole;
+use Doctrine\ORM\EntityManagerInterface;
+use Psr\Clock\ClockInterface;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
+use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
+use Symfony\Component\Translation\TranslatableMessage;
+use Symfony\Contracts\Translation\TranslatableInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+
+/**
+ * Encounter imports on the generic import pages (#1048, `import.type_extension`).
+ *
+ * - Upload: type "Encounter data (beta)" for users with the beta role; hospitals with the encounter
+ *   grant UPLOAD (or all for ROLE_ADMIN); schema and one required confirmation that the file was
+ *   produced with the data preparation tool, holds no direct identifiers and that the participation is
+ *   agreed with the hospital's data protection (#1563). Stored with user, time and the terms version in
+ *   force (ADR 043) on `encounter_import` (audited) together with the key generation at upload. Refused
+ *   while the hospital's key change is in progress (ADR 027).
+ * - List and detail: only for UPLOAD on the hospital (ADR 028); reprocess, download and delete as well.
+ *   Reprocess and download only while the upload file is kept (ADR 026, #1049).
+ * - Detail page section: counts (suspected duplicates as a count only, #1622), file rejection, until when the
+ *   file is kept or when it was deleted; never file content or cell values. With
+ *   VIEW_CASES on the hospital, the schema's link to the imported records (`encounter.import_records_link`).
+ * - Admin backend: the upload confirmation (who, when, data protection agreed, terms version), #1563.
+ *
+ * @psalm-suppress UnusedClass Tagged via ImportTypeExtensionInterface.
+ */
+final readonly class EncounterImportTypeExtension implements ImportTypeExtensionInterface
+{
+    public const string FIELD_SCHEMA = 'encounterSchema';
+    public const string FIELD_CONFIRMATION = 'encounterConfirmation';
+
+    /**
+     * @param iterable<ImportRecordsLinkProviderInterface> $recordsLinks
+     *
+     * @psalm-suppress PossiblyUnusedMethod Autowired.
+     */
+    public function __construct(
+        private RoleHierarchyInterface $roleHierarchy,
+        private AccessDecisionManagerInterface $accessDecisionManager,
+        private EncounterUploadHospitalsInterface $uploadHospitals,
+        private EncounterDimensionRegistry $dimensions,
+        private EncounterSchemaHandlerRegistry $handlers,
+        private EncounterKeyStateReaderInterface $keyStates,
+        private EncounterImportReaderInterface $encounterImports,
+        private ImportFileStorage $fileStorage,
+        private EntityManagerInterface $entityManager,
+        private TranslatorInterface $translator,
+        private UrlGeneratorInterface $urlGenerator,
+        private ClockInterface $clock,
+        private Security $security,
+        private TermsVersion $termsVersion,
+        #[Autowire(param: 'app.encounter.source_file_retention_days')]
+        private int $sourceFileRetentionDays,
+        #[AutowireIterator(ImportRecordsLinkProviderInterface::TAG)]
+        private iterable $recordsLinks = [],
+    ) {
+    }
+
+    #[\Override]
+    public static function importType(): ImportType
+    {
+        return ImportType::ENCOUNTER;
+    }
+
+    #[\Override]
+    public function label(): string
+    {
+        return 'label.import.type.encounter';
+    }
+
+    #[\Override]
+    public function isAvailableTo(User $user): bool
+    {
+        return [] !== $this->uploadableSchemas()
+            && $this->hasRole($user, UserRole::ENCOUNTER_BETA)
+            && [] !== $this->uploadHospitalIds($user);
+    }
+
+    #[\Override]
+    public function uploadHospitalIds(User $user): array
+    {
+        if (!$this->hasRole($user, UserRole::ENCOUNTER_BETA)) {
+            return [];
+        }
+
+        return array_map(
+            static fn (Hospital $hospital): int => (int) $hospital->getId(),
+            $this->uploadHospitals->forUser($user, $this->hasRole($user, UserRole::ADMIN)),
+        );
+    }
+
+    #[\Override]
+    public function visibleHospitalIds(User $user): array
+    {
+        return $this->uploadHospitalIds($user);
+    }
+
+    #[\Override]
+    public function buildForm(FormBuilderInterface $builder): void
+    {
+        $schemas = $this->uploadableSchemas();
+        $builder
+            ->add(self::FIELD_SCHEMA, ChoiceType::class, [
+                'mapped' => false,
+                'required' => false,
+                'label' => 'encounter.import.field.schema',
+                'translation_domain' => 'encounter',
+                'choices' => array_combine($schemas, $schemas),
+                'choice_label' => fn (string $schema): TranslatableInterface => $this->dimensions->get($schema)->label(),
+                'data' => $schemas[0] ?? null,
+                'placeholder' => false,
+            ])
+            ->add(self::FIELD_CONFIRMATION, CheckboxType::class, [
+                'mapped' => false,
+                'required' => false,
+                'label' => 'encounter.import.field.confirmation',
+                'translation_domain' => 'encounter',
+                'label_html' => true,
+                'label_translation_parameters' => ['url' => $this->urlGenerator->generate('app_tools_data_prep')],
+            ]);
+    }
+
+    #[\Override]
+    public function formFields(): array
+    {
+        return [self::FIELD_SCHEMA, self::FIELD_CONFIRMATION];
+    }
+
+    #[\Override]
+    public function validateUpload(FormInterface $form, Hospital $hospital, User $user): array
+    {
+        $errors = [];
+        if (true !== $form->get(self::FIELD_CONFIRMATION)->getData()) {
+            $errors[self::FIELD_CONFIRMATION] = $this->translator->trans('validation.encounter.import.confirmation_required', [], 'validators');
+        }
+
+        $schema = $form->get(self::FIELD_SCHEMA)->getData();
+        if (!\is_string($schema) || !\in_array($schema, $this->uploadableSchemas(), true)) {
+            $errors[self::FIELD_SCHEMA] = $this->translator->trans('validation.encounter.import.schema_required', [], 'validators');
+        }
+
+        if ($this->keyStates->currentState((int) $hospital->getId())['key_change_in_progress']) {
+            $errors['hospital'] = $this->translator->trans('encounter.import.key_change_in_progress', [], 'encounter');
+        }
+
+        return $errors;
+    }
+
+    #[\Override]
+    public function onImportCreated(Import $import, FormInterface $form, User $user): void
+    {
+        $hospitalId = (int) $import->getHospital()?->getId();
+        /** @var User $confirmedBy */
+        $confirmedBy = $this->entityManager->getReference(User::class, (int) $user->getId());
+
+        $this->entityManager->persist(new EncounterImport(
+            $import,
+            (string) $form->get(self::FIELD_SCHEMA)->getData(),
+            $this->keyStates->currentState($hospitalId)['generation'],
+            $confirmedBy,
+            $this->clock->now(),
+            dataProtectionConfirmed: true,
+            termsVersion: $this->termsVersion->current(),
+        ));
+    }
+
+    #[\Override]
+    public function vote(string $attribute, Import $import, TokenInterface $token): bool
+    {
+        $hospital = $import->getHospital();
+        if (!$hospital instanceof Hospital || !$this->decide($token, EncounterAttribute::UPLOAD, $hospital)) {
+            return false;
+        }
+
+        return match ($attribute) {
+            'VIEW' => true,
+            'DELETE' => $this->decide($token, EncounterAttribute::DELETE_IMPORT, $hospital),
+            'REPROCESS' => $this->decide($token, EncounterAttribute::REPROCESS_SOURCE_FILE, $hospital)
+                && $this->keepsSourceFile($import),
+            'DOWNLOAD_SOURCE' => $this->decide($token, EncounterAttribute::DOWNLOAD_SOURCE_FILE, $hospital)
+                && $this->keepsSourceFile($import),
+            default => false,
+        };
+    }
+
+    #[\Override]
+    public function detailSection(Import $import): ?ImportTypeDetailSection
+    {
+        $importId = (int) $import->getId();
+        $encounterImport = $this->encounterImports->findForImportId($importId);
+        if (!$encounterImport instanceof EncounterImport) {
+            return null;
+        }
+
+        $schema = $encounterImport->getSchema();
+
+        return new ImportTypeDetailSection('@Encounter/imports/_import_section.html.twig', [
+            'encounter_import' => $encounterImport,
+            // A schema whose bundle is no longer installed is shown by its name.
+            'schema_label' => $this->dimensions->has($schema)
+                ? $this->dimensions->get($schema)->label()
+                : new TranslatableMessage('encounter.import.schema.unknown', ['schema' => $schema], 'encounter'),
+            'source_file_retention_days' => $this->sourceFileRetentionDays,
+            'source_file_kept_until' => $encounterImport->isSourceFileDeleted()
+                ? null
+                : $import->getCreatedAt()->modify(\sprintf('+%d days', $this->sourceFileRetentionDays)),
+        ], $this->recordActions($import, $schema), $encounterImport->getInserted());
+    }
+
+    #[\Override]
+    public function adminDetails(Import $import): array
+    {
+        $encounterImport = $this->encounterImports->findForImportId((int) $import->getId());
+        if (!$encounterImport instanceof EncounterImport) {
+            return [];
+        }
+
+        $label = static fn (string $key): TranslatableMessage => new TranslatableMessage('encounter.import.confirmation.'.$key, domain: 'encounter');
+        $text = fn (string $key): string => $this->translator->trans('encounter.import.confirmation.'.$key, [], 'encounter');
+
+        return [
+            new ImportTypeAdminDetail($label('confirmed_by'), $encounterImport->getConfirmedBy()?->getUserIdentifier() ?? $text('deleted_user')),
+            new ImportTypeAdminDetail($label('confirmed_at'), $encounterImport->getConfirmedAt()->format('d.m.Y H:i')),
+            new ImportTypeAdminDetail($label('data_protection'), $text($encounterImport->isDataProtectionConfirmed() ? 'yes' : 'no')),
+            new ImportTypeAdminDetail($label('terms_version'), $encounterImport->getTermsVersion() ?? $text('no_version')),
+        ];
+    }
+
+    /**
+     * The schema's link to the records of the import, only with VIEW_CASES on its hospital (#1413).
+     *
+     * @return list<ImportTypeRecordAction>
+     */
+    private function recordActions(Import $import, string $schema): array
+    {
+        $hospital = $import->getHospital();
+        if (!$hospital instanceof Hospital || !$this->security->isGranted(EncounterAttribute::VIEW_CASES, $hospital)) {
+            return [];
+        }
+
+        foreach ($this->recordsLinks as $provider) {
+            $link = $provider->linkForImport($schema, (int) $import->getId(), $hospital->getPublicIdString());
+            if ($link instanceof ImportRecordsLink) {
+                return [new ImportTypeRecordAction($link->label->trans($this->translator), $link->url, $link->icon)];
+            }
+        }
+
+        return [];
+    }
+
+    /**
+     * The upload file is neither deleted (identifying content, retention) nor missing on disk.
+     */
+    private function keepsSourceFile(Import $import): bool
+    {
+        return true !== $this->encounterImports->findForImportId((int) $import->getId())?->isSourceFileDeleted()
+            && $this->fileStorage->exists($import->getFilePath());
+    }
+
+    private function decide(TokenInterface $token, string $attribute, Hospital $hospital): bool
+    {
+        return $this->accessDecisionManager->decide($token, [$attribute], $hospital);
+    }
+
+    private function hasRole(User $user, string $role): bool
+    {
+        return \in_array($role, $this->roleHierarchy->getReachableRoleNames($user->getRoles()), true);
+    }
+
+    /**
+     * Schemas with a field contract and a handler (ADR 037); only these can be uploaded.
+     *
+     * @return list<string>
+     */
+    private function uploadableSchemas(): array
+    {
+        return array_values(array_filter($this->dimensions->schemas(), $this->handlers->has(...)));
+    }
+}

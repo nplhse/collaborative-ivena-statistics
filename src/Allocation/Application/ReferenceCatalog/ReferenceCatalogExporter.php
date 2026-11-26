@@ -8,6 +8,7 @@ use App\Allocation\Application\ReferenceCatalog\Package\AliasedEntry;
 use App\Allocation\Application\ReferenceCatalog\Package\AliasEntry;
 use App\Allocation\Application\ReferenceCatalog\Package\CatalogEntry;
 use App\Allocation\Application\ReferenceCatalog\Package\DispatchAreaEntry;
+use App\Allocation\Application\ReferenceCatalog\Package\DistrictEntry;
 use App\Allocation\Application\ReferenceCatalog\Package\HospitalAddress;
 use App\Allocation\Application\ReferenceCatalog\Package\HospitalCoordinates;
 use App\Allocation\Application\ReferenceCatalog\Package\HospitalEntry;
@@ -26,6 +27,7 @@ use App\Allocation\Domain\Entity\Assignment;
 use App\Allocation\Domain\Entity\Department;
 use App\Allocation\Domain\Entity\DepartmentAlias;
 use App\Allocation\Domain\Entity\DispatchArea;
+use App\Allocation\Domain\Entity\District;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\IndicationGroup;
 use App\Allocation\Domain\Entity\IndicationNormalized;
@@ -100,6 +102,7 @@ final readonly class ReferenceCatalogExporter
             $has(ReferenceCatalogType::IndicationRaw) ? $this->rawIndications() : [],
             $has(ReferenceCatalogType::IndicationGroup) ? $this->indicationGroups() : [],
             $has(ReferenceCatalogType::Hospital) ? $this->hospitals() : [],
+            $has(ReferenceCatalogType::District) ? $this->districts() : [],
         ));
     }
 
@@ -131,6 +134,28 @@ final readonly class ReferenceCatalogExporter
         }
 
         return $this->sorted($entries, static fn (DispatchAreaEntry $entry): string => $stateNames[$entry->id].'|'.ReferenceNameKey::normalize($entry->name));
+    }
+
+    /**
+     * Without geometry: boundaries move through the database backup or the admin fetch (ADR 041).
+     *
+     * @return list<DistrictEntry>
+     */
+    private function districts(): array
+    {
+        $entries = [];
+        foreach ($this->entityManager->getRepository(District::class)->findAll() as $district) {
+            $entries[] = new DistrictEntry(
+                $district->getPublicIdString(),
+                $district->getAgs(),
+                $district->getName(),
+                $district->getKind(),
+                $district->getStateCode(),
+                $district->getDispatchArea()?->getPublicIdString(),
+            );
+        }
+
+        return $this->sorted($entries, static fn (DistrictEntry $entry): string => $entry->ags);
     }
 
     /**

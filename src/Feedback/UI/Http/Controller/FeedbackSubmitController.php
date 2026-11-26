@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Feedback\UI\Http\Controller;
 
+use App\Feedback\Application\Contract\FeedbackSpamHistoryLookupInterface;
+use App\Feedback\Application\FeedbackMessageFingerprint;
 use App\Feedback\Application\FeedbackSpamChecker;
 use App\Feedback\Application\FeedbackSpamCheckResult;
 use App\Feedback\Application\FeedbackSpamRejectLogger;
@@ -15,6 +17,7 @@ use App\User\Domain\Entity\User;
 use Psr\Clock\ClockInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
@@ -29,6 +32,7 @@ final class FeedbackSubmitController extends AbstractController
         private readonly FeedbackSpamChecker $feedbackSpamChecker,
         private readonly FeedbackSpamRejectLogger $feedbackSpamRejectLogger,
         private readonly ClockInterface $clock,
+        private readonly FeedbackSpamHistoryLookupInterface $spamHistoryQuery,
     ) {
     }
 
@@ -123,21 +127,23 @@ final class FeedbackSubmitController extends AbstractController
             }
         }
 
-        $honeypotRaw = $form->get('website')->getData();
-        $honeypotValue = \is_string($honeypotRaw) ? $honeypotRaw : null;
-        $renderedAtRaw = $form->get('renderedAt')->getData();
-        $renderedAtValue = \is_scalar($renderedAtRaw) ? (string) $renderedAtRaw : null;
-        $renderedAtTimestamp = (null !== $renderedAtValue && '' !== trim($renderedAtValue) && ctype_digit($renderedAtValue))
-            ? (int) $renderedAtValue
-            : null;
+        $routeName = $form->get('_source_route')->getData();
+        if (!\is_string($routeName) || '' === trim($routeName)) {
+            $routeName = null;
+        } elseif (!preg_match('/^[a-zA-Z0-9_.]+$/D', $routeName)) {
+            $routeName = null;
+        }
+
         $spamDecision = $this->feedbackSpamChecker->check(
             $message,
-            $honeypotValue,
-            $renderedAtTimestamp,
+            $this->honeypotValue($form),
+            $this->renderedAtTimestamp($form),
             $this->clock->now()->getTimestamp(),
             $user instanceof User,
+            null !== $routeName,
+            $this->spamHistoryQuery->lookup($guestEmail, FeedbackMessageFingerprint::fromMessage($message)),
         );
-        if ($spamDecision->isSpam()) {
+        if ($spamDecision->isRejected()) {
             $this->logSpamRejected($request, $user instanceof User ? $user : null, $guestEmail, $spamDecision, '');
 
             return $this->successRedirect($target);
@@ -152,13 +158,6 @@ final class FeedbackSubmitController extends AbstractController
             } catch (\JsonException) {
                 $extra = [];
             }
-        }
-
-        $routeName = $form->get('_source_route')->getData();
-        if (!\is_string($routeName) || '' === trim($routeName)) {
-            $routeName = null;
-        } elseif (!preg_match('/^[a-zA-Z0-9_.]+$/D', $routeName)) {
-            $routeName = null;
         }
 
         $routeParams = [];
@@ -191,6 +190,7 @@ final class FeedbackSubmitController extends AbstractController
             $context,
             $request->headers->get('User-Agent'),
             '' !== $appVersionTrim ? $appVersionTrim : null,
+            $spamDecision,
         );
 
         return $this->successRedirect($target);
@@ -213,6 +213,33 @@ final class FeedbackSubmitController extends AbstractController
         }
 
         return $filtered;
+    }
+
+    /**
+     * Both honeypots: the hidden `website` field and the visually hidden `subject` text field.
+     *
+     * @param FormInterface<array<string, mixed>|null> $form
+     */
+    private function honeypotValue(FormInterface $form): string
+    {
+        $values = [];
+        foreach (['website', 'subject'] as $field) {
+            $raw = $form->get($field)->getData();
+            if (\is_string($raw)) {
+                $values[] = trim($raw);
+            }
+        }
+
+        return implode('', $values);
+    }
+
+    /** @param FormInterface<array<string, mixed>|null> $form */
+    private function renderedAtTimestamp(FormInterface $form): ?int
+    {
+        $raw = $form->get('renderedAt')->getData();
+        $value = \is_scalar($raw) ? trim((string) $raw) : '';
+
+        return '' !== $value && ctype_digit($value) ? (int) $value : null;
     }
 
     private function successRedirect(string $target): RedirectResponse

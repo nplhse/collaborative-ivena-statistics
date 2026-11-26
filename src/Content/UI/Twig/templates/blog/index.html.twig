@@ -36,25 +36,32 @@
                     <div class="row row-cards">
                         {% for post in paginator %}
                             <div class="col-12">
-                                <div class="card">
+                                <div class="card{% if post.pinned %} border-primary{% endif %}"{% if post.pinned %} data-testid="blog-post-pinned"{% endif %}>
                                     <div class="card-body">
                                         <div class="d-flex flex-column gap-2">
+                                            {% if post.pinned %}
+                                                <span class="badge bg-primary-lt align-self-start d-inline-flex align-items-center gap-1">
+                                                    <twig:ux:icon name="tabler:pin" style="height: 1em;" />
+                                                    {{ 'blog.pinned'|trans({}, 'content') }}
+                                                </span>
+                                            {% endif %}
                                             <h2 class="h3 mb-0">
                                                 <a href="{{ path('app_blog_show', {slug: post.slug}) }}">{{ post.title }}</a>
                                             </h2>
                                         </div>
-                                        <div class="text-secondary small mb-2 d-flex flex-wrap gap-2">
+                                        <div class="text-secondary small mb-2 d-flex flex-wrap align-items-center gap-2">
                                             <twig:ux:icon name="tabler:clock" class="w-3 h-3" />
                                             {{ post.publishedAt|date('d.m.Y H:i') }} |
                                             <twig:ux:icon name="tabler:folder" class="w-3 h-3" />
                                             <a class="badge bg-blue-lt text-blue-emphasis" href="{{ path('app_blog_category', {slug: post.category.slug}) }}">{{ post.category.name }}</a>
-                                            <span>| <twig:ux:icon name="tabler:user" class="w-3 h-3" />
+                                            <span>|
                                                 {{ users.link(post.createdBy, {
                                                     requireParticipant: true,
                                                     empty: 'blog.meta.unknown_author'|trans({}, 'content'),
+                                                    avatar: 'inline',
                                                 }) }}
                                             </span>
-                                            <span>| {{ 'blog.comments.count'|trans(({count: post.comments|length}), 'content') }}</span>
+                                            <span>| {{ 'blog.comments.count'|trans(({count: comment_counts[post.id]|default(0)}), 'content') }}</span>
                                         </div>
                                         <div>
                                             {{ previews[post.id]|default('')|raw }}

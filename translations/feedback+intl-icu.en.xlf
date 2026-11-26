@@ -25,6 +25,10 @@
         <source>feedback.form.message</source>
         <target>Message</target>
       </trans-unit>
+      <trans-unit id="fbHoneypot" resname="feedback.form.honeypot">
+        <source>feedback.form.honeypot</source>
+        <target>Leave this field empty</target>
+      </trans-unit>
       <trans-unit id="fb006" resname="feedback.form.guest_email">
         <source>feedback.form.guest_email</source>
         <target>Your email address</target>
@@ -116,6 +120,14 @@
       <trans-unit id="fb027" resname="feedback.email.actor.guest">
         <source>feedback.email.actor.guest</source>
         <target>Guest</target>
+      </trans-unit>
+      <trans-unit id="c1304faf22d70" resname="feedback.status.new">
+        <source>feedback.status.new</source>
+        <target>Open</target>
+      </trans-unit>
+      <trans-unit id="c1304a66150ab" resname="feedback.status.done">
+        <source>feedback.status.done</source>
+        <target>Done</target>
       </trans-unit>
     </body>
   </file>

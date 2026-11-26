@@ -196,7 +196,7 @@ final readonly class BenchmarkInsightProvider
         $candidates[] = $this->buildInsight(
             $id.'_low',
             BenchmarkInsightDirection::Below,
-            $this->resolveLowSeverity($ratio, $medicallyCritical),
+            $this->resolveLowSeverity($ratio),
             round($ratio, 1),
             round(100.0 * $primaryRate, 1),
             round(100.0 * $comparisonRate, 1),
@@ -303,9 +303,9 @@ final readonly class BenchmarkInsightProvider
         return BenchmarkInsightSeverity::Neutral;
     }
 
-    private function resolveLowSeverity(float $ratio, bool $medicallyCritical): BenchmarkInsightSeverity
+    private function resolveLowSeverity(float $ratio): BenchmarkInsightSeverity
     {
-        if ($ratio <= 0.5 || ($medicallyCritical && $ratio <= 0.5)) {
+        if ($ratio <= 0.5) {
             return BenchmarkInsightSeverity::Critical;
         }
 

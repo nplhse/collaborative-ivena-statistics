@@ -33,12 +33,13 @@ final readonly class AuditRequestSubscriber
         }
 
         $request = $event->getRequest();
-        $headerId = $request->headers->get(self::HEADER);
-        $id = \is_string($headerId) && $this->isValidRequestId($headerId)
-            ? $headerId
-            : Uuid::v7()->toRfc4122();
+        // The request id is always our own (ADR 025): a client-sent id could be reused across requests.
+        $this->auditContext->setRequestId(Uuid::v7()->toRfc4122());
 
-        $this->auditContext->setRequestId($id);
+        $headerId = $request->headers->get(self::HEADER);
+        $this->auditContext->setUpstreamRequestId(
+            \is_string($headerId) && $this->isValidRequestId($headerId) ? $headerId : null,
+        );
         $this->auditContext->setOrigin(AuditContext::ORIGIN_HTTP);
         $this->auditContext->applySecurityUser($this->security);
 

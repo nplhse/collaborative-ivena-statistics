@@ -61,6 +61,8 @@ final class AuditContextTest extends TestCase
         $ctx->setActorUserId(42);
         $ctx->setClientIp('1.2.3.4');
         $ctx->setUserAgent('ua');
+        $ctx->setUpstreamRequestId('upstream');
+        $ctx->setSessionRef('0193a4b2-6f1e-4c55-9d3e-2a1b0c9d8e7f');
         $ctx->beginIntent('x', []);
         $ctx->pushSuppressedEntityAudit([Allocation::class]);
 
@@ -69,10 +71,23 @@ final class AuditContextTest extends TestCase
         self::assertNull($ctx->getRequestId());
         self::assertNull($ctx->getOrigin());
         self::assertNull($ctx->getActorUserId());
-        self::assertNull($ctx->getClientIp());
-        self::assertNull($ctx->getUserAgent());
+        self::assertSame([], $ctx->requestMetadata());
+        self::assertNull($ctx->getUpstreamRequestId());
+        self::assertNull($ctx->getSessionRef());
         self::assertNull($ctx->getCurrentIntent());
         self::assertFalse($ctx->isEntityAuditSuppressed(Allocation::class));
+    }
+
+    public function testRequestMetadataContainsOnlyKnownValues(): void
+    {
+        $ctx = new AuditContext();
+        self::assertSame([], $ctx->requestMetadata());
+
+        $ctx->setClientIp('1.2.3.4');
+        $ctx->setUserAgent('');
+        $ctx->setUpstreamRequestId('proxy-42');
+
+        self::assertSame(['clientIp' => '1.2.3.4', 'upstreamRequestId' => 'proxy-42'], $ctx->requestMetadata());
     }
 
     public function testEnsureRequestIdGeneratesOnce(): void

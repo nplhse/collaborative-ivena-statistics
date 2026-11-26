@@ -37,10 +37,6 @@
         <source>onboarding.steps.request_clinic_access.action</source>
         <target>Send request</target>
       </trans-unit>
-      <trans-unit id="OnbStpEn04" resname="onboarding.steps.request_clinic_access.feedback_message">
-        <source>onboarding.steps.request_clinic_access.feedback_message</source>
-        <target>Hello, I would like to get access to my clinic. Clinic: [please enter name]. Thank you!</target>
-      </trans-unit>
       <trans-unit id="OnbStpEn05" resname="onboarding.steps.verify_own_clinic.title">
         <source>onboarding.steps.verify_own_clinic.title</source>
         <target>Review your hospitals</target>
@@ -88,6 +84,130 @@
       <trans-unit id="OnbStpEn16" resname="onboarding.steps.view_overview_statistics.action">
         <source>onboarding.steps.view_overview_statistics.action</source>
         <target>Open statistics</target>
+      </trans-unit>
+      <trans-unit id="OnbReqEn01" resname="onboarding.steps.request_clinic_access.pending.description">
+        <source>onboarding.steps.request_clinic_access.pending.description</source>
+        <target>Your request for {hospital} is being reviewed. You will be notified once it is decided.</target>
+      </trans-unit>
+      <trans-unit id="OnbReqEn02" resname="onboarding.steps.request_clinic_access.pending.action">
+        <source>onboarding.steps.request_clinic_access.pending.action</source>
+        <target>View request</target>
+      </trans-unit>
+      <trans-unit id="OnbReqEn03" resname="onboarding.steps.request_clinic_access.rejected.description">
+        <source>onboarding.steps.request_clinic_access.rejected.description</source>
+        <target>Your request for {hospital} was rejected. The request shows the reason.</target>
+      </trans-unit>
+      <trans-unit id="OnbReqEn04" resname="onboarding.steps.request_clinic_access.rejected.action">
+        <source>onboarding.steps.request_clinic_access.rejected.action</source>
+        <target>View request</target>
+      </trans-unit>
+      <trans-unit id="OnbReqEn05" resname="onboarding.steps.request_clinic_access.rejected.retry">
+        <source>onboarding.steps.request_clinic_access.rejected.retry</source>
+        <target>Request again</target>
+      </trans-unit>
+      <trans-unit id="OnbReqEn06" resname="onboarding.request_status.pending">
+        <source>onboarding.request_status.pending</source>
+        <target>Pending</target>
+      </trans-unit>
+      <trans-unit id="OnbReqEn07" resname="onboarding.request_status.rejected">
+        <source>onboarding.request_status.rejected</source>
+        <target>Rejected</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn01" resname="whats_new.card.title">
+        <source>whats_new.card.title</source>
+        <target>What’s new for you</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn02" resname="whats_new.card.intro">
+        <source>whats_new.card.intro</source>
+        <target>The latest update brings a few things that matter to you.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn03" resname="whats_new.card.dismiss">
+        <source>whats_new.card.dismiss</source>
+        <target>Got it, hide</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn04" resname="whats_new.items.display_name.missing.title">
+        <source>whats_new.items.display_name.missing.title</source>
+        <target>Choose a display name</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn05" resname="whats_new.items.display_name.missing.description">
+        <source>whats_new.items.display_name.missing.description</source>
+        <target>Others see a display name instead of your username, for example in comments and activities.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn06" resname="whats_new.items.display_name.missing.action">
+        <source>whats_new.items.display_name.missing.action</source>
+        <target>Set display name</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn07" resname="whats_new.items.display_name.set.title">
+        <source>whats_new.items.display_name.set.title</source>
+        <target>Your display name: {name}</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn08" resname="whats_new.items.display_name.set.description">
+        <source>whats_new.items.display_name.set.description</source>
+        <target>Others now see this name instead of your username. You can change it at any time.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn09" resname="whats_new.items.display_name.set.action">
+        <source>whats_new.items.display_name.set.action</source>
+        <target>Change display name</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn10" resname="whats_new.items.my_hospitals.title">
+        <source>whats_new.items.my_hospitals.title</source>
+        <target>My Hospitals as an overview</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn11" resname="whats_new.items.my_hospitals.description">
+        <source>whats_new.items.my_hospitals.description</source>
+        <target>See at a glance which data your hospitals have contributed and where months are missing.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn12" resname="whats_new.items.my_hospitals.action">
+        <source>whats_new.items.my_hospitals.action</source>
+        <target>Open My Hospitals</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn16" resname="whats_new.items.allocation_export.title">
+        <source>whats_new.items.allocation_export.title</source>
+        <target>Export allocations in Tools</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn17" resname="whats_new.items.allocation_export.description">
+        <source>whats_new.items.allocation_export.description</source>
+        <target>Exporting your allocations as a CSV file has left the top navigation and is now in Tools under "Export data".</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn18" resname="whats_new.items.allocation_export.action">
+        <source>whats_new.items.allocation_export.action</source>
+        <target>Open export</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn19" resname="whats_new.items.help_glossary.title">
+        <source>whats_new.items.help_glossary.title</source>
+        <target>Glossary and data catalog in Help</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn20" resname="whats_new.items.help_glossary.description">
+        <source>whats_new.items.help_glossary.description</source>
+        <target>Look up terms, codes and catalogues in Help, for example what an indication or a care level means.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn21" resname="whats_new.items.help_glossary.action">
+        <source>whats_new.items.help_glossary.action</source>
+        <target>Open glossary</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn22" resname="whats_new.items.two_factor.title">
+        <source>whats_new.items.two_factor.title</source>
+        <target>Sign-in with a second factor</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn23" resname="whats_new.items.two_factor.description">
+        <source>whats_new.items.two_factor.description</source>
+        <target>Protect your account with an additional code from an authenticator app.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn24" resname="whats_new.items.two_factor.action">
+        <source>whats_new.items.two_factor.action</source>
+        <target>Set up two-factor sign-in</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn13" resname="whats_new.items.settings_overview.title">
+        <source>whats_new.items.settings_overview.title</source>
+        <target>All settings in one place</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn14" resname="whats_new.items.settings_overview.description">
+        <source>whats_new.items.settings_overview.description</source>
+        <target>Profile, sign-in and notifications: choose which notifications you receive and how.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewEn15" resname="whats_new.items.settings_overview.action">
+        <source>whats_new.items.settings_overview.action</source>
+        <target>Open settings</target>
       </trans-unit>
     </body>
   </file>

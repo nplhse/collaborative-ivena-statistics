@@ -54,6 +54,25 @@
                                     </span>
                                 </label>
                             </div>
+                            {% if consent.monitoring.enabled %}
+                                {% set monitoring_location = 'cookie.monitoring.location'|trans({location: consent.monitoring.location}, 'shared') %}
+                                <div class="mb-4 ms-4">
+                                    <label class="form-check form-switch">
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            name="performance"
+                                            value="1"
+                                            {% if consent.preferences.performance %}checked{% endif %}
+                                        >
+                                        <span class="form-check-label">
+                                            <strong>{{ 'cookie.preferences.performance.title'|trans({}, 'shared') }}</strong>
+                                            <span class="d-block text-secondary">{{ 'cookie.preferences.performance.text'|trans({location: monitoring_location}, 'shared') }}</span>
+                                        </span>
+                                    </label>
+                                </div>
+                                <p class="text-secondary small mb-0">{{ 'cookie.preferences.errors_notice'|trans({location: monitoring_location}, 'shared') }}</p>
+                            {% endif %}
                         </div>
                         <div class="card-footer d-flex justify-content-between">
                             <a class="btn btn-outline-secondary" href="{{ path('app_default') }}">{{ 'label.back'|trans({}, 'messages') }}</a>

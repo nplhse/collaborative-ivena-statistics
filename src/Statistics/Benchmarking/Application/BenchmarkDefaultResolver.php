@@ -31,7 +31,7 @@ final readonly class BenchmarkDefaultResolver
             return [
                 'query' => [
                     'scope' => StatisticsFilterScope::MyHospitals->value,
-                    'period' => StatisticsFilterPeriod::All->value,
+                    'period' => StatisticsFilterPeriod::Last12Months->value,
                     StatisticsQueryKeys::COMPARISON_SCOPE => StatisticsFilterScope::HospitalCohort->value,
                     StatisticsQueryKeys::COMPARISON_PERIOD => StatisticsFilterPeriod::AllTime->value,
                 ],
@@ -41,7 +41,7 @@ final readonly class BenchmarkDefaultResolver
         return [
             'query' => [
                 'scope' => StatisticsFilterScope::Public->value,
-                'period' => StatisticsFilterPeriod::All->value,
+                'period' => StatisticsFilterPeriod::Last12Months->value,
                 StatisticsQueryKeys::COMPARISON_SCOPE => StatisticsFilterScope::Public->value,
                 StatisticsQueryKeys::COMPARISON_PERIOD => StatisticsFilterPeriod::AllTime->value,
             ],

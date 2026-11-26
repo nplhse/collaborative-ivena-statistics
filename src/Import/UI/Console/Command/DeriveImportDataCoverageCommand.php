@@ -96,7 +96,7 @@ final readonly class DeriveImportDataCoverageCommand
             ->andWhere('i.status IN (:statuses)')
             ->setParameter('after', $afterId)
             ->setParameter('statuses', [ImportStatus::COMPLETED, ImportStatus::PARTIAL])
-            ->orderBy('i.id', 'ASC')
+            ->orderBy('i.id', \SortDirection::Ascending)
             ->setMaxResults(self::BATCH_SIZE);
         if (null !== $hospital) {
             $builder->andWhere('IDENTITY(i.hospital) = :hospital')->setParameter('hospital', $hospital);

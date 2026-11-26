@@ -19,6 +19,8 @@ final readonly class MaterializedViewAwareOrmPurgerFactory implements PurgerFact
         private ORMPurgerFactory $inner,
         private StatisticsMaterializedViewDropper $materializedViewDropper,
         private OverviewMaterializedViewsInstaller $materializedViewsInstaller,
+        /** @var iterable<FixturePurgeParticipantInterface> */
+        private iterable $participants,
     ) {
     }
 
@@ -32,12 +34,27 @@ final readonly class MaterializedViewAwareOrmPurgerFactory implements PurgerFact
         $excluded = array_values(array_unique([
             ...$excluded,
             ...StatisticsMaterializedViewGroups::allViews(),
+            ...$this->keptTables(),
         ]));
 
         return new MaterializedViewAwareOrmPurger(
             $this->inner->createForEntityManager($emName, $em, $excluded, $purgeWithTruncate),
             $this->materializedViewDropper,
             $this->materializedViewsInstaller,
+            $this->participants,
         );
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function keptTables(): array
+    {
+        $tables = [];
+        foreach ($this->participants as $participant) {
+            $tables = [...$tables, ...$participant->keptTables()];
+        }
+
+        return $tables;
     }
 }

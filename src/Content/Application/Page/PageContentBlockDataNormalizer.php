@@ -25,7 +25,19 @@ final readonly class PageContentBlockDataNormalizer
             'variant', 'title', 'html', 'iconMode', 'icon',
         ],
         PageContentBlockType::Accordion->value => ['items'],
+        PageContentBlockType::HelpSearch->value => [],
+        PageContentBlockType::HelpTopics->value => [],
+        PageContentBlockType::Cards->value => ['items'],
+        PageContentBlockType::ChildPages->value => ['numbered'],
+        PageContentBlockType::ReadMore->value => ['title', 'items'],
+        PageContentBlockType::BoardMembers->value => [],
     ];
+
+    /** @var list<string> */
+    private const array CARD_ITEM_TEXT_FIELDS = ['icon', 'title', 'html', 'linkUrl', 'linkLabel'];
+
+    /** @var list<string> */
+    private const array READ_MORE_ITEM_TEXT_FIELDS = ['linkUrl', 'linkLabel'];
 
     /**
      * @param list<mixed> $content
@@ -58,6 +70,18 @@ final readonly class PageContentBlockDataNormalizer
 
             if (PageContentBlockType::Accordion->value === $type) {
                 $filteredData['items'] = $this->normalizeAccordionItems($data['items'] ?? []);
+            }
+
+            if (PageContentBlockType::Cards->value === $type) {
+                $filteredData['items'] = $this->normalizeTextItems($data['items'] ?? [], self::CARD_ITEM_TEXT_FIELDS);
+            }
+
+            if (PageContentBlockType::ReadMore->value === $type) {
+                $filteredData['items'] = $this->normalizeTextItems($data['items'] ?? [], self::READ_MORE_ITEM_TEXT_FIELDS);
+            }
+
+            if (PageContentBlockType::ChildPages->value === $type) {
+                $filteredData['numbered'] = (bool) ($data['numbered'] ?? false);
             }
 
             if (PageContentBlockType::Image->value === $type) {
@@ -110,6 +134,41 @@ final readonly class PageContentBlockDataNormalizer
             }
 
             if ([] !== $normalizedItem) {
+                $normalized[] = $normalizedItem;
+            }
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * Keeps the trimmed text fields of each item and drops items without any text.
+     *
+     * @param list<string> $fields
+     *
+     * @return list<array<string, string>>
+     */
+    private function normalizeTextItems(mixed $items, array $fields): array
+    {
+        if (!is_array($items)) {
+            return [];
+        }
+
+        $normalized = [];
+
+        foreach ($items as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $normalizedItem = [];
+            foreach ($fields as $field) {
+                if (array_key_exists($field, $item) && is_string($item[$field])) {
+                    $normalizedItem[$field] = trim($item[$field]);
+                }
+            }
+
+            if ([] !== array_filter($normalizedItem, static fn (string $value): bool => '' !== $value)) {
                 $normalized[] = $normalizedItem;
             }
         }

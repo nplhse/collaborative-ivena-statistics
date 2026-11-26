@@ -10,6 +10,7 @@ use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Infrastructure\Query\ImportBatchProgressQuery;
 use App\Import\Infrastructure\Query\ListImportsQuery;
+use App\Import\Infrastructure\Security\Voter\ImportCreateVoter;
 use App\Import\Infrastructure\Security\Voter\ImportVoter;
 use App\Import\UI\Http\DTO\ListImportQueryParametersDTO;
 use App\Import\UI\Twig\ImportListColumns;
@@ -86,7 +87,9 @@ final class ListImportController extends AbstractController
             'hospitals' => $this->hospitalRepository->findAccessibleHospitalSummaries($user),
             'owners' => $this->importListAccess->resolveOwnerChoices($user),
             'statuses' => ImportStatus::cases(),
-            'canImport' => [] !== $this->importListAccess->resolveAccessibleHospitalIds($user),
+            'types' => $this->listImportsQuery->visibleTypes($user),
+            // Same check as the upload form (#1351): at least one type for at least one hospital.
+            'canImport' => $this->isGranted(ImportCreateVoter::CREATE),
             'bulkActions' => [] === $bulkSelectableIds ? [] : $this->bulkActions(),
             'bulkSelectableIds' => $bulkSelectableIds,
             'batch' => $query->batch,
@@ -158,7 +161,7 @@ final class ListImportController extends AbstractController
     private function countActiveFilters(ListImportQueryParametersDTO $query): int
     {
         $count = 0;
-        $filterFields = ['search', 'hospitalId', 'ownerId', 'status'];
+        $filterFields = ['search', 'hospitalId', 'ownerId', 'status', 'type', 'periodFrom', 'periodUntil'];
 
         foreach ($filterFields as $field) {
             $value = $query->{$field} ?? null;

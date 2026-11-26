@@ -11,7 +11,7 @@ use App\Statistics\Application\DTO\StatisticsPeriodBounds;
  *
  * Incomplete buckets are never drawn: monthly series stop before the current calendar
  * month, daily series include today but not future days. Closed periods (year/quarter/month)
- * fill from the period start through that clipped end. Open periods (all / all_time) fill
+ * fill from the period start through that clipped end. Open periods (last_12_months / all_time) fill
  * from the first observed bucket through the clipped end. Empty input stays empty.
  */
 final class TimeSeriesAxisFiller

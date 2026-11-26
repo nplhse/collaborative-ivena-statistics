@@ -14,5 +14,7 @@ enum NotificationCategory: string
     case Account = 'account';
     case Reports = 'reports';
     case Announcements = 'announcements';
+    case Community = 'community';
+    case Research = 'research';
     case Administration = 'administration';
 }

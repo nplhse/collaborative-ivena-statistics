@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Tests\Content\Functional\Controller;
 
 use App\Content\Application\Media\MediaImageFigureHtmlBuilder;
+use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Domain\Entity\Post;
 use App\Content\Domain\Enum\PostStatus;
+use App\Content\Infrastructure\Factory\PageFactory;
 use App\Content\Infrastructure\Factory\PostCategoryFactory;
 use App\Content\Infrastructure\Factory\PostCommentFactory;
 use App\Content\Infrastructure\Factory\PostFactory;
@@ -73,6 +76,25 @@ final class BlogControllerTest extends WebTestCase
         self::assertSelectorTextContains('.col-lg-8', 'blog-author');
         self::assertSelectorTextNotContains('body', 'Future Post');
         self::assertSelectorTextNotContains('body', 'Draft Post');
+    }
+
+    public function testPinnedPostStandsFirstAndIsMarked(): void
+    {
+        $client = self::createClient();
+        $category = PostCategoryFactory::createOne();
+        PostFactory::createOne(['title' => 'Pinned announcement', 'status' => PostStatus::PUBLISHED, 'publishedAt' => new \DateTimeImmutable('2020-01-01 09:00:00'), 'pinned' => true, 'category' => $category]);
+        PostFactory::createOne(['title' => 'Recent news', 'status' => PostStatus::PUBLISHED, 'publishedAt' => new \DateTimeImmutable('2020-06-01 09:00:00'), 'category' => $category]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/blog');
+
+        self::assertResponseIsSuccessful();
+        self::assertSame('Pinned announcement', trim($crawler->filter('.page-body .col-lg-8 h2')->first()->text()));
+        self::assertSelectorTextContains('[data-testid="blog-post-pinned"]', 'Pinned');
+        self::assertCount(1, $crawler->filter('[data-testid="blog-post-pinned"]'));
+
+        // The sidebar lists only the newest posts, without pinning.
+        $sidebar = $crawler->filter('.page-body .col-lg-4 .list-group-item')->each(static fn (Crawler $node): string => trim($node->text()));
+        self::assertSame(['Recent news', 'Pinned announcement'], \array_slice($sidebar, 0, 2));
     }
 
     public function testIndexSupportsPagination(): void
@@ -408,6 +430,21 @@ final class BlogControllerTest extends WebTestCase
         self::assertSelectorTextContains('.page-next', 'Newer Post');
     }
 
+    public function testSidebarShowsThePageNavigationOnIndexAndPost(): void
+    {
+        $client = self::createClient();
+        PageFactory::createOne(['title' => 'About us', 'slug' => 'about-us', 'status' => PageTranslation::STATUS_PUBLISHED, 'visibility' => Page::VISIBILITY_PUBLIC]);
+        PageFactory::createOne(['title' => 'Members', 'slug' => 'members', 'status' => PageTranslation::STATUS_PUBLISHED, 'visibility' => Page::VISIBILITY_AUTHENTICATED]);
+        PostFactory::createOne(['title' => 'Post with sidebar', 'slug' => 'post-with-sidebar', 'status' => PostStatus::PUBLISHED, 'publishedAt' => new \DateTimeImmutable('2020-01-01 10:00')]);
+
+        foreach (['/blog', '/blog/post-with-sidebar'] as $url) {
+            $crawler = $client->request(Request::METHOD_GET, $url);
+
+            self::assertResponseIsSuccessful();
+            self::assertSame(['About us'], $crawler->filter('[data-testid="page-navigation"] nav a')->each(static fn (Crawler $link): string => trim($link->text())), $url);
+        }
+    }
+
     public function testCreatingPostWritesAuditLogEntry(): void
     {
         $author = UserFactory::createOne(['username' => 'audit-post-author']);
@@ -496,6 +533,7 @@ final class BlogControllerTest extends WebTestCase
         self::assertResponseRedirects('/blog/reply-target', Response::HTTP_SEE_OTHER);
         $client->followRedirect();
         self::assertSelectorTextContains('body', 'Nested reply');
+        self::assertSelectorTextSame('section.card .card-header .badge', '2 comments', 'replies count as comments (#1456)');
     }
 
     public function testAdminSeesEditShortcutToPostBackend(): void
@@ -612,6 +650,69 @@ final class BlogControllerTest extends WebTestCase
         self::assertStringNotContainsString('Untagged Post', $this->postCard($crawler, 'Multi Tag Post')->text());
     }
 
+    public function testListsCountCommentsOfAllPostsInOneQuery(): void
+    {
+        $client = self::createClient();
+        $category = PostCategoryFactory::createOne(['name' => 'News', 'slug' => 'news']);
+        $tag = PostTagFactory::createOne(['name' => 'PHP', 'slug' => 'php']);
+
+        $twoComments = PostFactory::createOne([
+            'title' => 'Post with reply',
+            'slug' => 'post-with-reply',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('-1 hour'),
+            'category' => $category,
+            'tags' => [$tag],
+        ]);
+        $root = PostCommentFactory::createOne(['post' => $twoComments, 'content' => 'Root']);
+        PostCommentFactory::createOne(['post' => $twoComments, 'parent' => $root, 'content' => 'Reply']);
+
+        $oneComment = PostFactory::createOne([
+            'title' => 'Post with one comment',
+            'slug' => 'post-with-one-comment',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('-2 hours'),
+            'category' => $category,
+            'tags' => [$tag],
+        ]);
+        PostCommentFactory::createOne(['post' => $oneComment, 'content' => 'Only']);
+
+        PostFactory::createOne([
+            'title' => 'Post without comments',
+            'slug' => 'post-without-comments',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('-3 hours'),
+            'category' => $category,
+            'tags' => [$tag],
+        ]);
+
+        foreach (['/blog', '/blog/category/news', '/blog/tag/php'] as $uri) {
+            $this->clearIdentityMap();
+            $client->enableProfiler();
+            $crawler = $client->request(Request::METHOD_GET, $uri);
+            self::assertResponseIsSuccessful();
+
+            self::assertStringContainsString('2 comments', $this->postCard($crawler, 'Post with reply')->text(), $uri.': replies count (#1456)');
+            self::assertStringContainsString('1 comment', $this->postCard($crawler, 'Post with one comment')->text(), $uri);
+            self::assertStringContainsString('no comments', $this->postCard($crawler, 'Post without comments')->text(), $uri);
+
+            $profile = $client->getProfile();
+            self::assertNotFalse($profile);
+            $collector = $profile->getCollector('db');
+            self::assertInstanceOf(DoctrineDataCollector::class, $collector);
+
+            $commentQueries = 0;
+            foreach ($collector->getQueries() as $queries) {
+                foreach ($queries as $query) {
+                    if (1 === preg_match('/\bFROM post_comment\b/i', (string) ($query['sql'] ?? ''))) {
+                        ++$commentQueries;
+                    }
+                }
+            }
+            self::assertSame(1, $commentQueries, $uri.': one grouped count instead of one query per post (#1655)');
+        }
+    }
+
     private function clearIdentityMap(): void
     {
         /** @var EntityManagerInterface $entityManager */
@@ -638,5 +739,84 @@ final class BlogControllerTest extends WebTestCase
     {
         self::assertSame($names, $badges->each(static fn (Crawler $node): string => trim($node->text())));
         self::assertSame($hrefs, $badges->each(static fn (Crawler $node): string => (string) $node->attr('href')));
+    }
+
+    public function testPostAuthorShowsDisplayNameAndAvatarOnlyToSignedInViewers(): void
+    {
+        $client = self::createClient();
+        $author = UserFactory::createOne(['username' => 'post-author', 'displayName' => 'Paula Post']);
+        PostFactory::createOne([
+            'title' => 'Named author',
+            'slug' => 'named-author',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('-1 hour'),
+            'createdBy' => $author,
+        ]);
+
+        foreach (['/blog', '/blog/named-author'] as $url) {
+            $client->request(Request::METHOD_GET, $url);
+
+            self::assertResponseIsSuccessful();
+            $html = (string) $client->getResponse()->getContent();
+            self::assertStringContainsString('post-author', $html);
+            self::assertStringNotContainsString('Paula Post', $html, 'anonymous visitors only see the username on '.$url);
+            self::assertSelectorExists('.user-link .avatar-inline[data-avatar="fallback"]');
+        }
+
+        $client->loginUser(UserFactory::createOne(['username' => 'post-reader']));
+
+        foreach (['/blog', '/blog/named-author'] as $url) {
+            $client->request(Request::METHOD_GET, $url);
+
+            self::assertResponseIsSuccessful();
+            self::assertSelectorTextContains('.user-link', 'Paula Post');
+            self::assertSelectorTextSame('.user-link .avatar-inline[data-avatar="initials"]', 'PP');
+        }
+    }
+
+    public function testCommentShowsDisplayNameOnlyToSignedInViewers(): void
+    {
+        $client = self::createClient();
+        $author = UserFactory::createOne(['username' => 'comment-author', 'displayName' => 'Michael Müller']);
+        $post = PostFactory::createOne([
+            'title' => 'Named comments',
+            'slug' => 'named-comments',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('-1 hour'),
+        ]);
+        PostCommentFactory::createOne(['post' => $post, 'author' => $author, 'content' => 'Hallo']);
+
+        $client->request(Request::METHOD_GET, '/blog/named-comments');
+
+        self::assertResponseIsSuccessful();
+        $html = (string) $client->getResponse()->getContent();
+        self::assertStringContainsString('comment-author', $html);
+        self::assertStringNotContainsString('Michael Müller', $html, 'anonymous visitors only see the username');
+        self::assertSelectorExists('.avatar[data-avatar="fallback"]');
+
+        $client->loginUser(UserFactory::createOne(['username' => 'comment-reader']));
+        $client->request(Request::METHOD_GET, '/blog/named-comments');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'Michael Müller');
+        self::assertSelectorTextSame('.avatar[data-avatar="initials"]', 'MM');
+    }
+
+    public function testCommentMarksBoardMembersWithABadge(): void
+    {
+        $client = self::createClient();
+        $post = PostFactory::createOne([
+            'title' => 'Board comments',
+            'slug' => 'board-comments',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('-1 hour'),
+        ]);
+        PostCommentFactory::createOne(['post' => $post, 'author' => UserFactory::new()->asBoardMember()->create(), 'content' => 'From the board']);
+        PostCommentFactory::createOne(['post' => $post, 'author' => UserFactory::new()->asParticipant()->create(), 'content' => 'From a participant']);
+
+        $client->request(Request::METHOD_GET, '/blog/board-comments');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorCount(1, '[data-testid="comment-author-board-member"]');
     }
 }

@@ -137,8 +137,6 @@ deptrac:
       - App\Allocation\Infrastructure\Security\Voter\HospitalVoter
     App\Allocation\UI\Http\Controller\Hospitals\ListHospitalsController:
       - App\Allocation\Infrastructure\Repository\HospitalRepository
-    App\Allocation\UI\Http\Controller\Hospitals\ListOwnedHospitalsController:
-      - App\Allocation\Infrastructure\Repository\HospitalRepository
     App\Allocation\UI\Http\Controller\Hospitals\NewHospitalAccessGrantController:
       - App\Allocation\Infrastructure\Repository\HospitalAccessGrantRepository
       - App\Allocation\Infrastructure\Security\Voter\HospitalVoter
@@ -180,8 +178,9 @@ deptrac:
       - App\Content\Infrastructure\Repository\PageRepository
     App\Content\Application\Page\PageNavigationProvider:
       - App\Content\Infrastructure\Repository\PageRepository
-    App\Content\Application\Page\PageSidebarDataProvider:
+    App\Content\Application\Page\PageNavigationTreeProvider:
       - App\Content\Infrastructure\Repository\PageRepository
+    App\Content\Application\Page\PageSidebarDataProvider:
       - App\Content\Infrastructure\Repository\PostRepository
     App\Content\Domain\Entity\Media:
       - App\Content\Infrastructure\Repository\MediaRepository
@@ -245,7 +244,6 @@ deptrac:
       - App\Import\Infrastructure\Repository\ImportRepository
     App\Import\Application\Service\ImportCreatorPermissionCheck:
       - App\User\Domain\Entity\User
-      - App\User\Domain\Security\UserRole
     App\Import\Application\Service\ImportDeletionService:
       - App\Import\Infrastructure\Repository\ImportBatchRunItemRepository
     App\Import\Application\Service\ImportListAccess:
@@ -305,7 +303,6 @@ deptrac:
       - App\User\Domain\Entity\User
     App\Import\UI\Http\Controller\NewImportController:
       - App\User\Domain\Entity\User
-      - App\User\Domain\Security\UserRole
     App\Import\UI\Http\Controller\ProcessingImportController:
       - App\Import\Infrastructure\Security\Voter\ImportVoter
     App\Import\UI\Http\Controller\ReprocessImportController:
@@ -325,15 +322,12 @@ deptrac:
       - App\Kpi\Infrastructure\Repository\KpiDailyRepository
     App\Analytics\Domain\Entity\AnalyticsRequest:
       - App\Analytics\Infrastructure\Repository\AnalyticsRequestRepository
-    App\Analytics\Domain\Entity\AnalyticsProductEvent:
-      - App\Analytics\Infrastructure\Repository\AnalyticsProductEventRepository
     App\Onboarding\Application\OnboardingProgressService:
       - App\Onboarding\Infrastructure\Repository\UserOnboardingStepRepository
     App\Onboarding\Application\OnboardingStepCatalog:
       - App\Allocation\Application\Allocations\AllocationListHospitalScopeResolver
       - App\Allocation\Application\Service\HospitalPermissionAccess
       - App\Allocation\Domain\Enum\HospitalPermission
-      - App\Import\Application\Service\ImportListAccess
     App\Onboarding\Domain\Entity\UserOnboardingStep:
       - App\Onboarding\Infrastructure\Repository\UserOnboardingStepRepository
     App\Statistics\Application\ClinicalFeaturesProvider:
@@ -387,8 +381,6 @@ deptrac:
       - App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder
     App\Statistics\Application\Overview\OverviewIndicationSectionFactory:
       - App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder
-    App\Statistics\Application\Overview\OverviewPeriodComparisonService:
-      - App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery
     App\Statistics\Application\Overview\OverviewPopulationProfileFactory:
       - App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsResult
     App\Statistics\Application\Overview\OverviewTopReportsFactory:

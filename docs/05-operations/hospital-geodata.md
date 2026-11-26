@@ -14,6 +14,7 @@ See also: [../04-features/allocation/orientation-map.md](../04-features/allocati
 | `Hospital.latitude` / `longitude` | Database | `app:geo:geocode-hospitals --apply` (production). Fixtures still seed city/PLZ centroids for local/CI. | Map pins, isochrone command |
 | Destination isochrones (5–50 min, 5-minute bands, driving-car) | `var/geo/hospital-isochrones/{stateId}/{hospitalPublicId}.geojson` | `app:geo:fetch-isochrones --apply`, `app:geo:apply-prepared-location --apply` | Allocation show map (one 5-minute band); Statistics Overview / Insights origin heatmap (10-minute bands at 10/20/30/40/50 min, hospital scope) |
 | Prepared locations (address, coordinates, isochrones; one JSON per slug) | `var/geo/prepared-locations/{slug}.json` (`app.prepared_locations_dir`) | `app:geo:prepare-location --apply` | `app:geo:apply-prepared-location` |
+| District boundaries | `district_geometry`, part of the database backup | One-time takeover, admin action **Fetch district boundary**, demo fixtures | `GET /statistics/geo/dispatch-areas.geojson` |
 | Map background tiles | Tile server from `MAP_TILE_URL` (default OpenStreetMap) | — (not stored) | Browser (Leaflet), see [Map tiles](#map-tiles-and-offline-use) |
 
 IDs in the CLI are numeric Doctrine IDs (`Hospital`, `DispatchArea`, `State`), not names or ISO codes. Isochrone files include `properties.origin` (`lat`/`lng` used for the OpenRouteService request). The fetch command skips an existing file only when that origin still matches the hospital coordinates.
@@ -28,9 +29,13 @@ Hospital users and reviewers do **not** load or refresh geographic data in the U
 | No destination pin | `Hospital.latitude` / `longitude` are empty | Operator: `app:geo:geocode-hospitals --hospital-id=… --apply` |
 | Travel-time band around the destination | An isochrone file exists and the recorded travel time is between 5 and 50 minutes | — |
 | Pin but no travel-time band | No isochrone file yet, origin mismatch after a coordinate change, or travel time outside 5–50 minutes | Operator: `app:geo:fetch-isochrones --hospital-id=… --apply` (geocode first if the pin is missing) |
-| District polygons / origin highlight | Hessen map asset; independent of OpenRouteService | See [orientation-map.md](../04-features/allocation/orientation-map.md) |
+| District polygons / origin highlight | Map asset for Hesse and neighbouring areas; independent of OpenRouteService | See [orientation-map.md](../04-features/allocation/orientation-map.md) and [Adding another federal state](#adding-another-federal-state) |
 
 The hospital-population statistics map uses a separate city/PLZ centroid YAML for local and CI fixtures. It is not updated by these commands.
+
+## Data sources page
+
+The public page `/data-sources` (footer, legal column) lists the geographic sources with their use, licence and source note. District boundaries come from the provenance stored in `district_geometry`. The map tile entry follows `MAP_TILE_URL` and `MAP_TILE_ATTRIBUTION`, without showing the address. Geocoding and isochrones are two entries, because the [HeiGIT terms of service](https://account.heigit.org/info/tos) license them differently: geocoding results rest on OpenStreetMap (ODbL) and further sources, isochrone results are CC BY-SA 4.0 with the note `© openrouteservice by HeiGIT | Data from OpenStreetMap`. When you add another external source without stored provenance, add it to `DataSourceCatalog`.
 
 ## Command scopes
 
@@ -49,7 +54,8 @@ Existing data is skipped unless `--force` is passed. Runs are idempotent: re-run
 
 - `OPENROUTESERVICE_API_KEY` in `.env.local` (dev) or `shared/.env.local` (production). Empty key: `--apply` exits 1; dry-run still works.
 - Public OpenRouteService allows **at most 10 ranges** per isochrone request (we send 5–50 minutes). Stay below ~20 requests/minute; default `--delay-ms=3500`.
-- Geocoding uses `/geocode/search/structured`, country Germany, usable layers `address` / `venue` / `street` only (`locality` is rejected so city centroids are not stored again).
+- Requests go to the HeiGIT API host `api.heigit.org` (`/pelias/v1/search/structured` for geocoding, `/openrouteservice/v2/isochrones/driving-car` for isochrones). The former host `api.openrouteservice.org` was switched off on 2026-11-24 and answers `410 Gone`; existing API keys work on the new host.
+- Geocoding uses Pelias structured search, country Germany, usable layers `address` / `venue` / `street` only (`locality` is rejected so city centroids are not stored again).
 - HTTP **429** and **403 quota/limit** responses abort the run after one retry (`Retry-After`, capped at 60 seconds, or `--delay-ms` if the header is missing). Already written coordinates/files are kept. Re-run later to resume. Other HTTP errors mark that hospital `failed` and continue.
 
 ## Look up IDs
@@ -111,20 +117,25 @@ No `--force` unless you intend to overwrite already geocoded coordinates. Narrow
 2. `app:geo:geocode-hospitals --hospital-id=<id> --apply --force` after a dry-run review. `--force` is required because coordinates already exist.
 3. `app:geo:fetch-isochrones --hospital-id=<id> --apply` — refetches the file when the stored origin no longer matches.
 
+## Districts and their boundaries
+
+Districts are master data ([ADR 041](../02-architecture/decisions/041-dispatch-area-geography-as-master-data.md)). In the
+admin under **Data → Districts**:
+
+1. Create the district with its official key (AGS) and name, and assign its dispatch area.
+2. Click **Fetch district boundary**. A background job fetches it from the BKG (VG250, `dl-de/by-2-0`), so a Messenger
+   worker must be running. Nothing else calls the BKG: not creating records, imports or map requests.
+3. The district shows whether the boundary is missing, being fetched or failed. A failed fetch, or one that did not finish
+   within 15 minutes, can be started again. An existing boundary is not replaced.
+
+A dispatch area has a complete map area once every assigned district has a boundary. `app:geo:check-dispatch-areas`
+lists the areas with allocations that are not complete yet.
+
 ## Adding another federal state
 
 Geocode and isochrones are **per hospital**, grouped under `{stateId}` on disk. Repeat the first-time sequence for the new state's ID. That is enough for pins and travel-time polygons **if** hospitals have coordinates.
 
-The orientation map **polygons** (dispatch-area outlines, Hessen GeoJSON) are still a Hessen pilot:
-
-| Piece | Location | What to add for a new state |
-|-------|----------|-----------------------------|
-| Dispatch-area name → GeoJSON key | `config/case_flow/dispatch_area_geo_map.yaml` | Names as stored on `DispatchArea` |
-| Area polygons | `assets/geo/hessen-landkreise.geojson` (today) | A GeoJSON with matching feature keys |
-| Factory | `CatalogOrientationMapFactory` (`HESSEN_STATE_NAME`) | Enable the new state name and load its files |
-| Stimulus map | `assets/controllers/catalog-orientation-map_controller.js` | Usually unchanged if GeoJSON + keys are wired |
-
-Until those map files exist, allocation show for the new state can still display hospital pins and isochrones when coordinates/files are present, but district highlighting stays disabled.
+Map **polygons** (dispatch-area outlines) come from the database. A new dispatch area from any state gets its shape through data maintenance, without a code change or release: create its districts, assign them and fetch their boundaries as described in [Districts and their boundaries](#districts-and-their-boundaries). An area without a hospital gets a dashed outline and does not set the default map view. A federal state page in Explore shows a map as soon as one area of that state has a complete shape.
 
 ## Command statuses
 
@@ -230,8 +241,8 @@ browser console shows a handful of failed tile requests, not one per tile. A til
 instead of failing is not detected; in that case set `MAP_TILE_URL` empty.
 
 Everything else the maps load is local: Leaflet and Turf through AssetMapper (`assets/vendor`, run
-`php bin/console importmap:install` once while online), and the district polygons in
-`assets/geo/hessen-landkreise.geojson`.
+`php bin/console importmap:install` once while online), and the district polygons from
+the database.
 
 There is no local tile cache and no command downloads tiles; bulk downloading from
 `tile.openstreetmap.org` is not allowed by the OpenStreetMap tile usage policy. When `MAP_TILE_URL`

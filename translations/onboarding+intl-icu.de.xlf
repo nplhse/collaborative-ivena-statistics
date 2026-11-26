@@ -33,10 +33,6 @@
         <source>onboarding.steps.request_clinic_access.description</source>
         <target>Bitten Sie das Team, Ihr Konto der richtigen Klinik zuzuordnen.</target>
       </trans-unit>
-      <trans-unit id="OnbStpDe04" resname="onboarding.steps.request_clinic_access.feedback_message">
-        <source>onboarding.steps.request_clinic_access.feedback_message</source>
-        <target>Hallo, ich möchte Zugriff auf meine Klinik erhalten. Klinik: [bitte Namen eintragen]. Vielen Dank!</target>
-      </trans-unit>
       <trans-unit id="OnbStpDe01" resname="onboarding.steps.request_clinic_access.title">
         <source>onboarding.steps.request_clinic_access.title</source>
         <target>Zugang zur eigenen Klinik anfragen</target>
@@ -88,6 +84,130 @@
       <trans-unit id="OnbStpDe14" resname="onboarding.steps.view_overview_statistics.title">
         <source>onboarding.steps.view_overview_statistics.title</source>
         <target>Overview-Statistiken ansehen</target>
+      </trans-unit>
+      <trans-unit id="OnbReqDe01" resname="onboarding.steps.request_clinic_access.pending.description">
+        <source>onboarding.steps.request_clinic_access.pending.description</source>
+        <target>Ihre Anfrage für {hospital} wird geprüft. Sie werden benachrichtigt, sobald darüber entschieden ist.</target>
+      </trans-unit>
+      <trans-unit id="OnbReqDe02" resname="onboarding.steps.request_clinic_access.pending.action">
+        <source>onboarding.steps.request_clinic_access.pending.action</source>
+        <target>Anfrage ansehen</target>
+      </trans-unit>
+      <trans-unit id="OnbReqDe03" resname="onboarding.steps.request_clinic_access.rejected.description">
+        <source>onboarding.steps.request_clinic_access.rejected.description</source>
+        <target>Ihre Anfrage für {hospital} wurde abgelehnt. Die Begründung finden Sie bei der Anfrage.</target>
+      </trans-unit>
+      <trans-unit id="OnbReqDe04" resname="onboarding.steps.request_clinic_access.rejected.action">
+        <source>onboarding.steps.request_clinic_access.rejected.action</source>
+        <target>Anfrage ansehen</target>
+      </trans-unit>
+      <trans-unit id="OnbReqDe05" resname="onboarding.steps.request_clinic_access.rejected.retry">
+        <source>onboarding.steps.request_clinic_access.rejected.retry</source>
+        <target>Erneut anfragen</target>
+      </trans-unit>
+      <trans-unit id="OnbReqDe06" resname="onboarding.request_status.pending">
+        <source>onboarding.request_status.pending</source>
+        <target>Offen</target>
+      </trans-unit>
+      <trans-unit id="OnbReqDe07" resname="onboarding.request_status.rejected">
+        <source>onboarding.request_status.rejected</source>
+        <target>Abgelehnt</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe01" resname="whats_new.card.title">
+        <source>whats_new.card.title</source>
+        <target>Neu für Sie</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe02" resname="whats_new.card.intro">
+        <source>whats_new.card.intro</source>
+        <target>Mit dem letzten Update ist einiges dazugekommen, das für Sie interessant ist.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe03" resname="whats_new.card.dismiss">
+        <source>whats_new.card.dismiss</source>
+        <target>Alles klar, ausblenden</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe04" resname="whats_new.items.display_name.missing.title">
+        <source>whats_new.items.display_name.missing.title</source>
+        <target>Anzeigenamen festlegen</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe05" resname="whats_new.items.display_name.missing.description">
+        <source>whats_new.items.display_name.missing.description</source>
+        <target>Statt Ihres Benutzernamens sehen andere einen Anzeigenamen, zum Beispiel bei Kommentaren und Aktivitäten.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe06" resname="whats_new.items.display_name.missing.action">
+        <source>whats_new.items.display_name.missing.action</source>
+        <target>Anzeigenamen festlegen</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe07" resname="whats_new.items.display_name.set.title">
+        <source>whats_new.items.display_name.set.title</source>
+        <target>Ihr Anzeigename: {name}</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe08" resname="whats_new.items.display_name.set.description">
+        <source>whats_new.items.display_name.set.description</source>
+        <target>Andere sehen jetzt diesen Namen statt Ihres Benutzernamens. Sie können ihn jederzeit ändern.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe09" resname="whats_new.items.display_name.set.action">
+        <source>whats_new.items.display_name.set.action</source>
+        <target>Anzeigenamen ändern</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe10" resname="whats_new.items.my_hospitals.title">
+        <source>whats_new.items.my_hospitals.title</source>
+        <target>„Meine Krankenhäuser“ als Überblick</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe11" resname="whats_new.items.my_hospitals.description">
+        <source>whats_new.items.my_hospitals.description</source>
+        <target>Sehen Sie auf einen Blick, welche Daten Ihre Krankenhäuser beigetragen haben und wo Monate fehlen.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe12" resname="whats_new.items.my_hospitals.action">
+        <source>whats_new.items.my_hospitals.action</source>
+        <target>Meine Krankenhäuser öffnen</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe16" resname="whats_new.items.allocation_export.title">
+        <source>whats_new.items.allocation_export.title</source>
+        <target>Zuweisungen exportieren unter Tools</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe17" resname="whats_new.items.allocation_export.description">
+        <source>whats_new.items.allocation_export.description</source>
+        <target>Der Export Ihrer Zuweisungen als CSV-Datei hat die obere Navigation verlassen und liegt jetzt unter Tools in „Daten exportieren“.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe18" resname="whats_new.items.allocation_export.action">
+        <source>whats_new.items.allocation_export.action</source>
+        <target>Export öffnen</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe19" resname="whats_new.items.help_glossary.title">
+        <source>whats_new.items.help_glossary.title</source>
+        <target>Glossar und Datenkatalog in der Hilfe</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe20" resname="whats_new.items.help_glossary.description">
+        <source>whats_new.items.help_glossary.description</source>
+        <target>Begriffe, Codes und Kataloge schlagen Sie jetzt in der Hilfe nach, zum Beispiel was eine Indikation oder eine Versorgungsstufe bedeutet.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe21" resname="whats_new.items.help_glossary.action">
+        <source>whats_new.items.help_glossary.action</source>
+        <target>Glossar öffnen</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe22" resname="whats_new.items.two_factor.title">
+        <source>whats_new.items.two_factor.title</source>
+        <target>Anmeldung mit zweitem Faktor</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe23" resname="whats_new.items.two_factor.description">
+        <source>whats_new.items.two_factor.description</source>
+        <target>Schützen Sie Ihr Konto zusätzlich mit einem Code aus einer Authenticator-App.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe24" resname="whats_new.items.two_factor.action">
+        <source>whats_new.items.two_factor.action</source>
+        <target>Zwei-Faktor-Anmeldung einrichten</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe13" resname="whats_new.items.settings_overview.title">
+        <source>whats_new.items.settings_overview.title</source>
+        <target>Alle Einstellungen an einem Ort</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe14" resname="whats_new.items.settings_overview.description">
+        <source>whats_new.items.settings_overview.description</source>
+        <target>Profil, Anmeldung und Benachrichtigungen: Legen Sie fest, welche Benachrichtigungen Sie auf welchem Weg erhalten.</target>
+      </trans-unit>
+      <trans-unit id="WhatsNewDe15" resname="whats_new.items.settings_overview.action">
+        <source>whats_new.items.settings_overview.action</source>
+        <target>Einstellungen öffnen</target>
       </trans-unit>
     </body>
   </file>

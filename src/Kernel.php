@@ -10,10 +10,15 @@ use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 
-final class Kernel extends BaseKernel
+/**
+ * Not final: the tests boot variants without some bundles (tests/Support/Kernel/KernelWithoutBundles, #1300).
+ *
+ * @psalm-suppress ClassMustBeFinal Extended by those test kernels; Psalm does not analyse tests/.
+ */
+class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
-    public const string APP_VERSION = 'v0.2.7-beta';
+    public const string APP_VERSION = 'v0.3-beta';
 
     #[\Override]
     public function boot(): void

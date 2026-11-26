@@ -16,6 +16,9 @@ final readonly class AnalysisViewConfig
     /**
      * @param list<AnalysisMetricKey> $metricKeys
      * @param list<AnalysisFilter>    $filters
+     * @param list<int>               $referenceHospitalIds reference hospitals of the comparison (#1346); empty = none.
+     *                                                      Stored as configured; the viewer-effective config comes
+     *                                                      from ExplorerReferenceComparisonPolicy
      */
     public function __construct(
         public AnalysisDataSourceKey $dataSourceKey,
@@ -28,6 +31,7 @@ final readonly class AnalysisViewConfig
         public string $title,
         public ExplorerHospitalPopulationMode $hospitalPopulationMode = ExplorerHospitalPopulationMode::Participating,
         public array $filters = [],
+        public array $referenceHospitalIds = [],
     ) {
     }
 
@@ -39,6 +43,16 @@ final readonly class AnalysisViewConfig
     public function showsPercentOfTotal(): bool
     {
         return \in_array(AnalysisMetricKey::PercentOfTotal, $this->metricKeys, true);
+    }
+
+    public function showsPercentOfSeries(): bool
+    {
+        return \in_array(AnalysisMetricKey::PercentOfSeries, $this->metricKeys, true);
+    }
+
+    public function hasReferenceComparison(): bool
+    {
+        return [] !== $this->referenceHospitalIds;
     }
 
     public function hasColumnAxis(): bool
@@ -59,6 +73,7 @@ final readonly class AnalysisViewConfig
             title: $this->title,
             hospitalPopulationMode: $this->hospitalPopulationMode,
             filters: $this->filters,
+            referenceHospitalIds: $this->referenceHospitalIds,
         );
     }
 
@@ -78,6 +93,7 @@ final readonly class AnalysisViewConfig
             title: $this->title,
             hospitalPopulationMode: $this->hospitalPopulationMode,
             filters: $filters,
+            referenceHospitalIds: $this->referenceHospitalIds,
         );
     }
 
@@ -94,6 +110,7 @@ final readonly class AnalysisViewConfig
             title: $this->title,
             hospitalPopulationMode: $this->hospitalPopulationMode,
             filters: $this->filters,
+            referenceHospitalIds: $this->referenceHospitalIds,
         );
     }
 
@@ -113,6 +130,7 @@ final readonly class AnalysisViewConfig
             title: $this->title,
             hospitalPopulationMode: $this->hospitalPopulationMode,
             filters: $this->filters,
+            referenceHospitalIds: $this->referenceHospitalIds,
         );
     }
 
@@ -134,6 +152,7 @@ final readonly class AnalysisViewConfig
             title: $this->title,
             hospitalPopulationMode: $this->hospitalPopulationMode,
             filters: $this->filters,
+            referenceHospitalIds: $this->referenceHospitalIds,
         );
     }
 
@@ -150,6 +169,7 @@ final readonly class AnalysisViewConfig
             title: $title,
             hospitalPopulationMode: $this->hospitalPopulationMode,
             filters: $this->filters,
+            referenceHospitalIds: $this->referenceHospitalIds,
         );
     }
 
@@ -166,6 +186,7 @@ final readonly class AnalysisViewConfig
             title: $this->title,
             hospitalPopulationMode: $this->hospitalPopulationMode,
             filters: $this->filters,
+            referenceHospitalIds: $this->referenceHospitalIds,
         );
     }
 
@@ -182,6 +203,27 @@ final readonly class AnalysisViewConfig
             title: $this->title,
             hospitalPopulationMode: $hospitalPopulationMode,
             filters: $this->filters,
+            referenceHospitalIds: $this->referenceHospitalIds,
+        );
+    }
+
+    /**
+     * @param list<int> $referenceHospitalIds
+     */
+    public function withReferenceHospitalIds(array $referenceHospitalIds): self
+    {
+        return new self(
+            dataSourceKey: $this->dataSourceKey,
+            metricKeys: $this->metricKeys,
+            visualMetricKey: $this->visualMetricKey,
+            rowAxis: $this->rowAxis,
+            columnAxis: $this->columnAxis,
+            statisticsFilter: $this->statisticsFilter,
+            presentation: $this->presentation,
+            title: $this->title,
+            hospitalPopulationMode: $this->hospitalPopulationMode,
+            filters: $this->filters,
+            referenceHospitalIds: array_values(array_unique($referenceHospitalIds)),
         );
     }
 }

@@ -82,8 +82,8 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
             'height' => 300,
         ]);
 
-        $projectDir = self::getContainer()->getParameter('kernel.project_dir');
-        $path = Path::join($projectDir, 'public', 'uploads', 'media', 'missing-on-disk.png');
+        $legacyDir = $this->legacyMediaDirectory();
+        $path = Path::join($legacyDir, 'missing-on-disk.png');
         if (is_file($path)) {
             unlink($path);
         }
@@ -383,9 +383,9 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
 
     public function testResolvesSrcOnlyImageWhenNoMediaRecordExists(): void
     {
-        $projectDir = self::getContainer()->getParameter('kernel.project_dir');
+        $legacyDir = $this->legacyMediaDirectory();
         $filename = 'orphan-src-only.png';
-        $path = Path::join($projectDir, 'public', 'uploads', 'media', $filename);
+        $path = Path::join($legacyDir, $filename);
         if (!is_file($path)) {
             file_put_contents($path, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', true));
         }
@@ -423,8 +423,8 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
             'height' => null,
         ]);
 
-        $projectDir = self::getContainer()->getParameter('kernel.project_dir');
-        $path = Path::join($projectDir, 'public', 'uploads', 'media', 'unreadable-dims.png');
+        $legacyDir = $this->legacyMediaDirectory();
+        $path = Path::join($legacyDir, 'unreadable-dims.png');
         file_put_contents($path, 'not-an-image');
 
         $page = PageFactory::createOne([
@@ -475,5 +475,17 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
                 ],
             ],
         ]);
+    }
+
+    /** Old upload directory of the test environment (ADR 039), created when missing. */
+    private function legacyMediaDirectory(): string
+    {
+        $directory = self::getContainer()->getParameter('app.media_legacy_dir');
+        self::assertIsString($directory);
+        if (!is_dir($directory)) {
+            mkdir($directory, 0o777, true);
+        }
+
+        return $directory;
     }
 }

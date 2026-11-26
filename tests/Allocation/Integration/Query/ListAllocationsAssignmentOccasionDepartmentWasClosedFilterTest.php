@@ -16,6 +16,7 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Allocation\Infrastructure\Query\ListAllocationsQuery;
 use App\Allocation\UI\Http\DTO\AllocationQueryParametersDTO;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -25,6 +26,7 @@ use Zenstruck\Foundry\Test\Factories;
 final class ListAllocationsAssignmentOccasionDepartmentWasClosedFilterTest extends KernelTestCase
 {
     use Factories;
+    private ?User $administrator = null;
 
     private ListAllocationsQuery $query;
 
@@ -57,17 +59,17 @@ final class ListAllocationsAssignmentOccasionDepartmentWasClosedFilterTest exten
 
         $assignmentResults = $this->query->getPaginator(new AllocationQueryParametersDTO(
             assignment: (int) $assignmentA->getId(),
-        ))->getItems();
+        ), $this->administrator())->getItems();
         self::assertCount(1, $assignmentResults);
 
         $occasionResults = $this->query->getPaginator(new AllocationQueryParametersDTO(
             occasion: (string) $occasionA->getId(),
-        ))->getItems();
+        ), $this->administrator())->getItems();
         self::assertCount(1, $occasionResults);
 
         $closedResults = $this->query->getPaginator(new AllocationQueryParametersDTO(
             departmentWasClosed: 1,
-        ))->getItems();
+        ), $this->administrator())->getItems();
         self::assertCount(1, $closedResults);
         self::assertTrue($closedResults[0]['departmentWasClosed']);
 
@@ -75,7 +77,7 @@ final class ListAllocationsAssignmentOccasionDepartmentWasClosedFilterTest exten
             assignment: (int) $assignmentA->getId(),
             occasion: (string) $occasionA->getId(),
             departmentWasClosed: 1,
-        ))->getItems();
+        ), $this->administrator())->getItems();
         self::assertCount(1, $combinedResults);
     }
 
@@ -94,7 +96,7 @@ final class ListAllocationsAssignmentOccasionDepartmentWasClosedFilterTest exten
         $results = $this->query->getPaginator(new AllocationQueryParametersDTO(
             createdFrom: '2026-03-01T00:00:00',
             createdToExclusive: '2026-04-01T00:00:00',
-        ))->getItems();
+        ), $this->administrator())->getItems();
 
         self::assertCount(1, $results);
     }
@@ -119,5 +121,13 @@ final class ListAllocationsAssignmentOccasionDepartmentWasClosedFilterTest exten
             'state' => $state,
             'dispatchArea' => $dispatchArea,
         ];
+    }
+
+    /**
+     * Explore lists only the viewer's own hospitals (#1566); an administrator sees all of them.
+     */
+    private function administrator(): User
+    {
+        return $this->administrator ??= UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
     }
 }

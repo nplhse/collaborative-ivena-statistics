@@ -6,6 +6,7 @@ namespace App\Tests\Feedback\Unit\Application;
 
 use App\Feedback\Application\FeedbackSpamCheckResult;
 use App\Feedback\Application\FeedbackSpamRejectLogger;
+use App\Feedback\Application\FeedbackSpamVerdict;
 use App\User\Domain\Entity\User;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -32,7 +33,7 @@ final class FeedbackSpamRejectLoggerTest extends TestCase
             user: null,
             guestEmail: 'honeypot@example.test',
             clientIp: '127.0.0.1',
-            spamDecision: new FeedbackSpamCheckResult(true, 100, ['honeypot_filled']),
+            spamDecision: new FeedbackSpamCheckResult(FeedbackSpamVerdict::REJECT, 100, ['honeypot_filled']),
             rateLimiterHit: '',
         );
     }

@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\UI\LiveComponent;
 
-use App\Analytics\Application\UsageEvents\UsageAnalytics;
-use App\Analytics\Domain\Enum\FeatureArea;
-use App\Analytics\Domain\UsageEventName;
 use App\Statistics\AnalysisExplorer\Application\AnalysisExecution;
 use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigNormalizer;
 use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigValidator;
@@ -33,6 +30,7 @@ use App\Statistics\AnalysisExplorer\Domain\Exception\SavedExplorerViewForbiddenE
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
 use App\Statistics\AnalysisExplorer\UI\Form\ExplorerEditFormType;
 use App\Statistics\Application\Contract\HospitalAccessInterface;
+use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\StatisticsSourceDataProbe;
 use App\Statistics\Domain\Entity\SavedExplorerView;
@@ -109,6 +107,12 @@ final class AnalysisExplorerShell
 
     #[LiveProp(writable: false)]
     public ?string $savedViewAuthorUrl = null;
+
+    #[LiveProp(writable: false)]
+    public ?string $savedViewAuthorDisplayName = null;
+
+    #[LiveProp(writable: false)]
+    public ?int $savedViewAuthorUserId = null;
 
     #[LiveProp(writable: false)]
     public ?string $savedViewActivityKind = null;
@@ -258,7 +262,6 @@ final class AnalysisExplorerShell
         private readonly ExplorerFilterBadgePresenter $filterBadgePresenter,
         private readonly HospitalAccessInterface $hospitalAccess,
         private readonly UrlGeneratorInterface $urlGenerator,
-        private readonly UsageAnalytics $usageAnalytics,
         private readonly StatisticsSourceDataProbe $sourceDataProbe,
     ) {
     }
@@ -276,6 +279,8 @@ final class AnalysisExplorerShell
         ?string $savedViewDescription = null,
         ?string $savedViewAuthorName = null,
         ?string $savedViewAuthorUrl = null,
+        ?string $savedViewAuthorDisplayName = null,
+        ?int $savedViewAuthorUserId = null,
         ?string $savedViewActivityKind = null,
         ?string $savedViewActivityRelative = null,
         ?string $savedViewActivityAbsolute = null,
@@ -297,6 +302,8 @@ final class AnalysisExplorerShell
         $this->savedViewDescription = $savedViewDescription;
         $this->savedViewAuthorName = $savedViewAuthorName;
         $this->savedViewAuthorUrl = $savedViewAuthorUrl;
+        $this->savedViewAuthorDisplayName = $savedViewAuthorDisplayName;
+        $this->savedViewAuthorUserId = $savedViewAuthorUserId;
         $this->savedViewActivityKind = $savedViewActivityKind;
         $this->savedViewActivityRelative = $savedViewActivityRelative;
         $this->savedViewActivityAbsolute = $savedViewActivityAbsolute;
@@ -550,7 +557,7 @@ final class AnalysisExplorerShell
             $scopeGroup = 'my_hospitals';
         }
 
-        $formData->scopePeriod = new StatisticsScopePeriodFormData(scopeGroup: $scopeGroup, period: 'all');
+        $formData->scopePeriod = new StatisticsScopePeriodFormData(scopeGroup: $scopeGroup, period: StatisticsFilterPeriod::Last12Months->value);
         $this->editFormData = $this->editFormNormalizer->normalize($formData);
         $this->resetForm();
         $this->submitForm(false);
@@ -815,7 +822,7 @@ final class AnalysisExplorerShell
         $this->baselineConfigState = $this->appliedConfigState;
         $this->baselineViewTitle = $this->savedViewTitle;
         $this->baselineViewDescription = $this->savedViewDescription;
-        $this->metadataManuallyEdited = false;
+        $this->metadataManuallyEdited = $this->metadataDiffersFromGenerated($this->appliedConfig());
         $this->syncUnsavedChangeState();
         $this->configWarning = null;
         $this->saveNotice = $this->translator->trans('stats.analysis_explorer.saved', [], 'statistics');
@@ -891,7 +898,7 @@ final class AnalysisExplorerShell
         $this->baselineViewTitle = $this->savedViewTitle;
         $this->baselineViewDescription = $this->savedViewDescription;
         $this->viewVisibility = $view->getVisibility()->value;
-        $this->metadataManuallyEdited = false;
+        $this->metadataManuallyEdited = $this->metadataDiffersFromGenerated($this->appliedConfig());
         $this->isEditMetadataOpen = false;
         $this->syncUnsavedChangeState();
         $this->configWarning = null;
@@ -924,6 +931,7 @@ final class AnalysisExplorerShell
         if (null !== $this->savedViewTitle && '' !== trim($this->savedViewTitle)) {
             $this->baselineViewTitle = $this->savedViewTitle;
             $this->baselineViewDescription = $this->savedViewDescription ?? '';
+            $this->metadataManuallyEdited = $this->metadataDiffersFromGenerated($config);
 
             return;
         }
@@ -973,6 +981,21 @@ final class AnalysisExplorerShell
         $this->savedViewDescription = $this->descriptionFactory->descriptionForConfig($normalizedConfig);
 
         return true;
+    }
+
+    /**
+     * A title or description of a saved user view that differs from the generated one was chosen by the user and
+     * survives filter changes; one that still equals the generated text keeps following the config (#1420). System
+     * views have no saved view id and always follow the config.
+     */
+    private function metadataDiffersFromGenerated(?AnalysisViewConfig $config): bool
+    {
+        if (null === $this->savedViewId || !$config instanceof AnalysisViewConfig) {
+            return false;
+        }
+
+        return trim($this->savedViewTitle ?? '') !== trim($config->title)
+            || trim($this->savedViewDescription ?? '') !== trim($this->descriptionFactory->descriptionForConfig($config));
     }
 
     private function metadataEditedInCurrentDrawerSession(): bool
@@ -1036,10 +1059,6 @@ final class AnalysisExplorerShell
 
         $this->emptyReason = $execution->emptyReason;
         $this->result = $execution->result;
-        if (null === $execution->warningKey && 'scope_forbidden' !== $execution->emptyReason) {
-            $this->usageAnalytics->record(UsageEventName::ANALYSIS_EXPLORER_RUN, FeatureArea::Analysis);
-        }
-
         $this->canImport = $this->sourceDataProbe->canImport($this->resolveUser());
 
         $this->chartSpecs = $execution->chartSpecs;
@@ -1135,7 +1154,7 @@ final class AnalysisExplorerShell
             return;
         }
 
-        $this->chartSpecs = $this->chartPresenter->buildSpecs($this->result, $config->presentation);
+        $this->chartSpecs = $this->chartPresenter->buildSpecs($this->result, $config->presentation, $config->showsPercentOfSeries());
         $this->defaultChartType = $this->chartPresenter->defaultChartType($config->presentation);
         $this->hasChart = $this->chartPresenter->hasChart($this->result);
         $this->chartRowLimit = $config->presentation->chartRowLimit->value;
@@ -1160,7 +1179,7 @@ final class AnalysisExplorerShell
             return;
         }
 
-        $this->chartSpecs = $this->chartPresenter->buildSpecs($this->result, $config->presentation);
+        $this->chartSpecs = $this->chartPresenter->buildSpecs($this->result, $config->presentation, $config->showsPercentOfSeries());
         $this->defaultChartType = $this->chartPresenter->defaultChartType($config->presentation);
         $this->hasChart = $this->chartPresenter->hasChart($this->result);
         $this->chartRowLimit = $config->presentation->chartRowLimit->value;
@@ -1239,6 +1258,7 @@ final class AnalysisExplorerShell
             tableLayout: \is_string($submitted['tableLayout'] ?? null) ? $submitted['tableLayout'] : $formData->tableLayout,
             chartRowLimit: \is_string($submitted['chartRowLimit'] ?? null) ? $submitted['chartRowLimit'] : $formData->chartRowLimit,
             hospitalPopulation: \is_string($submitted['hospitalPopulation'] ?? null) ? $submitted['hospitalPopulation'] : $formData->hospitalPopulation,
+            referenceHospitals: \array_key_exists('referenceHospitals', $submitted) ? ExplorerEditFormData::normalizeReferenceHospitals($submitted['referenceHospitals']) : $formData->referenceHospitals,
             additionalTableMetrics: \array_key_exists('additionalTableMetrics', $submitted)
                 ? array_values(array_filter(
                     \is_array($submitted['additionalTableMetrics']) ? $submitted['additionalTableMetrics'] : [],

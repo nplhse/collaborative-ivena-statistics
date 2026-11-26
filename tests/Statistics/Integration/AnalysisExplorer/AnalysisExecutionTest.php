@@ -29,7 +29,7 @@ final class AnalysisExecutionTest extends KernelTestCase
             scope: StatisticsFilterScope::Hospital,
             hospitalId: 999999,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         ));
 
         $result = self::getContainer()->get(AnalysisExecution::class)->execute($config, $user);
@@ -51,7 +51,7 @@ final class AnalysisExecutionTest extends KernelTestCase
             scope: StatisticsFilterScope::MyHospitals,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         ));
 
         $query = self::getContainer()->get(ExplorerAnalysisQueryFactory::class)->create($config, $user);
@@ -67,7 +67,7 @@ final class AnalysisExecutionTest extends KernelTestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
 
         $view = $component->view();

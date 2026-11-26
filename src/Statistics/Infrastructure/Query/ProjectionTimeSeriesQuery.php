@@ -116,12 +116,13 @@ final class ProjectionTimeSeriesQuery
         ?\DateTimeImmutable $toExclusive,
         ?array $hospitalIds,
         ?int $dispatchAreaId = null,
+        ?StatisticsDrawerFilter $drawerFilter = null,
     ): array {
-        $qb = $this->createBaseCountQb($from, $toExclusive, $hospitalIds, null, $dispatchAreaId)
+        $qb = $this->createBaseCountQb($from, $toExclusive, $hospitalIds, $drawerFilter, $dispatchAreaId)
             ->select('p.createdYear AS year', 'p.createdMonth AS month', 'COUNT(p.id) AS count')
             ->groupBy('year', 'month')
-            ->orderBy('year', 'ASC')
-            ->addOrderBy('month', 'ASC');
+            ->orderBy('year', \SortDirection::Ascending)
+            ->addOrderBy('month', \SortDirection::Ascending);
 
         /** @var list<array{year:numeric-string|int,month:numeric-string|int,count:numeric-string|int}> $raw */
         $raw = $qb->getQuery()->getArrayResult();
@@ -146,7 +147,7 @@ final class ProjectionTimeSeriesQuery
         $qb = $this->createBaseCountQb($from, $toExclusive, $hospitalIds)
             ->select('p.createdYear AS year', 'COUNT(p.id) AS count')
             ->groupBy('year')
-            ->orderBy('year', 'ASC');
+            ->orderBy('year', \SortDirection::Ascending);
 
         /** @var list<array{year:numeric-string|int,count:numeric-string|int}> $raw */
         $raw = $qb->getQuery()->getArrayResult();
@@ -173,7 +174,7 @@ final class ProjectionTimeSeriesQuery
             ->setParameter('startYear', $startYear)
             ->select('p.createdYear AS year', 'COUNT(p.id) AS count')
             ->groupBy('year')
-            ->orderBy('year', 'ASC');
+            ->orderBy('year', \SortDirection::Ascending);
 
         if (null !== $endYearExclusive) {
             $qb->andWhere('p.createdYear < :endYearExclusive')
@@ -210,14 +211,19 @@ final class ProjectionTimeSeriesQuery
      *
      * @return array<string,int>
      */
-    public function countByDayInPeriod(?\DateTimeImmutable $from, \DateTimeImmutable $toExclusive, ?array $hospitalIds): array
-    {
-        $qb = $this->createBaseCountQb($from, $toExclusive, $hospitalIds)
+    public function countByDayInPeriod(
+        ?\DateTimeImmutable $from,
+        \DateTimeImmutable $toExclusive,
+        ?array $hospitalIds,
+        ?StatisticsDrawerFilter $drawerFilter = null,
+        ?int $dispatchAreaId = null,
+    ): array {
+        $qb = $this->createBaseCountQb($from, $toExclusive, $hospitalIds, $drawerFilter, $dispatchAreaId)
             ->select('p.createdYear AS year', 'p.createdMonth AS month', 'p.createdDay AS day', 'COUNT(p.id) AS count')
             ->groupBy('year', 'month', 'day')
-            ->orderBy('year', 'ASC')
-            ->addOrderBy('month', 'ASC')
-            ->addOrderBy('day', 'ASC');
+            ->orderBy('year', \SortDirection::Ascending)
+            ->addOrderBy('month', \SortDirection::Ascending)
+            ->addOrderBy('day', \SortDirection::Ascending);
 
         /** @var list<array{year:numeric-string|int,month:numeric-string|int,day:numeric-string|int,count:numeric-string|int}> $rows */
         $rows = $qb->getQuery()->getArrayResult();
@@ -239,7 +245,7 @@ final class ProjectionTimeSeriesQuery
         $qb = $this->createBaseCountQb($from, $toExclusive, $hospitalIds)
             ->select('p.createdMonth AS month', 'COUNT(p.id) AS count')
             ->groupBy('month')
-            ->orderBy('month', 'ASC');
+            ->orderBy('month', \SortDirection::Ascending);
 
         /** @var list<array{month:numeric-string|int,count:numeric-string|int}> $rows */
         $rows = $qb->getQuery()->getArrayResult();

@@ -1,0 +1,122 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.settings.two_factor'|trans({}, 'user') }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                { label: 'title.settings', path: path('app_settings_index') },
+                { label: 'title.settings.security', label_domain: 'user', path: path('app_settings_security') },
+                { label: 'title.settings.two_factor' },
+            ]"
+        />
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <h2 class="page-title">{{ 'title.settings.two_factor'|trans({}, 'user') }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_body %}
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="card">
+                <div class="row g-0">
+                    {{ include('@User/settings/_sidebar.html.twig', {active: 'two_factor'}) }}
+                    <div class="col-12 col-md-9 d-flex flex-column">
+                        <div class="card-header">
+                            <h3 class="card-title">{{ 'title.settings.two_factor'|trans({}, 'user') }}</h3>
+                            <div class="card-actions">
+                                <span class="badge {{ enabled ? 'bg-green text-green-fg' : 'bg-secondary-lt' }}" data-test="two-factor-status">
+                                    {{ (enabled ? 'label.settings.two_factor_on' : 'label.settings.two_factor_off')|trans({}, 'user') }}
+                                </span>
+                            </div>
+                        </div>
+                        {% if enabled %}
+                            {# Tabler draws a line between consecutive card bodies: status, backup codes, switching off. #}
+                            <div class="card-body" data-test="two-factor-enabled">
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="avatar avatar-md bg-green-lt" aria-hidden="true">
+                                        <twig:ux:icon name="tabler:shield-check" class="icon icon-lg" />
+                                    </span>
+                                    <div>
+                                        <div class="fw-bold">{{ 'text.settings.two_factor.active'|trans({}, 'user') }}</div>
+                                        <div class="text-secondary">{{ 'text.settings.two_factor.enabled_since'|trans({date: enabledAt|format_date('long')}, 'user') }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body" data-test="two-factor-backup-codes-section">
+                                <h3 class="card-title">{{ 'title.settings.two_factor_backup_codes'|trans({}, 'user') }}</h3>
+                                {# Running low: the user should renew the codes before they run out. #}
+                                <p class="card-subtitle{{ backupCodesLeft <= 3 ? ' text-warning fw-bold' : '' }}" data-test="two-factor-backup-codes-left">
+                                    {{ 'text.settings.two_factor.backup_codes_left'|trans({left: backupCodesLeft, total: backupCodesTotal}, 'user') }}
+                                    {{ 'help.settings.two_factor_renew'|trans({}, 'user') }}
+                                </p>
+                                <form method="post" action="{{ path('app_settings_two_factor_renew_backup_codes') }}" class="row g-2 align-items-end">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('settings_two_factor') }}">
+                                    <div class="col-12 col-sm-6 col-lg-4">
+                                        <label class="form-label" for="two-factor-renew-code">{{ 'label.settings.two_factor_current_code'|trans({}, 'user') }}</label>
+                                        <input id="two-factor-renew-code" class="form-control" type="text" name="code" autocomplete="one-time-code" required>
+                                    </div>
+                                    <div class="col-12 col-sm-auto">
+                                        <button class="btn btn-outline-secondary" type="submit">{{ 'label.settings.two_factor_renew_backup_codes'|trans({}, 'user') }}</button>
+                                    </div>
+                                </form>
+                            </div>
+                            {# Administrators keep it while the obligation is on (app.security.two_factor.required_for_admins). #}
+                            {% if not required %}
+                            <div class="card-body flex-grow-1" data-test="two-factor-disable-section">
+                                <h3 class="card-title text-danger">{{ 'label.settings.two_factor_disable_heading'|trans({}, 'user') }}</h3>
+                                <p class="card-subtitle">{{ 'help.settings.two_factor_disable'|trans({}, 'user') }}</p>
+                                <form method="post" action="{{ path('app_settings_two_factor_disable') }}" class="row g-2 align-items-end">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('settings_two_factor') }}">
+                                    <div class="col-12 col-sm-6 col-lg-4">
+                                        <label class="form-label" for="two-factor-disable-code">{{ 'label.settings.two_factor_current_code'|trans({}, 'user') }}</label>
+                                        <input id="two-factor-disable-code" class="form-control" type="text" name="code" autocomplete="one-time-code" required>
+                                    </div>
+                                    <div class="col-12 col-sm-auto">
+                                        <button class="btn btn-outline-danger" type="submit">{{ 'label.settings.two_factor_disable'|trans({}, 'user') }}</button>
+                                    </div>
+                                </form>
+                            </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="card-body flex-grow-1">
+                                {% if required %}
+                                    <twig:Alert type="warning" data-test="two-factor-required">{{ 'text.settings.two_factor.required'|trans({}, 'user') }}</twig:Alert>
+                                {% endif %}
+                                <p class="text-secondary">{{ 'help.settings.two_factor'|trans({}, 'user') }}</p>
+                                <div class="row g-4" data-test="two-factor-setup">
+                                    <div class="col-12 col-lg-auto text-center">
+                                        <img src="{{ qrCode }}" width="200" height="200" alt="{{ 'label.settings.two_factor_qr_code'|trans({}, 'user') }}" class="border rounded">
+                                    </div>
+                                    <div class="col">
+                                        <p>{{ 'text.settings.two_factor.scan'|trans({}, 'user') }}</p>
+                                        <p class="mb-1 text-secondary">{{ 'text.settings.two_factor.manual_key'|trans({}, 'user') }}</p>
+                                        <p><code class="user-select-all" data-test="two-factor-secret">{{ secret }}</code></p>
+
+                                        <form method="post" action="{{ path('app_settings_two_factor_enable') }}" class="row g-2 align-items-end mt-3">
+                                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('settings_two_factor') }}">
+                                            <div class="col-12 col-sm-6">
+                                                <label class="form-label" for="two-factor-code">{{ 'label.settings.two_factor_first_code'|trans({}, 'user') }}</label>
+                                                <input id="two-factor-code" class="form-control" type="text" name="code" inputmode="numeric"
+                                                       autocomplete="one-time-code" pattern="[0-9 ]*" required>
+                                            </div>
+                                            <div class="col-12 col-sm-auto">
+                                                <button class="btn btn-primary" type="submit">{{ 'label.settings.two_factor_enable'|trans({}, 'user') }}</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

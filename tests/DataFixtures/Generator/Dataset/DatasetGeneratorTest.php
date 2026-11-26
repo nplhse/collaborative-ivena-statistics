@@ -85,6 +85,12 @@ final class DatasetGeneratorTest extends KernelTestCase
             self::assertStringContainsString('real imports in 2026-09', implode(' ', $plan->hospitals[0]->blockers), $mode->value.' never mixes with real data');
         }
 
+        // A real file loaded into a fictional hospital with the development override (#878) stays real data.
+        $this->connection()->executeStatement("UPDATE import SET hospital_override = true, hospital_override_source_label = 'Klinikum Weststadt' WHERE hospital_id = :id AND file_path LIKE 'imports/upload-%'", ['id' => $active]);
+        $this->entityManager()->clear();
+        $replace = $this->datasets()->prepare(new DatasetRequest(GenerationRunScope::One, [$active], DatasetPeriod::between('2026-08', '2026-09'), existing: ExistingData::Replace));
+        self::assertStringContainsString('real imports in 2026-09', implode(' ', $replace->hospitals[0]->blockers), 'an override import is never replaced by generated data');
+
         self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM generation_run'), 'prepare writes nothing');
     }
 

@@ -15,7 +15,7 @@ Authenticated `GET /` (`DefaultController`) renders `@Content/dashboard/dashboar
 
 1. Full-width KPI cards (allocations, participating hospitals, users, imports), above the two-column layout
 2. Main column: action tiles, then a **recent activity preview** (lazy Turbo Frame)
-3. Sidebar: participant notice, onboarding, latest blog posts, pages
+3. Sidebar: participant notice, onboarding, latest blog posts (pinned posts first, [details](blog-pinned-and-announcements.md)), pages
 
 Guests still see `@Content/public/home.html.twig`. Totals come from the same `DashboardMetricsService`.
 
@@ -85,18 +85,30 @@ The dedicated timeline (`app_activity_timeline`, `ROLE_USER`) reuses the same qu
 | `from` / `until` | `occurred_at` range (`Y-m-d`, until is inclusive of that day) |
 | `type` | one value from `ProjectActivityPage::feedTypes()` |
 | `user` | exact, case-insensitive username |
-| `search` | `LIKE` on username plus JSON `title` / `postTitle` / `excerpt` / `hospitalName` (not slugs or IDs) |
+| `search` | `LIKE` on username and display name plus JSON `title` / `postTitle` / `excerpt` / `hospitalName` (not slugs or IDs) |
 | `cursor` | keyset pagination on `/activity/feed` |
+| `hospital` | public ID (UUID) of a hospital: only activities whose metadata `hospitalPublicId` matches, with the types of `ProjectActivityPage::hospitalFeedTypes()` (#488). Used by the hospital page, not shown as a filter on `/activity`; invalid values are ignored |
 
 Further pages use keyset pagination (`occurred_at DESC, id DESC`, cursor `occurredAt` + `id`) and load when the next Turbo Frame enters the viewport (`loading="lazy"`). A fallback link remains for clients without Turbo. Filter query parameters are preserved on that request.
 
 Index: `idx_user_activity_project_feed` on `(occurred_at DESC, id DESC)`.
 
-Privacy: all `ROLE_USER` viewers see the feed. Profile and hospital links render only for `ROLE_PARTICIPANT`. Failures in the activity endpoints are logged and replaced with a compact error state; the rest of the dashboard remains usable.
+### Hospital activity
+
+The hospital detail page (`/explore/hospital/{publicId}`, `ROLE_PARTICIPANT`) shows an **Activity** card in the main column (#488). It lazy-loads `/activity/feed?hospital={publicId}` into the `activity-timeline` Turbo Frame, so items, timestamps, avatars, links and further pages are the same as on `/activity`.
+
+- **Population:** `user_activity` rows whose metadata `hospitalPublicId` is this hospital, of the types `first_import`, `import_milestone`, `hospital_associated`, `hospital_disassociated`, `hospital_owner_granted` and `hospital_owner_revoked`. Unlike the project feed, removed access and ownership are included; the same rows are already visible to signed-in users on the actors' profiles. Disabled users are omitted, as in every feed.
+- **Not included:** single imports (the projection only knows each user's import milestones; imports stay in the import list), configuration changes, audit log entries. Nothing is derived from other tables.
+- The items leave out the hospital name, which is the page itself. Without activity the card shows the shared `EmptyState`.
+- The filter is a `JSON_GET_TEXT(metadata, 'hospitalPublicId')` comparison without its own index; `user_activity` holds a few rows per user.
+
+Privacy: all `ROLE_USER` viewers see the feed. Each item shows the actor's [`UserAvatar`](../../03-development/twig-components.md#useravatar) and display name (username as fallback and tooltip); the activity type is a small icon before the action text. Profile and hospital links render only for `ROLE_PARTICIPANT`. Failures in the activity endpoints are logged and replaced with a compact error state; the rest of the dashboard remains usable.
 
 Timestamps are rendered as localized relative time (`just now`, `3 days ago`, …) via the shared `RelativeTimestamp` Twig component. The absolute instant is kept in a `<time datetime>` element and exposed on hover/focus (`title` plus a visually hidden label). Timezone is the app default `Europe/Berlin`. Sorting still uses stored `occurred_at`.
 
 `post_published` entries show a compact content preview taken live from currently published posts on the current page (`publishedAt <= now`), using the same first-paragraph sanitizer as the blog list (`PostContentSanitizer`). The activity projection keeps only title/slug; unpublished, scheduled, deleted, or empty posts omit the preview block. Keyword search still looks at activity metadata, not the post body.
+
+On `/activity` and the hospital feed every item has a reaction bar, loaded after the page ([reactions.md](reactions.md)); the five-item preview on the dashboard has none.
 
 ## Performance
 

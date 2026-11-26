@@ -8,8 +8,6 @@ namespace App\Statistics\Application\DTO;
  * Renderable statistics unit for the overview and other pages.
  *
  * Payload shape depends on {@see StatisticWidgetType}:
- * - kpi: icon, value (int), labelTranslationKey, formatThousands (bool, optional),
- *        secondaryLabelTranslationKey (string, optional), secondaryValue (int, optional)
  * - chart_pair: allocationChart, importChart (same shape as before for templates)
  * - table: headerTranslationKeys, rows, optional footerRow, optional summaryStats (meanDisplay, stdDevDisplay),
  *          optional numericColumnStartIndex (1-based column index from which numbers are right-aligned; default 2 as before)

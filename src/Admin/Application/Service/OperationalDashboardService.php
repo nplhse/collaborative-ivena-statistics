@@ -6,13 +6,12 @@ namespace App\Admin\Application\Service;
 
 use App\Admin\Application\DTO\HealthCheckItemDto;
 use App\Admin\Application\DTO\HealthStatusDto;
-use App\Admin\Application\DTO\MessengerStatsDto;
-use App\Admin\Application\DTO\OpsCardDto;
-use App\Admin\Infrastructure\Repository\MessengerStatsRepository;
+use App\Admin\Application\DTO\MessengerStatusDto;
+use App\Admin\Application\DTO\RecentNotificationEventDto;
+use App\Admin\Application\Service\Messenger\MessengerMonitoringService;
 use App\Shared\Application\Health\HealthCheckReport;
 use App\Shared\Application\Health\HealthCheckService;
 use App\Shared\Application\Health\HealthCheckStatus;
-use App\Shared\Infrastructure\Audit\Repository\AuditEntryRepository;
 use App\Storage\Application\DTO\StorageSummary;
 use App\Storage\Application\View\StorageReportService;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
@@ -26,18 +25,13 @@ final readonly class OperationalDashboardService
     private const string JOB_RUN_CONTROLLER = \App\Admin\UI\Http\Controller\JobRun\JobRunCrudController::class;
 
     public function __construct(
-        private MessengerStatsRepository $messengerStatsRepository,
+        private MessengerMonitoringService $messengerMonitoringService,
         private StorageReportService $storageReportService,
         private HealthCheckService $healthCheckService,
-        private AuditEntryRepository $auditEntryRepository,
+        private RecentNotificationEvents $recentNotificationEvents,
         private AdminUrlGeneratorInterface $adminUrlGenerator,
         private StorageHealthItemFactory $storageHealthItemFactory,
     ) {
-    }
-
-    public function getMessengerStats(): MessengerStatsDto
-    {
-        return $this->messengerStatsRepository->getStats();
     }
 
     public function getHealthStatus(): HealthStatusDto
@@ -49,6 +43,7 @@ final readonly class OperationalDashboardService
             appVersion: $report->version,
             checks: $report->checks,
             items: $this->mapHealthCheckItems($report),
+            statuses: $report->statuses,
         );
     }
 
@@ -61,45 +56,48 @@ final readonly class OperationalDashboardService
     }
 
     /**
-     * @return list<OpsCardDto>
+     * The Messenger card: its status is the worst of the Messenger checks in the given health report, so it
+     * matches the banner; pending counts and the oldest ready message come from the live queues.
      */
-    public function getOpsCards(): array
+    public function getMessengerStatus(HealthStatusDto $health): MessengerStatusDto
     {
-        $messenger = $this->getMessengerStats();
+        $status = HealthCheckStatus::Healthy;
+        foreach (self::MESSENGER_CHECKS as $key) {
+            $status = $status->worst($health->statuses[$key] ?? HealthCheckStatus::Healthy);
+        }
 
-        return [
-            new OpsCardDto(
-                labelKey: 'ops.card.failed_messages',
-                value: (string) $messenger->failedCount,
-                icon: 'fas fa-triangle-exclamation',
-                detailUrl: $this->generateFailedMessagesUrl(),
-                style: $messenger->failedCount > 0 ? 'danger' : 'success',
-            ),
-            new OpsCardDto(
-                labelKey: 'ops.card.queue_high',
-                value: (string) $messenger->pendingCountFor('high'),
-                icon: 'fas fa-bolt',
-                style: $messenger->pendingCountFor('high') > 0 ? 'warning' : 'primary',
-            ),
-            new OpsCardDto(
-                labelKey: 'ops.card.queue_low',
-                value: (string) $messenger->pendingCountFor('low'),
-                icon: 'fas fa-hourglass-half',
-                style: $messenger->pendingCountFor('low') > 0 ? 'info' : 'primary',
-            ),
-        ];
+        $queues = $this->messengerMonitoringService->liveQueues();
+        $pendingByQueue = [];
+        $oldestPendingAt = null;
+        foreach (MessengerMonitoringService::TRANSPORTS as $queueName) {
+            if (null === $queueName || MessengerMonitoringService::FAILED_QUEUE === $queueName) {
+                continue;
+            }
+
+            $queue = $queues[$queueName] ?? null;
+            $pendingByQueue[$queueName] = $queue['pending'] ?? 0;
+            $oldest = $queue['oldestPendingAt'] ?? null;
+            if (null !== $oldest && (null === $oldestPendingAt || $oldest < $oldestPendingAt)) {
+                $oldestPendingAt = $oldest;
+            }
+        }
+
+        return new MessengerStatusDto(
+            status: $status,
+            pendingByQueue: $pendingByQueue,
+            failedCount: $queues[MessengerMonitoringService::FAILED_QUEUE]['pending'] ?? 0,
+            oldestPendingAt: $oldestPendingAt,
+            detailUrl: $this->adminUrlGenerator->setRoute('app_admin_dashboard_operations_messenger')->generateUrl(),
+            failedMessagesUrl: $this->generateFailedMessagesUrl(),
+        );
     }
 
     /**
-     * @return list<array{occurredAt: \DateTimeImmutable, intent: string, action: string, origin: string}>
+     * @return list<RecentNotificationEventDto>
      */
     public function getRecentNotificationEvents(int $limit = 10): array
     {
-        return $this->auditEntryRepository->findRecentByIntents([
-            'hospital.reminder_sent',
-            'user.registration',
-            'import.failed',
-        ], $limit);
+        return $this->recentNotificationEvents->latest($limit);
     }
 
     /**
@@ -148,6 +146,13 @@ final readonly class OperationalDashboardService
                 ),
                 'storage' => $this->storageHealthItemFactory->create($value),
                 'messenger_backlog', 'messenger_stalled', 'messenger_retries' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-tower-broadcast', $messengerUrl),
+                'media' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-photo-film', $this->adminUrlGenerator->setRoute('app_admin_dashboard_media_index')->generateUrl()),
+                // Two-factor key (#1357, ADR 040): no page of its own; the value names the problem.
+                'two_factor' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-key', null),
+                // Export connection of data extract requests (#1635, ADR 045): no page of its own; the value names the state.
+                'research_export' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-file-export', null),
+                // Maintenance mode (#1680, ADR 046): `on` is degraded, so a mode left on after a deploy stands out.
+                'maintenance' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-screwdriver-wrench', null),
                 'scheduled_jobs' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-stopwatch', $this->adminUrlGenerator->setController(self::JOB_RUN_CONTROLLER)->setAction('index')->generateUrl()),
                 default => new HealthCheckItemDto(
                     key: $key,
@@ -163,9 +168,9 @@ final readonly class OperationalDashboardService
     }
 
     /**
-     * A check whose severity follows its health status (ADR 019), linking to the page that explains it.
+     * A check whose severity follows its health status (ADR 019), linking to the page that explains it, if there is one.
      */
-    private function statusItem(string $key, string $value, HealthCheckStatus $status, string $icon, string $detailUrl): HealthCheckItemDto
+    private function statusItem(string $key, string $value, HealthCheckStatus $status, string $icon, ?string $detailUrl): HealthCheckItemDto
     {
         return new HealthCheckItemDto(
             key: $key,

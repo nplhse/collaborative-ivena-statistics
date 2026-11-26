@@ -32,8 +32,42 @@ final class UserRepository extends ServiceEntityRepository implements PasswordUp
     }
 
     /**
+     * Usernames are unique regardless of case (#1353, unique index on `LOWER(username)`), so at most one user
+     * matches.
+     */
+    public function findOneByUsernameInsensitive(string $username): ?User
+    {
+        /** @var User|null $user */
+        $user = $this->createQueryBuilder('u')
+            ->where('LOWER(u.username) = LOWER(:username)')
+            ->setParameter('username', $username)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $user;
+    }
+
+    /**
      * Used to upgrade (rehash) the user's password automatically over time.
      */
+    /**
+     * Ids of every enabled user, e.g. the recipients of an announcement (#1486).
+     *
+     * @return list<int>
+     */
+    public function findEnabledUserIds(): array
+    {
+        /** @var list<int|string> $ids */
+        $ids = $this->createQueryBuilder('u')
+            ->select('u.id')
+            ->where('u.isEnabled = true')
+            ->orderBy('u.id', 'ASC')
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return array_map(static fn (int|string $id): int => (int) $id, $ids);
+    }
+
     /**
      * @param list<string> $requiredRoles
      *

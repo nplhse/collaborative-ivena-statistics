@@ -141,4 +141,18 @@ HTML;
 
         self::assertSame([$block], $sut->sanitize([$block]));
     }
+
+    public function testSanitizerCleansTheTextOfEveryCard(): void
+    {
+        $sut = self::getContainer()->get(PageContentSanitizer::class);
+
+        $out = $sut->sanitize([['type' => 'cards', 'data' => ['items' => [
+            ['title' => 'Staff', 'html' => '<p>Start <a href="/help">here</a><script>alert(1)</script></p>'],
+        ]]]]);
+        $item = $out[0]['data']['items'][0] ?? [];
+
+        self::assertSame('Staff', $item['title'] ?? null);
+        self::assertStringContainsString('href="/help"', (string) ($item['html'] ?? ''));
+        self::assertStringNotContainsString('script', (string) ($item['html'] ?? ''));
+    }
 }

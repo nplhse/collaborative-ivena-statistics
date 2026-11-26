@@ -32,9 +32,30 @@ framework:
             policy: fixed_window
             limit: 10
             interval: '1 hour'
+        # Codes entered in the two-factor settings (#1357) to switch it off or renew the backup codes, per user.
+        # Codes at sign-in count towards login_throttling in security.yaml.
+        two_factor_settings_code:
+            policy: fixed_window
+            limit: 5
+            interval: '15 minutes'
+        # Login link requests (#1355): per IP and per entered identifier (hashed). Exceeding either sends no mail
+        # but shows the same page as a successful request.
+        login_link_request:
+            policy: fixed_window
+            limit: 5
+            interval: '15 minutes'
+        login_link_request_identifier:
+            policy: fixed_window
+            limit: 3
+            interval: '15 minutes'
         import_create:
             policy: fixed_window
             limit: 30
+            interval: '1 hour'
+        # Background uploads of the import form (#977): every file selection, including replaced files.
+        import_upload:
+            policy: fixed_window
+            limit: 60
             interval: '1 hour'
         allocations_export:
             policy: fixed_window
@@ -90,6 +111,10 @@ when@test:
                 limit: 10000
                 interval: '1 second'
             import_create:
+                policy: fixed_window
+                limit: 10000
+                interval: '1 second'
+            import_upload:
                 policy: fixed_window
                 limit: 10000
                 interval: '1 second'

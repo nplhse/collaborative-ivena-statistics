@@ -1,0 +1,59 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'data_sources.title'|trans({}, 'allocation') }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs :items="[{label: 'data_sources.title', label_domain: 'allocation'}]" />
+        <h1 class="fw-bold mb-0">{{ 'data_sources.title'|trans({}, 'allocation') }}</h1>
+    </div>
+{% endblock %}
+
+{% block page_body %}
+    <div class="page-body">
+        <div class="container-xl">
+            <p class="text-secondary">{{ 'data_sources.intro'|trans({}, 'allocation') }}</p>
+            <div class="row row-cards" data-testid="data-sources">
+                {% for source in sources %}
+                    <div class="col-12 col-lg-6">
+                        <section class="card h-100" data-testid="data-source">
+                            <div class="card-header">
+                                <h2 class="card-title">
+                                    {% if source.url %}
+                                        <a href="{{ source.url }}" rel="noopener noreferrer" target="_blank">{{ source.name }}</a>
+                                    {% else %}
+                                        {{ source.name ?? 'data_sources.configured_tiles'|trans({}, 'allocation') }}
+                                    {% endif %}
+                                </h2>
+                            </div>
+                            <div class="card-body">
+                                <dl class="row mb-0">
+                                    <dt class="col-sm-4">{{ 'data_sources.field.use'|trans({}, 'allocation') }}</dt>
+                                    <dd class="col-sm-8">
+                                        {% for use in source.uses %}{{ use|trans({}, 'allocation') }}{% if not loop.last %}, {% endif %}{% endfor %}
+                                    </dd>
+                                    <dt class="col-sm-4">{{ 'data_sources.field.licence'|trans({}, 'allocation') }}</dt>
+                                    <dd class="col-sm-8">
+                                        {% if source.licenceUrl %}
+                                            <a href="{{ source.licenceUrl }}" rel="noopener noreferrer" target="_blank">{{ source.licence }}</a>
+                                        {% else %}
+                                            {{ source.licence ?? 'data_sources.licence_of_provider'|trans({}, 'allocation') }}
+                                        {% endif %}
+                                    </dd>
+                                    {% if source.attributions is not empty %}
+                                        <dt class="col-sm-4">{{ 'data_sources.field.attribution'|trans({}, 'allocation') }}</dt>
+                                        <dd class="col-sm-8 mb-0">
+                                            {% for attribution in source.attributions %}
+                                                <div>{{ attribution }}</div>
+                                            {% endfor %}
+                                        </dd>
+                                    {% endif %}
+                                </dl>
+                            </div>
+                        </section>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

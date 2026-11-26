@@ -6,6 +6,7 @@
 - **Fixture tests** under `tests/DataFixtures/` (reference YAML, pattern validation)
 - **Import integration tests** for CSV processing, reject behaviour, and upload validation (Excel / unsupported extensions)
 - **Command tests** for requeue and exit-code behavior
+- **JavaScript tests** with Node's built-in runner: `npm run test:js`, also part of `make lint-js`. They cover the encounter data preparation tool (`tests/Encounter/DataPrep/*.test.js`, see [data-preparation-tool.md](../04-features/tools/data-preparation-tool.md#tests)), admin scripts (`tests/Admin/JS/*.test.js`) and the sidebar search filter (`tests/Shared/JavaScript/*.test.js`). A new directory has to be added to the `test:js`, `lint` and `format` scripts in `package.json`.
 
 ## Run locally
 
@@ -22,7 +23,7 @@ make test-unit                         # unit suite via ParaTest, as the CI unit
 make test-database                     # all other suites via ParaTest, as the CI database job
 ```
 
-`make test` runs PHPUnit serially and stops at the first failure. `make test-unit` and `make test-database` run the same groups as the two CI jobs in parallel (`PROCESSES=4` by default) and do not stop early. `COVERAGE=1` writes the clover report to `var/coverage/logs/clover-unit.xml` / `clover-integration.xml` (needs PCOV or Xdebug), `JUNIT=1` writes `junit-unit.xml` / `junit-integration.xml`. Each ParaTest worker uses its own test database (`dbname_suffix` with `TEST_TOKEN`).
+`make test` runs PHPUnit serially and stops at the first failure. `make test-unit` and `make test-database` run the same groups as the two CI jobs in parallel (`PROCESSES=4` by default) and do not stop early. `COVERAGE=1` writes the clover report to `var/coverage/logs/clover-unit.xml` / `clover-integration.xml` (needs PCOV or Xdebug), `JUNIT=1` writes `junit-unit.xml` / `junit-integration.xml`. Each ParaTest worker uses its own test database (`dbname_suffix` with `TEST_TOKEN`), and each git worktree its own set of them (`TEST_DATABASE_SUFFIX`, see [Work in a git worktree](development-workflow.md#work-in-a-git-worktree)).
 
 After a test run, slowest tests from the PHPUnit duration cache:
 
@@ -75,6 +76,15 @@ Database tests make up most of the CI time. Keep them fast without weakening wha
 
 To find slow tests, run the suite and then `php bin/report-slowest-tests 25`, or read the JUnit file of a CI run. Profile a single test with `XDEBUG_MODE=profile` before changing it; the cause is not always the data setup.
 
+## Tests with two database sessions
+
+DAMA runs every test inside one uncommitted transaction, so a second connection sees none of its
+fixtures. A test that needs real concurrency (for example two imports inserting the same encounter)
+commits a minimal fixture through its own plain DBAL connection with raw SQL (no audit rows), removes
+it in `tearDown()`, and sends the competing statement asynchronously with the `pgsql` extension
+(`pg_send_query_params`), which CI installs. Example: `ConcurrentEncounterInsertTest`. Each ParaTest
+worker has its own database, so the committed rows never reach another worker.
+
 ## Time in code and tests
 
 Application code never reads the wall clock directly (ADR [021](../02-architecture/decisions/021-wall-clock-access.md)). Otherwise `mockTime()` cannot control it and tests depend on the real date.
@@ -83,11 +93,14 @@ Application code never reads the wall clock directly (ADR [021](../02-architectu
 |-------|-----|
 | Services | Inject `Psr\Clock\ClockInterface`, call `$this->clock->now()` |
 | Entities, value objects, static helpers | `Symfony\Component\Clock\Clock::get()->now()` |
+| Twig templates | `clock_now()`, e.g. `clock_now()|date('Y')`, instead of `'now'|date` |
 | Tests | `use ClockSensitiveTrait;` and `self::mockTime('2026-05-15 10:00:00')` |
 
 Absolute values stay fine: `new \DateTimeImmutable('2026-05-01 00:00:00')`, `new \DateTimeImmutable('@'.$timestamp)`, `new \DateTimeImmutable($row['created_at'])`. Relative values go through the clock: `$this->clock->now()->modify('first day of this month')` instead of `new \DateTimeImmutable('first day of this month')`, `$this->clock->now()->getTimestamp()` instead of `time()`, `$this->clock->now()->format('Y')` instead of `date('Y')`.
 
 Parsing with `createFromFormat()` always starts the format with `!`: `\DateTimeImmutable::createFromFormat('!Y-m-d', $value)`. Without it, every field the format does not mention comes from the current time, so `'Y-m-d'` returns the date with the time of day the code runs at.
+
+PHPStan checks PHP only; in templates `'now'|date` reads the system time unnoticed.
 
 PHPStan reports violations in `src/` with the identifiers `wallClock.dateTime`, `wallClock.function` and `wallClock.createFromFormat`; there is no baseline for them. A deliberate exception needs `@phpstan-ignore wallClock.function (reason)`.
 
@@ -122,14 +135,21 @@ make lint-trans-de  # lint DE catalogue only
 
 - **Unit job** (parallel, no database, PCOV): `make test-unit COVERAGE=1 JUNIT=1`, clover artifact `coverage-unit`
 - **Database job** (parallel, PostgreSQL, PCOV): `make test-database COVERAGE=1 JUNIT=1`, suites `integration,functional,fixtures,system`, clover artifact `coverage-integration`. The list lives in `DATABASE_SUITES` in the `Makefile`; use it, not `all` with `--exclude-testsuite unit`: `all` contains the unit folders too, so they would run twice.
+- **Extra test containers are compiled before the tests** (#1343). Some tests boot another kernel than the regular test kernel: `KernelWithoutEdVisit`, `KernelWithoutEncounterSchemas` (#1300) and the demo kernel (`DemoEnvironmentConfigTest`). Compiling such a container inside a test took one to two and a half minutes under PCOV and blocked a ParaTest worker. `make test-database` therefore runs `make test-warmup` first (`bin/warmup-test-kernels`, without PCOV). The test cache itself is warmed without PCOV too. A new test kernel class belongs in `bin/warmup-test-kernels`.
+- **The prod CSP header is checked outside the test suite** (#1343): `bin/check-prod-csp` runs in the **Prod kernel smoke** job, which builds the prod container anyway, and handles `GET /data-prep/latest.json` with `SENTRY_CSP_REPORT_URI` empty and set. That job has no database, so the script uses this stateless route, which needs none and answers 200; only the header is checked. Locally: `APP_ENV=prod APP_DEBUG=0 php bin/check-prod-csp`.
+- **The database job runs without the debug kernel** (`APP_DEBUG=0`, #1343). Debug kernels collect query backtraces, trace every event and check container freshness on each boot; without them the DB tests need about 40 % less time and memory. What stays the same:
+  - Doctrine profiling is switched on explicitly in `when@test` (`profiling: true`), because the query-count tests read the profiler's `db` collector and Doctrine would otherwise tie it to `kernel.debug`.
+  - Container deprecations are checked by `make lint-container` in the Linters workflow (`--no-debug`); runtime deprecations (`trigger_deprecation()`) reach PHPUnit with or without debug. The tests never enabled the `DebugClassLoader`.
+  - A non-debug container is not rebuilt when a file changes. CI builds it fresh. Locally, `make test*` keeps the debug kernel; to run like CI, clear the cache first: `APP_DEBUG=0 bin/console cache:clear --env=test`, then `APP_DEBUG=0 make test-database`.
+  - With Xdebug in `develop` mode, entities that Doctrine loads as lazy ghosts can lose their identifier for Doctrine's reflection, and EasyAdmin edit forms then reject associations ("The selected choice is invalid"). Run the tests with `XDEBUG_MODE=off` (or PCOV) when you see this; CI does not load Xdebug.
 - **Coverage job** (after both succeed): one Codecov upload with both clovers, no flags (full project coverage)
-- **Prod kernel smoke**: `composer install --no-dev` (with Composer scripts, so `cache:clear` boots the prod kernel), `lint:container` and `asset-map:compile` in `APP_ENV=prod`
+- **Prod kernel smoke**: `composer install --no-dev` (with Composer scripts, so `cache:clear` boots the prod kernel), `lint:container`, `asset-map:compile` and `bin/check-prod-csp` in `APP_ENV=prod`
 - CI writes only the clover report; the HTML and text reports come from `make coverage`
 - CI runs ParaTest without `--stop-on-failure`, so a red run lists every failing test. Test results reach Codecov for red runs too.
 - The test jobs install Composer dependencies with `--no-scripts` (the `cache:clear` auto-script would build an unused dev container)
 - Either test job failing fails the workflow; the coverage job does not run unless both succeed
 - **Coverage runs on every PR**, including step PRs into integration branches, so coverage stays high at every step and is not only checked on `main`. PCOV makes the tests about 2.4× slower; this cost is accepted, and speed-ups come from the tests and workflows instead (decided in #833)
-- A new push to a PR cancels the previous run; changes only to `docs/**` or Markdown files start no workflow
+- A new push to a PR cancels the previous run. A pull request that only changes `docs/**` or Markdown files still starts the workflows, but the changes job (`.github/workflows/changes.yml`) skips the code jobs; skipped jobs count as passed for the checks the rulesets require (#1183). Pushes to `main` and `develop` with only such changes start no workflow
 - Workflows: `.github/workflows/tests.yml`
 - Codecov: [`codecov.yml`](../../codecov.yml)
 - Linting: `.github/workflows/lint.yml`
@@ -140,12 +160,13 @@ make lint-trans-de  # lint DE catalogue only
 
 EasyAdmin 5 declares `persistEntity()`, `updateEntity()`, and `deleteEntity()` with `object $entityInstance` in `AbstractCrudController`. CRUD controller overrides must use the same parameter type — not an entity-specific type (PHP forbids narrowing `object` to e.g. `Post`).
 
-After an EasyAdmin upgrade, run `composer install` so `vendor/` matches `composer.lock`. If Rector behaves unexpectedly locally, clear `var/cache/rector` and re-run `vendor/bin/rector --dry-run`. CI restores the Rector cache from earlier runs; a change to `composer.lock` or `rector.php` starts with a fresh one.
+After an EasyAdmin upgrade, run `composer install` so `vendor/` matches `composer.lock`. If Rector behaves unexpectedly locally, clear `var/cache/rector` and `var/cache/rector-phpstan` (Rector's internal PHPStan cache, kept per checkout so a removed worktree cannot break other checkouts, #1132) and re-run `vendor/bin/rector --dry-run`. CI restores the Rector cache from earlier runs; a change to `composer.lock` or `rector.php` starts with a fresh one.
 
 ## Common pitfalls
 
 - Tests using `#[ResetDatabase]` or `DatabaseKernelTestCase` belong under `tests/*/Integration/` (or higher layers), not `tests/*/Unit/`: the CI unit job runs ParaTest without PostgreSQL.
 - Missing test database or wrong `DATABASE_URL`
+- `terminating connection due to administrator command` in a filtered run: the first `#[ResetDatabase]` reset terminates DAMA's kept connections; `MaterializedViewAwareOrmResetter` drops them afterwards ([details](../04-features/statistics/projection-and-materialized-views.md#test-only-reset-decorator), #887). If it shows up again after a DAMA upgrade, check `DamaStaticConnections`.
 - Materialized views not refreshed in statistics-related tests
 - Missing `fixtures.scale` in test env (see `config/packages/test/fixtures.yaml`)
 - Queue expectations in tests vs `when@test` routing (sync)

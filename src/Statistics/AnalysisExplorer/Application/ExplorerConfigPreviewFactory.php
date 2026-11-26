@@ -18,12 +18,16 @@ use App\Statistics\Application\DTO\StatisticsFilterScope;
 
 final readonly class ExplorerConfigPreviewFactory
 {
+    /**
+     * @param list<int>|null $referenceHospitalIds the comparison's references (#1346); null takes them from the form data
+     */
     public function fromFormData(
         DataSourceCapabilities $capabilities,
         AnalysisAxisRef $rowAxis,
         ?AnalysisAxisRef $columnAxis,
         AnalysisMetricKey $metric,
         ExplorerEditFormData $formData,
+        ?array $referenceHospitalIds = null,
     ): AnalysisViewConfig {
         return $this->buildConfig(
             $capabilities,
@@ -38,6 +42,7 @@ final readonly class ExplorerConfigPreviewFactory
             hospitalPopulationMode: \App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerHospitalPopulationMode::tryFrom($formData->hospitalPopulation)
                 ?? \App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerHospitalPopulationMode::Participating,
             additionalTableMetrics: $formData->additionalTableMetrics,
+            referenceHospitalIds: $referenceHospitalIds ?? $formData->referenceHospitals,
         );
     }
 
@@ -53,17 +58,19 @@ final readonly class ExplorerConfigPreviewFactory
             $rowAxis,
             $columnAxis,
             $metricKey,
-            $config->showsPercentOfTotal(),
+            $config->showsPercentOfTotal() || $config->showsPercentOfSeries(),
             $config->presentation,
             $config->statisticsFilter,
             $config->title,
             $config->hospitalPopulationMode,
             AnalysisMetricKey::additionalTableMetricValues($config->metricKeys, $config->visualMetricKey),
+            $config->referenceHospitalIds,
         );
     }
 
     /**
      * @param list<string> $additionalTableMetrics
+     * @param list<int>    $referenceHospitalIds
      */
     private function buildConfig(
         DataSourceCapabilities $capabilities,
@@ -76,8 +83,9 @@ final readonly class ExplorerConfigPreviewFactory
         string $title = '',
         \App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerHospitalPopulationMode $hospitalPopulationMode = \App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerHospitalPopulationMode::Participating,
         array $additionalTableMetrics = [],
+        array $referenceHospitalIds = [],
     ): AnalysisViewConfig {
-        $metricKeys = $this->resolveMetricKeys($visualMetricKey, $showPercentOfTotal, $additionalTableMetrics);
+        $metricKeys = $this->resolveMetricKeys($visualMetricKey, $showPercentOfTotal, $additionalTableMetrics, [] !== $referenceHospitalIds);
 
         return new AnalysisViewConfig(
             dataSourceKey: $capabilities->dataSourceKey,
@@ -89,11 +97,12 @@ final readonly class ExplorerConfigPreviewFactory
                 scope: StatisticsFilterScope::Public,
                 hospitalId: null,
                 cohortType: null,
-                period: StatisticsFilterPeriod::All,
+                period: StatisticsFilterPeriod::Last12Months,
             ),
             presentation: $presentation,
             title: $title,
             hospitalPopulationMode: $hospitalPopulationMode,
+            referenceHospitalIds: $referenceHospitalIds,
         );
     }
 
@@ -106,6 +115,7 @@ final readonly class ExplorerConfigPreviewFactory
         AnalysisMetricKey $visualMetricKey,
         bool $showPercentOfTotal,
         array $additionalTableMetrics,
+        bool $comparesReferences = false,
     ): array {
         if ($visualMetricKey->isDistributionProfile()) {
             return [$visualMetricKey];
@@ -121,7 +131,7 @@ final readonly class ExplorerConfigPreviewFactory
             $metricKey = AnalysisMetricKey::tryFrom($value);
             if (!$metricKey instanceof AnalysisMetricKey
                 || $metricKey === $visualMetricKey
-                || AnalysisMetricKey::PercentOfTotal === $metricKey) {
+                || $metricKey->isShareDisplay()) {
                 continue;
             }
 
@@ -131,7 +141,8 @@ final readonly class ExplorerConfigPreviewFactory
         }
 
         if ($showPercentOfTotal && \in_array($visualMetricKey, [AnalysisMetricKey::AllocationCount, AnalysisMetricKey::HospitalCount], true)) {
-            $metricKeys[] = AnalysisMetricKey::PercentOfTotal;
+            // With the reference comparison the share is taken within each series (#1346), never of the grand total.
+            $metricKeys[] = $comparesReferences ? AnalysisMetricKey::PercentOfSeries : AnalysisMetricKey::PercentOfTotal;
         }
 
         return $metricKeys;

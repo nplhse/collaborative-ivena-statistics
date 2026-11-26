@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Statistics\Application\Overview;
 
 use App\Statistics\AnalysisExplorer\Application\ExplorerLegacyAnalyticsViewMapper;
+use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticWidgetNavigationTarget;
 use App\Statistics\Application\Overview\Dto\OverviewPortalNavigationViewModel;
 
@@ -66,7 +67,7 @@ final readonly class OverviewPortalNavigationFactory
         return $this->explorerTarget(
             'stats.nav.overview_resources_to_analysis',
             'clinical_resources_comparison',
-            'all',
+            StatisticsFilterPeriod::Last12Months->value,
         );
     }
 
@@ -75,7 +76,7 @@ final readonly class OverviewPortalNavigationFactory
         return $this->explorerTarget(
             'stats.nav.overview_indicators_to_analysis',
             'clinical_features_comparison',
-            'all',
+            StatisticsFilterPeriod::Last12Months->value,
         );
     }
 

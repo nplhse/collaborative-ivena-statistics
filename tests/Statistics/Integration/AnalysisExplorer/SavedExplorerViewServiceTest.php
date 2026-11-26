@@ -198,7 +198,7 @@ final class SavedExplorerViewServiceTest extends KernelTestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
 
         return $this->configMapper->toStateArray(

@@ -1,0 +1,53 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{%- set g = 'encounter.data_prep.guide.' -%}
+
+{% block title %}{{ (g ~ 'key.title')|trans({}, 'encounter') }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    {{ include('@Encounter/data_prep/_subpage_header.html.twig', {subpage_title: g ~ 'key.title'}) }}
+{% endblock %}
+
+{% block page_content %}
+    {% set key_rows = hospitals|filter(row => is_granted(constant('App\\Encounter\\Application\\Security\\EncounterAttribute::CHANGE_KEY'), row.hospital)) %}
+    <div class="row row-cards">
+        <div class="col-lg-8">
+            <div class="card" data-test="data-prep-key">
+                <div class="card-body">
+                    <h4>{{ (g ~ 'key.purpose_title')|trans({}, 'encounter') }}</h4>
+                    <p>{{ (g ~ 'key.purpose')|trans({}, 'encounter') }}</p>
+                    <p>{{ (g ~ 'key.keep')|trans({}, 'encounter') }}</p>
+
+                    <h4>{{ (g ~ 'key.handling_title')|trans({}, 'encounter') }}</h4>
+                    <p>{{ (g ~ 'steps.key.text')|trans({}, 'encounter') }}</p>
+
+                    <h4>{{ (g ~ 'key.generations_title')|trans({}, 'encounter') }}</h4>
+                    <p>{{ (g ~ 'key.generations')|trans({}, 'encounter') }}</p>
+                    <p class="mb-0">{{ (g ~ 'key.lost')|trans({}, 'encounter') }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card" data-test="data-prep-key-change-card">
+                <div class="card-header">
+                    <h3 class="card-title">{{ (g ~ 'key.change_title')|trans({}, 'encounter') }}</h3>
+                </div>
+                <div class="card-body">
+                    {% if key_rows is not empty %}
+                        <p class="mb-2">{{ (g ~ 'key.change_allowed')|trans({}, 'encounter') }}</p>
+                        <div class="d-grid gap-2">
+                            {% for row in key_rows %}
+                                <a class="btn btn-outline-danger" href="{{ path('app_encounter_key_change', {id: row.hospital.id}) }}" data-test="data-prep-key-change" data-hospital="{{ row.hospital.id }}">{{ (g ~ 'key.change_link')|trans({hospital: row.hospital.name}, 'encounter') }}</a>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <p class="text-secondary mt-2 mb-0" data-test="data-prep-key-admin">{{ (g ~ 'key.admin')|trans({}, 'encounter') }}</p>
+                    {% elseif key_rows|length < hospitals|length or hospitals is empty %}
+                        <p class="text-secondary {{ key_rows is not empty ? 'mt-2 ' }}mb-0" data-test="data-prep-key-who">{{ (g ~ 'key.who')|trans({}, 'encounter') }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

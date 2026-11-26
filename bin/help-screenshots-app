@@ -1,0 +1,347 @@
+#!/usr/bin/env node
+// Captures screenshots of the running demo for the help (docs/03-development/help-screenshots.md).
+//
+// Usage: bin/help-screenshots-app [--base-url=http://127.0.0.1:8001] [--out=var/help-screenshots] [--only=name,...]
+//                                 [--config=resources/help/app-screenshots.json]
+//
+// Starts headless Chrome, signs in as the demo participant, opens every page listed in
+// resources/help/app-screenshots.json, adds the numbered markers and saves a PNG (2x) per entry. Talks to Chrome over the
+// DevTools protocol with Node's built-in WebSocket, so it needs no package. Set CHROME to the browser binary and
+// HELP_DEMO_USER / HELP_DEMO_PASSWORD for another demo account (default: demo / the demo password of the wizard).
+
+import { spawn } from 'node:child_process';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const args = Object.fromEntries(
+    process.argv.slice(2).map((arg) => {
+        const [key, ...value] = arg.replace(/^--/, '').split('=');
+        return [key, value.join('=') || 'true'];
+    }),
+);
+const baseUrl = (args['base-url'] ?? 'http://127.0.0.1:8001').replace(/\/$/, '');
+const outDir = resolve(args.out ?? join(root, 'var/help-screenshots'));
+const only = args.only ? args.only.split(',') : null;
+const config = JSON.parse(
+    readFileSync(resolve(args.config ?? join(root, 'resources/help/app-screenshots.json')), 'utf8'),
+);
+const user = process.env.HELP_DEMO_USER ?? config.login.username;
+const password = process.env.HELP_DEMO_PASSWORD ?? config.login.password;
+
+const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
+
+function findChrome() {
+    const candidates = [
+        process.env.CHROME,
+        '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+        '/Applications/Chromium.app/Contents/MacOS/Chromium',
+        '/usr/bin/google-chrome',
+        '/usr/bin/chromium',
+        '/usr/bin/chromium-browser',
+    ];
+    const found = candidates.find((candidate) => candidate && existsSync(candidate));
+    if (!found) {
+        throw new Error('Chrome or Chromium not found. Set CHROME to its binary.');
+    }
+    return found;
+}
+
+async function startChrome() {
+    // A throwaway profile, so the run neither reads nor changes a browser profile of the user.
+    const profile = mkdtempSync(join(tmpdir(), 'help-screenshots-'));
+    const chrome = spawn(
+        findChrome(),
+        [
+            '--headless=new',
+            '--disable-gpu',
+            '--hide-scrollbars',
+            '--no-first-run',
+            '--no-default-browser-check',
+            '--ignore-certificate-errors',
+            '--remote-debugging-port=0',
+            `--user-data-dir=${profile}`,
+            'about:blank',
+        ],
+        { stdio: 'ignore' },
+    );
+    const portFile = join(profile, 'DevToolsActivePort');
+    for (let i = 0; i < 100 && !existsSync(portFile); i++) {
+        await sleep(100);
+    }
+    const [port, path] = readFileSync(portFile, 'utf8').trim().split('\n');
+    return { chrome, profile, endpoint: `ws://127.0.0.1:${port}${path}` };
+}
+
+function connect(endpoint) {
+    const socket = new WebSocket(endpoint);
+    let nextId = 1;
+    const pending = new Map();
+    const listeners = [];
+    socket.addEventListener('message', (event) => {
+        const message = JSON.parse(event.data);
+        if (message.id && pending.has(message.id)) {
+            const { done, fail } = pending.get(message.id);
+            pending.delete(message.id);
+            message.error ? fail(new Error(message.error.message)) : done(message.result);
+        } else if (message.method) {
+            listeners.forEach((listener) => listener(message));
+        }
+    });
+    const send = (method, params = {}, sessionId) =>
+        new Promise((done, fail) => {
+            const id = nextId++;
+            pending.set(id, { done, fail });
+            socket.send(
+                JSON.stringify({ id, method, params, ...(sessionId ? { sessionId } : {}) }),
+            );
+        });
+    const once = (method, sessionId) =>
+        new Promise((done) => {
+            const listener = (message) => {
+                if (message.method === method && message.sessionId === sessionId) {
+                    listeners.splice(listeners.indexOf(listener), 1);
+                    done(message.params);
+                }
+            };
+            listeners.push(listener);
+        });
+    return new Promise((done) =>
+        socket.addEventListener('open', () => done({ send, once, close: () => socket.close() })),
+    );
+}
+
+async function openPage(cdp) {
+    const { targetId } = await cdp.send('Target.createTarget', { url: 'about:blank' });
+    const { sessionId } = await cdp.send('Target.attachToTarget', { targetId, flatten: true });
+    const page = {
+        send: (method, params) => cdp.send(method, params, sessionId),
+        async evaluate(expression) {
+            const result = await cdp.send(
+                'Runtime.evaluate',
+                { expression, awaitPromise: true, returnByValue: true },
+                sessionId,
+            );
+            if (result.exceptionDetails) {
+                throw new Error(
+                    result.exceptionDetails.exception?.description ?? result.exceptionDetails.text,
+                );
+            }
+            return result.result.value;
+        },
+        async goto(url) {
+            const loaded = cdp.once('Page.loadEventFired', sessionId);
+            await cdp.send('Page.navigate', { url }, sessionId);
+            await loaded;
+            await page.settle();
+        },
+        async settle() {
+            // Turbo frames, charts and fonts load after the load event.
+            await page.evaluate('document.fonts.ready.then(() => true)');
+            for (let i = 0; i < 50; i++) {
+                const busy = await page.evaluate(
+                    "document.querySelectorAll('turbo-frame[busy], turbo-frame[src]:not([complete])').length",
+                );
+                if (busy === 0) break;
+                await sleep(200);
+            }
+            await sleep(800);
+        },
+    };
+    await page.send('Page.enable');
+    await page.send('Runtime.enable');
+    await page.send('DOM.enable');
+    return page;
+}
+
+// Finds elements by CSS selector, optionally only those whose text contains `text`.
+const findScript = (target) => `(() => {
+    const t = ${JSON.stringify(target)};
+    const all = [...document.querySelectorAll(t.selector)];
+    const hits = t.text ? all.filter((el) => el.textContent.replace(/\\s+/g, ' ').includes(t.text)) : all;
+    return hits[t.index ?? 0] ?? null;
+})()`;
+
+async function login(page) {
+    await page.goto(`${baseUrl}/login`);
+    // The consent form reloads the page; the login form only accepts a sign-in after it.
+    await acceptEssentialCookies(page);
+    await page.goto(`${baseUrl}/login`);
+    const result = await page.evaluate(`(() => {
+        const form = document.querySelector('form [name="login[username]"]')?.form;
+        if (!form) return 'no login form';
+        form.querySelector('[name="login[username]"]').value = ${JSON.stringify(user)};
+        form.querySelector('[name="login[password]"]').value = ${JSON.stringify(password)};
+        form.requestSubmit();
+        return 'submitted';
+    })()`);
+    if (result !== 'submitted') throw new Error(`Login failed: ${result}`);
+    await sleep(2500);
+    await page.settle();
+    const signedIn = await page.evaluate("!location.pathname.startsWith('/login')");
+    if (!signedIn) throw new Error(`Login as ${user} failed; is the demo running at ${baseUrl}?`);
+}
+
+async function acceptEssentialCookies(page) {
+    await page.evaluate(`(() => {
+        const button = [...document.querySelectorAll('button')].find((b) => /Nur notwendige|Essential only|necessary/i.test(b.textContent));
+        button?.click();
+        return true;
+    })()`);
+    await sleep(1500);
+}
+
+async function runAction(page, action) {
+    if (action.goto) await page.goto(`${baseUrl}${action.goto}`);
+    if (action.click) {
+        const clicked = await page.evaluate(
+            `(() => { const el = ${findScript(action.click)}; el?.click(); return !!el; })()`,
+        );
+        if (!clicked) throw new Error(`Click target not found: ${JSON.stringify(action.click)}`);
+    }
+    if (action.fill) {
+        await page.evaluate(`(() => {
+            const el = ${findScript(action.fill)};
+            if (!el) return false;
+            el.value = ${JSON.stringify(action.fill.value)};
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+            el.dispatchEvent(new Event('change', { bubbles: true }));
+            return true;
+        })()`);
+    }
+    if (action.select) {
+        await page.evaluate(`(() => {
+            const el = ${findScript(action.select)};
+            if (!el) return false;
+            const option = [...el.options].find((o) => o.textContent.includes(${JSON.stringify(action.select.option)}));
+            if (option) { el.value = option.value; el.dispatchEvent(new Event('change', { bubbles: true })); }
+            return !!option;
+        })()`);
+    }
+    if (action.upload) {
+        // Sets a file on a file input like a user would choose it; the path is relative to the project root.
+        const { root: doc } = await page.send('DOM.getDocument', { depth: -1 });
+        const { nodeId } = await page.send('DOM.querySelector', {
+            nodeId: doc.nodeId,
+            selector: action.upload.selector,
+        });
+        if (!nodeId) throw new Error(`Upload target not found: ${action.upload.selector}`);
+        await page.send('DOM.setFileInputFiles', {
+            nodeId,
+            files: [resolve(root, action.upload.file)],
+        });
+    }
+    if (action.script) await page.evaluate(action.script);
+    await sleep(action.wait ?? 300);
+    await page.settle();
+}
+
+const markerCss = `
+.help-shot-mark { outline: 3px solid #0054a6 !important; outline-offset: 3px !important; border-radius: 2px; }
+.help-shot-badge { position: absolute; z-index: 2147483647; width: 24px; height: 24px; border-radius: 50%;
+  background: #0054a6; color: #fff; font: bold 13px/24px Arial, sans-serif; text-align: center;
+  box-shadow: 0 0 0 2px #fff; pointer-events: none; }`;
+
+async function decorate(page, shot) {
+    const hide = [...(config.hide ?? []), ...(shot.hide ?? [])];
+    await page.evaluate(`(() => {
+        const style = document.createElement('style');
+        style.textContent = ${JSON.stringify(markerCss)} + ${JSON.stringify(hide.join(',') + '{display:none !important}')};
+        document.head.appendChild(style);
+        return true;
+    })()`);
+    for (const marker of shot.markers ?? []) {
+        const placed = await page.evaluate(`(() => {
+            const el = ${findScript(marker)};
+            if (!el) return false;
+            el.classList.add('help-shot-mark');
+            const r = el.getBoundingClientRect();
+            const badge = document.createElement('div');
+            badge.className = 'help-shot-badge';
+            badge.textContent = ${JSON.stringify(String(marker.step))};
+            badge.style.left = (window.scrollX + r.right - 8) + 'px';
+            badge.style.top = (window.scrollY + r.top - 16) + 'px';
+            document.body.appendChild(badge);
+            return true;
+        })()`);
+        if (!placed) throw new Error(`Marker ${marker.step} not found: ${JSON.stringify(marker)}`);
+    }
+}
+
+async function capture(page, shot) {
+    const [width, height] = shot.viewport ?? config.viewport;
+    await page.send('Emulation.setDeviceMetricsOverride', {
+        width,
+        height,
+        deviceScaleFactor: 2,
+        mobile: false,
+    });
+    for (const action of shot.actions ?? [{ goto: shot.path }]) {
+        await runAction(page, action);
+    }
+    await decorate(page, shot);
+    await sleep(200);
+    const padding = shot.padding ?? config.padding ?? 28;
+    // The clip is one element or the box around several (e.g. page header and page body without the navigation).
+    const targets = shot.clip ? [shot.clip].flat() : [];
+    const clip = targets.length
+        ? await page.evaluate(`(() => {
+            const els = [${targets.map(findScript).join(',')}];
+            if (els.some((el) => !el)) return null;
+            const rects = els.map((el) => el.getBoundingClientRect());
+            const left = Math.min(...rects.map((r) => r.left)) + window.scrollX;
+            const top = Math.min(...rects.map((r) => r.top)) + window.scrollY;
+            const right = Math.max(...rects.map((r) => r.right)) + window.scrollX;
+            const bottom = Math.max(...rects.map((r) => r.bottom)) + window.scrollY;
+            const x = Math.max(0, left - ${padding});
+            const y = Math.max(0, top - ${padding});
+            return { x, y, width: Math.min(document.documentElement.scrollWidth - x, right - left + ${2 * padding}),
+                     height: Math.min(bottom - top + ${2 * padding}, ${shot.maxHeight ?? 100000}) };
+        })()`)
+        : { x: 0, y: 0, width, height };
+    if (!clip) throw new Error(`Clip target not found: ${JSON.stringify(shot.clip)}`);
+    const { data } = await page.send('Page.captureScreenshot', {
+        format: 'png',
+        captureBeyondViewport: true,
+        clip: { ...clip, scale: 1 },
+    });
+    writeFileSync(join(outDir, shot.file), Buffer.from(data, 'base64'));
+}
+
+const { chrome, profile, endpoint } = await startChrome();
+let failed = 0;
+try {
+    const cdp = await connect(endpoint);
+    const page = await openPage(cdp);
+    mkdirSync(outDir, { recursive: true });
+    // Pages for visitors first, then the participant pages after signing in.
+    const shots = config.screenshots.filter(
+        (shot) => !only || only.includes(shot.file.replace(/\.png$/, '')),
+    );
+    const ordered = [
+        ...shots.filter((shot) => shot.anonymous),
+        ...shots.filter((shot) => !shot.anonymous),
+    ];
+    let signedIn = false;
+    for (const shot of ordered) {
+        if (!shot.anonymous && !signedIn) {
+            await login(page);
+            signedIn = true;
+        }
+        try {
+            await capture(page, shot);
+            console.log(join(outDir, shot.file));
+        } catch (error) {
+            failed++;
+            console.error(`${shot.file}: ${error.message}`);
+        }
+    }
+    cdp.close();
+} finally {
+    chrome.kill();
+    await sleep(300);
+    rmSync(profile, { recursive: true, force: true });
+}
+process.exit(failed > 0 ? 1 : 0);

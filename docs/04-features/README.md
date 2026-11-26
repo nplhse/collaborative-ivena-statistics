@@ -11,12 +11,17 @@
 | [import/](import/) | CSV import pipeline, requeue, reject analysis, reference catalog |
 | [statistics/](statistics/) | Projection, explorer, data quality, dashboards |
 | [allocation/](allocation/) | Allocation exploration, indication normalization |
-| [onboarding/](onboarding/) | Participant onboarding checklist |
+| [onboarding/](onboarding/) | Participant onboarding checklist, "What's new for you" card |
 | [content/](content/) | Pages, translations, home dashboard overview |
+| [feedback/](feedback/) | Feedback widget, spam protection, quarantine |
 | [kpi/](kpi/) | Daily KPI aggregation |
 | [analytics/](analytics/) | Server-side usage analytics |
 | [notification/](notification/) | Personal notifications: inbox, toasts, email |
 | [storage/](storage/) | Storage monitoring: daily measurement, Disk Usage page, capacity alerts |
+| [user/authentication.md](user/authentication.md) | Sign-in with username or email, login link, account checks, throttling, sessions |
+| [tools.md](tools.md) | Tools section: inventory, naming rules |
+| [research/](research/) | Data extract requests for research projects (in development, #1635) |
+| [encounter/](encounter/) | Encounter data pilot (in development): hospital ED data linked with allocations |
 
 ## Reading order
 

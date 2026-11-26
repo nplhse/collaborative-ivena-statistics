@@ -74,6 +74,54 @@ final class ListImportControllerTest extends WebTestCase
         self::assertCount(0, $crawler->filter('.empty-action a[href="/import/new"]'));
     }
 
+    public function testTypeAndStatusBadgesAreGermanForAGermanUser(): void
+    {
+        $client = self::createClient();
+        [$owner, $hospital, $createdBy] = $this->seedBaseActors();
+        $owner->setLocale('de');
+        $this->createImportForList('Failed import', $hospital, $createdBy, ['status' => ImportStatus::FAILED]);
+
+        $crawler = $this->requestAsUser($client, $owner, '/import');
+
+        $badges = $crawler->filter('table tbody tr')->first()->filter('.status')->each(static fn ($badge): string => trim($badge->text()));
+        self::assertSame(['Zuweisung', 'Fehlgeschlagen'], $badges);
+    }
+
+    public function testOwnerAndDateFilterBadgesShowTranslatedLabels(): void
+    {
+        $client = self::createClient();
+        [$owner] = $this->seedBaseActors();
+        $owner->setLocale('de');
+
+        $crawler = $this->requestAsUser(
+            $client,
+            $owner,
+            \sprintf('/import?ownerId=%d&createdFrom=2025-01-01&createdUntil=2025-12-31', $owner->getId()),
+        );
+
+        $badges = $crawler->filter('.badge.bg-blue-lt')->each(static fn ($badge): string => trim((string) preg_replace('/\s+/', ' ', $badge->text())));
+        self::assertContains('Krankenhaus-Eigentümer: '.$owner->getUsername(), $badges);
+        self::assertContains('Erstellt ab: 01.01.2025', $badges);
+        self::assertContains('Erstellt bis: 31.12.2025', $badges);
+        self::assertStringNotContainsString('label.import.filter', $crawler->text());
+    }
+
+    public function testTypeAndDataPeriodFilterBadgesShowTranslatedLabels(): void
+    {
+        $client = self::createClient();
+        [$owner] = $this->seedBaseActors();
+        $owner->setLocale('de');
+
+        $crawler = $this->requestAsUser($client, $owner, '/import?type=Closure&periodFrom=2025-03-01&periodUntil=2025-03-31');
+
+        $badges = $crawler->filter('.badge.bg-blue-lt')->each(static fn ($badge): string => trim((string) preg_replace('/\s+/', ' ', $badge->text())));
+        self::assertContains('Typ: Schließung', $badges);
+        self::assertContains('Daten ab: 01.03.2025', $badges);
+        self::assertContains('Daten bis: 31.03.2025', $badges);
+        self::assertSame('Closure', $crawler->filter('#import-filter-type option[selected]')->attr('value'));
+        self::assertStringNotContainsString('label.import.filter', $crawler->text());
+    }
+
     public function testTableWithResultsIsShown(): void
     {
         $client = self::createClient();
@@ -270,6 +318,31 @@ final class ListImportControllerTest extends WebTestCase
 
         self::assertStringContainsString('Own Import', $crawler->text());
         self::assertStringContainsString('Foreign Import', $crawler->text());
+    }
+
+    public function testOwnerFilterAndBadgeShowTheDisplayName(): void
+    {
+        $client = self::createClient();
+        [, , $createdBy] = $this->seedBaseActors();
+        $named = UserFactory::createOne([
+            'username' => 'named-owner',
+            'displayName' => 'Nora Named',
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+        ]);
+        $namedHospital = HospitalFactory::createOne([
+            'name' => 'Named Hospital',
+            'owner' => $named,
+            'createdBy' => $createdBy,
+            'state' => StateFactory::createOne(),
+            'dispatchArea' => DispatchAreaFactory::createOne(),
+        ]);
+        $this->createImportForList('Named Import', $namedHospital, $createdBy, ['filePath' => '/tmp/named.csv']);
+        $admin = UserFactory::createOne(['roles' => ['ROLE_ADMIN'], 'username' => 'admin-'.bin2hex(random_bytes(4))]);
+
+        $crawler = $this->requestAsUser($client, $admin, '/import?ownerId='.$named->getId());
+
+        self::assertSame('Nora Named (@named-owner)', trim($crawler->filter('#import-filter-owner option[value="'.$named->getId().'"]')->text()));
+        self::assertStringContainsString('Nora Named (@named-owner)', $crawler->text(), 'active filter badge');
     }
 
     public function testStatusFilterShowsOnlyMatchingImports(): void

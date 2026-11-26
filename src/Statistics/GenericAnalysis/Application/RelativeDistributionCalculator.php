@@ -21,10 +21,13 @@ final class RelativeDistributionCalculator
     {
         $includePercentOfTotal = \in_array('percent_of_total', $metricKeys, true);
         $includePercentOfBucket = \in_array('percent_of_bucket', $metricKeys, true);
+        $includePercentOfSeries = \in_array('percent_of_series', $metricKeys, true);
 
         $grandTotal = $result->grandTotal;
         $baseMetricKey = $result->distributionBaseMetricKey;
         $bucketTotals = $includePercentOfBucket ? $this->bucketTotals($result->rows, $baseMetricKey) : [];
+        // All counted cases of each series, from the full result: display and export limits come later (#1346).
+        $seriesTotals = $includePercentOfSeries ? $this->seriesTotals($result->rows, $baseMetricKey) : [];
 
         $enriched = [];
         foreach ($result->rows as $row) {
@@ -39,6 +42,11 @@ final class RelativeDistributionCalculator
                 $bucketKey = $this->key($row->bucket);
                 $bucketTotal = $bucketTotals[$bucketKey] ?? 0;
                 $derivedMetrics['percent_of_bucket'] = $this->percent($baseValue, $bucketTotal);
+            }
+
+            if ($includePercentOfSeries) {
+                $seriesTotal = $seriesTotals[$this->key($row->series)] ?? 0;
+                $derivedMetrics['percent_of_series'] = $this->percent($baseValue, $seriesTotal);
             }
 
             $enriched[] = [
@@ -60,6 +68,22 @@ final class RelativeDistributionCalculator
         $totals = [];
         foreach ($rows as $row) {
             $key = $this->key($row->bucket);
+            $totals[$key] = ($totals[$key] ?? 0) + (int) $row->baseMetricValue($baseMetricKey);
+        }
+
+        return $totals;
+    }
+
+    /**
+     * @param list<AnalysisResultRow> $rows
+     *
+     * @return array<string, int>
+     */
+    private function seriesTotals(array $rows, string $baseMetricKey): array
+    {
+        $totals = [];
+        foreach ($rows as $row) {
+            $key = $this->key($row->series);
             $totals[$key] = ($totals[$key] ?? 0) + (int) $row->baseMetricValue($baseMetricKey);
         }
 

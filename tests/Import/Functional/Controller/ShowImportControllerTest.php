@@ -12,6 +12,7 @@ use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Domain\ValueObject\ImportDataCoverage;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Tests\Support\Content\HelpPages;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
@@ -41,7 +42,7 @@ final class ShowImportControllerTest extends WebTestCase
         self::assertSelectorTextContains('.datagrid', 'CSV');
         self::assertSelectorTextContains('.datagrid', 'Mime Type');
         self::assertSelectorTextContains('.datagrid', 'KB');
-        self::assertSelectorTextContains('body', 'Pending');
+        self::assertSelectorTextSame('[data-testid="import-status-badge"]', 'Pending');
         self::assertSelectorTextContains('body', 'Allocations');
         self::assertSelectorTextContains('#import-imported-records', '4 Allocations imported');
         self::assertSelectorTextContains('body', 'Deduplicated rows (total)');
@@ -58,12 +59,69 @@ final class ShowImportControllerTest extends WebTestCase
         self::assertStringContainsString('importId='.$importId, $mciHref);
     }
 
+    public function testStatusBadgeShowsTheTranslatedLabel(): void
+    {
+        $client = self::createClient();
+        [$owner, $importId] = $this->createImportWithRelations(status: ImportStatus::COMPLETED);
+
+        $owner->setLocale('de');
+        self::getContainer()->get(EntityManagerInterface::class)->flush();
+
+        $client->loginUser($owner);
+        $client->request(Request::METHOD_GET, \sprintf('/import/%d', $importId));
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextSame('[data-testid="import-status-badge"]', 'Abgeschlossen');
+        $statusField = $client->getCrawler()->filter('.datagrid-item')
+            ->reduce(static fn ($item): bool => 'Status' === trim($item->filter('.datagrid-title')->text()));
+        self::assertCount(1, $statusField);
+        self::assertSame('Abgeschlossen', trim($statusField->filter('.datagrid-content')->text()), 'Header badge and status field show the same label.');
+    }
+
+    public function testHelpLinkPointsToTheImportStatusArticle(): void
+    {
+        $client = self::createClient();
+        $this->createHelpArticles();
+        [$owner, $importId] = $this->createImportWithRelations(status: ImportStatus::COMPLETED);
+
+        $client->loginUser($owner);
+        $client->request(Request::METHOD_GET, \sprintf('/import/%d', $importId));
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="help-link"][href="/help/import-status"]');
+    }
+
+    public function testHelpLinkOfAPartialImportPointsToTheRejectedRowsArticle(): void
+    {
+        $client = self::createClient();
+        $this->createHelpArticles();
+        [$owner, $importId] = $this->createImportWithRelations(status: ImportStatus::PARTIAL);
+
+        $client->loginUser($owner);
+        $client->request(Request::METHOD_GET, \sprintf('/import/%d', $importId));
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="help-link"][href="/help/rejected-rows"]');
+    }
+
+    public function testHelpLinkIsLeftOutWithoutHelpArticle(): void
+    {
+        $client = self::createClient();
+        [$owner, $importId] = $this->createImportWithRelations(status: ImportStatus::COMPLETED);
+
+        $client->loginUser($owner);
+        $client->request(Request::METHOD_GET, \sprintf('/import/%d', $importId));
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('[data-testid="help-link"]');
+    }
+
     public function testClosureImportHidesAllocationLinks(): void
     {
         $client = self::createClient();
         [$owner, $importId, , , $hospitalId] = $this->createImportWithRelations(
             ImportType::CLOSURE,
-            ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA'],
+            ['ROLE_USER', 'ROLE_PARTICIPANT'],
             382,
             'Closure upload',
         );
@@ -72,7 +130,7 @@ final class ShowImportControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, \sprintf('/import/%d', $importId));
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('body', 'Closure list (beta)');
+        self::assertSelectorTextContains('body', 'Closure list');
         self::assertSelectorTextContains('#import-imported-records', '382 Closures imported');
         self::assertSelectorTextNotContains('body', 'Deduplicated');
         self::assertSelectorTextContains('body', 'All closure intervals and related data will be removed.');
@@ -158,7 +216,7 @@ final class ShowImportControllerTest extends WebTestCase
         $client = self::createClient();
         [$owner, $importId] = $this->createImportWithRelations(
             ImportType::CLOSURE,
-            ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA'],
+            ['ROLE_USER', 'ROLE_PARTICIPANT'],
             2,
             'Closure upload',
             ImportStatus::COMPLETED,
@@ -238,6 +296,13 @@ final class ShowImportControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, \sprintf('/import/%d', $import->getId()));
 
         self::assertResponseStatusCodeSame(403);
+    }
+
+    private function createHelpArticles(): void
+    {
+        $root = HelpPages::root();
+        HelpPages::article($root, 'Import status', '/help/import-status', '<p>Text</p>', 0, ['helpKey' => 'import.status']);
+        HelpPages::article($root, 'Rejected rows', '/help/rejected-rows', '<p>Text</p>', 1, ['helpKey' => 'import.rejects']);
     }
 
     /**

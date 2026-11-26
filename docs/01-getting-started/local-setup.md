@@ -19,7 +19,7 @@ cp .env.example .env.local
 make install-dev
 ```
 
-`make install-dev` installs Composer and npm dependencies, prepares the database, and compiles assets. It drops and recreates the database; if the database already holds an installation, it stops unless you add `INSTALL_CONFIRM=yes`.
+`make install-dev` installs Composer and npm dependencies, prepares the database, and compiles assets. Bundle assets such as EasyAdmin's CSS and JavaScript are copied to `public/bundles/` by `assets:install`, which runs in the Composer `auto-scripts`; `make upgrade-dev` and `make upgrade-prod` install Composer packages without scripts and run `assets:install public` themselves. It drops and recreates the database; if the database already holds an installation, it stops unless you add `INSTALL_CONFIRM=yes`.
 
 `make install` is the prod-like counterpart (`--no-dev`, empty database), not an alias for the dev setup. The old names `setup-dev`, `setup-prod` and `prod` stop with a hint to the new ones.
 
@@ -31,7 +31,7 @@ Local `install-dev` loads demo users via fixtures. An empty database (`make inst
 |--------|----------|
 | `install-dev` | New machine: dev dependencies (`vendor` + `node_modules`), fresh DB, fixtures, test DB (drops the DB) |
 | `install` | Prod-like local run: `--no-dev`, empty DB, no fixtures (drops the DB) |
-| `upgrade-dev` | Pull/update: keep existing dev DB, recreate test DB (incl. test cache clear), migrate, refresh assets, `make node_modules` |
+| `upgrade-dev` | Pull/update: keep existing dev DB, recreate test DB (incl. test cache clear), migrate, refresh assets (importmap, bundle assets in `public/bundles/`, asset map), `make node_modules` |
 | `upgrade-prod` | Same as upgrade-dev with prod env and `--no-dev` |
 | `purge` | Remove assets, uploads, `var/imports`, logs, cache; drop and recreate the DB; no fixtures |
 | `reset` | Like `purge`, then load fixtures |

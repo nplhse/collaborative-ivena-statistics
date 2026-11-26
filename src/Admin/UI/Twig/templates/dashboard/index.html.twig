@@ -1,50 +1,32 @@
 {% extends '@EasyAdmin/page/content.html.twig' %}
 
-{% block configured_stylesheets %}
-    {{ parent() }}
-    <link rel="stylesheet" href="{{ asset('styles/admin-kpi.css') }}">
-{% endblock %}
-
 {% block content_title %}{{ 'title.dashboard'|trans({}, 'admin') }}{% endblock %}
 
 {% block main %}
     {{ include('@Admin/dashboard/_ops_health.html.twig') }}
-    {{ include('@Admin/dashboard/_ops_cards.html.twig') }}
-    {{ include('@Admin/dashboard/_ops_storage.html.twig') }}
-    {{ include('@Admin/dashboard/_ops_notifications.html.twig') }}
 
-    <h3 class="h5 text-secondary text-uppercase mb-3">{{ 'kpi.section.title'|trans({}, 'admin') }}</h3>
-    {{ include('@Admin/dashboard/_kpi_cards.html.twig') }}
-    {{ include('@Admin/dashboard/_kpi_chart.html.twig') }}
-    {{ include('@Admin/dashboard/_failed_imports_table.html.twig') }}
-
-    {% for section in dashboard_sections %}
-        <h3 class="h5 text-secondary text-uppercase mb-3">{{ section.title }}</h3>
-        <div class="row mb-4">
-            {% for tile in section.tiles %}
-                <div class="col-12 col-sm-6 col-lg-4 mb-3">
-                    <a href="{{ tile.url }}" class="text-decoration-none text-body">
-                        <div class="card h-100 shadow-sm">
-                            <div class="card-body d-flex flex-column">
-                                <div class="d-flex align-items-start justify-content-between mb-2">
-                                    <div class="d-flex align-items-center gap-2">
-                                        {% if tile.icon %}
-                                            <i class="{{ tile.icon }} fa-lg text-secondary" aria-hidden="true"></i>
-                                        {% endif %}
-                                        <h4 class="card-title h5 mb-0">{{ tile.label }}</h4>
-                                    </div>
-                                    {% if tile.badge %}
-                                        <span class="badge rounded-pill bg-{{ tile.badge.style }}">{{ tile.badge.value }}</span>
-                                    {% endif %}
-                                </div>
-                                {% if tile.description %}
-                                    <p class="card-text text-secondary small mb-0">{{ tile.description }}</p>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </a>
-                </div>
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+        <h3 class="h5 text-secondary text-uppercase mb-0">{{ 'kpi.section.title'|trans({days: kpi_period}, 'admin') }}</h3>
+        <nav class="btn-group btn-group-sm" role="group" aria-label="{{ 'kpi.period.label'|trans({}, 'admin') }}" data-kpi-period-switch>
+            {% for days in kpi_periods %}
+                <a href="{{ ea_url().set('period', days) }}"
+                   class="btn {{ days == kpi_period ? 'btn-primary' : 'btn-secondary' }}"
+                   {% if days == kpi_period %}aria-current="true"{% endif %}
+                   data-kpi-period="{{ days }}">{{ 'kpi.period.days'|trans({days: days}, 'admin') }}</a>
             {% endfor %}
-        </div>
-    {% endfor %}
+        </nav>
+    </div>
+    {{ include('@Admin/dashboard/_kpi_cards.html.twig') }}
+    <div class="row">
+        <div class="col-12 col-xl-6 mb-4">{{ include('@Admin/dashboard/_usage_trend.html.twig') }}</div>
+        <div class="col-12 col-xl-6 mb-4">{{ include('@Admin/dashboard/_kpi_chart.html.twig') }}</div>
+    </div>
+
+    <h3 class="h5 text-secondary text-uppercase mb-3">{{ 'ops.section.title'|trans({}, 'admin') }}</h3>
+    <div class="row ea-dashboard-ops">
+        <div class="col-12 col-xl-6 mb-4">{{ include('@Admin/dashboard/_ops_storage.html.twig') }}</div>
+        <div class="col-12 col-xl-6 mb-4">{{ include('@Admin/dashboard/_ops_messenger.html.twig') }}</div>
+    </div>
+
+    {{ include('@Admin/dashboard/_ops_notifications.html.twig') }}
 {% endblock %}

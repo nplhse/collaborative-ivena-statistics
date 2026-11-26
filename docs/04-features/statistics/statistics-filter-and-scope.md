@@ -27,9 +27,20 @@ Hospital and dispatch area are orthogonal: destination hospital ≠ origin dispa
 
 ## Periods
 
-`StatisticsFilterPeriod`: `all`, `all_time`, `year`, `quarter`, `month`.
+`StatisticsFilterPeriod`: `last_12_months`, `all_time`, `year`, `quarter`, `month`.
 
-Period is only the query window (`[from, toExclusive)` via `StatisticsPeriodResolver`). Time-series charts use a separate bucket size from `TimeSeriesGrainResolver` (`year`/`quarter`/`all`/`all_time` → month, `month` → day) and `TimeSeriesAxisFiller`:
+- `last_12_months`: rolling window from the first day of the month eleven months before the current one (`StatisticsPeriod::overviewPeriodStart()`), no upper bound. Example: on 2026-11-11 it starts at 2025-12-01 00:00.
+- `all_time`: whole history, no lower and no upper bound.
+
+### Identifier `all` (transition, #1017)
+
+Up to v0.3 the identifier `all` meant the rolling 12-month window, which contradicted its name. It was renamed to `last_12_months`; labels and numbers did not change.
+
+- **v0.3 (transition):** `LegacyAllPeriodRedirectSubscriber` redirects GET requests to statistics controllers with `period=all` or `comparison_period=all` to the same URL with `last_12_months` (302), so old bookmarks and e-mail links show the same numbers. `all` is not an enum value; inside the application it is never produced, and an unknown value falls back to the default (`last_12_months`).
+- **Saved explorer views** that stored `all` were rewritten to `last_12_months` by migration `Version20261111214028`.
+- **v0.4-beta:** the redirect is removed and `all` becomes the identifier for the whole history (the value of `StatisticsFilterPeriod::AllTime`).
+
+Period is only the query window (`[from, toExclusive)` via `StatisticsPeriodResolver`). Time-series charts use a separate bucket size from `TimeSeriesGrainResolver` (`year`/`quarter`/`last_12_months`/`all_time` → month, `month` → day) and `TimeSeriesAxisFiller`:
 
 - Monthly series omit the in-progress calendar month, even if it already has rows.
 - Daily series (month period) include today and leave later days off the axis; past days without cases stay `0`.
@@ -49,9 +60,9 @@ Admins can still select `my_hospitals` explicitly via `?scope=my_hospitals`.
 
 ## Default period (no `period` query parameter)
 
-`StatisticsFilterInputFactory` defaults to `all` (rolling 12 months from `StatisticsPeriod::overviewPeriodStart()`). Explicit `?period=all_time` remains the full-history window. Invalid period strings already fall back to `all` in `StatisticsFilterFactory::parsePeriod()`.
+`StatisticsFilterInputFactory` defaults to `last_12_months` (rolling 12 months from `StatisticsPeriod::overviewPeriodStart()`). Explicit `?period=all_time` remains the full-history window. Invalid period strings fall back to `last_12_months` in `StatisticsFilterFactory::parsePeriod()`.
 
-Overview (`GET /statistics/`) is the exception: `OverviewDefaultPeriodResolver` uses `all` only when at least 7 months in that window have data; otherwise it keeps `all_time`. When the resolver chooses `all` and the URL has no `period`, `DashboardController` redirects to `?period=all`.
+Overview (`GET /statistics/`) is the exception: `OverviewDefaultPeriodResolver` uses `last_12_months` only when at least 7 months in that window have data; otherwise it keeps `all_time`. When the resolver chooses `last_12_months` and the URL has no `period`, `DashboardController` redirects to `?period=last_12_months`.
 
 ## Resolution and fallbacks
 
@@ -60,10 +71,14 @@ Overview (`GET /statistics/`) is the exception: `OverviewDefaultPeriodResolver` 
 - Anonymous users → `public`
 - Missing hospital ID → `my_hospitals`
 - No hospital access → `my_hospitals` or `public`
-- Cohort too small → `public` with notice `cohort_too_small`
-- State/dispatch area with fewer than 2 hospitals → `public` with `state_invalid` / `dispatch_area_invalid`
+- Cohort with fewer than 3 hospitals → `public` with notice `cohort_too_small`
+- State/dispatch area with fewer than 3 hospitals → `public` with `state_invalid` / `dispatch_area_invalid`
+
+The minimum of 3 hospitals is `ScopePrivacyPolicy::MIN_HOSPITALS`. With two hospitals, a participant who knows the figures of their own hospital could subtract them from the scope total and get those of the other one (#934). The scope choices in the filter only offer states, dispatch areas and cohorts that reach the minimum, and Case Flow uses the same minimum for destination pools.
 
 Dispatch-area eligibility uses distinct hospitals that appear with that origin `dispatch_area_id` (count MV). Filtering then uses `dispatch_area_id = :id` on `allocation_stats_projection` via `StatisticsScopeCriteria.dispatchAreaId`.
+
+The Analysis Explorer's reference hospital comparison (#1346) applies the same minimum to the hospitals that remain after the references: hospitals in scope − references ≥ 3, for every scope kind including "all" and "my hospitals" (which have no minimum of their own). See [analysis-explorer.md](analysis-explorer.md#reference-hospital-comparison-1346).
 
 ## Comparison scope
 
@@ -72,6 +87,81 @@ Dispatch-area eligibility uses distinct hospitals that appear with that origin `
 Insights Compare does **not** use that default cohort. Side A uses the header/primary filter (`scope`, `period`, …). Side B uses existing `comparison_*` query keys when present and otherwise copies the primary filter. After the compare dialog is applied, `comparison_*` is stored explicitly.
 
 Permission checks use `HospitalPermission::Statistics` or `HospitalPermission::Benchmarking` depending on the page.
+
+### Overview comparison period (#1071)
+
+The overview self-benchmark frame (`GET /statistics/overview/self-benchmark`: KPI tiles and the insights card)
+compares the scope with itself in the previous period of the same length.
+`OverviewComparisonPeriodResolver` sets both sides; scope and drawer filters are the same on both.
+
+| Period | Primary | Comparison |
+|---|---|---|
+| `last_12_months` | rolling window until now | the 12 months before, same span (start one year earlier) |
+| `year` / `quarter` / `month`, complete | the whole period | the whole previous year / quarter / month |
+| `year` / `quarter` / `month`, running | from the start until now | the same span from the start of the previous period, e.g. 1–13 November against 1–13 October; never past the start of the primary period |
+| `all_time` | the whole history | none: the tiles show only the value, the insights card stays hidden |
+
+Cases per day divide by the days of each side, so a running period is not diluted by the days still to come.
+The insights card needs at least 100 allocations in the period **and** in the comparison period; the general
+benchmark minimum of 500 comparison cases does not apply here. The tiles keep their own minimum of 20 cases for
+ratios. A caption under the tiles names the comparison period.
+
+## Age group filter
+
+The filter drawer and the Analysis Explorer share one age-group filter: URL key `age_group`
+(`StatisticsDrawerFilter::ageGroup`), Explorer field `filterAgeGroup` (saved views store it in
+`configJson.query.filters[]` with `dimensionKey: age_group`). Values and SQL conditions live in
+`StatisticsAgeGroupFilter`; the choice list comes from `AnalysisFilterChoiceProvider::ageGroupChoices()`.
+
+| Value | UI label (EN / DE) | Condition |
+|-------|--------------------|-----------|
+| *(empty)* | All / Alle | No age restriction; cases without age are counted |
+| `under_18` | Children & adolescents (under 18) / Kinder & Jugendliche (unter 18) | `age IS NOT NULL AND age < 18` |
+| `adults` | Adults (18 and over) / Erwachsene (ab 18) | `age IS NOT NULL AND age >= 18` |
+| `over_80` | 80 and older / 80 und älter | `age >= 80` |
+| `0_17`, `18_29` … `90_99` | Age buckets of `StatisticsAgeGroupBucketSql` | `age` between the bounds |
+
+The adult threshold is 18 (#181): a patient aged 18 counts as an adult. The age buckets follow it: the
+Explorer `age_group` dimension, the filter and Benchmarking, Insights, Overview and Case Flow all use
+`StatisticsAgeGroupBucketSql` (`0_17`, `18_29`, `30_39`, …), so 18-year-olds are in `18_29` everywhere (#1040).
+
+**Pre-#1040 keys (deprecated).** Until #1040 the Explorer used `0_18` and `19_29`. Links that still
+carry them are read as `0_17` and `18_29` (`StatisticsAgeGroupFilter::normalizeKey()`, applied to the
+URL, the Explorer assistant and stored Explorer filters); migration `Version20261113144614` rewrote
+saved views. The mapping is removed in v0.4-beta.
+
+**Missing age.** Cases without a recorded age cannot be assigned to an age group, so every
+age-group value excludes them, from numerator and denominator alike. They only count when no age
+group is selected. There is no "unknown" option. The drawer and the Explorer show this as a hint
+under the age-group field. Today the import rejects rows without an age (`AllocationRowDTO`, range
+1–99), but `allocation_stats_projection.age` is nullable, so the rule is part of the filter
+definition and covered by tests.
+
+**Where it applies.** Every query on Top Lists (including CSV export; the comparison side gets the
+same filter), Case Flow (the public baseline used for insights stays unfiltered) and the Analysis
+Explorer (including export; dropped when `age_group` is a row or column axis) and the monthly report
+(see below). Overview, Benchmarking and Insights (including Compare) do not read `age_group`.
+
+**Monthly report.** Every drawer filter, not only `age_group`, applies to every number of the report
+(#1039): the allocation count, the shares, the urgency and gender distributions, the mean transport time,
+the top lists, the closed department summary, the daily chart, the sparkline of the allocation tile (#1239) and the
+self-benchmark behind the insights
+(both sides of `BenchmarkReportService::buildForOverview`), for the reporting month and for the previous
+month and the same month a year ago. Numerator and denominator are both filtered, so the shares of a top
+list refer to the filtered count. Only the rejection rate insight (hospital scope, `kpi_daily`) stays
+unfiltered: it counts rejected import rows, which never become allocations and have no urgency, age or other
+drawer field. While a drawer filter is active, the insight carries a short note that it applies to all
+imported rows (`HospitalInsight::$note`). The links to Dashboard and Benchmarking keep scope and period only,
+because those pages have no drawer.
+
+## Sidebar links
+
+Links in the statistics sidebar carry the scope and the period of the current page with their dependent
+parameters (`scope`, `hospital`, `cohort`, `state`, `dispatch_area`, `period`, `year`, `quarter`, `month`).
+Comparison parameters and all other filters are not carried; the target view validates the values and
+falls back to its defaults (see above). Between the parts of Closures, which share one filter drawer, the
+whole filter state except comparison parameters and the page number stays
+([ADR 035](../../02-architecture/decisions/035-navigation-tree-and-contextual-sidebar.md)).
 
 ## Entry points
 

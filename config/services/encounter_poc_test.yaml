@@ -1,0 +1,6 @@
+# Seed command of the browser check of the test-only schema plugin `inpatient_stay` (#1274), test only.
+when@test:
+    services:
+        App\Tests\Support\Encounter\Poc\SeedInpatientStayPocCommand:
+            autowire: true
+            autoconfigure: true

@@ -26,7 +26,7 @@ Each ADR includes:
 | [008](008-shared-platform-and-domain-framework-coupling.md) | Shared platform role and domain framework coupling | accepted |
 | [009](009-ports-repositories-query-objects-and-naming.md) | Ports, repositories, query objects, and naming | accepted |
 | [010](010-architecture-guardrails-and-beta-scope.md) | Architecture guardrails and beta complexity scope | accepted |
-| [011](011-collaborative-explore-allocation-visibility.md) | Collaborative Explore allocation visibility | accepted |
+| [011](011-collaborative-explore-allocation-visibility.md) | Collaborative Explore allocation visibility (corrected: free text, #1548) | superseded by 044 |
 | [012](012-explore-data-catalog.md) | Explore data catalog | accepted |
 | [013](013-page-multilingual-content.md) | Multilingual CMS page content via PageTranslation | accepted |
 | [014](014-persisted-user-activity-projection.md) | Persistierte User-Activity-Projektion | accepted |
@@ -40,6 +40,28 @@ Each ADR includes:
 | [022](022-synthetic-data-generation.md) | Synthetic data generation with hospital profiles, pattern packages and scenario overlays | accepted |
 | [023](023-demo-environment.md) | Separate demo environment with its own database, storage and synthetic data | accepted |
 | [024](024-gitflow-with-main-as-default-branch.md) | Gitflow with `main` as the default branch | accepted |
+| [025](025-audit-log-correlation-and-timeline-grouping.md) | Audit log correlation and timeline grouping | accepted |
+| [026](026-encounter-data-context-and-exchange-format.md) | Encounter data context, source profiles and canonical exchange format (amended: ADR 037) | accepted |
+| [027](027-encounter-pseudonym-key.md) | Hospital-held pseudonym key with key generations | accepted |
+| [028](028-encounter-access-grants.md) | Encounter access grants independent of hospital permissions | accepted |
+| [029](029-encounter-import-lifecycle.md) | Encounter import lifecycle: one visit, one owning import (amended: ADR 037) | accepted |
+| [030](030-encounter-allocation-matching.md) | Matching ED visits with IVENA allocations (amended: matcher 1.2.0, ADR 037) | accepted |
+| [031](031-tools-section-and-tool-registry.md) | Tools section and tool registry (amended: topics #1201, data export #1633) | accepted |
+| [032](032-mts-catalog-as-maintained-data.md) | MTS catalog as maintained data | accepted |
+| [033](033-learning-plausibility-table.md) | Learning plausibility table for PZC and MTS diagram | accepted |
+| [034](034-performance-monitoring-in-sentry.md) | Performance monitoring in Sentry, usage analytics without APM | accepted |
+| [035](035-navigation-tree-and-contextual-sidebar.md) | One navigation tree and a contextual sidebar for Statistics and Explore | accepted |
+| [036](036-page-editor-draft-copy.md) | Draft copy for autosave in the page block editor | accepted |
+| [037](037-encounter-case-hub-and-schema-plugins.md) | Encounter as treatment case, schemas as Symfony bundles | accepted |
+| [038](038-verified-backup-format.md) | Verified backups as one directory with a manifest | accepted |
+| [039](039-managed-media-storage.md) | Managed media storage outside the web root with checksums and integrity checks | accepted |
+| [040](040-two-factor-authentication.md) | Two-factor authentication with an authenticator app (TOTP) | accepted |
+| [041](041-dispatch-area-geography-as-master-data.md) | Dispatch-area geography as master data | accepted |
+| [042](042-glossary-and-data-catalog-in-help.md) | Glossary and data catalog in the help section | accepted |
+| [043](043-terms-of-use-version-by-configuration.md) | Terms of use version by configuration | accepted |
+| [044](044-explore-restricted-to-own-hospitals.md) | Explore restricted to the viewer's own hospitals | accepted |
+| [045](045-data-extract-requests.md) | Data extract requests with Board vote, admin SQL and time-limited export | accepted |
+| [046](046-maintenance-mode-by-flag-file.md) | Maintenance mode by a shared flag file | accepted |
 
 ## Template
 

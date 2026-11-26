@@ -26,6 +26,7 @@ final class ExplorerEditFormFilterFieldMapper
             tableLayout: $data->tableLayout,
             chartRowLimit: $data->chartRowLimit,
             hospitalPopulation: $data->hospitalPopulation,
+            referenceHospitals: $data->referenceHospitals,
             additionalTableMetrics: $data->additionalTableMetrics,
             filterDepartmentId: $this->nullableIntFromSubmitted($submitted, 'filterDepartmentId', $data->filterDepartmentId),
             filterSpecialityId: $this->nullableIntFromSubmitted($submitted, 'filterSpecialityId', $data->filterSpecialityId),

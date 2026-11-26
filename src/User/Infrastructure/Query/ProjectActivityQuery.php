@@ -16,7 +16,6 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Psr\Clock\ClockInterface;
-use Symfony\Component\Uid\Uuid;
 
 /** @psalm-suppress UnusedClass Wired as ProjectActivityQueryInterface. */
 final readonly class ProjectActivityQuery implements ProjectActivityQueryInterface
@@ -64,8 +63,8 @@ final readonly class ProjectActivityQuery implements ProjectActivityQueryInterfa
             ->andWhere('u.isEnabled = true')
             ->andWhere('a.type IN (:types)')
             ->setParameter('types', $this->resolvedTypes($filters))
-            ->orderBy('a.occurredAt', 'DESC')
-            ->addOrderBy('a.id', 'DESC')
+            ->orderBy('a.occurredAt', \SortDirection::Descending)
+            ->addOrderBy('a.id', \SortDirection::Descending)
             ->setMaxResults($limit);
 
         $this->excludeUnpublishedPostActivities($qb);
@@ -96,7 +95,9 @@ final readonly class ProjectActivityQuery implements ProjectActivityQueryInterfa
      */
     private function resolvedTypes(?ProjectActivityFilters $filters): array
     {
-        $types = ProjectActivityPage::feedTypes();
+        $types = null !== $filters?->hospitalPublicId
+            ? ProjectActivityPage::hospitalFeedTypes()
+            : ProjectActivityPage::feedTypes();
         if (!$filters instanceof ProjectActivityFilters || !$filters->type instanceof UserActivityType) {
             return $types;
         }
@@ -131,6 +132,11 @@ final readonly class ProjectActivityQuery implements ProjectActivityQueryInterfa
                 ->setParameter('untilExclusive', $filters->untilExclusive, Types::DATETIME_IMMUTABLE);
         }
 
+        if (null !== $filters->hospitalPublicId) {
+            $qb->andWhere("JSON_GET_TEXT(a.metadata, 'hospitalPublicId') = :hospitalPublicId")
+                ->setParameter('hospitalPublicId', $filters->hospitalPublicId);
+        }
+
         $username = null !== $filters->username ? trim($filters->username) : '';
         if ('' !== $username) {
             $qb->andWhere('LOWER(u.username) = :username')
@@ -142,6 +148,8 @@ final readonly class ProjectActivityQuery implements ProjectActivityQueryInterfa
             $qb->andWhere(
                 $qb->expr()->orX(
                     $qb->expr()->like('LOWER(u.username)', ':search'),
+                    // Display names are only shown to signed-in users; the feed requires a login (#1240).
+                    $qb->expr()->like("LOWER(COALESCE(u.displayName, ''))", ':search'),
                     $qb->expr()->like("LOWER(COALESCE(JSON_GET_TEXT(a.metadata, 'title'), ''))", ':search'),
                     $qb->expr()->like("LOWER(COALESCE(JSON_GET_TEXT(a.metadata, 'postTitle'), ''))", ':search'),
                     $qb->expr()->like("LOWER(COALESCE(JSON_GET_TEXT(a.metadata, 'excerpt'), ''))", ':search'),
@@ -162,20 +170,21 @@ final readonly class ProjectActivityQuery implements ProjectActivityQueryInterfa
         $metadata = $activity->getMetadata();
         $type = ProfileActivityType::from($activity->getType()->value);
         $milestone = $metadata['milestone'] ?? null;
-        $publicId = $user->getPublicId();
 
         return new ProjectActivity(
             occurredAt: $activity->getOccurredAt(),
             type: $type,
             stableId: ProjectActivityCursor::padId($id),
             actorUsername: $user->getUsername() ?? '',
-            actorPublicId: $publicId instanceof Uuid ? $publicId->toRfc4122() : null,
             hospitalName: $this->stringMetadata($metadata, 'hospitalName'),
             hospitalPublicId: $this->stringMetadata($metadata, 'hospitalPublicId'),
             milestone: \is_int($milestone) ? $milestone : (is_numeric($milestone) ? (int) $milestone : null),
             postTitle: $this->stringMetadata($metadata, 'title') ?? $this->stringMetadata($metadata, 'postTitle'),
             postSlug: $this->stringMetadata($metadata, 'slug') ?? $this->stringMetadata($metadata, 'postSlug'),
             excerpt: $this->stringMetadata($metadata, 'excerpt'),
+            actorId: $user->getId(),
+            actorDisplayName: $user->getDisplayName(),
+            id: $id,
         );
     }
 

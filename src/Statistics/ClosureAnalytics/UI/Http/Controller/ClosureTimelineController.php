@@ -122,7 +122,7 @@ final class ClosureTimelineController extends AbstractController
             StatisticsFilterPeriod::Month => 'month',
             StatisticsFilterPeriod::Quarter => 'quarter',
             StatisticsFilterPeriod::Year,
-            StatisticsFilterPeriod::All,
+            StatisticsFilterPeriod::Last12Months,
             StatisticsFilterPeriod::AllTime => 'year',
         };
     }
@@ -138,7 +138,7 @@ final class ClosureTimelineController extends AbstractController
 
     private function timelineCriteria(ClosureAnalyticsCriteria $criteria): ClosureAnalyticsCriteria
     {
-        if (StatisticsFilterPeriod::All !== $criteria->filter->period) {
+        if (StatisticsFilterPeriod::Last12Months !== $criteria->filter->period) {
             return $criteria;
         }
 
@@ -171,7 +171,7 @@ final class ClosureTimelineController extends AbstractController
         if ($criteria->period->from instanceof \DateTimeImmutable && $from < $criteria->period->from) {
             $from = $criteria->period->from;
         }
-        if ($criteria->period->toExclusive instanceof \DateTimeImmutable && (null === $to || $to > $criteria->period->toExclusive)) {
+        if ($criteria->period->toExclusive instanceof \DateTimeImmutable && (!$to instanceof \DateTimeImmutable || $to > $criteria->period->toExclusive)) {
             $to = $criteria->period->toExclusive;
         }
 

@@ -1,0 +1,131 @@
+/*
+ * Page navigation component (@Content/components/PageNavigation.html.twig).
+ * One row per page like the list-group cards in the same sidebar (latest posts, reference, #1582); subpages are
+ * indented rows below their page and can be expanded and collapsed.
+ * The outline "On this page" (#1590) uses the same rows; its deeper headings are flat sub-rows (.page-nav-row--sub).
+ */
+
+.page-navigation .page-nav-row {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding-right: 0.5rem;
+    padding-left: calc(1rem + var(--page-nav-depth, 0) * 1rem);
+    border-top: var(--tblr-border-width) solid var(--tblr-border-color);
+    transition: background-color 0.15s ease;
+}
+
+.page-navigation nav > .page-nav-list > .page-nav-item:first-child > .page-nav-row {
+    border-top: 0;
+}
+
+.page-navigation .page-nav-row:hover {
+    background-color: var(--tblr-bg-surface-secondary);
+}
+
+.page-navigation .page-nav-link {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 0.625rem 0;
+    color: var(--tblr-body-color);
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+    text-decoration: none;
+}
+
+/* Subpages are a step quieter than their page: smaller rows, separated only by a faint line from their indent. */
+.page-navigation .page-nav-branch .page-nav-row,
+.page-navigation .page-nav-row--sub {
+    position: relative;
+    border-top: 0;
+}
+
+.page-navigation .page-nav-branch .page-nav-row::before,
+.page-navigation .page-nav-row--sub::before {
+    position: absolute;
+    top: 0;
+    right: 1rem;
+    left: calc(1rem + var(--page-nav-depth, 0) * 1rem);
+    border-top: var(--tblr-border-width) solid var(--tblr-border-color-translucent);
+    content: '';
+}
+
+.page-navigation .page-nav-branch .page-nav-link,
+.page-navigation .page-nav-row--sub .page-nav-link {
+    padding: 0.4375rem 0;
+    color: var(--tblr-secondary);
+    font-size: 0.875em;
+}
+
+.page-navigation .page-nav-branch .page-nav-link:hover,
+.page-navigation .page-nav-row--sub .page-nav-link:hover,
+.page-navigation .page-nav-item.is-ancestor > .page-nav-row > .page-nav-link {
+    color: var(--tblr-body-color);
+}
+
+/* Weight and a bar, not only colour, mark the current page. */
+.page-navigation .page-nav-item.is-current > .page-nav-row {
+    box-shadow: inset 3px 0 0 var(--tblr-primary);
+    background-color: var(--tblr-bg-surface-secondary);
+}
+
+.page-navigation .page-nav-link[aria-current='page'] {
+    color: var(--tblr-body-color);
+    font-weight: var(--tblr-font-weight-semibold, 600);
+}
+
+.page-navigation .page-nav-toggle {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    border: 0;
+    border-radius: var(--tblr-border-radius);
+    background: transparent;
+    color: var(--tblr-secondary);
+}
+
+.page-navigation .page-nav-toggle:hover {
+    color: var(--tblr-body-color);
+}
+
+.page-navigation .page-nav-toggle-icon {
+    width: 1rem;
+    height: 1rem;
+    transition: transform 0.15s ease;
+}
+
+.page-navigation .page-nav-toggle[aria-expanded='false'] .page-nav-toggle-icon {
+    transform: rotate(-90deg);
+}
+
+.page-navigation .page-nav-link:focus-visible,
+.page-navigation .page-nav-toggle:focus-visible {
+    border-radius: var(--tblr-border-radius);
+    outline: 2px solid var(--tblr-primary);
+    outline-offset: 2px;
+}
+
+/* Larger touch targets on touch screens only. */
+@media (pointer: coarse) {
+    .page-navigation .page-nav-link,
+    .page-navigation .page-nav-branch .page-nav-link,
+    .page-navigation .page-nav-row--sub .page-nav-link {
+        padding: 0.75rem 0;
+    }
+
+    .page-navigation .page-nav-toggle {
+        width: 2.75rem;
+        height: 2.75rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .page-navigation .page-nav-row,
+    .page-navigation .page-nav-toggle-icon {
+        transition: none;
+    }
+}

@@ -36,7 +36,7 @@ final class ExplorerAnalysisSummaryFactoryTranslationTest extends KernelTestCase
                 scope: StatisticsFilterScope::Public,
                 hospitalId: null,
                 cohortType: null,
-                period: StatisticsFilterPeriod::All,
+                period: StatisticsFilterPeriod::Last12Months,
             ),
             presentation: new PresentationConfig(ChartPresentationType::Bar),
             title: 'Test',

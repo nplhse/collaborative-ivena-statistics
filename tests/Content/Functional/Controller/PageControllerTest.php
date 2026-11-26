@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Content\Functional\Controller;
 
+use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Content\Domain\Entity\Page;
 use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Infrastructure\Factory\PageFactory;
@@ -11,6 +12,7 @@ use App\Content\Infrastructure\Factory\PageTranslationFactory;
 use App\Shared\Application\Locale\SupportedLocales;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
@@ -149,6 +151,82 @@ final class PageControllerTest extends WebTestCase
         self::assertSelectorExists('.page-content-accordion .accordion-button');
     }
 
+    public function testCardBlockAndNumberedSubpagesBlock(): void
+    {
+        $client = self::createClient();
+
+        $guide = PageFactory::createOne([
+            'title' => 'Guide',
+            'slug' => 'guide',
+            'status' => PageTranslation::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+            'content' => [
+                ['type' => 'cards', 'data' => ['items' => [
+                    ['icon' => 'tabler:user', 'title' => 'Hospital staff', 'html' => '<p>Start with your account.</p>', 'linkUrl' => '/guide/account', 'linkLabel' => 'Create an account'],
+                    ['title' => 'Researchers', 'html' => '<p>Read about the data.</p>', 'linkUrl' => '/guide/data'],
+                    ['title' => 'Everyone', 'html' => '<p>No link here.</p>'],
+                ]]],
+                ['type' => 'child_pages', 'data' => ['numbered' => true]],
+            ],
+        ]);
+        PageFactory::createOne(['title' => 'Account', 'slug' => 'account', 'path' => '/guide/account', 'parent' => $guide, 'sortOrder' => 0, 'status' => PageTranslation::STATUS_PUBLISHED, 'summary' => 'Register first.']);
+        PageFactory::createOne(['title' => 'Data', 'slug' => 'data', 'path' => '/guide/data', 'parent' => $guide, 'sortOrder' => 1, 'status' => PageTranslation::STATUS_PUBLISHED]);
+        PageFactory::createOne(['title' => 'Members', 'slug' => 'members', 'path' => '/guide/members', 'parent' => $guide, 'sortOrder' => 2, 'status' => PageTranslation::STATUS_PUBLISHED, 'visibility' => Page::VISIBILITY_AUTHENTICATED]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/guide');
+
+        self::assertResponseIsSuccessful();
+        $cards = $crawler->filter('[data-testid="page-content-card"]');
+        self::assertSame(['Hospital staff', 'Researchers', 'Everyone'], $cards->filter('.card-title')->each(static fn (Crawler $title): string => trim($title->text())));
+        self::assertCount(1, $cards->first()->filter('.avatar svg'), 'icon');
+        self::assertSame(['Create an account →', 'Read more →'], $cards->filter('a')->each(static fn (Crawler $link): string => trim($link->text())));
+        self::assertCount(3, $crawler->filter('[data-testid="page-content-cards"] .col-md-4'));
+
+        $children = $crawler->filter('[data-testid="page-child-card"]');
+        self::assertSame(['Account', 'Data'], $children->filter('.card-title')->each(static fn (Crawler $title): string => trim($title->text())), 'pages for signed-in users stay hidden');
+        self::assertSame(['Step 1', 'Step 2'], $children->filter('.badge')->each(static fn (Crawler $badge): string => trim($badge->text())));
+        self::assertStringContainsString('Register first.', $children->first()->text());
+    }
+
+    public function testBoardMembersBlockListsEnabledBoardMembersByName(): void
+    {
+        $client = self::createClient();
+
+        $erika = UserFactory::new()->asBoardMember()->create(['username' => 'erika', 'displayName' => 'Erika Muster']);
+        UserFactory::new()->asBoardMember()->create(['username' => 'bert', 'displayName' => 'Bert Beispiel']);
+        UserFactory::new()->asBoardMember()->create(['username' => 'carla']);
+        UserFactory::new()->asBoardMember()->create(['username' => 'disabled', 'isEnabled' => false]);
+        UserFactory::new()->asAdmin()->create(['username' => 'admin-only']);
+        HospitalFactory::createOne(['name' => 'Klinikum Süd', 'owner' => $erika]);
+        HospitalFactory::createOne(['name' => 'Klinikum Nord', 'owner' => $erika]);
+
+        PageFactory::createOne([
+            'title' => 'About us',
+            'slug' => 'about-us',
+            'status' => PageTranslation::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+            'content' => [['type' => 'board_members', 'data' => []]],
+        ]);
+
+        $names = static fn (Crawler $crawler): array => $crawler->filter('[data-testid="board-member"] .fw-bold')
+            ->each(static fn (Crawler $name): string => trim($name->text()));
+
+        $crawler = $client->request(Request::METHOD_GET, '/about-us');
+
+        self::assertResponseIsSuccessful();
+        // Sorted by display name (Bert, carla, Erika); anonymous visitors only see usernames, no links or hospitals.
+        self::assertSame(['bert', 'carla', 'erika'], $names($crawler));
+        self::assertCount(0, $crawler->filter('[data-testid="board-member"] a'));
+        self::assertCount(0, $crawler->filter('[data-testid="board-member-hospitals"]'));
+
+        $client->loginUser(UserFactory::new()->asParticipant()->create());
+        $crawler = $client->request(Request::METHOD_GET, '/about-us');
+
+        self::assertSame(['Bert Beispiel', 'carla', 'Erika Muster'], $names($crawler));
+        self::assertSame('/explore/user/bert', $crawler->filter('[data-testid="board-member"] a')->first()->attr('href'));
+        self::assertSame(['Klinikum Nord; Klinikum Süd'], $crawler->filter('[data-testid="board-member-hospitals"]')->each(static fn (Crawler $h): string => trim($h->text())));
+    }
+
     public function testImageBlockWithAutoSizeRendersNaturalWidthClass(): void
     {
         $client = self::createClient();
@@ -215,6 +293,54 @@ final class PageControllerTest extends WebTestCase
         self::assertSelectorTextNotContains('[data-testid="page-sidebar"]', 'Nur Mitglieder');
     }
 
+    public function testSidebarNavigationMarksCurrentPageAndExpandsItsAncestors(): void
+    {
+        $client = self::createClient();
+
+        $handbook = PageFactory::createOne([
+            'title' => 'Handbook',
+            'slug' => 'handbook',
+            'status' => PageTranslation::STATUS_PUBLISHED,
+        ]);
+        $chapter = PageFactory::createOne([
+            'title' => 'Chapter',
+            'slug' => 'chapter',
+            'parent' => $handbook,
+            'status' => PageTranslation::STATUS_PUBLISHED,
+        ]);
+        PageFactory::createOne([
+            'title' => 'Section',
+            'slug' => 'section',
+            'parent' => $chapter,
+            'status' => PageTranslation::STATUS_PUBLISHED,
+            'content' => [['type' => 'richtext', 'data' => ['html' => '<p>Section</p>']]],
+        ]);
+        $other = PageFactory::createOne([
+            'title' => 'Other',
+            'slug' => 'other',
+            'sortOrder' => 1,
+            'status' => PageTranslation::STATUS_PUBLISHED,
+        ]);
+        PageFactory::createOne([
+            'title' => 'Other child',
+            'slug' => 'other-child',
+            'parent' => $other,
+            'status' => PageTranslation::STATUS_PUBLISHED,
+        ]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/handbook/chapter/section');
+
+        self::assertResponseIsSuccessful();
+        $navigation = $crawler->filter('[data-testid="page-sidebar"] [data-testid="page-navigation"]');
+        self::assertCount(1, $navigation);
+        self::assertSame('Section', $navigation->filter('[aria-current="page"]')->text());
+        // Parent pages stay links of their own.
+        self::assertCount(1, $navigation->filter('a[href="/handbook"]'));
+        self::assertSame('true', $navigation->filter('button[aria-label="Subpages of Handbook"]')->attr('aria-expanded'));
+        self::assertSame('true', $navigation->filter('button[aria-label="Subpages of Chapter"]')->attr('aria-expanded'));
+        self::assertSame('false', $navigation->filter('button[aria-label="Subpages of Other"]')->attr('aria-expanded'));
+    }
+
     public function testPublishedLanguageAlternatesAreLinkedAndLocaleSwitchRedirectsToSiblingPath(): void
     {
         $client = self::createClient();
@@ -260,6 +386,87 @@ final class PageControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h1.fw-bold', 'Über uns');
         self::assertSelectorTextContains('.page-content-blocks', 'About DE');
+    }
+
+    public function testPathOfOtherLocaleRedirectsToPublishedSiblingInRequestLocale(): void
+    {
+        $client = self::createClient();
+        $this->createBilingualPage();
+
+        $client->request(Request::METHOD_GET, '/guide-en', server: ['HTTP_ACCEPT_LANGUAGE' => 'de-DE,de;q=0.9']);
+
+        self::assertResponseStatusCodeSame(302);
+        self::assertResponseRedirects('/handbuch-de');
+
+        $client->followRedirect();
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h1.fw-bold', 'Handbuch');
+        self::assertSelectorTextContains('.page-content-blocks', 'Guide DE');
+    }
+
+    public function testRedirectToSiblingPreservesQueryString(): void
+    {
+        $client = self::createClient();
+        $this->createBilingualPage();
+
+        $client->request(Request::METHOD_GET, '/guide-en?a=1&b=two', server: ['HTTP_ACCEPT_LANGUAGE' => 'de']);
+
+        self::assertResponseRedirects('/handbuch-de?a=1&b=two', 302);
+    }
+
+    public function testPathMatchingRequestLocaleIsShownWithoutRedirect(): void
+    {
+        $client = self::createClient();
+        $this->createBilingualPage();
+
+        $client->request(Request::METHOD_GET, '/handbuch-de', server: ['HTTP_ACCEPT_LANGUAGE' => 'de']);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h1.fw-bold', 'Handbuch');
+        self::assertSelectorTextContains('.page-content-blocks', 'Guide DE');
+    }
+
+    public function testPathOfOtherLocaleIsShownWhenNoSiblingIsPublishedInRequestLocale(): void
+    {
+        $client = self::createClient();
+        $this->createBilingualPage(germanStatus: PageTranslation::STATUS_DRAFT);
+
+        $client->request(Request::METHOD_GET, '/guide-en', server: ['HTTP_ACCEPT_LANGUAGE' => 'de']);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h1.fw-bold', 'Guide');
+        self::assertSelectorTextContains('.page-content-blocks', 'Guide EN');
+    }
+
+    private function createBilingualPage(string $germanStatus = PageTranslation::STATUS_PUBLISHED): void
+    {
+        $page = PageFactory::new()->withoutDefaultTranslation()->create([
+            'title' => 'Guide',
+            'slug' => 'guide-root',
+            'path' => '/guide-root-legacy',
+            'status' => PageTranslation::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+        ]);
+
+        PageTranslationFactory::createOne([
+            'page' => $page,
+            'locale' => SupportedLocales::DEFAULT,
+            'title' => 'Guide',
+            'slug' => 'guide-en',
+            'path' => '/guide-en',
+            'status' => PageTranslation::STATUS_PUBLISHED,
+            'content' => [['type' => 'richtext', 'enabled' => true, 'data' => ['html' => '<p>Guide EN</p>']]],
+        ]);
+
+        PageTranslationFactory::createOne([
+            'page' => $page,
+            'locale' => SupportedLocales::GERMAN,
+            'title' => 'Handbuch',
+            'slug' => 'handbuch-de',
+            'path' => '/handbuch-de',
+            'status' => $germanStatus,
+            'content' => [['type' => 'richtext', 'enabled' => true, 'data' => ['html' => '<p>Guide DE</p>']]],
+        ]);
     }
 
     public function testSidebarShowsAuthenticatedPagesForLoggedInUser(): void
@@ -329,6 +536,8 @@ final class PageControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="page-toc"]');
         self::assertSelectorExists('[data-testid="page-toc"] a[href="#getting-started"]');
         self::assertSelectorExists('[data-testid="page-toc"] a[href="#first-steps"]');
+        self::assertSelectorExists('[data-testid="page-toc"] .page-nav-row:not(.page-nav-row--sub) a[href="#getting-started"]', 'the top heading level is a main row');
+        self::assertSelectorExists('[data-testid="page-toc"] .page-nav-row--sub[style*="--page-nav-depth: 1"] a[href="#first-steps"]', 'deeper headings are indented sub-rows');
         self::assertSelectorExists('h2#getting-started.page-content-headline');
         self::assertSelectorExists('h3#first-steps');
     }

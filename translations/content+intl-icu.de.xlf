@@ -245,17 +245,9 @@
         <source>dashboard.next_steps.explore.title</source>
         <target>Unsere Daten erkunden</target>
       </trans-unit>
-      <trans-unit id="De44dc8459" resname="dashboard.next_steps.hospitals.all.description">
-        <source>dashboard.next_steps.hospitals.all.description</source>
-        <target>Durchsuchen Sie das vollständige Krankenhausverzeichnis und entdecken Sie teilnehmende Einrichtungen.</target>
-      </trans-unit>
-      <trans-unit id="Dedc29aea8" resname="dashboard.next_steps.hospitals.all.title">
-        <source>dashboard.next_steps.hospitals.all.title</source>
-        <target>Alle Krankenhäuser ansehen</target>
-      </trans-unit>
       <trans-unit id="De592cd5f6" resname="dashboard.next_steps.hospitals.owned.description">
         <source>dashboard.next_steps.hospitals.owned.description</source>
-        <target>Schauen Sie sich Ihre eigenen teilnehmenden Krankenhäuser an.</target>
+        <target>Schauen Sie sich Ihre teilnehmenden Krankenhäuser an.</target>
       </trans-unit>
       <trans-unit id="De6a79ffef" resname="dashboard.next_steps.hospitals.owned.title">
         <source>dashboard.next_steps.hospitals.owned.title</source>
@@ -268,14 +260,6 @@
       <trans-unit id="Deef078c10" resname="dashboard.next_steps.import.title">
         <source>dashboard.next_steps.import.title</source>
         <target>Neue Zuweisungen importieren</target>
-      </trans-unit>
-      <trans-unit id="Deb78f6f9c" resname="dashboard.pages.card_title">
-        <source>dashboard.pages.card_title</source>
-        <target>Seiten</target>
-      </trans-unit>
-      <trans-unit id="Dea084441e" resname="dashboard.pages.empty">
-        <source>dashboard.pages.empty</source>
-        <target>Keine Seiten vorhanden.</target>
       </trans-unit>
       <trans-unit id="De8eedec5d" resname="dashboard.participant_access.contact_feedback">
         <source>dashboard.participant_access.contact_feedback</source>
@@ -311,7 +295,7 @@
       </trans-unit>
       <trans-unit id="De442f4a00" resname="dashboard.participant_access.intro">
         <source>dashboard.participant_access.intro</source>
-        <target>Als registrierter Benutzer können Sie aggregierte Statistiken im Netzwerk erkunden. Der volle Funktionsumfang erfordert einen von einem Administrator zugewiesenen Teilnehmerzugang.</target>
+        <target>Als registrierter Benutzer können Sie aggregierte Statistiken im Netzwerk erkunden. Der volle Funktionsumfang erfordert einen Teilnehmerzugang, den Administrator:innen zuweisen.</target>
       </trans-unit>
       <trans-unit id="De751cf74b" resname="dashboard.participant_access.title">
         <source>dashboard.participant_access.title</source>
@@ -863,7 +847,7 @@
       </trans-unit>
       <trans-unit id="De22221dd0" resname="public.home.about.p2">
         <source>public.home.about.p2</source>
-        <target>Für jede Zuweisung wird ein anonymisierter Datensatz erstellt und gespeichert, der Variablen wie Alter, Geschlecht, kodierte Verdachtsdiagnose, Dringlichkeit, Zuweisungsweg, Arztbegleitung, Reanimation, Beatmung, Infektionsstatus, Schwangerschaft sowie angeforderte Ressourcen wie Schockraum oder Herzkatheter umfasst.</target>
+        <target>Für jede Zuweisung wird ein pseudonymisierter Datensatz ohne Namen oder Kennungen von Patienten erstellt und gespeichert, der Variablen wie Alter, Geschlecht, kodierte Verdachtsdiagnose, Dringlichkeit, Zuweisungsweg, Arztbegleitung, Reanimation, Beatmung, Infektionsstatus, Schwangerschaft sowie angeforderte Ressourcen wie Schockraum oder Herzkatheter umfasst.</target>
       </trans-unit>
       <trans-unit id="De55252d46" resname="public.home.about.p3">
         <source>public.home.about.p3</source>
@@ -931,7 +915,7 @@
       </trans-unit>
       <trans-unit id="De03474743" resname="public.home.features.detail.statistics.text">
         <source>public.home.features.detail.statistics.text</source>
-        <target>Erstellen Sie fokussierte Analysen für spezifische Forschungsfragen und vergleichen Sie institutionelle Muster mit anonymisierten Clustern.</target>
+        <target>Erstellen Sie fokussierte Analysen für spezifische Forschungsfragen und vergleichen Sie institutionelle Muster mit zusammengefassten Vergleichsgruppen.</target>
       </trans-unit>
       <trans-unit id="Dec1dbf3b2" resname="public.home.features.detail.statistics.title">
         <source>public.home.features.detail.statistics.title</source>
@@ -955,7 +939,7 @@
       </trans-unit>
       <trans-unit id="De51530979" resname="public.home.hero.preview_text">
         <source>public.home.hero.preview_text</source>
-        <target>Teilnehmende Krankenhäuser können IVENA-Zuweisungsdaten zusammenführen, gemeinsame Analysen durchführen und anonymisierte Benchmarks an einem Ort vergleichen.</target>
+        <target>Teilnehmende Krankenhäuser können IVENA-Zuweisungsdaten zusammenführen, gemeinsame Analysen durchführen und zusammengefasste Benchmarks an einem Ort vergleichen.</target>
       </trans-unit>
       <trans-unit id="De07853e4e" resname="public.home.hero.preview_title">
         <source>public.home.hero.preview_title</source>
@@ -987,15 +971,15 @@
       </trans-unit>
       <trans-unit id="De4ebb8c8d" resname="public.home.screenshots.analytics.alt">
         <source>public.home.screenshots.analytics.alt</source>
-        <target>Benutzerdefinierte Analyseansicht mit Geschlechterverteilung nach Dringlichkeit und Analyseoptionen</target>
+        <target>Analyse-Explorer mit den monatlichen Zuweisungen eines Jahres</target>
       </trans-unit>
       <trans-unit id="De75b8109e" resname="public.home.screenshots.analytics.caption">
         <source>public.home.screenshots.analytics.caption</source>
-        <target>Passen Sie Analysen nach Dringlichkeit, Geschlecht und weiteren klinischen Dimensionen an.</target>
+        <target>Stellen Sie eigene Auswertungen aus Zeilen, Spalten und Metriken zusammen.</target>
       </trans-unit>
       <trans-unit id="De6a6aefea" resname="public.home.screenshots.benchmarking.alt">
         <source>public.home.screenshots.benchmarking.alt</source>
-        <target>Benchmarking-Ansicht mit Vergleich von Primär- und Vergleichskohorte über zentrale Kennzahlen</target>
+        <target>Benchmarking: die eigenen Krankenhäuser im Vergleich mit einer Vergleichsgruppe im selben Jahr</target>
       </trans-unit>
       <trans-unit id="De3df8bad2" resname="public.home.screenshots.benchmarking.caption">
         <source>public.home.screenshots.benchmarking.caption</source>
@@ -1007,19 +991,19 @@
       </trans-unit>
       <trans-unit id="Def8905885" resname="public.home.screenshots.dashboard.alt">
         <source>public.home.screenshots.dashboard.alt</source>
-        <target>Statistik-Übersicht mit Zuweisungstrends und klinischen Verteilungen</target>
+        <target>Statistik-Übersicht mit Kennzahlen, Verteilungen und dem Verlauf der Zuweisungen über zwei Jahre</target>
       </trans-unit>
       <trans-unit id="De6efe4e4d" resname="public.home.screenshots.dashboard.caption">
         <source>public.home.screenshots.dashboard.caption</source>
         <target>Gemeinsame Übersicht über Zuweisungen, Trends und klinische Verteilungen im Netzwerk.</target>
       </trans-unit>
-      <trans-unit id="De43610015" resname="public.home.screenshots.indication_insights.alt">
-        <source>public.home.screenshots.indication_insights.alt</source>
-        <target>Indikationsprofil mit Fällen über die Zeit, Verteilungs-Heatmap und klinischen Merkmalen</target>
+      <trans-unit id="De43610015" resname="public.home.screenshots.closure_analysis.alt">
+        <source>public.home.screenshots.closure_analysis.alt</source>
+        <target>Schließungsanalyse mit der Schließungszeit im Jahresverlauf, Ereignistypen und Gründen</target>
       </trans-unit>
-      <trans-unit id="Dee0056a19" resname="public.home.screenshots.indication_insights.caption">
-        <source>public.home.screenshots.indication_insights.caption</source>
-        <target>Erkunden Sie Indikationsprofile mit Zeitverläufen und Fallverteilungen.</target>
+      <trans-unit id="Dee0056a19" resname="public.home.screenshots.closure_analysis.caption">
+        <source>public.home.screenshots.closure_analysis.caption</source>
+        <target>Sehen Sie, wann und warum Fachbereiche in IVENA geschlossen waren.</target>
       </trans-unit>
       <trans-unit id="Dea31e0948" resname="public.home.screenshots.next">
         <source>public.home.screenshots.next</source>
@@ -1064,6 +1048,14 @@
       <trans-unit id="DePageToc003" resname="page.toc.title">
         <source>page.toc.title</source>
         <target>Auf dieser Seite</target>
+      </trans-unit>
+      <trans-unit id="DePageNav001" resname="page.navigation.title">
+        <source>page.navigation.title</source>
+        <target>Seiten</target>
+      </trans-unit>
+      <trans-unit id="DePageNav002" resname="page.navigation.toggle">
+        <source>page.navigation.toggle</source>
+        <target>Unterseiten von {title}</target>
       </trans-unit>
       <trans-unit id="actTitleDe" resname="title.activity">
         <source>title.activity</source>
@@ -1144,6 +1136,490 @@
       <trans-unit id="actLoadingDe" resname="activity.timeline.loading">
         <source>activity.timeline.loading</source>
         <target>Aktivitäten werden geladen …</target>
+      </trans-unit>
+      <trans-unit id="pgEdit01De" resname="label.accordion_item_title">
+        <source>label.accordion_item_title</source>
+        <target>Titel</target>
+      </trans-unit>
+      <trans-unit id="pgEdit02De" resname="label.accordion_items">
+        <source>label.accordion_items</source>
+        <target>Accordion-Einträge</target>
+      </trans-unit>
+      <trans-unit id="pgEdit03De" resname="label.accordion_open_by_default">
+        <source>label.accordion_open_by_default</source>
+        <target>Standardmäßig geöffnet</target>
+      </trans-unit>
+      <trans-unit id="pgEdit04De" resname="label.button_label">
+        <source>label.button_label</source>
+        <target>Button-Beschriftung</target>
+      </trans-unit>
+      <trans-unit id="pgEdit05De" resname="label.button_url">
+        <source>label.button_url</source>
+        <target>Button-URL</target>
+      </trans-unit>
+      <trans-unit id="pgEdit06De" resname="label.html">
+        <source>label.html</source>
+        <target>HTML</target>
+      </trans-unit>
+      <trans-unit id="pgEdit07De" resname="label.open_in_new_tab">
+        <source>label.open_in_new_tab</source>
+        <target>In neuem Tab öffnen</target>
+      </trans-unit>
+      <trans-unit id="pgEdit08De" resname="label.quote_text">
+        <source>label.quote_text</source>
+        <target>Zitat</target>
+      </trans-unit>
+      <trans-unit id="pgType01De" resname="page.editor.type_change_refused">
+        <source>page.editor.type_change_refused</source>
+        <target>Der Blocktyp wurde nicht geändert, weil dabei Inhalte verloren gingen ({fields}). Wechseln Sie den Typ im Editor und bestätigen Sie den Verlust.</target>
+      </trans-unit>
+      <trans-unit id="pgType02De" resname="page.editor.type_change_confirm">
+        <source>page.editor.type_change_confirm</source>
+        <target>Beim Wechsel zu „{type}“ gehen Inhalte dieses Blocks verloren: {fields}. Trotzdem wechseln?</target>
+      </trans-unit>
+      <trans-unit id="pgType03De" resname="page.editor.accordion_item_fallback">
+        <source>page.editor.accordion_item_fallback</source>
+        <target>Eintrag {number}</target>
+      </trans-unit>
+      <trans-unit id="pgOrder01De" resname="page.editor.block_moved">
+        <source>page.editor.block_moved</source>
+        <target>Block an Position {position} von {count} verschoben.</target>
+      </trans-unit>
+      <trans-unit id="pgDraft01De" resname="page.editor.draft.unsaved">
+        <source>page.editor.draft.unsaved</source>
+        <target>Ungespeicherte Änderungen</target>
+      </trans-unit>
+      <trans-unit id="pgDraft02De" resname="page.editor.draft.saving">
+        <source>page.editor.draft.saving</source>
+        <target>Entwurf wird gespeichert …</target>
+      </trans-unit>
+      <trans-unit id="pgDraft03De" resname="page.editor.draft.saved">
+        <source>page.editor.draft.saved</source>
+        <target>Entwurf gespeichert um {time}. Öffentlich gilt weiter die gespeicherte Fassung bis „Änderungen speichern“.</target>
+      </trans-unit>
+      <trans-unit id="pgDraft04De" resname="page.editor.draft.failed">
+        <source>page.editor.draft.failed</source>
+        <target>Der Entwurf konnte nicht gespeichert werden. Ihre Eingaben bleiben im Editor erhalten.</target>
+      </trans-unit>
+      <trans-unit id="pgDraft05De" resname="page.editor.draft.retry">
+        <source>page.editor.draft.retry</source>
+        <target>Erneut versuchen</target>
+      </trans-unit>
+      <trans-unit id="pgDraft06De" resname="page.editor.draft.conflict">
+        <source>page.editor.draft.conflict</source>
+        <target>Der Entwurf wurde inzwischen an anderer Stelle geändert, gespeichert oder verworfen. Laden Sie die Seite neu, um den aktuellen Stand zu sehen.</target>
+      </trans-unit>
+      <trans-unit id="pgDraft07De" resname="page.editor.draft.restored">
+        <source>page.editor.draft.restored</source>
+        <target>Ungespeicherter Entwurf vom {time} wiederhergestellt. Öffentlich gilt weiter die gespeicherte Fassung bis „Änderungen speichern“.</target>
+      </trans-unit>
+      <trans-unit id="pgDraft08De" resname="page.editor.draft.discard">
+        <source>page.editor.draft.discard</source>
+        <target>Entwurf verwerfen</target>
+      </trans-unit>
+      <trans-unit id="pgDraft09De" resname="page.editor.draft.discard_confirm">
+        <source>page.editor.draft.discard_confirm</source>
+        <target>Entwurf verwerfen und zur gespeicherten Fassung zurückkehren?</target>
+      </trans-unit>
+      <trans-unit id="pgDraft10De" resname="page.editor.draft.leave_warning">
+        <source>page.editor.draft.leave_warning</source>
+        <target>Es gibt Änderungen, die noch nicht gespeichert sind.</target>
+      </trans-unit>
+      <trans-unit id="pgDraftBadgeDe" resname="page.editor.draft.badge">
+        <source>page.editor.draft.badge</source>
+        <target>Ungespeicherter Entwurf</target>
+      </trans-unit>
+      <trans-unit id="actHospEmptyDe" resname="activity.hospital.empty">
+        <source>activity.hospital.empty</source>
+        <target>Noch keine Aktivität</target>
+      </trans-unit>
+      <trans-unit id="actHospEmptyDescDe" resname="activity.hospital.empty_description">
+        <source>activity.hospital.empty_description</source>
+        <target>Hier erscheinen Änderungen an Zugriff und Eigentümerschaft dieser Klinik sowie Import-Meilensteine.</target>
+      </trans-unit>
+      <trans-unit id="reactNotifUnavailDe" resname="reaction.notification.unavailable">
+        <source>reaction.notification.unavailable</source>
+        <target>Dieser Inhalt ist nicht mehr verfügbar.</target>
+      </trans-unit>
+      <trans-unit id="reactTypeLikeDe" resname="reaction.type.like">
+        <source>reaction.type.like</source>
+        <target>Gefällt mir</target>
+      </trans-unit>
+      <trans-unit id="reactTypeLoveDe" resname="reaction.type.love">
+        <source>reaction.type.love</source>
+        <target>Danke</target>
+      </trans-unit>
+      <trans-unit id="reactTypeHoorayDe" resname="reaction.type.hooray">
+        <source>reaction.type.hooray</source>
+        <target>Glückwunsch</target>
+      </trans-unit>
+      <trans-unit id="reactTypeRocketDe" resname="reaction.type.rocket">
+        <source>reaction.type.rocket</source>
+        <target>Großartig</target>
+      </trans-unit>
+      <trans-unit id="reactTypeInsightfulDe" resname="reaction.type.insightful">
+        <source>reaction.type.insightful</source>
+        <target>Interessant</target>
+      </trans-unit>
+      <trans-unit id="reactTypeEyesDe" resname="reaction.type.eyes">
+        <source>reaction.type.eyes</source>
+        <target>Schaue ich mir an</target>
+      </trans-unit>
+      <trans-unit id="reactTypeFunnyDe" resname="reaction.type.funny">
+        <source>reaction.type.funny</source>
+        <target>Lustig</target>
+      </trans-unit>
+      <trans-unit id="reactTypeThinkingDe" resname="reaction.type.thinking">
+        <source>reaction.type.thinking</source>
+        <target>Nachdenklich</target>
+      </trans-unit>
+      <trans-unit id="reactAddDe" resname="reaction.add">
+        <source>reaction.add</source>
+        <target>Reaktion hinzufügen</target>
+      </trans-unit>
+      <trans-unit id="reactTooltipNamesDe" resname="reaction.tooltip.names">
+        <source>reaction.tooltip.names</source>
+        <target>{label}: {names}{more, plural, =0 {} one { und # weitere Person} other { und # weitere}}</target>
+      </trans-unit>
+      <trans-unit id="reactTooltipCountDe" resname="reaction.tooltip.count">
+        <source>reaction.tooltip.count</source>
+        <target>{label}: {count}</target>
+      </trans-unit>
+      <trans-unit id="reactPeopleCountDe" resname="reaction.people">
+        <source>reaction.people</source>
+        <target>{count, plural, one {# Person hat reagiert} other {# Personen haben reagiert}}</target>
+      </trans-unit>
+      <trans-unit id="reactPeopleMoreDe" resname="reaction.people_more">
+        <source>reaction.people_more</source>
+        <target>{count, plural, one {# weitere Person} other {# weitere Personen}}</target>
+      </trans-unit>
+      <trans-unit id="help_page_key_help_de" resname="page.key.help">
+        <source>page.key.help</source>
+        <target>Hilfe</target>
+      </trans-unit>
+      <trans-unit id="help_page_type_page_de" resname="page.type.page">
+        <source>page.type.page</source>
+        <target>Seite</target>
+      </trans-unit>
+      <trans-unit id="help_page_type_help_de" resname="page.type.help">
+        <source>page.type.help</source>
+        <target>Hilfeartikel</target>
+      </trans-unit>
+      <trans-unit id="help_label_block_type_help_search_de" resname="label.block_type.help_search">
+        <source>label.block_type.help_search</source>
+        <target>Hilfe-Suche</target>
+      </trans-unit>
+      <trans-unit id="help_label_block_type_help_topics_de" resname="label.block_type.help_topics">
+        <source>label.block_type.help_topics</source>
+        <target>Hilfe-Themenübersicht</target>
+      </trans-unit>
+      <trans-unit id="help_label_help_article_de" resname="label.help_article">
+        <source>label.help_article</source>
+        <target>Hilfeartikel</target>
+      </trans-unit>
+      <trans-unit id="help_label_help_articles_de" resname="label.help_articles">
+        <source>label.help_articles</source>
+        <target>Hilfe</target>
+      </trans-unit>
+      <trans-unit id="help_label_help_parent_de" resname="label.help_parent">
+        <source>label.help_parent</source>
+        <target>Thema</target>
+      </trans-unit>
+      <trans-unit id="help_label_help_key_de" resname="label.help_key">
+        <source>label.help_key</source>
+        <target>Hilfe-Schlüssel</target>
+      </trans-unit>
+      <trans-unit id="help_label_help_key_help_de" resname="label.help_key_help">
+        <source>label.help_key_help</source>
+        <target>Optionaler fester Name für Links aus der Anwendung, z. B. import.rejects. Kleinbuchstaben, Ziffern, Punkte und Bindestriche.</target>
+      </trans-unit>
+      <trans-unit id="label_page_icon_de" resname="label.page_icon">
+        <source>label.page_icon</source>
+        <target>Symbol</target>
+      </trans-unit>
+      <trans-unit id="label_page_icon_help_de" resname="label.page_icon_help">
+        <source>label.page_icon_help</source>
+        <target>Optionales Tabler-Symbol für Themen- und Unterseiten-Karten, z. B. tabler:file-import.</target>
+      </trans-unit>
+      <trans-unit id="help_label_help_feedback_de" resname="label.help_feedback">
+        <source>label.help_feedback</source>
+        <target>Hilfreich?</target>
+      </trans-unit>
+      <trans-unit id="help_help_search_label_de" resname="help.search.label">
+        <source>help.search.label</source>
+        <target>Hilfe durchsuchen</target>
+      </trans-unit>
+      <trans-unit id="help_help_search_placeholder_de" resname="help.search.placeholder">
+        <source>help.search.placeholder</source>
+        <target>Hilfe durchsuchen …</target>
+      </trans-unit>
+      <trans-unit id="help_help_search_submit_de" resname="help.search.submit">
+        <source>help.search.submit</source>
+        <target>Suchen</target>
+      </trans-unit>
+      <trans-unit id="help_help_search_title_de" resname="help.search.title">
+        <source>help.search.title</source>
+        <target>Hilfe durchsuchen</target>
+      </trans-unit>
+      <trans-unit id="help_help_search_empty_query_de" resname="help.search.empty_query">
+        <source>help.search.empty_query</source>
+        <target>Geben Sie ein, wonach Sie suchen.</target>
+      </trans-unit>
+      <trans-unit id="help_help_search_no_results_de" resname="help.search.no_results">
+        <source>help.search.no_results</source>
+        <target>Keine Hilfeartikel zu „{query}“</target>
+      </trans-unit>
+      <trans-unit id="help_help_search_no_results_hint_de" resname="help.search.no_results_hint">
+        <source>help.search.no_results_hint</source>
+        <target>Versuchen Sie weniger oder andere Begriffe, oder stöbern Sie in den Themen.</target>
+      </trans-unit>
+      <trans-unit id="help_help_search_results_de" resname="help.search.results">
+        <source>help.search.results</source>
+        <target>{count, plural, one {# Artikel} other {# Artikel}} zu „{query}“</target>
+      </trans-unit>
+      <trans-unit id="help_help_topics_all_de" resname="help.topics.all">
+        <source>help.topics.all</source>
+        <target>Alle {count} Artikel</target>
+      </trans-unit>
+      <trans-unit id="help_help_article_pagination_de" resname="help.article.pagination">
+        <source>help.article.pagination</source>
+        <target>Vorheriger und nächster Artikel</target>
+      </trans-unit>
+      <trans-unit id="help_help_article_previous_de" resname="help.article.previous">
+        <source>help.article.previous</source>
+        <target>Vorheriger</target>
+      </trans-unit>
+      <trans-unit id="help_help_article_next_de" resname="help.article.next">
+        <source>help.article.next</source>
+        <target>Nächster</target>
+      </trans-unit>
+      <trans-unit id="help_search_terms_label_de" resname="help.search_terms.label">
+        <source>help.search_terms.label</source>
+        <target>Suchtreffer für „{query}“</target>
+      </trans-unit>
+      <trans-unit id="help_search_terms_back_de" resname="help.search_terms.back">
+        <source>help.search_terms.back</source>
+        <target>Zurück zu den Suchergebnissen</target>
+      </trans-unit>
+      <trans-unit id="help_search_terms_clear_de" resname="help.search_terms.clear">
+        <source>help.search_terms.clear</source>
+        <target>Markierung entfernen</target>
+      </trans-unit>
+      <trans-unit id="help_link_title_de" resname="help.link.title">
+        <source>help.link.title</source>
+        <target>Hilfe zu diesem Bereich</target>
+      </trans-unit>
+      <trans-unit id="help_help_feedback_question_de" resname="help.feedback.question">
+        <source>help.feedback.question</source>
+        <target>War dieser Artikel hilfreich?</target>
+      </trans-unit>
+      <trans-unit id="help_help_feedback_thanks_de" resname="help.feedback.thanks">
+        <source>help.feedback.thanks</source>
+        <target>Danke für Ihre Rückmeldung!</target>
+      </trans-unit>
+      <trans-unit id="help_help_feedback_yes_de" resname="help.feedback.yes">
+        <source>help.feedback.yes</source>
+        <target>Ja</target>
+      </trans-unit>
+      <trans-unit id="help_help_feedback_no_de" resname="help.feedback.no">
+        <source>help.feedback.no</source>
+        <target>Nein</target>
+      </trans-unit>
+      <trans-unit id="help_help_feedback_comment_label_de" resname="help.feedback.comment_label">
+        <source>help.feedback.comment_label</source>
+        <target>Was hat gefehlt oder war unklar?</target>
+      </trans-unit>
+      <trans-unit id="help_help_feedback_comment_placeholder_de" resname="help.feedback.comment_placeholder">
+        <source>help.feedback.comment_placeholder</source>
+        <target>Optional: Sagen Sie uns, was wir verbessern können.</target>
+      </trans-unit>
+      <trans-unit id="help_help_feedback_comment_submit_de" resname="help.feedback.comment_submit">
+        <source>help.feedback.comment_submit</source>
+        <target>Senden</target>
+      </trans-unit>
+      <trans-unit id="help_help_feedback_comment_hint_de" resname="help.feedback.comment_hint">
+        <source>help.feedback.comment_hint</source>
+        <target>Die Redaktion liest jeden Hinweis.</target>
+      </trans-unit>
+      <trans-unit id="help_help_feedback_commented_de" resname="help.feedback.commented">
+        <source>help.feedback.commented</source>
+        <target>Danke, Ihr Hinweis ist bei der Redaktion angekommen.</target>
+      </trans-unit>
+      <trans-unit id="help_help_navigation_title_de" resname="help.navigation.title">
+        <source>help.navigation.title</source>
+        <target>Hilfethemen</target>
+      </trans-unit>
+      <trans-unit id="help_help_reference_title_de" resname="help.reference.title">
+        <source>help.reference.title</source>
+        <target>Nachschlagen</target>
+      </trans-unit>
+      <trans-unit id="DashAccReqDe01" resname="dashboard.next_steps.access_request.new.title">
+        <source>dashboard.next_steps.access_request.new.title</source>
+        <target>Klinikzuordnung beantragen</target>
+      </trans-unit>
+      <trans-unit id="DashAccReqDe02" resname="dashboard.next_steps.access_request.new.description">
+        <source>dashboard.next_steps.access_request.new.description</source>
+        <target>Beantragen Sie die Zuordnung zu Ihrer Klinik, um mit deren Daten zu arbeiten.</target>
+      </trans-unit>
+      <trans-unit id="DashAccReqDe03" resname="dashboard.next_steps.access_request.pending.title">
+        <source>dashboard.next_steps.access_request.pending.title</source>
+        <target>Anfrage in Prüfung</target>
+      </trans-unit>
+      <trans-unit id="DashAccReqDe04" resname="dashboard.next_steps.access_request.pending.description">
+        <source>dashboard.next_steps.access_request.pending.description</source>
+        <target>Ihre Anfrage für {hospital} wird geprüft.</target>
+      </trans-unit>
+      <trans-unit id="DashAccReqDe05" resname="dashboard.next_steps.access_request.rejected.title">
+        <source>dashboard.next_steps.access_request.rejected.title</source>
+        <target>Anfrage abgelehnt</target>
+      </trans-unit>
+      <trans-unit id="DashAccReqDe06" resname="dashboard.next_steps.access_request.rejected.description">
+        <source>dashboard.next_steps.access_request.rejected.description</source>
+        <target>Öffnen Sie Ihre Anfrage für {hospital}, um die Begründung zu sehen.</target>
+      </trans-unit>
+      <trans-unit id="PinAnnDe01" resname="blog.pinned">
+        <source>blog.pinned</source>
+        <target>Angepinnt</target>
+      </trans-unit>
+      <trans-unit id="PinAnnDe02" resname="admin.post.field.pinned">
+        <source>admin.post.field.pinned</source>
+        <target>Angepinnt</target>
+      </trans-unit>
+      <trans-unit id="PinAnnDe03" resname="admin.post.field.pinned.help">
+        <source>admin.post.field.pinned.help</source>
+        <target>Angepinnte Beiträge stehen auf der Blog-Startseite und bei den neuesten Beiträgen über allen anderen, bis Sie sie wieder lösen.</target>
+      </trans-unit>
+      <trans-unit id="PinAnnDe04" resname="admin.post.field.announced_at">
+        <source>admin.post.field.announced_at</source>
+        <target>Angekündigt am</target>
+      </trans-unit>
+      <trans-unit id="PinAnnDe05" resname="admin.post.action.announce">
+        <source>admin.post.action.announce</source>
+        <target>Als Ankündigung senden</target>
+      </trans-unit>
+      <trans-unit id="PinAnnDe06" resname="admin.post.action.announce.confirm">
+        <source>admin.post.action.announce.confirm</source>
+        <target>„{title}“ als Ankündigung an {count, plural, one {# Person} other {# Personen}} senden? Jeder Beitrag kann nur einmal angekündigt werden.</target>
+      </trans-unit>
+      <trans-unit id="PinAnnDe07" resname="flash.admin.post.announced">
+        <source>flash.admin.post.announced</source>
+        <target>„{title}“ wird als Ankündigung verschickt.</target>
+      </trans-unit>
+      <trans-unit id="PinAnnDe08" resname="flash.admin.post.not_announceable">
+        <source>flash.admin.post.not_announceable</source>
+        <target>Nur ein veröffentlichter Beitrag, der noch nicht angekündigt wurde, kann angekündigt werden.</target>
+      </trans-unit>
+      <trans-unit id="PinAnnDe09" resname="flash.admin.post.invalid_token">
+        <source>flash.admin.post.invalid_token</source>
+        <target>Die Anfrage ist abgelaufen. Bitte versuchen Sie es erneut.</target>
+      </trans-unit>
+      <trans-unit id="cms1578c01de" resname="label.block_type.cards">
+        <source>label.block_type.cards</source>
+        <target>Karten</target>
+      </trans-unit>
+      <trans-unit id="cms1578c02de" resname="label.block_type.child_pages">
+        <source>label.block_type.child_pages</source>
+        <target>Unterseiten</target>
+      </trans-unit>
+      <trans-unit id="cms1578c03de" resname="label.cards_items">
+        <source>label.cards_items</source>
+        <target>Karten</target>
+      </trans-unit>
+      <trans-unit id="cms1578c04de" resname="help.page.cards_items">
+        <source>help.page.cards_items</source>
+        <target>Eine bis vier Karten nebeneinander.</target>
+      </trans-unit>
+      <trans-unit id="cms1578c05de" resname="label.child_pages_numbered">
+        <source>label.child_pages_numbered</source>
+        <target>Als Schritte nummerieren</target>
+      </trans-unit>
+      <trans-unit id="cms1578c06de" resname="help.page.child_pages_numbered">
+        <source>help.page.child_pages_numbered</source>
+        <target>Zeigt „Schritt 1“, „Schritt 2“ usw. für Unterseiten, die einen Ablauf beschreiben.</target>
+      </trans-unit>
+      <trans-unit id="cms1578c07de" resname="label.card_icon">
+        <source>label.card_icon</source>
+        <target>Symbol</target>
+      </trans-unit>
+      <trans-unit id="cms1578c08de" resname="label.card_title">
+        <source>label.card_title</source>
+        <target>Titel</target>
+      </trans-unit>
+      <trans-unit id="cms1578c09de" resname="label.card_link_url">
+        <source>label.card_link_url</source>
+        <target>Link</target>
+      </trans-unit>
+      <trans-unit id="cms1578c10de" resname="help.page.card_link_url">
+        <source>help.page.card_link_url</source>
+        <target>Pfad auf dieser Website, z. B. /hilfe/erste-schritte, oder eine https-Adresse.</target>
+      </trans-unit>
+      <trans-unit id="cms1578c11de" resname="label.card_link_label">
+        <source>label.card_link_label</source>
+        <target>Linktext</target>
+      </trans-unit>
+      <trans-unit id="cms1578c12de" resname="help.page.card_link_label">
+        <source>help.page.card_link_label</source>
+        <target>Ohne Angabe lautet der Link „Weiterlesen“.</target>
+      </trans-unit>
+      <trans-unit id="cms1578c13de" resname="label.summary">
+        <source>label.summary</source>
+        <target>Kurzbeschreibung</target>
+      </trans-unit>
+      <trans-unit id="cms1578c14de" resname="help.page.summary">
+        <source>help.page.summary</source>
+        <target>Ein Satz über die Seite. Er erscheint auf Karten für Unterseiten, in der Hilfe-Themenübersicht, in der Hilfe-Suche und als Beschreibung für Suchmaschinen.</target>
+      </trans-unit>
+      <trans-unit id="cms1578c15de" resname="page.child_pages.step">
+        <source>page.child_pages.step</source>
+        <target>Schritt {number}</target>
+      </trans-unit>
+      <trans-unit id="cms1578c16de" resname="page.child_pages.reading_time">
+        <source>page.child_pages.reading_time</source>
+        <target>{minutes, plural, one {# Minute} other {# Minuten}} Lesezeit</target>
+      </trans-unit>
+      <trans-unit id="cms1578c17de" resname="page.child_pages.read">
+        <source>page.child_pages.read</source>
+        <target>Lesen</target>
+      </trans-unit>
+      <trans-unit id="cms1578c18de" resname="page.cards.read_more">
+        <source>page.cards.read_more</source>
+        <target>Weiterlesen</target>
+      </trans-unit>
+      <trans-unit id="cms1590r01de" resname="label.block_type.read_more">
+        <source>label.block_type.read_more</source>
+        <target>Weiterlesen</target>
+      </trans-unit>
+      <trans-unit id="cms1590r02de" resname="label.read_more_title">
+        <source>label.read_more_title</source>
+        <target>Überschrift</target>
+      </trans-unit>
+      <trans-unit id="cms1590r03de" resname="help.page.read_more_title">
+        <source>help.page.read_more_title</source>
+        <target>Ohne Angabe lautet die Überschrift „Weiterlesen“.</target>
+      </trans-unit>
+      <trans-unit id="cms1590r04de" resname="label.read_more_items">
+        <source>label.read_more_items</source>
+        <target>Links</target>
+      </trans-unit>
+      <trans-unit id="cms1590r05de" resname="help.page.read_more_items">
+        <source>help.page.read_more_items</source>
+        <target>Ein bis acht Links auf passende Artikel oder Seiten.</target>
+      </trans-unit>
+      <trans-unit id="cms1590r06de" resname="help.page.read_more_link_url">
+        <source>help.page.read_more_link_url</source>
+        <target>Pfad einer Seite auf dieser Website, z. B. /hilfe/erste-schritte, oder eine https-Adresse.</target>
+      </trans-unit>
+      <trans-unit id="cms1590r07de" resname="help.page.read_more_link_label">
+        <source>help.page.read_more_link_label</source>
+        <target>Bei Seiten dieser Website optional: ohne Angabe erscheinen Titel und Kurzbeschreibung der Seite. Für andere Adressen erforderlich.</target>
+      </trans-unit>
+      <trans-unit id="cms1590r08de" resname="page.read_more.title">
+        <source>page.read_more.title</source>
+        <target>Weiterlesen</target>
+      </trans-unit>
+      <trans-unit id="cmsBoardMembers01de" resname="label.block_type.board_members">
+        <source>label.block_type.board_members</source>
+        <target>Board-Mitglieder</target>
       </trans-unit>
     </body>
   </file>

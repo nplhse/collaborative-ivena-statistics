@@ -50,7 +50,8 @@
                                 {% else %}
                                     <twig:Statistics:DeltaIndicator
                                         :value="row.deltaPp"
-                                        unit="percent"
+                                        :colorizeTrend="false"
+                                        unit="pp"
                                         display="text"
                                         whenZero="neutral"
                                         ariaKey="stats.case_flow.segment.delta.aria"

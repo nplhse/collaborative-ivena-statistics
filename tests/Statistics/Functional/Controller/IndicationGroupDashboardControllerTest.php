@@ -40,7 +40,7 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indication-groups/'.$fixture['groupId'], [
             'scope' => 'hospital',
             'hospital' => (string) $fixture['hospitalId'],
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         self::assertResponseIsSuccessful();
@@ -48,7 +48,7 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="stats-indication-group-members"]');
         self::assertSelectorNotExists('[data-testid="stats-indication-group-picker-input"]');
         self::assertSelectorNotExists('[data-testid="stats-indication-picker"]');
-        self::assertSelectorNotExists('[data-testid="stats-insights-subnav"]');
+        self::assertSelectorExists('[data-testid="sidebar-entry-insights-dimension-indication-groups"].active');
         self::assertSelectorExists('[data-testid="stats-insights-compare-launch-button"]');
         self::assertSelectorExists('[data-testid="stats-indication-group-compare-launch-modal"]');
         self::assertSelectorExists('[data-testid="stats-indication-group-compare-launch-presets"]');
@@ -128,7 +128,7 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indication-groups/'.$group->getId(), [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         self::assertResponseIsSuccessful();
@@ -151,7 +151,7 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
 
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indication-groups/'.$group->getId(), [
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         self::assertResponseIsSuccessful();
@@ -199,7 +199,7 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indication-groups/'.$group->getId(), [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
-            'period' => 'all',
+            'period' => 'last_12_months',
         ]);
 
         self::assertResponseIsSuccessful();

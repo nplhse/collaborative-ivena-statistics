@@ -2,6 +2,8 @@
 
 This application is deployed with [Deployer](https://deployer.org/) using the Symfony recipe. Production runs on [Uberspace](https://uberspace.de/) with a **user systemd** service for the Symfony Messenger worker.
 
+The project **recommends Uberspace** for hosting. The operations docs assume it: deployment, [Messenger workers](messenger-workers.md), [backups](backup-restore.md) and [hosts.yaml.example](../../hosts.yaml.example) are written for Uberspace. Other hosts can work, but you have to adapt these steps yourself. The footer shows "Hosted on Uberspace" by default; on another host, set `APP_UBERSPACE_CREDIT=false` ([configuration](../06-reference/configuration.md)).
+
 Upgrading an existing installation to a new release needs configuration changes and one-time commands that a deploy does not run: see [upgrading.md](upgrading.md).
 
 ## Paths on the server
@@ -14,33 +16,37 @@ Most common commands:
 
 ```bash
 vendor/bin/dep deploy
+cd <deploy_path>/current && php bin/console app:maintenance
 systemctl --user status messenger
 systemctl --user restart messenger
 cd <deploy_path>/current && php bin/console messenger:stats
 cd <deploy_path>/current && php bin/console messenger:failed:show
 ```
 
-### Media uploads (shared across releases)
+### Media files (shared across releases)
 
-Uploaded images and PDFs live in `public/uploads/media`, which Deployer keeps in
-`shared/public/uploads/media` so files survive release changes.
+Uploaded images and PDFs of the CMS and the blog live in the media storage `var/media`, which Deployer keeps in
+`shared/var/media` ([ADR 039](../02-architecture/decisions/039-managed-media-storage.md)). Files are stored as
+`originals/<YYYY>/<MM>/<uuid>.<ext>`, one directory per month of the upload, and served by the application under
+`/media/<YYYY>/<MM>/<uuid>.<ext>` with long-lived caching. Upload is admin-only with a MIME allowlist. Nothing below
+`public/` holds media any more, so there is no directory listing or script rule to maintain.
 
-Public URLs under `/uploads/media/…` are intentional for CMS/blog content. Upload is
-Admin-only with a MIME allowlist; filenames use Vich `SmartUniqueNamer` (hard to guess).
-
-**Directory listing:** Apache `Options -Indexes` is set in repo `public/.htaccess` and
-`public/uploads/media/.htaccess`. After migrating to the Deployer shared directory, ensure
-`shared/public/uploads/media/.htaccess` still contains the PHP-deny and `-Indexes` rules
-(copy from a release if missing). If the stack ever uses nginx, set `autoindex off` for
-`/uploads/`. Signed URLs are not required while media remains public CMS content.
-
-**One-time migration** after enabling the shared directory (copies from the release
-that currently holds the most media files):
+**Moving the old files (v0.3).** Releases before v0.3 kept media in `shared/public/uploads/media`. Every deploy runs
+`app:media:migrate-storage` before the switch to the new release (task `media:migrate-storage`): it copies each file
+not yet moved into the storage, verifies it by SHA-256 and stores its key. It does nothing once every file has moved.
+The old directory stays untouched, so `vendor/bin/dep rollback` keeps working, and old URLs `/uploads/media/<file>`
+redirect to the new ones. After the release is accepted, replace the old URLs in posts and pages once:
 
 ```bash
-vendor/bin/dep media:migrate-to-shared coishub.uber.space
-vendor/bin/dep deploy coishub.uber.space
+vendor/bin/dep media:rewrite-content-urls coishub.uber.space
 ```
+
+Afterwards a rollback to a release before v0.3 shows broken images in the rewritten content. The redirect, the old
+directory and `shared/public/uploads/media` are removed in v0.4.
+
+**Integrity check.** The scheduler runs `app:media:check` daily at 05:10 (Europe/Berlin): missing or damaged files
+show up in the admin dashboard and `/health` (check `media`) and are sent to administrators; files no media item refers
+to are deleted after 24 hours ([media storage](../04-features/content/media-storage.md)).
 
 **Post-deploy maintenance** (requires the `app:content:analyze-page-images` console
 command in the deployed release):
@@ -49,6 +55,13 @@ command in the deployed release):
 vendor/bin/dep content:analyze-page-images coishub.uber.space
 vendor/bin/dep content:analyze-page-images coishub.uber.space -o content_analyze_page_images_options="--dry-run"
 ```
+
+### Data extract archives (shared across releases)
+
+Export runs of data extract requests write their `.tar.gz` archives to `var/research/exports`, which Deployer keeps in
+`shared/var/research/exports`, so an archive stays downloadable for its seven days across deploys
+([data extract requests](../04-features/research/README.md#release-and-export-run)). The archives hold pseudonymised
+data; they are not part of the backups.
 
 ### Hospital isochrones (shared across releases)
 
@@ -113,7 +126,7 @@ Manual checks that `app:env:check` cannot perform:
 
 - [ ] `APP_ENV=prod` and `APP_DEBUG=0` in `shared/.env.local`
 - [ ] `SYMFONY_TRUSTED_HOSTS` matches the host of `APP_URL`: `curl -s -o /dev/null -w '%{http_code}\n' -H 'Host: other.invalid' https://<APP_URL>/health` returns `400` (or the web server refuses the host before PHP)
-- [ ] Client IP is the visitor's, not a proxy's: compare the IP of your own login in the audit log with your public IP; if it is a proxy address, set `SYMFONY_TRUSTED_PROXIES`
+- [ ] Client IP is the visitor's, not a proxy's: change your language in the account settings, then compare `clientIp` in the metadata of the newest audit entry with your public IP (logins are not audited, see [audit-log.md](audit-log.md)); if it is a proxy address, set `SYMFONY_TRUSTED_PROXIES`
 - [ ] Messenger worker running: `systemctl --user status messenger` — see [messenger-workers.md](messenger-workers.md)
 - [ ] Queue consumers active: `php bin/console messenger:stats`
 - [ ] No stuck failed messages: `php bin/console messenger:failed:show`
@@ -183,13 +196,17 @@ Do not use demo-fixture accounts in production. After setup, existing users can 
 
 Typical order (Symfony recipe plus project tasks):
 
-1. New release is prepared and vendors installed (`composer install --no-dev`)
+1. New release is prepared and vendors installed (`composer install --no-dev`; its Composer `auto-scripts` also run `assets:install`, which copies bundle assets such as EasyAdmin to `public/bundles/`)
 2. Asset map compile and cache warmup
-3. **`messenger:stop`** — `messenger:stop-workers` on the **previous** release (graceful shutdown)
-4. Database migrations
-5. Symlink switch to the new release (`current`)
-6. **`messenger:restart`** — `systemctl --user restart messenger.service`
-7. Cleanup: releases beyond `keep_releases` (2) are deleted. Files that must survive a release change belong in `shared/`.
+3. **`maintenance:on`** — `app:maintenance on` of the new release: from now on only administrators can use the application ([maintenance mode](#maintenance-mode))
+4. **`messenger:stop`** — `systemctl --user stop messenger.service`, so no worker or scheduler runs during the migrations. With the PHP extension `pcntl` the worker finishes its current message first (up to `TimeoutStopSec`); without it the message is interrupted and delivered again. If the deploy fails after this step, the worker is started again on the previous release
+5. Database migrations
+6. **`media:migrate-storage`** — moves media files that are still in the old upload directory into `shared/var/media` ([media files](#media-files-shared-across-releases))
+7. **`geo:import-legacy-districts`** (temporary, v0.3) — takes the legacy district geography over into the database and verifies it. A failed check stops the deploy before the switch; a completed takeover is skipped ([ADR 041](../02-architecture/decisions/041-dispatch-area-geography-as-master-data.md))
+8. Symlink switch to the new release (`current`)
+9. **`messenger:restart`** — `systemctl --user restart messenger.service`
+10. **`maintenance:off-after-deploy`** — `app:maintenance off`, unless the deploy runs with `-o keep_maintenance=true`. A failed deploy leaves the maintenance mode on
+11. Cleanup: releases beyond `keep_releases` (2) are deleted. Files that must survive a release change belong in `shared/`.
 
 **First deploy:** If the systemd unit does not exist yet, `messenger:restart` fails. Either create the unit first (see [messenger-workers.md](messenger-workers.md)) or set `messenger_restart_on_deploy: false` in `hosts.yaml` until the worker is ready.
 
@@ -204,6 +221,33 @@ Typical order (Symfony recipe plus project tasks):
 | Retry failed | `php bin/console messenger:failed:retry` |
 
 See [health-check.md](health-check.md) for the `/health` endpoint and [backup-restore.md](backup-restore.md) for backups.
+
+### Maintenance mode
+
+While the maintenance mode is on, only signed-in administrators can use the application, also when they impersonate
+another user (#1680, [ADR 046](../02-architecture/decisions/046-maintenance-mode-by-flag-file.md)). Everyone else gets
+a 503 with `Retry-After: 300` and a short page that maintenance work is in progress. `/health`, the sign-in with its
+second factor, logout, the cookie and language choice and media files stay reachable. Administrators see a red banner
+with the start time in the application; in the admin, the health check `maintenance` shows `on`, and `/health`
+reports `degraded`.
+
+The switch is the file `shared/var/maintenance/enabled`, shared between releases, so the old and the new release see
+it at the same time. Console commands and the Messenger worker are not affected.
+
+| Task | Command |
+|------|---------|
+| Status | `php bin/console app:maintenance` |
+| On / off on the server | `php bin/console app:maintenance on` / `off` |
+| On / off from the local machine | `vendor/bin/dep maintenance:on` / `maintenance:off` |
+| Deploy and keep it on for one-time commands | `vendor/bin/dep deploy -o keep_maintenance=true` |
+
+A regular deploy switches it on before the migrations and off after the switch, so users are kept out only for the
+migrations and the data steps. Keep it on when an upgrade guide lists one-time commands: run them, check the
+application as an administrator, then switch it off. If the deploy fails, the mode stays on and the previous release
+shows the maintenance page; fix and deploy again, or switch it off.
+
+The previous release must know the flag: a deploy from a release without it (v0.2.x to v0.3-beta) leaves the
+migrations unprotected, and the mode takes effect with the switch to the new release.
 
 ### Usage analytics rollout
 
@@ -220,7 +264,7 @@ After deploying the Analytics migration (`Version20260804151958`) and the new `a
 
    Details: [../04-features/analytics/usage-analytics.md](../04-features/analytics/usage-analytics.md#rollout-re-prompt-after-introducing-analytics).
 3. Smoke-check Admin → **Usage analytics** → Overview after accepting cookies with “Accept all”.
-4. Optional one-off: delete historical admin UI request rows so Overview/Performance are not skewed — see [../04-features/analytics/usage-analytics.md](../04-features/analytics/usage-analytics.md#admin-area-exclusion).
+4. Optional one-off: delete historical admin UI request rows so the Overview is not skewed — see [../04-features/analytics/usage-analytics.md](../04-features/analytics/usage-analytics.md#admin-area-exclusion).
 
 Recommended beta operations rhythm:
 - Weekly (minimum): `cd <deploy_path>/current && php bin/console messenger:failed:show`

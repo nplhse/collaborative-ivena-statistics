@@ -102,7 +102,6 @@ final class MonthlyReportBuilderInsightsTest extends DatabaseKernelTestCase
 
         self::assertTrue($view->hasData);
         self::assertSame(40, $view->allocationCount);
-        self::assertSame(0.0, $view->allocationMomPercent);
         self::assertSame(100.0, $view->withPhysicianPercent);
         self::assertSame(100.0, $view->withPhysicianMomPercent);
         self::assertNotEmpty($view->genderSegments);

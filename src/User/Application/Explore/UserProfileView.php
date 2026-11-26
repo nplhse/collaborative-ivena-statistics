@@ -12,7 +12,6 @@ final readonly class UserProfileView
      * @param list<ProfileActivity>     $activities
      */
     public function __construct(
-        public string $publicId,
         public string $username,
         public bool $isAdmin,
         public bool $isParticipant,
@@ -26,6 +25,8 @@ final readonly class UserProfileView
         public int $commentCount,
         public array $activities,
         public ?string $activityNextCursor,
+        public ?int $userId = null,
+        public ?string $displayName = null,
     ) {
     }
 

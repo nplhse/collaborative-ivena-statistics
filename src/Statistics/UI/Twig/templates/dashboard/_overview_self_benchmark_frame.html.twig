@@ -10,7 +10,18 @@
                     testIdPrefix: 'stats-executive-kpi',
                     columnClass: 'col-12 col-md-4',
                     metricLabelKeys: overviewKpiMetricLabelKeys|default({}),
+                    showComparison: selfBenchmarkFrame.hasComparison,
                 }) }}
+                <p class="text-secondary small mt-2 mb-0" data-testid="stats-executive-kpi-comparison-period">
+                    {% if selfBenchmarkFrame.hasComparison %}
+                        {{ 'stats.overview.kpi.comparison_period'|trans({
+                            from: selfBenchmarkFrame.comparisonFirstDay|format_date('medium'),
+                            to: selfBenchmarkFrame.comparisonLastDay|format_date('medium'),
+                        }, 'statistics') }}
+                    {% else %}
+                        {{ 'stats.overview.kpi.no_comparison'|trans({}, 'statistics') }}
+                    {% endif %}
+                </p>
             </div>
         </div>
         <div class="col-lg-4 d-flex flex-column gap-3">

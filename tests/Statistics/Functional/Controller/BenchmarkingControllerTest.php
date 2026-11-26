@@ -42,7 +42,7 @@ final class BenchmarkingControllerTest extends WebTestCase
         self::assertStringContainsString('comparison_scope=public', $location);
         self::assertStringContainsString('comparison_period=all_time', $location);
         self::assertStringContainsString('scope=public', $location);
-        self::assertStringContainsString('period=all', $location);
+        self::assertStringContainsString('period=last_12_months', $location);
     }
 
     public function testRedirectsToMyHospitalsAndHospitalCohortForParticipantOnFirstVisit(): void
@@ -71,7 +71,7 @@ final class BenchmarkingControllerTest extends WebTestCase
         self::assertStringContainsString('scope=my_hospitals', $location);
         self::assertStringContainsString('comparison_scope=hospital_cohort', $location);
         self::assertStringContainsString('comparison_period=all_time', $location);
-        self::assertStringContainsString('period=all', $location);
+        self::assertStringContainsString('period=last_12_months', $location);
     }
 
     public function testRendersBenchmarkingDashboardAfterParticipantDefaultRedirect(): void
@@ -174,7 +174,7 @@ final class BenchmarkingControllerTest extends WebTestCase
 
         $client->request(Request::METHOD_GET, '/statistics/benchmarking', [
             'scope' => 'public',
-            'period' => 'all',
+            'period' => 'last_12_months',
             'comparison_scope' => 'public',
             'comparison_period' => 'all_time',
         ]);

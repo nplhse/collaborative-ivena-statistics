@@ -111,6 +111,39 @@
                     </div>
                 {{ editAccordion.panel_end() }}
             </div>
+            {% if not form.referenceHospitals.vars.disabled %}
+                {# Reference comparison (#1346): an opt-in filter group; the switch reveals the hospitals, switching it off removes them on apply. #}
+                {% set referenceComparisonOn = form.referenceComparison.vars.checked %}
+                <div class="accordion-item" data-testid="stats-analysis-explorer-reference-comparison-field">
+                    {{ editAccordion.header(
+                        'analysisExplorerReferenceHeading',
+                        'analysisExplorerReferencePanel',
+                        'stats.analysis_explorer.edit.section.own_hospitals_comparison'|trans({count: form.referenceHospitals.vars.choices|length}, 'statistics'),
+                        'stats-analysis-explorer-reference-comparison-section',
+                        referenceComparisonOn,
+                    ) }}
+                    {{ editAccordion.panel_start('analysisExplorerReferencePanel', 'analysisExplorerReferenceHeading', referenceComparisonOn) }}
+                        <div class="accordion-body">
+                            {{ form_row(form.referenceComparison, {
+                                label_attr: {class: 'checkbox-switch'},
+                                row_attr: {class: 'mb-2'},
+                                attr: {
+                                    'data-bs-toggle': 'collapse',
+                                    'data-bs-target': '#analysisExplorerReferenceHospitals',
+                                    'aria-controls': 'analysisExplorerReferenceHospitals',
+                                    'aria-expanded': referenceComparisonOn ? 'true' : 'false',
+                                    'data-testid': 'stats-analysis-explorer-reference-comparison-switch',
+                                },
+                            }) }}
+                            <div id="analysisExplorerReferenceHospitals"
+                                 class="collapse{{ referenceComparisonOn ? ' show' }}"
+                                 data-testid="stats-analysis-explorer-reference-hospitals-panel">
+                                {{ form_row(form.referenceHospitals, compactRow) }}
+                            </div>
+                        </div>
+                    {{ editAccordion.panel_end() }}
+                </div>
+            {% endif %}
         </div>
     </div>
     <div class="offcanvas-footer border-top p-3 d-flex justify-content-between gap-2">

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Import\Functional\Controller;
 
+use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
@@ -16,17 +17,23 @@ use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Application\Service\FileUploader;
 use App\Import\Application\Service\ImportFileStorage;
+use App\Import\Application\Service\ImportHospitalOverride;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Infrastructure\Repository\ImportRunRepository;
 use App\Tests\Support\Browser\CookieConsentTestHelper;
 use App\Tests\Support\RateLimit\DeniesRateLimiter;
+use App\User\Domain\Entity\TermsAcceptance;
 use App\User\Domain\Entity\User;
+use App\User\Domain\Enum\TermsAcceptanceKind;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -51,11 +58,11 @@ final class NewImportControllerTest extends WebTestCase
         $this->fixturesDir = \dirname(__DIR__, 2).'/Fixtures';
     }
 
-    public function testClosureBetaUserCanUploadAClosureList(): void
+    public function testParticipantCanUploadAClosureList(): void
     {
         $owner = UserFactory::new()->withoutAutorefresh()->create([
-            'username' => 'closure-beta-owner',
-            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA'],
+            'username' => 'closure-owner',
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
         ]);
         $createdBy = UserFactory::new()->withoutAutorefresh()->create(['username' => 'closure-area-user']);
         $state = StateFactory::new()->withoutAutorefresh()->create(['name' => 'Hessen']);
@@ -70,11 +77,13 @@ final class NewImportControllerTest extends WebTestCase
         SpecialityFactory::new()->withoutAutorefresh()->create(['name' => 'Innere Medizin']);
         DepartmentFactory::new()->withoutAutorefresh()->create(['name' => 'Kardiologie']);
 
+        $this->confirmUploadAuthority('closure-owner', (int) $hospital->getId());
+
         /** @var EntityManagerInterface $em */
         $em = self::getContainer()->get(EntityManagerInterface::class);
         $em->clear();
         /** @var User $freshOwner */
-        $freshOwner = $em->getRepository(User::class)->findOneBy(['username' => 'closure-beta-owner']);
+        $freshOwner = $em->getRepository(User::class)->findOneBy(['username' => 'closure-owner']);
         self::assertNotNull($freshOwner);
 
         $csvPath = tempnam(sys_get_temp_dir(), 'closure-upload');
@@ -123,6 +132,36 @@ final class NewImportControllerTest extends WebTestCase
             ->assertSeeElement('input[name="import_create[name]"]')
             ->assertSeeElement('select[name="import_create[hospital]"]')
             ->assertSeeElement('input[type="file"][name="import_create[file]"]');
+    }
+
+    public function testParticipantWithoutUploadRightIsRedirectedToTheImportList(): void
+    {
+        $this->createOwnerWithHospital();
+        $participant = UserFactory::new()->withoutAutorefresh()->create([
+            'username' => 'no-upload-user',
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+        ]);
+
+        $this->browser()
+            ->actingAs($participant)
+            ->interceptRedirects()
+            ->visit('/import/new')
+            ->assertRedirectedTo('/import')
+            ->assertSeeIn('.messages', 'You cannot start an import yet');
+    }
+
+    public function testOwnerIsOfferedAllocationAndClosureImportsForTheHospital(): void
+    {
+        // Closure lists left the beta (#1350): the import permission is enough.
+        [$owner, $hospitalId] = $this->createOwnerWithHospital();
+
+        $this->browser()
+            ->actingAs($owner)
+            ->visit('/import/new')
+            ->assertSuccessful()
+            ->assertSeeElement('select[name="import_create[type]"] option[data-import-type="Allocation"]')
+            ->assertSeeElement('select[name="import_create[type]"] option[data-import-type="Closure"]')
+            ->assertSeeElement(\sprintf('select[name="import_create[hospital]"] option[value="%d"][data-import-types=\'["Allocation","Closure"]\']', $hospitalId));
     }
 
     public function testSubmitWithCsvRedirectsToProcessingAndPersists(): void
@@ -218,6 +257,7 @@ final class NewImportControllerTest extends WebTestCase
                     'name' => 'Remember Me Import',
                     'hospital' => (string) $hospitalId,
                     '_token' => $form['import_create[_token]']->getValue(),
+                    'type' => $this->allocationType($crawler),
                 ],
             ],
             [
@@ -245,6 +285,54 @@ final class NewImportControllerTest extends WebTestCase
         $import = $em->getRepository(Import::class)->findOneBy(['name' => 'Remember Me Import']);
         self::assertNotNull($import, 'Import has been persisted.');
         @\unlink($import->getFilePath());
+    }
+
+    public function testTheFirstUploadForAHospitalConfirmsTheUploadAuthorityOnce(): void
+    {
+        $client = self::createClient();
+        $client->disableReboot();
+        [$owner, $hospitalId] = $this->createOwnerWithHospital(confirmUploadAuthority: false);
+        $client->loginUser($owner);
+
+        // Owners need it too (#1565); the hospital option tells the form to show the checkbox.
+        $crawler = $client->request(Request::METHOD_GET, '/import/new');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('input[name="import_create[uploadAuthority]"]');
+        self::assertSame('1', $crawler->filter('select[name="import_create[hospital]"] option[value="'.$hospitalId.'"]')->attr('data-needs-upload-authority'));
+
+        $this->postAllocationUpload($client, $crawler, 'Without authority', $hospitalId);
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('form[name="import_create"]', 'Confirm that you are authorised to upload data for this hospital.');
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        self::assertNull($em->getRepository(Import::class)->findOneBy(['name' => 'Without authority']));
+
+        $this->postAllocationUpload($client, $crawler, 'With authority', $hospitalId, ['uploadAuthority' => '1']);
+        $import = $em->getRepository(Import::class)->findOneBy(['name' => 'With authority']);
+        self::assertInstanceOf(Import::class, $import);
+        self::assertResponseRedirects('/import/'.$import->getId().'/processing');
+        $acceptances = $em->getRepository(TermsAcceptance::class)->findBy(['user' => $owner, 'kind' => TermsAcceptanceKind::UploadAuthority]);
+        self::assertCount(1, $acceptances);
+        self::assertSame($hospitalId, $acceptances[0]->getHospital()?->getId());
+        self::assertNull($acceptances[0]->getTermsVersion(), 'no terms version configured in test');
+        @\unlink($import->getFilePath());
+
+        // Confirmed once for this hospital: the form no longer asks.
+        $client->request(Request::METHOD_GET, '/import/new');
+        self::assertSelectorNotExists('input[name="import_create[uploadAuthority]"]');
+    }
+
+    public function testAdministratorsUploadWithoutConfirmingTheUploadAuthority(): void
+    {
+        $client = self::createClient();
+        [, $hospitalId] = $this->createOwnerWithHospital(confirmUploadAuthority: false);
+        $admin = UserFactory::createOne(['username' => 'upload-admin', 'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_ADMIN']]);
+        $client->loginUser($admin);
+
+        $crawler = $client->request(Request::METHOD_GET, '/import/new');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('input[name="import_create[uploadAuthority]"]');
+        self::assertSame('0', $crawler->filter('select[name="import_create[hospital]"] option[value="'.$hospitalId.'"]')->attr('data-needs-upload-authority'));
     }
 
     public function testSubmitIsRateLimited(): void
@@ -278,11 +366,12 @@ final class NewImportControllerTest extends WebTestCase
                     'name' => 'Rate Limited Import',
                     'hospital' => (string) $hospitalId,
                     '_token' => $form['import_create[_token]']->getValue(),
+                    'type' => $this->allocationType($crawler),
                 ],
             ],
             [
                 'import_create' => [
-                    'file' => new UploadedFile($csvPath, 'allocation_import_sample.csv', 'text/csv', null, true),
+                    'file' => new UploadedFile($this->uploadCopy($csvPath), 'allocation_import_sample.csv', 'text/csv', null, true),
                 ],
             ],
         );
@@ -294,6 +383,68 @@ final class NewImportControllerTest extends WebTestCase
         /** @var EntityManagerInterface $em */
         $em = self::getContainer()->get(EntityManagerInterface::class);
         self::assertNull($em->getRepository(Import::class)->findOneBy(['name' => 'Rate Limited Import']));
+    }
+
+    public function testHospitalOverrideIsUnavailableOutsideDevelopment(): void
+    {
+        $client = self::createClient();
+        $client->disableReboot();
+        [$owner, $hospitalId] = $this->createOwnerWithHospital();
+        $client->loginUser($owner);
+
+        $crawler = $client->request(Request::METHOD_GET, '/import/new');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('[name="import_create[hospitalOverride]"]');
+        self::assertSelectorNotExists('[data-test="import-options"]', 'Without any available option there is no Options section.');
+
+        $this->postAllocationUpload($client, $crawler, 'Forged Override Import', $hospitalId, ['hospitalOverride' => '1']);
+
+        // The field does not exist outside dev, so the posted value is an extra field and the form is invalid.
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('form[name="import_create"]');
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        self::assertNull($em->getRepository(Import::class)->findOneBy(['name' => 'Forged Override Import']));
+    }
+
+    public function testHospitalOverrideIsRecordedInDevelopment(): void
+    {
+        $client = self::createClient();
+        $client->disableReboot();
+        self::getContainer()->set(ImportHospitalOverride::class, new ImportHospitalOverride('dev'));
+        [$owner, $hospitalId] = $this->createOwnerWithHospital();
+        $client->loginUser($owner);
+
+        $crawler = $client->request(Request::METHOD_GET, '/import/new');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-test="import-options"] input[type="checkbox"][name="import_create[hospitalOverride]"]');
+        self::assertSelectorTextContains('[data-test="import-options"] label', 'Override target hospital');
+        self::assertSelectorTextNotContains('[data-test="import-options"] label', 'development only');
+        self::assertSelectorNotExists('#import-options-body.show', 'The Options section starts collapsed.');
+        $this->postAllocationUpload($client, $crawler, 'Override Import', $hospitalId, ['hospitalOverride' => '1']);
+        self::assertResponseRedirects();
+        $this->postAllocationUpload($client, $crawler, 'Plain Import', $hospitalId);
+        self::assertResponseRedirects();
+
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em->clear();
+        $override = $em->getRepository(Import::class)->findOneBy(['name' => 'Override Import']);
+        self::assertInstanceOf(Import::class, $override);
+        self::assertTrue($override->isHospitalOverride());
+        self::assertSame($hospitalId, $override->getHospital()?->getId(), 'The selected hospital stays the target.');
+        self::assertGreaterThan(0, (int) $override->getRowsPassed(), 'Allocation rows are stored on the selected hospital.');
+
+        $plain = $em->getRepository(Import::class)->findOneBy(['name' => 'Plain Import']);
+        self::assertInstanceOf(Import::class, $plain);
+        self::assertFalse($plain->isHospitalOverride(), 'Without the checkbox nothing is overridden.');
+
+        $client->request(Request::METHOD_GET, '/import/'.$override->getId());
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'Imported with the target hospital override.');
+
+        @\unlink((string) $override->getFilePath());
+        @\unlink((string) $plain->getFilePath());
     }
 
     public function testSubmitWithXlsxShowsValidationErrorAndDoesNotPersist(): void
@@ -440,6 +591,11 @@ final class NewImportControllerTest extends WebTestCase
         $client->loginUser($owner);
 
         try {
+            if (is_writable($uploadDir)) {
+                // Root (for example in a container) writes to directories regardless of their mode (#1464).
+                self::markTestSkipped('Directory permissions are not enforced for this user.');
+            }
+
             $crawler = $client->request(Request::METHOD_GET, '/import/new');
             self::assertResponseIsSuccessful();
 
@@ -452,11 +608,12 @@ final class NewImportControllerTest extends WebTestCase
                         'name' => 'Upload Failure Attempt',
                         'hospital' => (string) $hospitalId,
                         '_token' => $form['import_create[_token]']->getValue(),
+                        'type' => $this->allocationType($crawler),
                     ],
                 ],
                 [
                     'import_create' => [
-                        'file' => new UploadedFile($csvPath, 'allocation_import_sample.csv', 'text/csv', null, true),
+                        'file' => new UploadedFile($this->uploadCopy($csvPath), 'allocation_import_sample.csv', 'text/csv', null, true),
                     ],
                 ],
             );
@@ -479,9 +636,41 @@ final class NewImportControllerTest extends WebTestCase
     }
 
     /**
+     * Name, hospital and file had no label key, so the German form showed "Name", "Hospital" and "File" (#1412).
+     */
+    #[DataProvider('formLabelsByLocale')]
+    public function testUploadFormLabelsAreTranslated(string $locale, string $name, string $hospital, string $file): void
+    {
+        $client = self::createClient();
+        $client->disableReboot();
+        [$owner] = $this->createOwnerWithHospital();
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $owner->setLocale($locale);
+        $em->flush();
+        $client->loginUser($owner);
+
+        $client->request(Request::METHOD_GET, '/import/new');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextSame('label[for="import_create_name"]', $name);
+        self::assertSelectorTextSame('label[for="import_create_hospital"]', $hospital);
+        self::assertSelectorTextSame('label[for="import_create_file"]', $file);
+    }
+
+    /**
+     * @return iterable<string, array{string, string, string, string}>
+     */
+    public static function formLabelsByLocale(): iterable
+    {
+        yield 'en' => ['en', 'Name', 'Hospital', 'File'];
+        yield 'de' => ['de', 'Name', 'Krankenhaus', 'Datei'];
+    }
+
+    /**
      * @return array{0:User,1:int} [Owner, HospitalId]
      */
-    private function createOwnerWithHospital(): array
+    private function createOwnerWithHospital(bool $confirmUploadAuthority = true): array
     {
         $owner = UserFactory::new()->withoutAutorefresh()->create([
             'username' => 'owner-user',
@@ -513,6 +702,10 @@ final class NewImportControllerTest extends WebTestCase
         InfectionFactory::new()->withoutAutorefresh()->create(['name' => 'V.a. COVID']);
         IndicationRawFactory::new()->withoutAutorefresh()->create(['name' => 'Test Indication', 'code' => 123, 'hash' => '070f5e78cc3ce4b3c3378aeaa0a304a4']);
 
+        if ($confirmUploadAuthority) {
+            $this->confirmUploadAuthority('owner-user', (int) $hospital->getId());
+        }
+
         /** @var EntityManagerInterface $em */
         $em = self::getContainer()->get(EntityManagerInterface::class);
         $em->clear();
@@ -521,5 +714,201 @@ final class NewImportControllerTest extends WebTestCase
         self::assertNotNull($freshOwner);
 
         return [$freshOwner, (int) $hospital->getId()];
+    }
+
+    /** A stored upload authority (#1565), so tests of other behaviour upload without the checkbox. */
+    private function confirmUploadAuthority(string $username, int $hospitalId): void
+    {
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $user = $em->getRepository(User::class)->findOneBy(['username' => $username]);
+        self::assertInstanceOf(User::class, $user);
+        $hospital = $em->getReference(Hospital::class, $hospitalId);
+        $em->persist(new TermsAcceptance($user, TermsAcceptanceKind::UploadAuthority, null, 'en', null, null, $hospital));
+        $em->flush();
+    }
+
+    public function testOptionsSectionOpensWhenAnOptionIsSetAndTheFormIsShownAgain(): void
+    {
+        $client = self::createClient();
+        $client->disableReboot();
+        self::getContainer()->set(ImportHospitalOverride::class, new ImportHospitalOverride('demo'));
+        [$owner, $hospitalId] = $this->createOwnerWithHospital();
+        $client->loginUser($owner);
+
+        $crawler = $client->request(Request::METHOD_GET, '/import/new');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-test="import-options"] [name="import_create[hospitalOverride]"]', 'The option is offered in the demo.');
+
+        // An empty name makes the form invalid; the ticked option keeps the section open.
+        $this->postAllocationUpload($client, $crawler, '', $hospitalId, ['hospitalOverride' => '1']);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('#import-options-body.show');
+        self::assertCheckboxChecked('import_create[hospitalOverride]');
+    }
+
+    public function testSubmitWithAnUploadTokenImportsTheBackgroundUploadOnce(): void
+    {
+        $client = self::createClient();
+        [$owner, $hospitalId] = $this->createOwnerWithHospital();
+        $client->loginUser($owner);
+        $crawler = $client->request(Request::METHOD_GET, '/import/new');
+        $token = $this->uploadInBackground($client, $crawler);
+        $pendingFile = $this->pendingDir().'/'.$owner->getId().'/'.$token.'.upload';
+        self::assertFileExists($pendingFile);
+
+        $this->postWithUploadToken($client, $crawler, 'Background Upload', $hospitalId, $token);
+
+        self::assertResponseRedirects();
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $imports = $em->getRepository(Import::class)->findBy(['name' => 'Background Upload']);
+        self::assertCount(1, $imports);
+        self::assertSame('csv', $imports[0]->getFileExtension());
+        self::assertGreaterThan(0, $imports[0]->getFileSize());
+        self::assertFileDoesNotExist($pendingFile, 'The pending file moved into the import storage.');
+        self::assertFileDoesNotExist($this->pendingDir().'/'.$owner->getId().'/'.$token.'.json');
+
+        // A second submission of the same token (double click, back button) finds no file and creates nothing.
+        $this->postWithUploadToken($client, $crawler, 'Background Upload', $hospitalId, $token);
+
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, $em->getRepository(Import::class)->findBy(['name' => 'Background Upload']));
+        @\unlink(self::getContainer()->get(ImportFileStorage::class)->resolve((string) $imports[0]->getFilePath()));
+    }
+
+    public function testAnUploadTokenOfAnotherUserIsNotUsed(): void
+    {
+        $client = self::createClient();
+        [$owner, $hospitalId] = $this->createOwnerWithHospital();
+        $otherOwner = UserFactory::createOne(['username' => 'other-owner', 'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        HospitalFactory::createOne(['name' => 'Other Hospital', 'owner' => $otherOwner]);
+
+        $client->loginUser($otherOwner);
+        $foreignToken = $this->uploadInBackground($client, $client->request(Request::METHOD_GET, '/import/new'));
+
+        $client->loginUser($owner);
+        $crawler = $client->request(Request::METHOD_GET, '/import/new');
+        $this->postWithUploadToken($client, $crawler, 'Foreign Upload', $hospitalId, $foreignToken);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('#import_create_file.is-invalid');
+        self::assertSame('', $client->getCrawler()->filter('form')->attr('data-import-upload-pending-name-value'));
+        self::assertNull(self::getContainer()->get(EntityManagerInterface::class)->getRepository(Import::class)->findOneBy(['name' => 'Foreign Upload']));
+        self::assertFileExists($this->pendingDir().'/'.$otherOwner->getId().'/'.$foreignToken.'.upload', 'The other user keeps the file.');
+    }
+
+    public function testAFileSentWithTheFormWinsOverAnUploadToken(): void
+    {
+        $client = self::createClient();
+        [$owner, $hospitalId] = $this->createOwnerWithHospital();
+        $client->loginUser($owner);
+        $crawler = $client->request(Request::METHOD_GET, '/import/new');
+        $token = $this->uploadInBackground($client, $crawler);
+
+        $this->postAllocationUpload($client, $crawler, 'Direct Upload', $hospitalId, ['uploadToken' => $token]);
+
+        self::assertResponseRedirects();
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $import = $em->getRepository(Import::class)->findOneBy(['name' => 'Direct Upload']);
+        self::assertNotNull($import);
+        self::assertFileExists($this->pendingDir().'/'.$owner->getId().'/'.$token.'.upload', 'The background upload was not used; the hourly job removes it.');
+        @\unlink(self::getContainer()->get(ImportFileStorage::class)->resolve((string) $import->getFilePath()));
+    }
+
+    public function testTheBackgroundUploadSurvivesAnErrorInAnotherField(): void
+    {
+        $client = self::createClient();
+        [$owner, $hospitalId] = $this->createOwnerWithHospital();
+        $client->loginUser($owner);
+        $crawler = $client->request(Request::METHOD_GET, '/import/new');
+        $token = $this->uploadInBackground($client, $crawler);
+
+        $this->postWithUploadToken($client, $crawler, '', $hospitalId, $token);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('#import_create_name.is-invalid');
+        self::assertSelectorNotExists('#import_create_file.is-invalid');
+        self::assertSame($token, $client->getCrawler()->filter('#import_create_uploadToken')->attr('value'));
+        self::assertSame('allocation_import_sample.csv', $client->getCrawler()->filter('form')->attr('data-import-upload-pending-name-value'));
+        self::assertFileExists($this->pendingDir().'/'.$owner->getId().'/'.$token.'.upload');
+    }
+
+    private function uploadInBackground(KernelBrowser $client, Crawler $crawler): string
+    {
+        $uploadPath = sys_get_temp_dir().'/allocation_import_sample_'.bin2hex(random_bytes(4)).'.csv';
+        self::assertTrue(copy($this->fixturesDir.'/allocation_import_sample.csv', $uploadPath));
+
+        $client->request(
+            Request::METHOD_POST,
+            '/import/upload',
+            ['_token' => (string) $crawler->filter('form')->attr('data-import-upload-csrf-value')],
+            ['file' => new UploadedFile($uploadPath, 'allocation_import_sample.csv', 'text/csv', null, true)],
+        );
+        self::assertResponseStatusCodeSame(201);
+
+        /** @var array{token: string} $answer */
+        $answer = json_decode((string) $client->getResponse()->getContent(), true, 4, \JSON_THROW_ON_ERROR);
+
+        return $answer['token'];
+    }
+
+    private function postWithUploadToken(KernelBrowser $client, Crawler $crawler, string $name, int $hospitalId, string $uploadToken): void
+    {
+        $client->request(Request::METHOD_POST, '/import/new', ['import_create' => [
+            'name' => $name,
+            'hospital' => (string) $hospitalId,
+            'type' => $this->allocationType($crawler),
+            'uploadToken' => $uploadToken,
+            '_token' => $crawler->filter('form')->form()['import_create[_token]']->getValue(),
+        ]]);
+    }
+
+    private function pendingDir(): string
+    {
+        $baseDir = self::getContainer()->getParameter('app.imports_base_dir');
+        self::assertIsString($baseDir);
+
+        return $baseDir.'/pending';
+    }
+
+    /**
+     * @param array<string, string> $extra additional form fields
+     */
+    private function postAllocationUpload(KernelBrowser $client, Crawler $crawler, string $name, int $hospitalId, array $extra = []): void
+    {
+        $token = $crawler->filter('form')->form()['import_create[_token]']->getValue();
+        $uploadPath = sys_get_temp_dir().'/allocation_import_sample_'.bin2hex(random_bytes(4)).'.csv';
+        self::assertTrue(copy($this->fixturesDir.'/allocation_import_sample.csv', $uploadPath));
+
+        $client->request(
+            Request::METHOD_POST,
+            '/import/new',
+            ['import_create' => ['name' => $name, 'hospital' => (string) $hospitalId, 'type' => $this->allocationType($crawler), '_token' => $token, ...$extra]],
+            ['import_create' => ['file' => new UploadedFile($uploadPath, 'allocation_import_sample.csv', 'text/csv', null, true)]],
+        );
+    }
+
+    /**
+     * Value of the allocation option in the type field; every user with the import permission chooses
+     * between allocation and closure lists (#1350).
+     */
+    private function allocationType(Crawler $crawler): string
+    {
+        return (string) $crawler->filter('select[name="import_create[type]"] option[data-import-type="Allocation"]')->attr('value');
+    }
+
+    /**
+     * A temporary copy of a fixture for an upload: a successful upload moves the file, which must never be a tracked
+     * fixture (#1464).
+     */
+    private function uploadCopy(string $fixturePath): string
+    {
+        $uploadPath = sys_get_temp_dir().'/'.pathinfo($fixturePath, \PATHINFO_FILENAME).'_'.bin2hex(random_bytes(4)).'.csv';
+        self::assertTrue(copy($fixturePath, $uploadPath));
+
+        return $uploadPath;
     }
 }

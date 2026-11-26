@@ -42,7 +42,8 @@ final class ImportFactory extends PersistentObjectFactory
             'runCount' => self::faker()->numberBetween(1, 10),
             'runTime' => self::faker()->numberBetween(100, 2000),
             'status' => self::faker()->randomElement(ImportStatus::cases()),
-            'type' => self::faker()->randomElement(ImportType::cases()),
+            // Encounter imports need encounter state (key generation, confirmation); tests create them explicitly.
+            'type' => self::faker()->randomElement([ImportType::ALLOCATION, ImportType::CLOSURE]),
         ];
     }
 }

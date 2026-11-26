@@ -25,7 +25,7 @@ final class ExplorerAllocationQueryMapperTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->mapper = new ExplorerAllocationQueryMapper(new ExplorerMetricKeyMapper());
+        $this->mapper = new ExplorerAllocationQueryMapper(new ExplorerMetricKeyMapper(), new \App\Statistics\GenericAnalysis\Application\ReferenceComparisonModifier());
     }
 
     public function testTimeRowsMapToTemporalPrimaryKey(): void

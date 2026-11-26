@@ -73,6 +73,11 @@ final readonly class SentryJobRunFilter
         return $kept;
     }
 
+    public function isJobRunTransaction(Event $event): bool
+    {
+        return $this->profileForTransaction($event) instanceof JobRunSentryProfile;
+    }
+
     /**
      * Leaves other transactions as they are. For a job run it drops foreign spans (for example query spans with SQL), descriptions and non-allowlisted data.
      */

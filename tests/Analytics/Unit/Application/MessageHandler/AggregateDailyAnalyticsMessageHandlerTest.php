@@ -55,7 +55,6 @@ final class AggregateDailyAnalyticsMessageHandlerTest extends TestCase
             dates: ['2026-09-06', '2026-09-07'],
             daysProcessed: 2,
             totalRawRequests: 10,
-            totalRawEvents: 4,
             totalAggregateRows: 8,
             rawRowsDeleted: 3,
         );
@@ -71,7 +70,7 @@ final class AggregateDailyAnalyticsMessageHandlerTest extends TestCase
 
         ($this->messageHandler)(new AggregateDailyAnalyticsMessage());
 
-        self::assertSame(['days_processed' => 2, 'raw_requests' => 10, 'raw_events' => 4, 'aggregate_rows' => 8, 'raw_rows_deleted' => 3], $this->jobRun->metrics());
+        self::assertSame(['days_processed' => 2, 'raw_requests' => 10, 'aggregate_rows' => 8, 'raw_rows_deleted' => 3], $this->jobRun->metrics());
     }
 
     public function testSkipsWhenLockCannotBeAcquired(): void

@@ -1,0 +1,32 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% set d = 'inpatient_stay_test' %}
+
+{% block title %}{{ 'inpatient_stay_test.explore.title'|trans({}, d) }} - {{ parent() }}{% endblock %}
+
+{% block page_content %}
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-vcenter card-table" data-testid="inpatient-stay-list">
+                <thead>
+                    <tr>
+                        <th>{{ 'inpatient_stay_test.field.admitted_at'|trans({}, d) }}</th>
+                        <th>{{ 'inpatient_stay_test.field.discharge_diagnosis'|trans({}, d) }}</th>
+                        <th>{{ 'inpatient_stay_test.field.discharged_at'|trans({}, d) }}</th>
+                        <th>{{ 'inpatient_stay_test.field.assigned'|trans({}, d) }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stay in stays %}
+                        <tr data-testid="inpatient-stay-row">
+                            <td>{{ stay.admittedAt|date('Y-m-d H:i') }}</td>
+                            <td>{{ stay.dischargeDiagnosis ?? '–' }}</td>
+                            <td>{{ stay.dischargedAt ? stay.dischargedAt|date('Y-m-d H:i') : '–' }}</td>
+                            <td>{{ (stay.encounterId is null ? 'inpatient_stay_test.no' : 'inpatient_stay_test.yes')|trans({}, d) }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

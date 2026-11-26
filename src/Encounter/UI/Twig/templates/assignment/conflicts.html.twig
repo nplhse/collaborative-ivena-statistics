@@ -1,0 +1,158 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% set d = 'encounter' %}
+
+{% block title %}{{ 'encounter.assignment.title'|trans({}, d) }} - {{ hospital.name }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <twig:PageHeader :title="'encounter.assignment.title'|trans({}, d)" :pretitle="hospital.name">
+        <twig:block name="breadcrumbs">
+            <twig:Breadcrumbs :items="[
+                { label: 'link.tools', label_domain: 'shared', path: path('app_tools_index') },
+                { label: 'encounter.assignment.title', label_domain: 'encounter', translatable: true, path: path('app_tools_encounter_assignments') },
+                { label: hospital.name }
+            ]" />
+        </twig:block>
+    </twig:PageHeader>
+{% endblock %}
+
+{% block page_content %}
+    <div class="card">
+        <div class="card-body">
+            <p class="text-secondary">{{ 'encounter.assignment.conflicts_intro'|trans({}, d) }}</p>
+            {% if conflicts is empty %}
+                <p class="text-secondary mb-0" data-test="encounter-assignment-no-conflicts">{{ 'encounter.assignment.no_conflicts'|trans({}, d) }}</p>
+            {% else %}
+                {% if total > conflicts|length %}
+                    <p class="text-secondary" data-test="encounter-assignment-limited">{{ 'encounter.assignment.limited'|trans({shown: conflicts|length, total: total}, d) }}</p>
+                {% endif %}
+                <div class="table-responsive">
+                    <table class="table table-vcenter" data-test="encounter-assignment-conflicts">
+                        <thead>
+                            <tr>
+                                <th>{{ 'encounter.assignment.column.schema'|trans({}, d) }}</th>
+                                <th>{{ 'encounter.assignment.column.kind'|trans({}, d) }}</th>
+                                <th>{{ 'encounter.assignment.column.import'|trans({}, d) }}</th>
+                                <th>{{ 'encounter.assignment.column.candidates'|trans({}, d) }}</th>
+                                <th>{{ 'encounter.assignment.column.decision'|trans({}, d) }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for conflict in conflicts %}
+                                {% set state = conflict.state %}
+                                {% set token = csrf_token('encounter_assignment_' ~ conflict.id) %}
+                                {% set decide_path = path('app_tools_encounter_assignments_decide', {id: hospital.id, pendingId: conflict.id, action: 'assign'}) %}
+                                <tr data-test="encounter-assignment-conflict" data-record="{{ conflict.recordId }}">
+                                    <td>{{ schema_labels[conflict.schema]|trans }}</td>
+                                    <td data-test="encounter-assignment-kind">{{ ('encounter.assignment.kind.' ~ conflict.kind.value)|trans({}, d) }}</td>
+                                    <td><a href="{{ path('app_import_show', {id: conflict.importId}) }}">{{ conflict.importName }}</a></td>
+                                    <td>
+                                        <ul class="list-unstyled mb-0">
+                                            {% for candidate in conflict.candidates %}
+                                                <li class="d-flex align-items-center gap-2 mb-1" data-test="encounter-assignment-candidate" data-encounter="{{ candidate.encounterId }}">
+                                                    <span>
+                                                        {% if candidate.link is not null %}
+                                                            <a href="{{ candidate.link }}">{{ candidate.anchorAt|format_datetime('short', 'short') }}</a>
+                                                        {% elseif candidate.anchorAt is not null %}
+                                                            <span>{{ candidate.anchorAt|format_datetime('short', 'short') }}</span>
+                                                        {% else %}
+                                                            <span class="text-secondary">{{ 'encounter.assignment.candidate_gone'|trans({}, d) }}</span>
+                                                        {% endif %}
+                                                        <span class="text-secondary">· {{ ('encounter.assignment.reason.' ~ candidate.reason.value)|trans({}, d) }}</span>
+                                                    </span>
+                                                    {% if candidate.anchorAt is not null %}
+                                                        <form method="post" action="{{ decide_path }}" class="ms-auto" data-test="encounter-assignment-assign-form">
+                                                            <input type="hidden" name="_token" value="{{ token }}">
+                                                            <input type="hidden" name="kind" value="{{ state.kind.value }}">
+                                                            <input type="hidden" name="candidates" value="{{ state.encounterIdList }}">
+                                                            <input type="hidden" name="encounter" value="{{ candidate.encounterId }}">
+                                                            <button type="submit" class="btn btn-sm btn-outline-primary" title="{{ 'encounter.assignment.action.assign_label'|trans({}, d) }}" data-test="encounter-assignment-assign">
+                                                                {{ 'encounter.assignment.action.assign'|trans({}, d) }}
+                                                            </button>
+                                                        </form>
+                                                    {% endif %}
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </td>
+                                    <td>
+                                        <form method="post" action="{{ path('app_tools_encounter_assignments_decide', {id: hospital.id, pendingId: conflict.id, action: 'defer'}) }}" data-test="encounter-assignment-defer-form">
+                                            <input type="hidden" name="_token" value="{{ token }}">
+                                            <input type="hidden" name="kind" value="{{ state.kind.value }}">
+                                            <input type="hidden" name="candidates" value="{{ state.encounterIdList }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary" data-test="encounter-assignment-defer">
+                                                {{ 'encounter.assignment.action.defer'|trans({}, d) }}
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if deferred is not empty %}
+        <div class="card mt-3" data-test="encounter-assignment-deferred">
+            <div class="card-header">
+                <button type="button" class="btn btn-ghost-secondary collapsed" data-bs-toggle="collapse" data-bs-target="#encounter-assignment-deferred-list" aria-expanded="false" aria-controls="encounter-assignment-deferred-list" data-test="encounter-assignment-deferred-toggle">
+                    {{ 'encounter.assignment.deferred.title'|trans({count: deferred_total}, d) }}
+                    <twig:ux:icon name="tabler:chevron-down" class="icon ms-1" />
+                </button>
+            </div>
+            <div class="collapse" id="encounter-assignment-deferred-list">
+                <div class="card-body">
+                    <p class="text-secondary">{{ 'encounter.assignment.deferred.intro'|trans({}, d) }}</p>
+                    {% if deferred_total > deferred|length %}
+                        <p class="text-secondary">{{ 'encounter.assignment.deferred.limited'|trans({shown: deferred|length, total: deferred_total}, d) }}</p>
+                    {% endif %}
+                    <div class="table-responsive">
+                        <table class="table table-vcenter">
+                            <thead>
+                                <tr>
+                                    <th>{{ 'encounter.assignment.column.record'|trans({}, d) }}</th>
+                                    <th>{{ 'encounter.assignment.column.kind'|trans({}, d) }}</th>
+                                    <th>{{ 'encounter.assignment.column.candidates'|trans({}, d) }}</th>
+                                    <th>{{ 'encounter.assignment.column.decided'|trans({}, d) }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in deferred %}
+                                    <tr data-test="encounter-assignment-deferred-record" data-record="{{ record.recordId }}">
+                                        <td>
+                                            {{ schema_labels[record.schema]|trans }} · {{ 'encounter.assignment.record'|trans({id: record.recordId}, d) }}
+                                            <div class="small"><a href="{{ path('app_import_show', {id: record.importId}) }}">{{ record.importName }}</a></div>
+                                        </td>
+                                        <td>{{ ('encounter.assignment.kind.' ~ record.kind.value)|trans({}, d) }}</td>
+                                        <td>
+                                            <ul class="list-unstyled mb-0">
+                                                {% for candidate in record.candidates %}
+                                                    <li>
+                                                        {% if candidate.link is not null %}
+                                                            <a href="{{ candidate.link }}">{{ candidate.anchorAt|format_datetime('short', 'short') }}</a>
+                                                        {% elseif candidate.anchorAt is not null %}
+                                                            <span>{{ candidate.anchorAt|format_datetime('short', 'short') }}</span>
+                                                        {% else %}
+                                                            <span class="text-secondary">{{ 'encounter.assignment.candidate_gone'|trans({}, d) }}</span>
+                                                        {% endif %}
+                                                        <span class="text-secondary">· {{ ('encounter.assignment.reason.' ~ candidate.reason.value)|trans({}, d) }}</span>
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </td>
+                                        <td data-test="encounter-assignment-deferred-decision">
+                                            {{ record.decidedBy ?? 'encounter.assignment.decided_by_unknown'|trans({}, d) }}
+                                            <div class="small text-secondary">{{ record.decidedAt|format_datetime('short', 'short') }}</div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

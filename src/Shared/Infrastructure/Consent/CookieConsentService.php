@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Shared\Infrastructure\Consent;
 
 use App\Shared\Domain\Entity\CookieConsent;
+use App\Shared\Infrastructure\Monitoring\Sentry\SentryMonitoringSettings;
 use App\Shared\Infrastructure\Repository\CookieConsentRepository;
 use App\User\Domain\Entity\User;
 use Psr\Clock\ClockInterface;
@@ -23,6 +24,7 @@ final readonly class CookieConsentService
         private ClockInterface $clock,
         #[Autowire(param: 'app.cookie_prefix')]
         private string $cookiePrefix = '',
+        private SentryMonitoringSettings $monitoring = new SentryMonitoringSettings(),
     ) {
     }
 
@@ -49,12 +51,15 @@ final readonly class CookieConsentService
         return $consent;
     }
 
-    public function applyPreference(CookieConsent $consent, bool $analytics, ?User $user): void
+    /**
+     * The performance option is only offered, and therefore only stored, while Sentry is used.
+     */
+    public function applyPreference(CookieConsent $consent, bool $analytics, ?User $user, bool $performance = false): void
     {
         if ($user instanceof User) {
             $consent->setUser($user);
         }
-        $consent->setConsents($analytics);
+        $consent->setConsents($analytics, $performance && $this->monitoring->isEnabled());
         $this->repository->save($consent);
     }
 
@@ -78,6 +83,14 @@ final readonly class CookieConsentService
             && ($consent->getPreferences()['analytics'] ?? false);
     }
 
+    /**
+     * Consent to performance traces in Sentry that carry the internal user id. Error reports carry it regardless.
+     */
+    public function hasPerformanceConsent(CookieConsent $consent): bool
+    {
+        return $this->hasAnalyticsConsent($consent) && $consent->getPreferences()['performance'];
+    }
+
     /** @psalm-suppress PossiblyUnusedMethod */
     public function buildSubjectCookie(Request $request, CookieConsent $consent): Cookie
     {
@@ -97,8 +110,9 @@ final readonly class CookieConsentService
     /**
      * @return array{
      *   decided: bool,
-     *   preferences: array{essential: bool, analytics: bool},
-     *   consentVersion: string
+     *   preferences: array{essential: bool, analytics: bool, performance: bool},
+     *   consentVersion: string,
+     *   monitoring: array{enabled: bool, location: string|null}
      * }
      */
     public function describe(CookieConsent $consent): array
@@ -107,6 +121,10 @@ final readonly class CookieConsentService
             'decided' => $consent->getDecidedAt() instanceof \DateTimeImmutable,
             'preferences' => $consent->getPreferences(),
             'consentVersion' => $consent->getConsentVersion(),
+            'monitoring' => [
+                'enabled' => $this->monitoring->isEnabled(),
+                'location' => $this->monitoring->location(),
+            ],
         ];
     }
 

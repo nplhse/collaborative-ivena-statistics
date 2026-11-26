@@ -1,0 +1,44 @@
+{#
+    One hint of My Hospitals (#971) with a link to where it can be looked into. Hints are worth a look, never errors.
+    Expects `finding` and `status`.
+#}
+{% set hospital = status.entry.hospital %}
+{% set type = finding.type.value %}
+{% set icons = {
+    import_failed: 'tabler:alert-circle',
+    import_cancelled: 'tabler:alert-circle',
+    import_rejects: 'tabler:file-text',
+    import_day_gaps: 'tabler:file-text',
+    not_updated: 'tabler:clock',
+    possible_gap: 'tabler:calendar-off',
+    volume_change: 'tabler:chart-line',
+} %}
+{% set link = null %}
+{% if type == 'not_updated' and status.imports %}
+    {% set link = {url: path('app_import_new'), label: 'my_hospitals.action.upload'} %}
+{% elseif type == 'possible_gap' and status.imports %}
+    {% set link = {url: path('app_import_index', {hospitalId: hospital.id}), label: 'my_hospitals.action.imports'} %}
+{% elseif type == 'volume_change' %}
+    {% set link = {url: path('app_stats_dashboard', {scope: 'hospital:' ~ hospital.id}), label: 'my_hospitals.action.statistics'} %}
+{% endif %}
+{% set text = ('my_hospitals.finding.' ~ type)|trans({
+    amount: finding.amount,
+    date: finding.periodStart ? finding.periodStart|format_date('medium') : '',
+    month: finding.periodStart ? finding.periodStart|format_date(pattern: 'MMMM yyyy') : '',
+    end: finding.periodEnd ? finding.periodEnd|format_date(pattern: 'MMMM yyyy') : '',
+    direction: finding.direction ?? 'up',
+}, 'allocation') %}
+<div class="d-flex align-items-start gap-2" data-testid="my-hospitals-finding" data-finding-type="{{ type }}">
+    <span class="my-hospitals-finding-icon"><twig:ux:icon name="{{ icons[type] }}" class="icon text-warning" /></span>
+    <div class="flex-fill">
+        {% if finding.importId %}
+            {# A hint about one import: the whole text, led by the import number, opens that import. #}
+            <a href="{{ path('app_import_show', {id: finding.importId}) }}" data-testid="my-hospitals-finding-link">#{{ finding.importId }}: {{ text }}</a>
+        {% else %}
+            {{ text }}
+            {% if link %}
+                <a href="{{ link.url }}" class="ms-1 text-nowrap" data-testid="my-hospitals-finding-link">{{ link.label|trans({}, 'allocation') }}</a>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Engagement\Infrastructure\EventSubscriber;
 
 use App\Engagement\Application\MonthlyReminderNotificationType;
+use App\Engagement\Application\MonthlyReminderPeriodResolver;
+use App\Engagement\Infrastructure\Audit\MonthlyReminderFailureAuditLogger;
 use App\Engagement\Infrastructure\Repository\MonthlyReminderDispatchRepository;
 use App\Notification\Application\Event\NotificationDeliveryFailed;
 use App\Notification\Application\Event\NotificationDeliverySent;
@@ -18,7 +20,8 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
  *
  * The notification's parameters name the dispatch, its hospital and the send attempt; only a dispatch that is still
  * queued for exactly that attempt changes, so a late outcome of an earlier attempt never touches a newer one. Both
- * updates are idempotent, which lets the reconciliation repeat them.
+ * updates are idempotent, which lets the reconciliation repeat them. The failure that changes the dispatch also
+ * writes its audit entry (`hospital.reminder_failed`, #1173); a repeated one changes nothing and writes none.
  *
  * A failure runs synchronously in the transaction that marks the delivery as failed: if this update fails, the
  * delivery stays pending and is retried. A success runs after the delivery is marked as sent; if this update fails,
@@ -33,6 +36,8 @@ final readonly class MonthlyReminderDeliveryStatusSubscriber
     public function __construct(
         private MonthlyReminderDispatchRepository $dispatchRepository,
         private ClockInterface $clock,
+        private MonthlyReminderFailureAuditLogger $failureAuditLogger,
+        private MonthlyReminderPeriodResolver $periodResolver,
     ) {
     }
 
@@ -60,11 +65,23 @@ final readonly class MonthlyReminderDeliveryStatusSubscriber
             return;
         }
 
-        $this->dispatchRepository->markAttemptFailed(
+        $failureReason = \sprintf('notification_delivery:%s', $event->reasonCode);
+        $period = $this->dispatchRepository->markAttemptFailed(
             $dispatch['dispatchId'],
             $dispatch['hospitalId'],
             $dispatch['attemptId'],
-            \sprintf('notification_delivery:%s', $event->reasonCode),
+            $failureReason,
+        );
+        if (null === $period) {
+            return;
+        }
+
+        $this->failureAuditLogger->log(
+            $dispatch['dispatchId'],
+            $dispatch['hospitalId'],
+            $this->periodResolver->reportingPeriodOfUploadPeriod($period),
+            $event->reasonCode,
+            $failureReason,
         );
     }
 

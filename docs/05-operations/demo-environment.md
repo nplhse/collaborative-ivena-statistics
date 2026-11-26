@@ -1,16 +1,16 @@
 # Demo environment
 
-A local, offline demo of the platform with synthetic data only (issue #791, [ADR 023](../02-architecture/decisions/023-demo-environment.md)). It runs next to the development environment and never touches its database.
+A local, offline demo of the platform with synthetic data (issue #791, [ADR 023](../02-architecture/decisions/023-demo-environment.md)). It runs next to the development environment and never touches its database. The same environment also serves as an internal staging installation on a server of its own: see [Staging on a server](#staging-on-a-server).
 
 | | Development | Demo |
 |---|---|---|
 | `APP_ENV` | `dev` | `demo` |
 | Database | `.env.local` (often `app`) | `app_demo` from `.env.demo` |
 | URL | http://127.0.0.1:8000 | http://127.0.0.1:8001 |
-| Imports, uploads | `var/imports`, `public/uploads/media` | `var/demo/imports`, `public/uploads/demo/media` |
+| Imports, media files | `var/imports`, `var/media` | `var/demo/imports`, `var/demo/media` |
 | Cookies | `PHPSESSID`, `consent_subject_id`, … | `demo_PHPSESSID`, `demo_consent_subject_id`, … |
 | Debug mode, profiler | on | off |
-| Mail | Mailpit (`smtp://127.0.0.1:1025`) | Mailpit (`smtp://127.0.0.1:1025`), fixed ([Preview demo emails](#preview-demo-emails)) |
+| Mail | Mailpit (`smtp://127.0.0.1:1025`) | Mailpit (`smtp://127.0.0.1:1025`) or none (`DEMO_MAIL=off`), never a real server ([Preview demo emails](#preview-demo-emails)) |
 | Sentry, OpenRouteService | configurable | off |
 
 ## Prerequisites
@@ -32,6 +32,18 @@ This drops and recreates `app_demo`, runs the migrations, empties the demo stora
 - When `app_demo` already holds an installation, the target stops; `DEMO_CONFIRM=yes` replaces it.
 - Users and passwords are the ones of the dev fixtures (for example `foo`).
 
+## Remove the demo
+
+```bash
+make demo-uninstall DEMO_CONFIRM=yes
+```
+
+This drops `app_demo` and deletes everything the demo keeps on the disk: `var/demo` (imports, media,
+geodata), the old upload directory `public/uploads/demo`, `var/cache/demo` and `var/log/demo.log`.
+Use it when the demo is no longer needed on this machine; its files are kept apart from the development
+environment (ADR 023), so nothing else cleans them up. Without `DEMO_CONFIRM=yes` the target stops
+before it changes anything. The development database and `var/media` stay untouched.
+
 ## Start the demo
 
 Two terminals:
@@ -45,6 +57,8 @@ make demo-consume  # Messenger worker: imports, projections, scheduler
 ```
 
 `DEMO_PORT=8002 make demo-start` uses another port. The page title starts with "Demo" and a banner says that all data is synthetic, in the application and in the admin area.
+
+The installed data is synthetic. A real export loaded with the import option **Override target hospital** (available in the demo, #1352) is the exception: it stays real operational data, is marked on its import page, and the upload form warns about it ([ADR 023](../02-architecture/decisions/023-demo-environment.md#real-exports-through-the-target-hospital-override)).
 
 The demo targets call `APP_ENV=demo php bin/console`, not `symfony console`: the Symfony CLI can export `DATABASE_URL` of a Docker database, which would override `.env.demo` (the guard would then stop the command).
 
@@ -76,7 +90,7 @@ It asks for:
 
 After a summary and a confirmation it:
 
-1. creates an active synthetic participant account with `ROLE_PARTICIPANT` and `ROLE_CLOSURE_BETA`:
+1. creates an active synthetic participant account with `ROLE_PARTICIPANT`:
    login `demo` (later ones `demo2`, `demo3`, …), e-mail `<login>@demo.invalid`, password `Ivena!1234`
    for every demo participant, so it is easy to type in front of an audience;
 2. creates the hospital (owner: the participant, participating from the first month), or gives an existing
@@ -156,7 +170,7 @@ month that is not complete by yesterday (or `FIXTURES_UNTIL`) and a month that a
 the hospital. It writes nothing into the database.
 
 During the presentation, logged in as a participant with the import permission for the hospital
-(and `ROLE_CLOSURE_BETA` for the closure file; the wizard's account has both, other accounts get the role in EasyAdmin):
+(the wizard's account has it as the owner):
 
 1. Import page → choose the hospital → upload the allocation file. `make demo-consume` must run.
 2. When it is processed, upload the closure file as a closure import.
@@ -180,14 +194,16 @@ Browsers keep cookies per host, not per port: dev on 127.0.0.1:8000 and the demo
 
 ## Local overrides
 
-Put local changes into `.env.demo.local` (not committed), for example another password or database name (it must still end in `_demo`). Sentry is switched off in `config/packages/demo/framework.yaml` and cannot be turned on with variables. Mail always goes to the local Mailpit, also fixed there; `MAILER_DSN` has no effect in the demo (see below).
+Put local changes into `.env.demo.local` (not committed), for example another password or database name (it must still end in `_demo`). Sentry is switched off in `config/packages/demo/framework.yaml` and cannot be turned on with variables. Mail goes to the local Mailpit unless `DEMO_MAIL=off` discards it; no other value is accepted, and `MAILER_DSN` has no effect in the demo (see below).
 
 ## Preview demo emails
 
 Like dev, the demo sends all mail (monthly reminders, notification emails, the reminder buttons in
 the admin area) to Mailpit, the local mail catcher of `compose.override.yaml`. The address
 `smtp://127.0.0.1:1025` is fixed in `config/packages/demo/framework.yaml`, so nothing leaves the
-machine.
+machine. `DEMO_MAIL` (`.env.demo`) picks between two fixed transports and nothing else:
+`mailpit` (default) and `off`, which discards every mail, for a demo without Mailpit such as
+[staging](#staging-on-a-server).
 
 1. Start Mailpit (SMTP on port 1025, web UI on port 8025):
 
@@ -249,6 +265,78 @@ Without `--from`/`--to` the dataset ends with the month before last, so the last
 
 See [ADR 023](../02-architecture/decisions/023-demo-environment.md#generation-runs-791-step-3).
 
+## Staging on a server
+
+The demo environment also runs as an internal staging installation of the `develop` branch on an
+Uberspace account of its own, next to and apart from production. It is the demo as described above
+with three differences: no mail (`DEMO_MAIL=off`), the `realistic` preset, and a nightly reset to a
+snapshot. Access protection (HTTP Basic Auth) is set up on the server, not in the repository.
+
+### Deployer host
+
+Deployer deploys staging with the production recipe; the host entry in `hosts.yaml` switches it to
+the demo environment ([hosts.yaml.example](../../hosts.yaml.example)):
+
+- `branch: develop`, `keep_releases: 1` (one `vendor` with dev packages on the disk is enough)
+- `env` with `APP_ENV: demo`: asset compile, cache warmup and migrations run in the demo environment
+- `composer_options` without `--no-dev`: the demo loads its data with the fixture code (ADR 023)
+- `shared_files` and `shared_dirs` of the demo, so `.env.demo.local`, the demo files and the log
+  survive a deploy
+
+A deploy runs the migrations of `develop` against the demo data, as production will later.
+
+To give up a staging installation, remove the cron job of the nightly reset, the snapshot
+(`~/demo-snapshot`), the deploy path and the `_demo` database on the server; the demo files live
+inside the deploy path, so nothing is left behind.
+
+### One-time setup on the server
+
+1. PostgreSQL as for production ([deployment.md](deployment.md#prerequisites)) with a database whose
+   name ends in `_demo`, reached over `127.0.0.1` or `localhost` (`DemoEnvironmentGuard` refuses
+   other hosts). The database user must be allowed to drop and create that database
+   (`make demo-install`).
+2. `<deploy_path>/shared/.env.local` with `APP_ENV=demo` only.
+3. `<deploy_path>/shared/.env.demo.local` with `APP_SECRET`, `DATABASE_URL`, `APP_URL`,
+   `SYMFONY_TRUSTED_HOSTS` and `DEMO_MAIL=off`. It is loaded after `.env.demo`; values in `.env.local`
+   would be overridden by `.env.demo`.
+4. The Messenger worker as for production ([messenger-workers.md](messenger-workers.md)); the unit
+   reads `APP_ENV=demo` from `.env.local`.
+5. First deploy: `vendor/bin/dep deploy staging`.
+6. Demo data and first snapshot: `<deploy_path>/current/bin/ops/demo-reset.sh`.
+7. Nightly reset as a cron job, for example at 04:10:
+
+   ```
+   10 4 * * * $HOME/www/current/bin/ops/demo-reset.sh >> $HOME/logs/demo-reset.log 2>&1
+   ```
+
+### Access protection
+
+The demo accounts and their passwords are known, so nobody may reach the application without the
+Basic Auth credentials, not even the login page. Create the password file outside the web root
+with a long random password (`openssl rand -base64 24`, `htpasswd -cB ~/staging.htpasswd <name>`)
+and put the `AuthType Basic` block into a `.htaccess` above the document root (`<deploy_path>/`,
+next to the `html` symlink); `public/.htaccess` comes from the repository and is replaced by every
+deploy. Check after the setup and after deploys that the protection holds; each request without
+credentials must give `401`, and `http://` must redirect to `https://`:
+
+```bash
+curl -s -o /dev/null -w '%{http_code}\n' https://<host>/
+curl -s -o /dev/null -w '%{http_code}\n' https://<host>/login
+curl -s -o /dev/null -w '%{http_code}\n' https://<host>/health
+curl -sI http://<host>/ | head -1
+```
+
+### Nightly reset
+
+`bin/ops/demo-reset.sh` stops the worker, puts the demo back to its snapshot (database,
+`var/demo/imports`, `var/demo/media`), empties `var/log/demo.log`, clears the cache pools
+and starts the worker again. On its first run after a deploy (another release than the snapshot's)
+it rebuilds the data with `make demo-install` and takes a new snapshot instead, so new migrations
+and fixture changes arrive in the data by the next morning; run it right after the deploy to have
+them at once. `DEMO_REBUILD=yes` forces a rebuild. The snapshot lives in `~/demo-snapshot`
+(`DEMO_SNAPSHOT_DIR`); the dates of the data stay those of the last rebuild. The script refuses any
+database whose name does not end in `_demo`.
+
 ## Troubleshooting
 
 | Symptom | Cause | Fix |
@@ -257,6 +345,7 @@ See [ADR 023](../02-architecture/decisions/023-demo-environment.md#generation-ru
 | Config or code change has no effect, or a `TypeError` in a container class | Demo runs without debug mode and keeps its compiled container | Restart `make demo-start` (it deletes `var/cache/demo`) |
 | Page without styles | Assets not compiled | `make demo-start` compiles them; run `importmap:install` while online |
 | Imports stay "pending" | No worker | `make demo-consume` |
-| "Mailpit is not reachable", or mail errors in the demo | Mailpit not running | `docker compose up -d mailer` ([Preview demo emails](#preview-demo-emails)) |
+| "Mailpit is not reachable", or mail errors in the demo | Mailpit not running | `docker compose up -d mailer` ([Preview demo emails](#preview-demo-emails)), or `DEMO_MAIL=off` without Mailpit |
+| "Invalid value for "DEMO_MAIL"" | `DEMO_MAIL` is neither `mailpit` nor `off` | Fix `.env.demo.local` |
 | A generation run stays in `projecting` (`app:generate:run:show` says stale) | No worker, or a hospital failed | `make demo-consume`; then `APP_ENV=demo php bin/console app:generate:run:retry <run>` |
 | Cookie banner does not close, login fails with a CSRF or cookie consent error | Old cookies for 127.0.0.1 (from dev with TLS or an older demo build) | Delete the cookies for 127.0.0.1 in the browser, or open the demo as http://localhost:8001 |

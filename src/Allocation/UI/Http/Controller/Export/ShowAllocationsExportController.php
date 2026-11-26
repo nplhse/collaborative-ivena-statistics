@@ -27,7 +27,7 @@ final class ShowAllocationsExportController extends AbstractController
     ) {
     }
 
-    #[Route('/hospitals/export/allocations', name: 'app_hospitals_export_allocations', methods: ['GET'])]
+    #[Route('/tools/allocation-export', name: 'app_tools_allocation_export', methods: ['GET'])]
     public function __invoke(Request $request, #[CurrentUser] User $user): Response
     {
         $defaultData = new OwnHospitalAllocationsExportFormData();

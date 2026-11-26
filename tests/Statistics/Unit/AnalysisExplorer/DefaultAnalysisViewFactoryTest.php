@@ -27,7 +27,7 @@ final class DefaultAnalysisViewFactoryTest extends TestCase
             scope: StatisticsFilterScope::Public,
             hospitalId: null,
             cohortType: null,
-            period: StatisticsFilterPeriod::All,
+            period: StatisticsFilterPeriod::Last12Months,
         );
 
         $factory = new DefaultAnalysisViewFactory(new ExplorerTitleFactory($translator));

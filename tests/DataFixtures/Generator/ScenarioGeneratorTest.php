@@ -96,7 +96,9 @@ final class ScenarioGeneratorTest extends KernelTestCase
             self::assertSame(2 * $mciPlan(1.0), $mciPlan(2.0));
             $extra = static fn (float $intensity): int => $generator->plan(ScenarioCatalog::get('flu-wave'), $volume, $hospitals, new \DateTimeImmutable('2026-04-02'), $lastDay, 'test', $intensity)[0]->allocationCount();
             self::assertGreaterThan($extra(1.0), $extra(2.0));
-            self::assertLessThan($extra(1.0), $extra(0.5));
+            // Below one extra case per day, 0.5 and 1.0 draw from the same whole-number range and may give the same count.
+            self::assertLessThanOrEqual($extra(1.0), $extra(0.5));
+            self::assertLessThan($extra(2.0), $extra(0.5));
             try {
                 $generator->plan(ScenarioCatalog::get('mci'), $volume, $hospitals, new \DateTimeImmutable('2026-04-02'), $lastDay, 'test', 3.0);
                 self::fail('an intensity of 3 is refused');

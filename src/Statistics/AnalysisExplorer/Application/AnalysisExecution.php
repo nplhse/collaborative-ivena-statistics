@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\Application;
 
+use App\Shared\Infrastructure\Monitoring\Sentry\SentrySpanTracer;
+use App\Statistics\AnalysisExplorer\Application\Comparison\ExplorerReferenceComparisonPolicy;
+use App\Statistics\AnalysisExplorer\Application\Comparison\ReferenceComparisonDecision;
 use App\Statistics\AnalysisExplorer\Application\DTO\AnalysisExecutionResult;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
+use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisTotals;
 use App\Statistics\AnalysisExplorer\Domain\Exception\InvalidExplorerConfigException;
@@ -26,12 +30,56 @@ final readonly class AnalysisExecution
         private ExplorerChartPresenter $chartPresenter,
         private ExplorerResultsTablePresenter $tablePresenter,
         private HospitalAccessInterface $hospitalAccess,
+        private ExplorerReferenceComparisonPolicy $referenceComparisonPolicy,
         private StatisticsSourceDataProbe $sourceDataProbe,
         private LoggerInterface $logger,
+        private SentrySpanTracer $spanTracer,
     ) {
     }
 
+    /**
+     * Traced as one `analysis.explorer.run` span; the query spans of the run are its children.
+     */
     public function execute(AnalysisViewConfig $config, ?User $user): AnalysisExecutionResult
+    {
+        return $this->spanTracer->trace(
+            'analysis.explorer.run',
+            'AnalysisExecution::execute',
+            fn (): AnalysisExecutionResult => $this->run($config, $user),
+            $this->spanData($config),
+            static fn (AnalysisExecutionResult $execution): array => [
+                'analysis.rows' => \count($execution->result->rows),
+                'analysis.outcome' => $execution->emptyReason ?? 'ok',
+            ],
+        );
+    }
+
+    /**
+     * Fixed labels and the numeric hospital id only; no filter values.
+     *
+     * @return array<string, string|int>
+     */
+    private function spanData(AnalysisViewConfig $config): array
+    {
+        $filter = $config->statisticsFilter;
+        $data = [
+            'analysis.data_source' => $config->dataSourceKey->value,
+            'analysis.row_dimension' => $config->rowAxis->dimensionKey->value,
+            'analysis.metric' => $config->visualMetricKey->value,
+            'scope.type' => $filter->scope->value,
+            'period.type' => $filter->period->value,
+        ];
+        if ($config->columnAxis instanceof AnalysisAxisRef) {
+            $data['analysis.column_dimension'] = $config->columnAxis->dimensionKey->value;
+        }
+        if (StatisticsFilterScope::Hospital === $filter->scope && \is_int($filter->hospitalId)) {
+            $data['hospital_id'] = $filter->hospitalId;
+        }
+
+        return $data;
+    }
+
+    private function run(AnalysisViewConfig $config, ?User $user): AnalysisExecutionResult
     {
         $normalized = $this->configNormalizer->normalize($config);
         $rewritten = [] !== $this->configNormalizer->diffWarnings($config, $normalized);
@@ -44,6 +92,15 @@ final readonly class AnalysisExecution
 
         if ($this->hospitalScopeDenied($normalized, $user)) {
             return $this->failed($normalized, $rewritten, 'scope_forbidden');
+        }
+
+        // Only the comparison this viewer may see runs and reaches the page (#1346); the stored one stays as it is.
+        $comparison = $this->referenceComparisonPolicy->effective($normalized, $user);
+        $warningKey = null;
+        if ($comparison->dropped) {
+            $normalized = $comparison->config;
+            $rewritten = true;
+            $warningKey = ReferenceComparisonDecision::NOTICE_KEY;
         }
 
         try {
@@ -77,12 +134,13 @@ final readonly class AnalysisExecution
         return new AnalysisExecutionResult(
             config: $normalized,
             result: $result,
-            chartSpecs: $this->chartPresenter->buildSpecs($result, $normalized->presentation),
+            chartSpecs: $this->chartPresenter->buildSpecs($result, $normalized->presentation, $normalized->showsPercentOfSeries()),
             defaultChartType: $this->chartPresenter->defaultChartType($normalized->presentation),
             hasChart: $this->chartPresenter->hasChart($result),
             table: $this->tablePresenter->create($normalized, $result),
             emptyReason: $emptyReason,
             configRewritten: $rewritten,
+            warningKey: $warningKey,
         );
     }
 

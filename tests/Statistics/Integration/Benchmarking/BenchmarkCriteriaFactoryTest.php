@@ -91,7 +91,7 @@ final class BenchmarkCriteriaFactoryTest extends KernelTestCase
             StatisticsFilterScope::HospitalCohort,
             null,
             $cohortKey,
-            StatisticsFilterPeriod::All,
+            StatisticsFilterPeriod::Last12Months,
         );
 
         $criteria = $this->factory->create(
@@ -111,7 +111,7 @@ final class BenchmarkCriteriaFactoryTest extends KernelTestCase
             StatisticsFilterScope::State,
             null,
             null,
-            StatisticsFilterPeriod::All,
+            StatisticsFilterPeriod::Last12Months,
             stateId: 999_999,
         );
         $comparisonFilter = new StatisticsFilter(

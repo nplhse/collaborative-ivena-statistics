@@ -117,10 +117,6 @@
         <source>link.explore</source>
         <target>Erkunden</target>
       </trans-unit>
-      <trans-unit id="ExpLnkDe01" resname="link.export">
-        <source>link.export</source>
-        <target>Export</target>
-      </trans-unit>
       <trans-unit id="lnkFeaturesDe" resname="link.features">
         <source>link.features</source>
         <target>Funktionen</target>
@@ -293,6 +289,22 @@
         <source>locale.switch</source>
         <target>Sprache wechseln</target>
       </trans-unit>
+      <trans-unit id="oXcqIp." resname="maintenance.banner.text">
+        <source>maintenance.banner.text</source>
+        <target>Wartungsmodus aktiv seit {since}</target>
+      </trans-unit>
+      <trans-unit id="DTlK4ob" resname="maintenance.page.retry">
+        <source>maintenance.page.retry</source>
+        <target>Erneut versuchen</target>
+      </trans-unit>
+      <trans-unit id="M2ieWzt" resname="maintenance.page.text">
+        <source>maintenance.page.text</source>
+        <target>Wegen Wartungsarbeiten ist die Plattform gerade nicht erreichbar. Bitte versuchen Sie es später noch einmal.</target>
+      </trans-unit>
+      <trans-unit id="1uG449r" resname="maintenance.page.title">
+        <source>maintenance.page.title</source>
+        <target>Wartungsarbeiten</target>
+      </trans-unit>
       <trans-unit id="Deae8de51e" resname="menu.blog.categories">
         <source>menu.blog.categories</source>
         <target>Kategorien</target>
@@ -325,13 +337,21 @@
         <source>footer.column.more</source>
         <target>Weiteres</target>
       </trans-unit>
-      <trans-unit id="FtrHosterDe" resname="footer.hoster">
-        <source>footer.hoster</source>
-        <target>Gehostet bei {hoster}</target>
+      <trans-unit id="FtrUberspaceCreditDe" resname="footer.uberspace_credit">
+        <source>footer.uberspace_credit</source>
+        <target>Gehostet bei Uberspace</target>
       </trans-unit>
       <trans-unit id="LnkSitemapDe" resname="link.sitemap">
         <source>link.sitemap</source>
         <target>Sitemap</target>
+      </trans-unit>
+      <trans-unit id="PrintActionDe" resname="print.action">
+        <source>print.action</source>
+        <target>Drucken</target>
+      </trans-unit>
+      <trans-unit id="PrintPrintedAtDe" resname="print.printed_at">
+        <source>print.printed_at</source>
+        <target>Gedruckt am {date}</target>
       </trans-unit>
       <trans-unit id="SitemapTitleDe" resname="sitemap.title">
         <source>sitemap.title</source>
@@ -345,33 +365,73 @@
         <source>sitemap.empty</source>
         <target>Für Ihr aktuelles Konto sind keine Seiten verfügbar.</target>
       </trans-unit>
-      <trans-unit id="SitemapSecPublicDe" resname="sitemap.section.public">
-        <source>sitemap.section.public</source>
-        <target>Öffentlich</target>
+      <trans-unit id="SitemapSecPagesDe" resname="sitemap.section.pages">
+        <source>sitemap.section.pages</source>
+        <target>Seiten</target>
       </trans-unit>
-      <trans-unit id="SitemapSecDocDe" resname="sitemap.section.content">
-        <source>sitemap.section.content</source>
-        <target>Inhalte</target>
+      <trans-unit id="SitemapLinkCountDe" resname="sitemap.link_count">
+        <source>sitemap.link_count</source>
+        <target>{count, plural, one {# Link} other {# Links}}</target>
       </trans-unit>
-      <trans-unit id="SitemapSecAppDe" resname="sitemap.section.data_exchange">
-        <source>sitemap.section.data_exchange</source>
-        <target>Import &amp; Export</target>
+      <trans-unit id="LnkToolsDe" resname="link.tools">
+        <source>link.tools</source>
+        <target>Tools</target>
       </trans-unit>
-      <trans-unit id="SitemapSecStatsDe" resname="sitemap.section.statistics">
-        <source>sitemap.section.statistics</source>
-        <target>Statistik &amp; Analyse</target>
+      <trans-unit id="ToolsTitleDe" resname="tools.title">
+        <source>tools.title</source>
+        <target>Tools</target>
       </trans-unit>
-      <trans-unit id="SitemapSecExploreDe" resname="sitemap.section.explore">
-        <source>sitemap.section.explore</source>
-        <target>Daten erkunden</target>
+      <trans-unit id="ToolsIntroDe" resname="tools.intro">
+        <source>tools.intro</source>
+        <target>Interaktive Arbeitsabläufe: Zuordnungen prüfen und validieren, Daten aufbereiten.</target>
       </trans-unit>
-      <trans-unit id="SitemapSecAccountDe" resname="sitemap.section.account">
-        <source>sitemap.section.account</source>
-        <target>Benutzerkonto</target>
+      <trans-unit id="ToolsEmptyDe" resname="tools.empty">
+        <source>tools.empty</source>
+        <target>Für Ihr Konto sind keine Tools verfügbar.</target>
       </trans-unit>
-      <trans-unit id="SitemapSecClinicDe" resname="sitemap.section.clinic">
-        <source>sitemap.section.clinic</source>
-        <target>Klinik</target>
+      <trans-unit id="ToolsBetaDe" resname="tools.beta">
+        <source>tools.beta</source>
+        <target>Beta</target>
+      </trans-unit>
+      <trans-unit id="ToolsTopicAllocationsDe" resname="tools.topic.allocations">
+        <source>tools.topic.allocations</source>
+        <target>Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="ToolsTopicEncountersDe" resname="tools.topic.encounters">
+        <source>tools.topic.encounters</source>
+        <target>Behandlungsdaten</target>
+      </trans-unit>
+      <trans-unit id="ToolsTopicIndicationsDe" resname="tools.topic.indications">
+        <source>tools.topic.indications</source>
+        <target>Indikationen</target>
+      </trans-unit>
+      <trans-unit id="ToolsTopicImportsDe" resname="tools.topic.imports">
+        <source>tools.topic.imports</source>
+        <target>Importe</target>
+      </trans-unit>
+      <trans-unit id="ToolsTopicFilterLabelDe" resname="tools.topic.filter_label">
+        <source>tools.topic.filter_label</source>
+        <target>Thema</target>
+      </trans-unit>
+      <trans-unit id="ToolsTopicAllDe" resname="tools.topic.all">
+        <source>tools.topic.all</source>
+        <target>Alle Themen</target>
+      </trans-unit>
+      <trans-unit id="ToolsTopicShowOnlyDe" resname="tools.topic.show_only">
+        <source>tools.topic.show_only</source>
+        <target>Nur Tools zum Thema {topic} anzeigen</target>
+      </trans-unit>
+      <trans-unit id="ToolsCatMatchDe" resname="tools.category.matching">
+        <source>tools.category.matching</source>
+        <target>Abgleich und Prüfung</target>
+      </trans-unit>
+      <trans-unit id="ToolsCatExpDe" resname="tools.category.data_export">
+        <source>tools.category.data_export</source>
+        <target>Daten exportieren</target>
+      </trans-unit>
+      <trans-unit id="ToolsCatPrepDe" resname="tools.category.data_preparation">
+        <source>tools.category.data_preparation</source>
+        <target>Datenaufbereitung</target>
       </trans-unit>
       <trans-unit id="lnkActivityDe" resname="link.activity">
         <source>link.activity</source>
@@ -448,6 +508,10 @@
       <trans-unit id="lblDataTablePositionDe" resname="label.data_table.position">
         <source>label.data_table.position</source>
         <target>Position</target>
+      </trans-unit>
+      <trans-unit id="lblDataTablePrintPageDe" resname="label.data_table.print_current_page">
+        <source>label.data_table.print_current_page</source>
+        <target>Der Ausdruck enthält nur die aktuell angezeigte Seite dieser Liste.</target>
       </trans-unit>
       <trans-unit id="lblDataTableRequiredDe" resname="label.data_table.required">
         <source>label.data_table.required</source>
@@ -540,6 +604,114 @@
       <trans-unit id="lblDtRowDetailsLinkDe" resname="label.data_table.row_details_link">
         <source>label.data_table.row_details_link</source>
         <target>Details ansehen</target>
+      </trans-unit>
+      <trans-unit id="sharedEnc7e2c697c" resname="link.stats.encounter_analytics">
+        <source>link.stats.encounter_analytics</source>
+        <target>Behandlungsdaten (Beta)</target>
+      </trans-unit>
+      <trans-unit id="CkyPrefPerfTiDe" resname="cookie.preferences.performance.title">
+        <source>cookie.preferences.performance.title</source>
+        <target>Performance-Analysen</target>
+      </trans-unit>
+      <trans-unit id="CkyPrefPerfTxDe" resname="cookie.preferences.performance.text">
+        <source>cookie.preferences.performance.text</source>
+        <target>Erlaubt uns, für Performance-Analysen und die Verbesserung der Plattform an Sentry ({location}) zu übermitteln, wie Sie die Anwendung genutzt haben und wie schnell sie dabei war, zusammen mit Ihrer internen Benutzer-ID. Weitere persönliche Daten wie Name oder E-Mail-Adresse werden nicht übertragen. Nur zusammen mit Analytics-Cookies möglich.</target>
+      </trans-unit>
+      <trans-unit id="CkyPrefErrNoteDe" resname="cookie.preferences.errors_notice">
+        <source>cookie.preferences.errors_notice</source>
+        <target>Unabhängig von dieser Auswahl melden wir technische Fehler zum Betrieb der Plattform an Sentry ({location}). Fehlerberichte enthalten Ihre interne Benutzer-ID, aber keine weiteren persönlichen Daten.</target>
+      </trans-unit>
+      <trans-unit id="CkyBanPerfTxDe" resname="cookie.banner.performance_text">
+        <source>cookie.banner.performance_text</source>
+        <target>Mit „Alle Cookies erlauben“ stimmen Sie außerdem Performance-Analysen über Sentry ({location}) zu.</target>
+      </trans-unit>
+      <trans-unit id="CkyMonLocDe" resname="cookie.monitoring.location">
+        <source>cookie.monitoring.location</source>
+        <target>{location, select, eu {Server in der EU} us {Server in den USA} other {vom Betreiber selbst betriebene Server}}</target>
+      </trans-unit>
+      <trans-unit id="SharedNavSidebar01De" resname="nav.sidebar.label">
+        <source>nav.sidebar.label</source>
+        <target>Ansichten</target>
+      </trans-unit>
+      <trans-unit id="SharedNavSidebar02De" resname="nav.sidebar.collapse">
+        <source>nav.sidebar.collapse</source>
+        <target>Seitenleiste einklappen</target>
+      </trans-unit>
+      <trans-unit id="SharedNavSidebar03De" resname="nav.sidebar.keep_open">
+        <source>nav.sidebar.keep_open</source>
+        <target>Seitenleiste fest öffnen</target>
+      </trans-unit>
+      <trans-unit id="SharedNavSidebar04De" resname="nav.sidebar.toggle_views">
+        <source>nav.sidebar.toggle_views</source>
+        <target>Ansichten ein- oder ausblenden</target>
+      </trans-unit>
+      <trans-unit id="SharedNavSidebar05De" resname="nav.sidebar.search.placeholder">
+        <source>nav.sidebar.search.placeholder</source>
+        <target>Menü durchsuchen …</target>
+      </trans-unit>
+      <trans-unit id="SharedNavSidebar06De" resname="nav.sidebar.search.label">
+        <source>nav.sidebar.search.label</source>
+        <target>Menü durchsuchen</target>
+      </trans-unit>
+      <trans-unit id="SharedNavSidebar07De" resname="nav.sidebar.search.empty">
+        <source>nav.sidebar.search.empty</source>
+        <target>Keine passenden Einträge.</target>
+      </trans-unit>
+      <trans-unit id="SharedNavSidebar08De" resname="nav.sidebar.search.clear">
+        <source>nav.sidebar.search.clear</source>
+        <target>Suche zurücksetzen</target>
+      </trans-unit>
+      <trans-unit id="SharedNavSidebar09De" resname="nav.sidebar.search.result_one">
+        <source>nav.sidebar.search.result_one</source>
+        <target>1 passender Eintrag</target>
+      </trans-unit>
+      <trans-unit id="SharedNavSidebar10De" resname="nav.sidebar.search.result_other">
+        <source>nav.sidebar.search.result_other</source>
+        <target>{count} passende Einträge</target>
+      </trans-unit>
+      <trans-unit id="KpiValUnavDe" resname="kpi.value.unavailable">
+        <source>kpi.value.unavailable</source>
+        <target>nicht verfügbar</target>
+      </trans-unit>
+      <trans-unit id="KpiTrendUpDe" resname="kpi.trend.up">
+        <source>kpi.trend.up</source>
+        <target>Anstieg</target>
+      </trans-unit>
+      <trans-unit id="KpiTrendDnDe" resname="kpi.trend.down">
+        <source>kpi.trend.down</source>
+        <target>Rückgang</target>
+      </trans-unit>
+      <trans-unit id="KpiTrendFlDe" resname="kpi.trend.flat">
+        <source>kpi.trend.flat</source>
+        <target>Keine Veränderung</target>
+      </trans-unit>
+      <trans-unit id="KpiSparklineDe" resname="kpi.sparkline.label">
+        <source>kpi.sparkline.label</source>
+        <target>Verlauf: {points}</target>
+      </trans-unit>
+      <trans-unit id="lblAdminObjectIdDe" resname="label.admin_object_id">
+        <source>label.admin_object_id</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="lblAdminObjectIdHintDe" resname="label.admin_object_id.hint">
+        <source>label.admin_object_id.hint</source>
+        <target>Interne ID, nur für Administrator:innen sichtbar.</target>
+      </trans-unit>
+      <trans-unit id="lnkDataCatalogDe" resname="link.data_catalog">
+        <source>link.data_catalog</source>
+        <target>Datenkatalog</target>
+      </trans-unit>
+      <trans-unit id="lnkDataSourcesDe" resname="link.data_sources">
+        <source>link.data_sources</source>
+        <target>Datenquellen und Lizenzen</target>
+      </trans-unit>
+      <trans-unit id="Rsc38CA6015" resname="my_requests.title">
+        <source>my_requests.title</source>
+        <target>Meine Anträge</target>
+      </trans-unit>
+      <trans-unit id="RscB6654397" resname="my_requests.empty">
+        <source>my_requests.empty</source>
+        <target>Noch keine Anträge.</target>
       </trans-unit>
     </body>
   </file>

@@ -23,12 +23,12 @@ final class ExplorerStatisticsFilterInputFactoryTest extends TestCase
         $input = $this->factory->fromSideFormData(new StatisticsScopePeriodFormData(
             'public',
             null,
-            'all',
+            'last_12_months',
         ));
 
         self::assertSame(StatisticsFilterScope::Public->value, $input->scope);
         self::assertSame('', $input->hospital);
-        self::assertSame('all', $input->period);
+        self::assertSame('last_12_months', $input->period);
         self::assertTrue($input->hasScopeQueryParameter);
     }
 
@@ -52,7 +52,7 @@ final class ExplorerStatisticsFilterInputFactoryTest extends TestCase
         $input = $this->factory->fromSideFormData(new StatisticsScopePeriodFormData(
             'my_hospitals',
             null,
-            'all',
+            'last_12_months',
         ));
 
         self::assertSame(StatisticsFilterScope::MyHospitals->value, $input->scope);
@@ -64,7 +64,7 @@ final class ExplorerStatisticsFilterInputFactoryTest extends TestCase
         $input = $this->factory->fromSideFormData(new StatisticsScopePeriodFormData(
             'my_hospitals',
             '7',
-            'all',
+            'last_12_months',
         ));
 
         self::assertSame(StatisticsFilterScope::Hospital->value, $input->scope);
