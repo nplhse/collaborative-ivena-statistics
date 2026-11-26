@@ -19,7 +19,7 @@ Existing installations: no extra steps, see the [upgrade guide](docs/05-operatio
 
 ### Dependencies
 
-- **deps:** Update the Symfony components to 8.1.12 for the security advisories of 2026-11-25 ([#PR](https://github.com/nplhse/collaborative-ivena-statistics/pull/PR))
+- **deps:** Update the Symfony components to 8.1.12 for the security advisories of 2026-11-25 ([#1682](https://github.com/nplhse/collaborative-ivena-statistics/pull/1682))
 
 ## [0.2.6-beta] - 2026-11-24
 
