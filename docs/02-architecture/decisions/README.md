@@ -61,6 +61,7 @@ Each ADR includes:
 | [043](043-terms-of-use-version-by-configuration.md) | Terms of use version by configuration | accepted |
 | [044](044-explore-restricted-to-own-hospitals.md) | Explore restricted to the viewer's own hospitals | accepted |
 | [045](045-data-extract-requests.md) | Data extract requests with Board vote, admin SQL and time-limited export | accepted |
+| [046](046-maintenance-mode-by-flag-file.md) | Maintenance mode by a shared flag file | accepted |
 
 ## Template
 

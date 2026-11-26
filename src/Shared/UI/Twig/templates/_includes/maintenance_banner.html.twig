@@ -1,0 +1,8 @@
+{# Shown while the maintenance mode is on (#1680, ADR 046). Only administrators get past the maintenance page, so only they see it. #}
+{% set maintenance_started_at = maintenance_since() %}
+{% if maintenance_started_at %}
+    <div id="maintenance-mode-banner" class="alert alert-danger rounded-0 m-0 py-2 text-center" role="alert" data-testid="maintenance-banner">
+        <twig:ux:icon name="tabler:tool" width="1.15em" height="1.15em" class="align-text-bottom me-1" aria-hidden="true" />
+        {{ 'maintenance.banner.text'|trans({since: maintenance_started_at|format_datetime('medium', 'short')}, 'shared') }}
+    </div>
+{% endif %}

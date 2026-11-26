@@ -151,6 +151,8 @@ final readonly class OperationalDashboardService
                 'two_factor' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-key', null),
                 // Export connection of data extract requests (#1635, ADR 045): no page of its own; the value names the state.
                 'research_export' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-file-export', null),
+                // Maintenance mode (#1680, ADR 046): `on` is degraded, so a mode left on after a deploy stands out.
+                'maintenance' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-screwdriver-wrench', null),
                 'scheduled_jobs' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-stopwatch', $this->adminUrlGenerator->setController(self::JOB_RUN_CONTROLLER)->setAction('index')->generateUrl()),
                 default => new HealthCheckItemDto(
                     key: $key,
