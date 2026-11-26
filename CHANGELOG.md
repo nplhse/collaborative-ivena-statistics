@@ -17,6 +17,8 @@ Participation follows clearer rules: the acceptance of the terms of use is store
 
 For operators, the audit log became a timeline, suspicious feedback goes into a quarantine, the page editor saves drafts, usage analytics was reduced to counted accesses, media files moved into a managed storage with integrity checks, dispatch-area geography became maintained master data, backups run weekly with verification and an off-site copy, and a maintenance mode keeps users out while an upgrade finishes.
 
+A pre-release security review closed missing escaping in admin views, gaps in the sign-in checks and weak points of the data extract checks; remembered users sign in once more after the upgrade.
+
 Existing installations: the release has 59 migrations, one-time commands and new configuration; follow the [upgrade guide](docs/05-operations/upgrading.md#v027-beta--v03-beta).
 
 ### Features
@@ -239,6 +241,9 @@ Existing installations: the release has 59 migrations, one-time commands and new
 - **content:** Count blog list comments in one query ([#1661](https://github.com/nplhse/collaborative-ivena-statistics/pull/1661))
 - **ui:** Remove nested containers inside page content ([#1670](https://github.com/nplhse/collaborative-ivena-statistics/pull/1670))
 - **statistics:** Show the help button before the print button ([#1673](https://github.com/nplhse/collaborative-ivena-statistics/pull/1673))
+- **admin:** Escape user input in admin views and check page block URLs ([#1694](https://github.com/nplhse/collaborative-ivena-statistics/pull/1694))
+- **user:** Close gaps in the terms and two-factor checks at sign-in ([#1695](https://github.com/nplhse/collaborative-ivena-statistics/pull/1695))
+- **research:** Harden the checks and limits of data extract exports ([#1696](https://github.com/nplhse/collaborative-ivena-statistics/pull/1696))
 
 ### Performance
 
@@ -271,6 +276,7 @@ Existing installations: the release has 59 migrations, one-time commands and new
 - **allocation:** Correct ADR 011 on free text and name the assessment ABCD ([#1559](https://github.com/nplhse/collaborative-ivena-statistics/pull/1559))
 - **content:** Describe allocation data as pseudonymised ([#1561](https://github.com/nplhse/collaborative-ivena-statistics/pull/1561))
 - **agents:** Classify issues and pull requests on creation ([#1597](https://github.com/nplhse/collaborative-ivena-statistics/pull/1597))
+- **ops:** Correct the legacy file restore and the v0.2 worker note ([#1687](https://github.com/nplhse/collaborative-ivena-statistics/pull/1687))
 
 ### Tests
 
@@ -341,6 +347,7 @@ Existing installations: the release has 59 migrations, one-time commands and new
 - **content:** Capture help screenshots from the demo ([#1603](https://github.com/nplhse/collaborative-ivena-statistics/pull/1603))
 - **content:** Show "On this page" like the page navigation ([#1625](https://github.com/nplhse/collaborative-ivena-statistics/pull/1625))
 - **content:** Capture the upload authority checkbox in the help screenshots ([#1679](https://github.com/nplhse/collaborative-ivena-statistics/pull/1679))
+- **release:** Prepare v0.3-beta ([#1686](https://github.com/nplhse/collaborative-ivena-statistics/pull/1686))
 
 ### Merges
 

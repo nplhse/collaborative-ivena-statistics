@@ -210,6 +210,8 @@ help article on data extract requests and the terms section on research and data
 - **Explore** shows individual allocations only for the viewer's own hospitals (#1566, ADR 044): owner or any hospital
   grant; administrators still see all. MCI cases and the data catalog's coverage figures stay visible across
   hospitals. Announce this to participants.
+- **Remembered sign-ins** end once: the remember-me cookie now also covers the state of two-factor authentication
+  (#1695), so every cookie issued before the upgrade is invalid and users sign in again.
 - **Export** moved from the top navigation into Tools ("Zuweisungen exportieren", `/tools/allocation-export`); the old
   URLs under `/hospitals/export/allocations` redirect until v0.4-beta (#1633).
 
