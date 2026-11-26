@@ -7,6 +7,7 @@ namespace App\User\Infrastructure\Security\Terms;
 use App\Shared\Application\Navigation\Contract\NavigationPageLinksProviderInterface;
 use App\User\Domain\Entity\User;
 use Scheb\TwoFactorBundle\Security\Authentication\Token\TwoFactorTokenInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -54,15 +55,19 @@ final readonly class RequireTermsAcceptanceListener
         private TermsAcceptanceStatus $status,
         private UrlGeneratorInterface $urlGenerator,
         private NavigationPageLinksProviderInterface $pageLinks,
+        #[Autowire('%app.cookie_prefix%REMEMBERME')]
+        private string $rememberMeCookie,
     ) {
     }
 
     public function __invoke(RequestEvent $event): void
     {
         $request = $event->getRequest();
-        // Reading the token starts the session, so it is read only when a version is configured, the visitor already
-        // has a session and the route is not stateless (public media files, #1570).
-        if (!$event->isMainRequest() || !$this->status->isRequired() || !$request->hasPreviousSession()
+        // Reading the token starts the session, so it is read only when a version is configured, the visitor is signed in
+        // (a session or a remember-me cookie, which signs in within this request, #1689) and the route is not stateless
+        // (public media files, #1570).
+        if (!$event->isMainRequest() || !$this->status->isRequired()
+            || (!$request->hasPreviousSession() && !$request->cookies->has($this->rememberMeCookie))
             || true === $request->attributes->get('_stateless')) {
             return;
         }
