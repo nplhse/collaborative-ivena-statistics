@@ -147,4 +147,11 @@ final class PlanInspectorTest extends TestCase
     {
         self::assertSame([], PlanInspector::inspectText("SELECT 'pg_read_file(' AS a, \$tag\$set_config(\$tag\$ AS b, E'it\\'s query_to_xml(' AS c"));
     }
+
+    public function testTheLexerKeepsEscapedQuotesInsideLiteralsAndIdentifiers(): void
+    {
+        self::assertSame(['SELECT \'\' AS a,  b"c  AS d', false], PlanInspector::code('SELECT \'it\'\'s pg_read_file(\' AS a, "b""c" AS d'));
+        self::assertSame(['SELECT  ', false], PlanInspector::code('SELECT /* never closed pg_read_file('));
+        self::assertSame(["SELECT ''", false], PlanInspector::code('SELECT $x$ never closed pg_read_file('));
+    }
 }
