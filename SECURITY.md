@@ -13,12 +13,12 @@ and earlier patch versions get no fixes.
 
 | Version                              | Supported                                          |
 | ------------------------------------ | -------------------------------------------------- |
-| v0.2-beta, newest patch (`v0.2.x`)   | :white_check_mark: security and critical bug fixes |
-| earlier v0.2 patch versions          | :x: upgrade to the newest patch version            |
-| v0.1-beta                            | :x:                                                |
+| v0.3-beta, newest patch (`v0.3.x`)   | :white_check_mark: security and critical bug fixes |
+| earlier v0.3 patch versions          | :x: upgrade to the newest patch version            |
+| v0.2-beta and v0.1-beta              | :x:                                                |
 | alpha (v0.0.x)                       | :x:                                                |
 
-When v0.3-beta is released, it becomes the only supported version. The support
+When v0.4-beta is released, it becomes the only supported version. The support
 policy for v1.0 and later will be defined before the v1.0 release.
 
 ## How we keep the project secure

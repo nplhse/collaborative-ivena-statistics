@@ -160,7 +160,7 @@ final class JobRunCrudController extends AbstractCrudController
 
         yield FormField::addFieldset($this->t('fieldset.scope'));
         yield IntegerField::new('hospitalId', $this->t('field.hospital'))
-            ->formatValue(fn (?int $id): string => $this->formatter->hospital($id))
+            ->formatValue(fn (?int $id): string => htmlspecialchars($this->formatter->hospital($id), \ENT_QUOTES))
             ->onlyOnDetail();
         yield IntegerField::new('importId', $this->t('field.import'))
             ->setTemplatePath('@Admin/crud/field/job_run_import.html.twig')

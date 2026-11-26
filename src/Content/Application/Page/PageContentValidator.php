@@ -45,6 +45,12 @@ final readonly class PageContentValidator
     /** Card links: a path on this site (also with anchor or query) or an http(s) address. */
     private const string LINK_PATTERN = '~^(?:/(?!/)\S*|#\S+|https?://\S+)$~i';
 
+    /** Button links of call-to-action blocks: as card links, or an email address. */
+    private const string BUTTON_LINK_PATTERN = '~^(?:/(?!/)\S*|#\S+|https?://\S+|mailto:\S+)$~i';
+
+    /** Image sources given as text instead of a media item: a path on this site or an http(s) address. */
+    private const string IMAGE_SRC_PATTERN = '~^(?:/(?!/)\S*|https?://\S+)$~i';
+
     /** @var list<string> */
     private const array HEADLINE_LEVELS = ['h1', 'h2', 'h3', 'h4'];
 
@@ -195,6 +201,8 @@ final readonly class PageContentValidator
 
         if (!$hasMedia && !$hasSrc) {
             $errors[] = sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.image_src_or_media_required', [], 'validators'));
+        } elseif (!$hasMedia && 1 !== preg_match(self::IMAGE_SRC_PATTERN, (string) $data['src'])) {
+            $errors[] = sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.cards_invalid_link', [], 'validators'));
         }
 
         $size = (string) ($data['size'] ?? $this->resolveLegacyImageSize($data));
@@ -252,6 +260,8 @@ final readonly class PageContentValidator
             }
         } elseif (!$this->isNonEmptyString($data['buttonUrl'] ?? null)) {
             $errors[] = sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.block_required_field', ['{field}' => 'buttonUrl'], 'validators'));
+        } elseif (1 !== preg_match(self::BUTTON_LINK_PATTERN, (string) $data['buttonUrl'])) {
+            $errors[] = sprintf('%s: %s', $prefix, $this->translator->trans('page.validation.cards_invalid_link', [], 'validators'));
         }
 
         return $errors;

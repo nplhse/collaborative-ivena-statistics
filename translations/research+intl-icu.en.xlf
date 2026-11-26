@@ -505,6 +505,14 @@
         <source>data_request.query.violation.connection_missing</source>
         <target>The export connection is not set up (RESEARCH_DATABASE_URL), so queries cannot be checked or run.</target>
       </trans-unit>
+      <trans-unit id="Rsc69021C7E" resname="data_request.query.violation.connection_writable">
+        <source>data_request.query.violation.connection_writable</source>
+        <target>The export connection could change data. Set RESEARCH_DATABASE_URL to the read-only user before checking or running queries.</target>
+      </trans-unit>
+      <trans-unit id="RscDAD8ABAE" resname="data_request.query.violation.unicode_escape">
+        <source>data_request.query.violation.unicode_escape</source>
+        <target>Unicode escapes (U&amp;"…", U&amp;'…') are not allowed in export queries.</target>
+      </trans-unit>
       <trans-unit id="Rsc60872DE5" resname="data_request.query.dry_run.title">
         <source>data_request.query.dry_run.title</source>
         <target>Dry run of {date}</target>

@@ -7,6 +7,7 @@ namespace App\User\Infrastructure\Security;
 use App\User\Domain\Entity\User;
 use App\User\UI\Form\ConfirmPasswordType;
 use App\User\UI\Http\DTO\ConfirmPasswordTypeDTO;
+use Scheb\TwoFactorBundle\Security\Authentication\Token\TwoFactorTokenInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,6 +43,10 @@ final class ConfirmPasswordAuthenticator extends AbstractLoginFormAuthenticator
         $token = $this->tokenStorage->getToken();
         if (!$token instanceof TokenInterface) {
             throw new AuthenticationCredentialsNotFoundException('No authenticated user to confirm password for.');
+        }
+        // A sign-in that still waits for its second factor is not confirmed by the password alone (#1689).
+        if ($token instanceof TwoFactorTokenInterface) {
+            throw new AuthenticationCredentialsNotFoundException('The second factor of this sign-in is still missing.');
         }
 
         $form = $this->formFactory->create(ConfirmPasswordType::class);

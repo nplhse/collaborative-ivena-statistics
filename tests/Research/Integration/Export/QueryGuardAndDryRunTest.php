@@ -18,10 +18,14 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Research\Application\Export\QueryViolation;
 use App\Research\Domain\Enum\QueryKind;
+use App\Research\Infrastructure\Export\ExportConnection;
+use App\Research\Infrastructure\Export\ExportRunner;
 use App\Research\Infrastructure\Export\QueryDryRunner;
 use App\Research\Infrastructure\Export\QueryGuard;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
+use Doctrine\Persistence\ManagerRegistry;
+use Psr\Clock\ClockInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
@@ -106,5 +110,16 @@ final class QueryGuardAndDryRunTest extends KernelTestCase
                 AllocationFactory::createOne(['hospital' => $current, 'import' => $import, 'state' => $state, 'dispatchArea' => $dispatchArea]);
             }
         }
+    }
+
+    public function testAWritableConnectionIsRefusedOutsideTheTestEnvironment(): void
+    {
+        // The test environment shares the application user and accepts it (RESEARCH_EXPECT_READ_ONLY=0); production does not.
+        $connection = new ExportConnection(self::getContainer()->get(ManagerRegistry::class), 'configured', null);
+        $clock = self::getContainer()->get(ClockInterface::class);
+
+        self::assertSame(['connection_writable'], array_map(static fn (QueryViolation $violation): string => $violation->code, new QueryGuard($connection)->check(self::BY_LOCATION, QueryKind::Aggregated)));
+        self::assertSame('connection_writable', new QueryDryRunner($connection, $clock)->run(self::BY_LOCATION, QueryKind::Aggregated)->error);
+        self::assertSame('connection_writable', new ExportRunner($connection, $clock)->run([], sys_get_temp_dir())->error);
     }
 }

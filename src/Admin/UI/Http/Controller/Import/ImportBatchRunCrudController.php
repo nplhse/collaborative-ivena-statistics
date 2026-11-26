@@ -78,7 +78,8 @@ final class ImportBatchRunCrudController extends AbstractCrudController
                     JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE,
                 );
 
-                return \is_string($encoded) ? $encoded : '';
+                // formatValue() output is rendered unescaped.
+                return \is_string($encoded) ? htmlspecialchars($encoded, \ENT_QUOTES) : '';
             });
         yield AssociationField::new('items', new TranslatableMessage('admin.import_batch_run.field.items', domain: 'admin'))
             ->onlyOnDetail();

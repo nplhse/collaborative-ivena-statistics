@@ -84,4 +84,29 @@ final class SavedExplorerViewCrudControllerTest extends WebTestCase
         self::assertStringContainsString('Created', $body);
         self::assertStringContainsString('Updated', $body);
     }
+
+    public function testExplorerViewDetailShowsTheTitleInTheConfigAsText(): void
+    {
+        $client = self::createClient();
+        $admin = UserFactory::new()->asAdmin()->create(['username' => 'explorer-xss-'.bin2hex(random_bytes(4))]);
+        $view = new SavedExplorerView(
+            'explorer-xss-'.bin2hex(random_bytes(4)),
+            'Plain title',
+            'allocations',
+            ['metric' => 'count', 'title' => '<b id="injected">fett</b>'],
+            null,
+            false,
+        );
+
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em->persist($view);
+        $em->flush();
+
+        $client->loginUser($admin);
+        $crawler = $client->request(Request::METHOD_GET, '/admin/saved-explorer-view/'.$view->getId());
+
+        self::assertResponseIsSuccessful();
+        self::assertCount(0, $crawler->filter('#injected'));
+        self::assertStringContainsString('<b id=\"injected\">fett<\/b>', $crawler->text());
+    }
 }

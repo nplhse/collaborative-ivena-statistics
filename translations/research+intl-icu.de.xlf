@@ -505,6 +505,14 @@
         <source>data_request.query.violation.connection_missing</source>
         <target>Die Exportverbindung ist nicht eingerichtet (RESEARCH_DATABASE_URL), deshalb lassen sich Abfragen weder prüfen noch ausführen.</target>
       </trans-unit>
+      <trans-unit id="Rsc69021C7E" resname="data_request.query.violation.connection_writable">
+        <source>data_request.query.violation.connection_writable</source>
+        <target>Die Exportverbindung könnte Daten ändern. Bitte RESEARCH_DATABASE_URL auf den Benutzer mit reinem Lesezugriff setzen, bevor Abfragen geprüft oder ausgeführt werden.</target>
+      </trans-unit>
+      <trans-unit id="RscDAD8ABAE" resname="data_request.query.violation.unicode_escape">
+        <source>data_request.query.violation.unicode_escape</source>
+        <target>Unicode-Escapes (U&amp;"…", U&amp;'…') sind in Exportabfragen nicht erlaubt.</target>
+      </trans-unit>
       <trans-unit id="Rsc60872DE5" resname="data_request.query.dry_run.title">
         <source>data_request.query.dry_run.title</source>
         <target>Probelauf vom {date}</target>
