@@ -214,10 +214,22 @@ final class PageControllerTest extends WebTestCase
         $crawler = $client->request(Request::METHOD_GET, '/about-us');
 
         self::assertResponseIsSuccessful();
-        // Sorted by display name (Bert, carla, Erika); anonymous visitors only see usernames, no links or hospitals.
-        self::assertSame(['bert', 'carla', 'erika'], $names($crawler));
+        // Sorted by display name (Bert, carla, Erika). Anonymous visitors see display names, a neutral label
+        // without one, and no usernames, links or hospitals (#1711).
+        self::assertSame(['Bert Beispiel', 'Board Member', 'Erika Muster'], $names($crawler));
         self::assertCount(0, $crawler->filter('[data-testid="board-member"] a'));
         self::assertCount(0, $crawler->filter('[data-testid="board-member-hospitals"]'));
+        self::assertSame(['BB', 'EM'], $crawler->filter('[data-testid="board-member"] [data-avatar="initials"]')->each(static fn (Crawler $a): string => trim($a->text())));
+        $blockHtml = $crawler->filter('[data-testid="board-members"]')->outerHtml();
+        foreach (['erika', 'bert', 'carla'] as $username) {
+            self::assertStringNotContainsString($username, $blockHtml);
+        }
+
+        $client->loginUser(UserFactory::new()->create());
+        $crawler = $client->request(Request::METHOD_GET, '/about-us');
+
+        // Signed in without the participant role: still no usernames.
+        self::assertSame(['Bert Beispiel', 'Board Member', 'Erika Muster'], $names($crawler));
 
         $client->loginUser(UserFactory::new()->asParticipant()->create());
         $crawler = $client->request(Request::METHOD_GET, '/about-us');

@@ -12,6 +12,23 @@ cd <deploy_path>/current
 
 Commands that write data preview by default. Run them without `--apply` first, read the output, then apply. A command that finds nothing to do can be skipped.
 
+## v0.3.1-beta → v0.3.2-beta
+
+Security hotfix: the board members block shows visitors without the participant role display names only, never usernames (#1711). No configuration changes, no migrations and no one-time commands.
+
+### Before the deploy
+
+**Back up** the database and files ([backup-restore.md](backup-restore.md)).
+
+### Deploy
+
+Deploy as usual.
+
+### Check
+
+- `GET /health` reports `ok` and the footer shows `v0.3.2-beta`.
+- Open a page with the board members block in a private window: it shows display names or "Board Member", no usernames.
+
 ## v0.3-beta → v0.3.1-beta
 
 Security hotfix: easycorp/easyadmin-bundle 5.10.4 for the advisories of 2026-11-25. No configuration changes, no migrations and no one-time commands.
