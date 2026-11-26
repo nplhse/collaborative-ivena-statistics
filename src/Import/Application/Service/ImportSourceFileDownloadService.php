@@ -12,6 +12,14 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 final readonly class ImportSourceFileDownloadService
 {
+    /** @var list<string> */
+    private const array DOWNLOAD_MIME_TYPES = [
+        'text/csv',
+        'text/plain',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ];
+
     public function __construct(
         private ImportFileStorage $fileStorage,
     ) {
@@ -40,10 +48,15 @@ final readonly class ImportSourceFileDownloadService
         }
 
         $filename = $this->buildDownloadFilename($import, $storedPath);
-        $mimeType = $import->getFileMimeType() ?? 'text/csv';
+        // The stored type comes from the upload request; only known spreadsheet types are passed on.
+        $mimeType = $import->getFileMimeType();
+        if (!\in_array($mimeType, self::DOWNLOAD_MIME_TYPES, true)) {
+            $mimeType = 'application/octet-stream';
+        }
 
         $response = new BinaryFileResponse($absolutePath);
         $response->headers->set('Content-Type', $mimeType);
+        $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $filename);
 
         return $response;
