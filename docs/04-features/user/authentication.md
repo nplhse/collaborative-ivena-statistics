@@ -71,7 +71,8 @@ Users can protect their account with a six-digit code from an authenticator app 
   token and can only reach `/2fa` (code form, `@User/security/two_factor.html.twig`), `/2fa/check` and `/logout` until
   the code is entered.
 - **Not asked** for remember-me sessions (the cookie is set only after the code), on `/login/confirm`
-  (`SkipOnPasswordConfirmationCondition`) and when an administrator impersonates a user.
+  (`SkipOnPasswordConfirmationCondition`; it never confirms a sign-in that still waits for its code, #1689) and when an
+  administrator impersonates a user.
 - **Wrong codes** count towards `login_throttling` and are logged as `security.login.failure` with
   `InvalidTwoFactorCodeException`. A code is accepted once (`code_reuse_cache`); `leeway: 10` seconds.
 - **Setup:** `/settings/two-factor` (needs `IS_AUTHENTICATED_FULLY`) shows a QR code and the key; the first code
@@ -92,7 +93,9 @@ Users can protect their account with a six-digit code from an authenticator app 
 - **Obligation for administrators:** `app.security.two_factor.required_for_admins` in `config/packages/app.yaml`
   (default `true` since #1567, forced off in dev, demo and test). When on and the feature is available, `RequireTwoFactorListener` sends
   administrators without it to `/settings/two-factor` on every page load (other requests get a 403) and they cannot
-  switch it off. Setup, password confirmation, logout, cookie and language choice stay reachable.
+  switch it off. Setup, password confirmation, logout, cookie and language choice stay reachable. It also checks
+  requests that sign in through the remember-me cookie, and an administrator without it who impersonates a user is
+  sent out of the impersonation first (#1689).
 - **Reset:** administrators reset it for other accounts on the user's detail page in EasyAdmin (POST with CSRF token,
   `IS_AUTHENTICATED_FULLY`); for the last administrator an operator runs `app:user:reset-two-factor <username>`.
   `TwoFactorReset` switches it off, writes the audit intent `user.two_factor.reset_by_admin` or
@@ -121,7 +124,7 @@ page the user asked for. Until then:
 - Only the acceptance page, logout, the language and cookie choice and the CMS pages with the keys `terms`, `imprint`
   and `privacy` are reachable. Page loads are redirected; forms and background requests get a 403.
 - Administrators who impersonate a user, users in the middle of the two-factor login and stateless routes (media files)
-  are not affected.
+  are not affected. Requests that sign in through the remember-me cookie are checked like those with a session (#1689).
 - The terms come before the two-factor obligation: `RequireTwoFactorListener` lets the acceptance page through, so an
   administrator first accepts and then sets up two-factor authentication.
 - `TermsAcceptanceStatus` remembers account and accepted version in the session, so the table is read once per
@@ -153,7 +156,9 @@ first, a username and the email of the same account share one limit. Unknown ide
 
 ## Sessions and re-authentication
 
-- Remember-me lasts 7 days (cookie `REMEMBERME`, with the demo prefix in the demo environment, ADR 023).
+- Remember-me lasts 7 days (cookie `REMEMBERME`, with the demo prefix in the demo environment, ADR 023). Its signature
+  covers `password` and `totpEnabledAt`, so changing the password or switching two-factor authentication on, off or
+  resetting it ends remembered sessions (#1689).
 - Sensitive pages require `IS_AUTHENTICATED_FULLY`. A remembered user is sent to `/login/confirm`
   (`ConfirmPasswordAuthenticator`), which always asks for the password.
 - An expired password (`credentialsExpired`) leads to `app_force_change_password` after sign-in.
@@ -169,5 +174,5 @@ logged. An aggregated view for administrators is planned in #1487.
 `tests/User/Functional/Controller/SecurityControllerTest.php` covers username and email login, the generic errors and
 the shared throttling; `LoginLinkTest` covers the login link (opt-in, same answer for every request, rate limit,
 confirmation page, single use, invalidation, consent); `TwoFactorLoginTest`, `TwoFactorSettingsTest`,
-`TwoFactorObligationAndResetTest` and `ResetTwoFactorCommandTest` cover the second factor; `RememberMeLoginTest` and `ConfirmPasswordControllerTest` cover
+`TwoFactorObligationAndResetTest`, `SignInGatesTest` and `ResetTwoFactorCommandTest` cover the second factor; `RememberMeLoginTest` and `ConfirmPasswordControllerTest` cover
 sessions and re-authentication.
