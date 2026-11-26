@@ -30,6 +30,8 @@ afterwards replaces the old URLs in the content.
   `shared/.env.local` (64 hex characters: `php -r 'echo bin2hex(random_bytes(32)), PHP_EOL;'`) and keep a copy with
   the other secrets ([configuration.md](../06-reference/configuration.md)). Without the key two-factor authentication
   is not offered and the obligation has no effect. Tell the administrators to have an authenticator app at hand.
+- **Data extract requests** need the export connection: set `RESEARCH_DATABASE_URL` in `shared/.env.local` to the
+  read-only user `<account>_ro` (details [below](#data-extract-requests)).
 
 ### Deploy
 
@@ -97,6 +99,29 @@ The top navigation no longer has an "Export" entry (#1633): the export of the ow
 tool "Zuweisungen exportieren" in the Tools category "Daten exportieren", at `/tools/allocation-export`. The old URLs
 under `/hospitals/export/allocations` redirect until v0.4-beta.
 
+#### Data extract requests
+
+Research projects request extracts from the database in the application (#1635,
+[ADR 045](../02-architecture/decisions/045-data-extract-requests.md),
+[feature docs](../04-features/research/README.md)): request, formal check, Board vote, admin-written queries, release
+and a time-limited download. The migrations of this release create the tables; nothing is backfilled.
+
+- **Export connection:** set `RESEARCH_DATABASE_URL` in `shared/.env.local` to the hosting's read-only user, on
+  Uberspace `<account>_ro` with its password from `~/.pgpass` (not the password of the normal user):
+  `postgresql://<account>_ro:<password>@127.0.0.1:5432/<account>?serverVersion=18&charset=utf8`. Without it the queries
+  cannot be checked or run and no export starts; the rest of the feature works. Leave `RESEARCH_EXPECT_READ_ONLY` at
+  its default `1`.
+- **Board:** give the Board members the role "Board member" on their user page in the admin backend. Only they vote;
+  administrators do the formal check and write the queries.
+- **Storage:** Deployer creates the shared directory `shared/var/research/exports` for the archives (seven days each).
+  It holds pseudonymised data and is not part of the backups.
+- **Worker and scheduler:** the worker on `async_priority_low` runs the exports. Two scheduler jobs are new:
+  `research_data_request_deadlines` (every 15 minutes: round deadlines, expired revisions, reminders) and
+  `research_export_cleanup` (daily 04:50: expired releases and downloads, archives).
+- **Notifications:** the new category "Data extract requests" has seven types; "Request submitted" is off by default.
+- **Help and terms:** publish the help article on data extract requests and the terms section on research and data
+  extracts with this release; raise `APP_TERMS_VERSION` when the terms change (see above).
+
 ### Check
 
 ```bash
@@ -114,6 +139,10 @@ redirects to the new URL.
 
 The `two_factor` health check reports `ok` (not `disabled`), and every administrator has two-factor authentication
 switched on (user list in the admin).
+
+The `research_export` health check reports `read_only` (admin dashboard, "Data export connection"). `writable` means
+`RESEARCH_DATABASE_URL` uses a user that can change data: switch to the `_ro` user. `disabled` means the variable is
+empty. The scheduler jobs `research_data_request_deadlines` and `research_export_cleanup` show runs in the job run log.
 
 ## v0.2.5-beta → v0.2.6-beta
 
