@@ -42,7 +42,24 @@ final readonly class ExportConnection
         private ManagerRegistry $registry,
         #[Autowire(env: 'default::RESEARCH_DATABASE_URL')]
         private ?string $url,
+        #[Autowire(env: 'default::RESEARCH_EXPECT_READ_ONLY')]
+        private ?string $expectReadOnly = null,
     ) {
+    }
+
+    /**
+     * Whether checks, dry runs and exports must refuse this connection because its role could change data (#1690). RESEARCH_EXPECT_READ_ONLY=0 accepts a writable connection, for the test environment, which shares the
+     * application user.
+     *
+     * @throws DbalException
+     */
+    public function refusesWriting(Connection $connection): bool
+    {
+        if (\in_array($this->expectReadOnly, ['0', 'false'], true)) {
+            return false;
+        }
+
+        return self::READ_ONLY !== self::inspect($connection);
     }
 
     public function isConfigured(): bool

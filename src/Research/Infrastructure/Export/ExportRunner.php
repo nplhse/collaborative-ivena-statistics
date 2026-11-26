@@ -9,8 +9,10 @@ use App\Research\Application\Export\ExportOutcome;
 use App\Research\Application\Export\ExportRunnerInterface;
 use App\Research\Application\Export\HospitalMinimum;
 use App\Research\Application\Export\PlanInspector;
+use App\Research\Application\Export\QueryViolation;
 use App\Research\Domain\Entity\DataRequestQueryVersion;
 use App\Research\Domain\Enum\QueryKind;
+use App\Shared\Application\Export\CsvFormulaEscaper;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception as DbalException;
 use Psr\Clock\ClockInterface;
@@ -53,6 +55,10 @@ final readonly class ExportRunner implements ExportRunnerInterface
         }
 
         try {
+            if ($this->exportConnection->refusesWriting($connection)) {
+                return new ExportOutcome([], $settings, 0, QueryViolation::CONNECTION_WRITABLE);
+            }
+
             $files = ExportConnection::readOnly($connection, self::TIMEOUT_SECONDS, function (Connection $connection) use ($versions, $directory): array {
                 $files = [];
                 foreach ($versions as $version) {
@@ -88,7 +94,8 @@ final readonly class ExportRunner implements ExportRunnerInterface
         }
 
         try {
-            $result = $connection->executeQuery('SELECT * FROM ('.PlanInspector::normalize($version->getSql()).') AS export_query');
+            // One row more than allowed, so the limit is detected without fetching an unbounded result into memory.
+            $result = $connection->executeQuery('SELECT * FROM ('.PlanInspector::normalize($version->getSql()).') AS export_query LIMIT '.(self::MAX_ROWS + 1));
             $header = [];
             for ($index = 0; $index < $result->columnCount(); ++$index) {
                 $name = $result->getColumnName($index);
@@ -150,8 +157,10 @@ final readonly class ExportRunner implements ExportRunnerInterface
         return match (true) {
             null === $value => '',
             \is_bool($value) => $value ? 'true' : 'false',
+            // Numbers arrive as strings from PDO and stay as they are; other text is protected against formulas (#1690).
+            \is_string($value) => is_numeric($value) ? $value : CsvFormulaEscaper::escape($value),
             \is_scalar($value) => (string) $value,
-            default => (string) json_encode($value, \JSON_THROW_ON_ERROR),
+            default => CsvFormulaEscaper::escape((string) json_encode($value, \JSON_THROW_ON_ERROR)),
         };
     }
 

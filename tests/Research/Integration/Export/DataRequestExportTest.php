@@ -443,4 +443,20 @@ final class DataRequestExportTest extends KernelTestCase
     {
         return self::getContainer()->get(DataRequestReleaseService::class);
     }
+
+    public function testTextCellsAreProtectedAgainstFormulasButNumbersStayNumbers(): void
+    {
+        self::mockTime('2026-12-01 09:00');
+        $this->seedHospitals();
+        $applicant = UserFactory::new()->asParticipant()->create();
+        $admin = UserFactory::new()->asAdmin()->create();
+        $request = $this->approved($applicant, ['cells' => "SELECT '=1+1' AS label, -42 AS delta, count(*) AS allocations, array_agg(DISTINCT a.hospital_id) AS _hospital_ids FROM allocation a"], $admin);
+
+        $release = $this->releases()->release($admin, $request, false);
+        $this->releases()->start($applicant, $release);
+        $run = $this->exportRun($release);
+        $archive = new \PharData($this->releases()->download($applicant, $run));
+
+        self::assertSame("label,delta,allocations\n'=1+1,-42,6\n", file_get_contents($archive['data-request-'.$request->getId().'-release-1/cells.csv']->getPathname()));
+    }
 }
