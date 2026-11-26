@@ -9,9 +9,11 @@ declare(strict_types=1);
  * CI runs it in the job "Prod kernel smoke", which builds the prod container anyway (#1343). Before, a test compiled
  * a prod container inside the database test job, where it was one of the slowest tests.
  *
- * It handles GET /health twice, with SENTRY_CSP_REPORT_URI empty and set, and checks the header only. Without a
- * database (as in that job) the response is a 500, because the cookie consent check reads the database on every
- * request; the logged connection error is expected. Nelmio adds the header to that response as to any other.
+ * It handles GET /data-prep/latest.json twice, with SENTRY_CSP_REPORT_URI empty and set, and checks the header only.
+ * That job has no database, so the request must not need one: the route is stateless (no cookie consent check, no
+ * session) and answers from configuration. Since Symfony 8.1.12 an error response is rendered with the HTML error
+ * page under the CLI SAPI too (CVE-2026-133762), and its footer reads the database, so a route that fails would end
+ * in an uncaught exception instead of a 500. Nelmio adds the header to every response.
  *
  * Locally: APP_ENV=prod APP_DEBUG=0 php bin/check-prod-csp
  */
@@ -35,7 +37,7 @@ foreach (['' => null, $reportUri => $reportUri] as $configured => $expectedRepor
     putenv('SENTRY_CSP_REPORT_URI='.$configured);
 
     $kernel = new Kernel('prod', false);
-    $response = $kernel->handle(Request::create('https://localhost/health'));
+    $response = $kernel->handle(Request::create('https://localhost/data-prep/latest.json'));
     $header = $response->headers->get('Content-Security-Policy-Report-Only');
     $kernel->shutdown();
 
