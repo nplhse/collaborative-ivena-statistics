@@ -79,7 +79,7 @@ composer architecture:analyse
 
 ## CI
 
-The lint workflow runs Deptrac in **report-only** mode (`continue-on-error: true`) per ADR 010. Switch to a failing check once the baseline is small enough.
+Since #1102 the lint workflow and `make check` run `make deptrac-strict`: a violation outside the baseline fails the build. Fix it in the code; if the dependency is intended, add it to a rule (a documented partnership, ADR 007) or to the baseline by hand with the reason (see [Baseline](#baseline)). `make deptrac` prints the same report without failing.
 
 ## References
 

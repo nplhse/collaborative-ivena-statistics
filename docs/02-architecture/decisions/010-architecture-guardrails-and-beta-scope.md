@@ -42,6 +42,15 @@ Do not run both large hotspot refactors in parallel before beta. Further hotspot
 
 Architecture follow-ups for Issue #258 are delivered as **small, single-purpose PRs** (docs/ADRs, Deptrac report-only, one decoupling edge, one hotspot). No big-bang architecture commit.
 
+## Amendment (November 2026, #1102): Deptrac fails CI
+
+The baseline drifted while Deptrac only reported: 115 violations outside the baseline had piled up by November 2026.
+They were fixed in the code where the layering was wrong, allowed as documented partnerships (ADR 007) where the
+dependency is intended across contexts, and added to the baseline by hand with the reason otherwise. Since then
+`make check` and the lint workflow run `make deptrac-strict`, so a new violation outside the baseline fails the build.
+Whether dependencies on the own context's infrastructure (repositories, query classes, voters) should become a rule
+instead of baseline entries is left for a later review.
+
 ## Consequences
 
 **Positive:**

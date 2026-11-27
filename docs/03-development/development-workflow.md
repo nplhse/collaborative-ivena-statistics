@@ -93,7 +93,7 @@ Checks never change source code (they may write caches, compiled containers and 
 |---|---|---|---|
 | `make lint` | Repository, Symfony config and code style checks (groups 1–3 below) | no | — |
 | `make analyse` | PHPStan and Psalm (group 4) | no | — |
-| `make check` | `lint`, `analyse` and the Deptrac report: every check, no tests | no | — |
+| `make check` | `lint`, `analyse` and `deptrac-strict`: every check, no tests | no | — |
 | `make fix` | Swiss Knife, Rector, PHP-CS-Fixer, twig-cs-fixer, Prettier/ESLint | **yes** | — |
 | `make test` | PHPUnit, see [testing.md](testing.md) | no | test database |
 | `make test-unit` / `make test-database` | The two CI test groups via ParaTest | no | test database (only `test-database`) |
@@ -115,7 +115,7 @@ The checks in the order of `make check`:
 | 2 | Symfony config | `lint-yaml`, `lint-container` (deprecations + `lint:container`), `lint-xliff`, `lint-trans`, `lint-templates` (Twig syntax) |
 | 3 | Code style and refactoring | `swiss-knife-check` (`swiss-knife`), `rector-check` (`rector`), `lint-php` (`fix-php`), `lint-twig` (`fix-twig`, twig-cs-fixer), `lint-js` (`fix-js`; also runs the Node tests of the data preparation tool, `npm run test:js`) |
 | 4 | Analysis | `phpstan`, `psalm` |
-| 5 | Architecture | `deptrac`: report only, never fails ([ADR 010](../02-architecture/decisions/010-architecture-guardrails-and-beta-scope.md)); `deptrac-strict` fails on violations outside the baseline |
+| 5 | Architecture | `deptrac-strict`: fails on violations outside the baseline, part of `make check` and CI since #1102 ([ADR 010](../02-architecture/decisions/010-architecture-guardrails-and-beta-scope.md), [deptrac.md](../02-architecture/deptrac.md)); `deptrac` prints the same report without failing |
 
 Every target also runs on its own, for example `make phpstan` or `make lint-templates`. Fix a failing check at its cause; do not regenerate `deptrac.baseline.yaml` or `phpstan-baseline.neon` to make it pass.
 
