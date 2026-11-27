@@ -6,7 +6,7 @@ namespace App\Tests\Statistics\Unit\InsightCompare;
 
 use App\Statistics\Application\InsightCompare\InsightCompareSubjectRequestParser;
 use App\Statistics\Application\Insights\InsightDimensionKey;
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
+use App\Statistics\Application\StatisticsQueryKeys;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 

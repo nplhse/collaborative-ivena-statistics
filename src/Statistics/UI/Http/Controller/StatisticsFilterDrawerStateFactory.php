@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\UI\Http\Controller;
 
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
+use App\Statistics\Application\StatisticsQueryKeys;
 use Symfony\Component\HttpFoundation\Request;
 
 final class StatisticsFilterDrawerStateFactory

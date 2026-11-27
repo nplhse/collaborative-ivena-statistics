@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Tests\Statistics\Unit\Navigation;
 
 use App\Statistics\Application\DTO\StatisticWidgetNavigationTarget;
+use App\Statistics\Application\StatisticsQueryKeys;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;

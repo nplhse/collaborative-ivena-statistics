@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Tests\Statistics\Unit\Benchmarking;
 
 use App\Statistics\Application\Contract\HospitalAccessInterface;
+use App\Statistics\Application\StatisticsQueryKeys;
 use App\Statistics\Benchmarking\Application\BenchmarkDefaultResolver;
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use App\User\Domain\Entity\User;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;

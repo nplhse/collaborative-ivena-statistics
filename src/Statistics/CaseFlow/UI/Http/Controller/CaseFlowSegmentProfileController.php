@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Statistics\CaseFlow\UI\Http\Controller;
 
 use App\Statistics\Application\DTO\StatisticsFilter;
+use App\Statistics\Application\StatisticsQueryKeys;
 use App\Statistics\CaseFlow\Application\CaseFlowCriteriaFactory;
 use App\Statistics\CaseFlow\Application\GeographicSegment\GeographicSegment;
 use App\Statistics\CaseFlow\Application\GeographicSegment\GeographicSegmentCatalogService;
 use App\Statistics\CaseFlow\Application\GeographicSegment\GeographicSegmentProfileDimension;
 use App\Statistics\CaseFlow\Application\GeographicSegment\GeographicSegmentProfileService;
 use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;

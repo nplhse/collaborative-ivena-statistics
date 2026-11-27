@@ -335,8 +335,6 @@ deptrac:
       - App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsResult
     App\Statistics\Application\Cohort\HospitalCohortEligibilityChecker:
       - App\Statistics\Infrastructure\Query\Overview\CountDistinctHospitalsByCohortQuery
-    App\Statistics\Application\ComparisonFilterInputFactory:
-      - App\Statistics\UI\Http\Navigation\StatisticsQueryKeys
     App\Statistics\Application\ComparisonScopeResolver:
       - App\Statistics\Infrastructure\Query\AllocationStatsProjectionScopeQuery
     App\Statistics\Application\HospitalSummaryProvider:
@@ -353,8 +351,6 @@ deptrac:
       - App\Statistics\Infrastructure\Query\InsightCompare\Dto\InsightCompareAggregationResult
       - App\Statistics\Infrastructure\Query\InsightCompare\InsightCompareMetricsQuery
       - App\Statistics\Infrastructure\Query\InsightCompare\InsightCompareSliceQuery
-    App\Statistics\Application\InsightCompare\InsightCompareSubjectRequestParser:
-      - App\Statistics\UI\Http\Navigation\StatisticsQueryKeys
     App\Statistics\Application\IndicationDashboard\DTO\IndicationDashboardResult:
       - App\Statistics\Infrastructure\Query\IndicationDashboard\Dto\IndicationDashboardMetricsRow
     App\Statistics\Application\IndicationDashboard\IndicationDashboardAssembler:
@@ -386,16 +382,12 @@ deptrac:
       - App\Statistics\Infrastructure\Query\Overview\OverviewQueryCriteria
       - App\Statistics\Infrastructure\Query\Overview\OverviewTopEntitiesBatchQuery
       - App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder
-    App\Statistics\Application\StatisticsDrawerFilterFactory:
-      - App\Statistics\UI\Http\Navigation\StatisticsQueryKeys
     App\Statistics\Application\StatisticsFilterFactory:
       - App\Statistics\Infrastructure\Query\Overview\CountDistinctHospitalsForDispatchAreaQuery
       - App\Statistics\Infrastructure\Query\Overview\CountDistinctHospitalsForStateQuery
     App\Statistics\Application\StatisticsScopeResolver:
       - App\Statistics\Infrastructure\Query\Overview\GetDistinctHospitalIdsByCohortQuery
       - App\Statistics\Infrastructure\Query\Overview\GetDistinctHospitalIdsByStateQuery
-    App\Statistics\Application\SummarizedReport\TransportTimeProfile\TransportTimeProfileBuilder:
-      - App\Statistics\UI\Http\Navigation\StatisticsQueryKeys
     App\Statistics\Application\TopDiagnosesQuery:
       - App\Statistics\Infrastructure\Query\ProjectionDiagnosisQuery
       - App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery

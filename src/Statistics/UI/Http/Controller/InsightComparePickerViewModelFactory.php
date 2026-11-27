@@ -6,9 +6,9 @@ namespace App\Statistics\UI\Http\Controller;
 
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\Insights\InsightSubject;
+use App\Statistics\Application\StatisticsQueryKeys;
 use App\Statistics\Benchmarking\UI\Form\BenchmarkSelectionFormDataFactory;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use Symfony\Component\HttpFoundation\Request;
 
 final readonly class InsightComparePickerViewModelFactory

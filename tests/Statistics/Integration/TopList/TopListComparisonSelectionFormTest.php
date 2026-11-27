@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Integration\TopList;
 
+use App\Statistics\Application\StatisticsQueryKeys;
 use App\Statistics\Benchmarking\UI\Form\Data\BenchmarkSelectionSideFormData;
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use App\Tests\Statistics\Support\Benchmarking\EligibleBenchmarkScopeTrait;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;

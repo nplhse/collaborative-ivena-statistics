@@ -11,12 +11,12 @@ use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\IsochroneOriginMap\IsochroneOriginHeatmapAssembler;
 use App\Statistics\Application\Mapping\StatisticsTransportTimeBucketSql;
 use App\Statistics\Application\StatisticsPeriodResolver;
+use App\Statistics\Application\StatisticsQueryKeys;
 use App\Statistics\Application\StatisticsScopeResolver;
 use App\Statistics\Application\StatisticsSourceDataProbe;
 use App\Statistics\Application\SummarizedReport\TransportTimeProfile\Dto\TransportTimeProfileMatrixSection;
 use App\Statistics\Application\SummarizedReport\TransportTimeProfile\Dto\TransportTimeProfileView;
 use App\Statistics\GenericAnalysis\Application\Contract\GenericAnalysisEntityLabelResolverInterface;
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 

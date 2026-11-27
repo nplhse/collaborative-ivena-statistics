@@ -18,6 +18,7 @@ use App\Statistics\Application\Insights\HospitalInsight;
 use App\Statistics\Application\Insights\HospitalInsightSelector;
 use App\Statistics\Application\Overview\OverviewPeriodComparisonService;
 use App\Statistics\Application\StatisticsPeriodResolver;
+use App\Statistics\Application\StatisticsQueryKeys;
 use App\Statistics\Application\StatisticsScopeResolver;
 use App\Statistics\Application\StatisticsSourceDataProbe;
 use App\Statistics\Application\SummarizedReport\Monthly\Dto\MonthlyReportClosedDepartmentView;
@@ -36,7 +37,6 @@ use App\Statistics\ClosedDepartmentAssignments\Infrastructure\Query\Dto\ClosedDe
 use App\Statistics\Infrastructure\Query\Overview\GetOverviewDashboardMetricsQuery;
 use App\Statistics\Infrastructure\Query\Overview\OverviewQueryCriteria;
 use App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery;
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
