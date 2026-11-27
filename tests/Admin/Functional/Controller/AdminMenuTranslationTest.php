@@ -32,6 +32,7 @@ final class AdminMenuTranslationTest extends WebTestCase
         'Import batch items',
         'Explorer views',
         'Cookie consents',
+        'Configuration',
         'Failed messages',
         'Monthly reminders',
     ];
@@ -56,6 +57,8 @@ final class AdminMenuTranslationTest extends WebTestCase
             'Inhalte',
             'Fehlgeschlagene Nachrichten',
             'Monatliche Erinnerungen',
+            'Überwachung',
+            'Konfiguration',
         ] as $label) {
             self::assertStringContainsString($label, $menu);
         }

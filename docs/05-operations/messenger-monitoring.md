@@ -8,8 +8,8 @@ Related: [messenger-workers.md](messenger-workers.md), [health-check.md](health-
 
 | Level | Question | Where to look |
 |-------|----------|---------------|
-| Messenger | Is message handling working? (all messages, counted per hour) | **Admin → System → Messenger** (`/admin/operations/messenger`) |
-| Job | Did the job run, how long, with what result? | **Admin → System → Job runs** (`/admin/job-run`) |
+| Messenger | Is message handling working? (all messages, counted per hour) | **Admin → System → Monitoring → Messenger** (`/admin/operations/messenger`) |
+| Job | Did the job run, how long, with what result? | **Admin → System → Monitoring → Job runs** (`/admin/job-run`) |
 | Domain | What happened to the import, the notification, the reminder? | Import list, notification deliveries, **Monthly reminders** |
 
 Sentry stays the place for exceptions and traces. No level stores message payloads.

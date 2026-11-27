@@ -276,7 +276,7 @@ final class DashboardController extends AbstractDashboardController
     #[\Override]
     public function configureMenuItems(): iterable
     {
-        yield MenuItem::linkToDashboard(new TranslatableMessage('menu.dashboard', domain: 'admin'), 'fa fa-home');
+        yield MenuItem::linkToDashboard(new TranslatableMessage('menu.dashboard', domain: 'admin'), 'fas fa-house');
         yield MenuItem::linkToRoute(new TranslatableMessage('menu.back_to_frontend', domain: 'admin'), 'fas fa-backward-fast', 'app_default');
         yield MenuItem::section(new TranslatableMessage('menu.section.management', domain: 'admin'));
         // Pending hospital assignment requests (#975) show their count on the entry and, collapsed, on the group.
@@ -317,31 +317,34 @@ final class DashboardController extends AbstractDashboardController
         $feedbackMenu->setSubItems([$inboxMenu, $quarantineMenu]);
 
         yield $feedbackMenu;
+        yield MenuItem::linkTo(MonthlyReminderDispatchCrudController::class, new TranslatableMessage('menu.system.monthly_reminders', domain: 'admin'), 'fas fa-envelope');
 
         yield MenuItem::section(new TranslatableMessage('menu.section.data', domain: 'admin'));
-        yield MenuItem::subMenu(new TranslatableMessage('menu.data', domain: 'admin'), 'fas fa-layer-group')->setSubItems([
-            MenuItem::linkTo(AllocationCrudController::class, new TranslatableMessage('menu.data.allocations', domain: 'admin'), 'fas fa-list'),
-            MenuItem::linkTo(AssignmentCrudController::class, new TranslatableMessage('menu.data.assignments', domain: 'admin'), 'fas fa-list'),
-            MenuItem::linkTo(DepartmentCrudController::class, new TranslatableMessage('menu.data.departments', domain: 'admin'), 'fas fa-list'),
-            MenuItem::linkTo(DispatchAreaCrudController::class, new TranslatableMessage('menu.data.dispatch_areas', domain: 'admin'), 'fas fa-list'),
-            MenuItem::linkTo(DistrictCrudController::class, new TranslatableMessage('menu.data.districts', domain: 'admin'), 'fas fa-list'),
-            MenuItem::linkTo(HospitalCrudController::class, new TranslatableMessage('menu.data.hospitals', domain: 'admin'), 'fas fa-list'),
-            MenuItem::linkTo(IndicationNormalizedCrudController::class, new TranslatableMessage('menu.data.indications_normalized', domain: 'admin'), 'fas fa-list'),
-            MenuItem::linkTo(IndicationGroupCrudController::class, new TranslatableMessage('menu.data.indication_groups', domain: 'admin'), 'fas fa-object-group'),
-            MenuItem::linkTo(IndicationRawCrudController::class, new TranslatableMessage('menu.data.indications_raw', domain: 'admin'), 'fas fa-list'),
-            MenuItem::linkTo(InfectionCrudController::class, new TranslatableMessage('menu.data.infections', domain: 'admin'), 'fas fa-list'),
-            MenuItem::linkTo(MciCaseCrudController::class, new TranslatableMessage('menu.data.mci_cases', domain: 'admin'), 'fas fa-list'),
-            MenuItem::linkTo(OccasionCrudController::class, new TranslatableMessage('menu.data.occasions', domain: 'admin'), 'fas fa-list'),
-            MenuItem::linkTo(SecondaryTransportCrudController::class, new TranslatableMessage('menu.data.secondary_transports', domain: 'admin'), 'fas fa-list'),
-            MenuItem::linkTo(SpecialityCrudController::class, new TranslatableMessage('menu.data.specialities', domain: 'admin'), 'fas fa-list'),
-            MenuItem::linkTo(StateCrudController::class, new TranslatableMessage('menu.data.states', domain: 'admin'), 'fas fa-list'),
+        // Order and icons follow the Explore catalog of the application (cases, organisation, structure,
+        // features); the Font Awesome icons match its Tabler icons.
+        yield MenuItem::subMenu(new TranslatableMessage('menu.data', domain: 'admin'), 'fas fa-table-list')->setSubItems([
+            MenuItem::linkTo(AllocationCrudController::class, new TranslatableMessage('menu.data.allocations', domain: 'admin'), 'fas fa-truck-medical'),
+            MenuItem::linkTo(MciCaseCrudController::class, new TranslatableMessage('menu.data.mci_cases', domain: 'admin'), 'fas fa-triangle-exclamation'),
+            MenuItem::linkTo(HospitalCrudController::class, new TranslatableMessage('menu.data.hospitals', domain: 'admin'), 'fas fa-hospital'),
+            MenuItem::linkTo(StateCrudController::class, new TranslatableMessage('menu.data.states', domain: 'admin'), 'fas fa-map'),
+            MenuItem::linkTo(DispatchAreaCrudController::class, new TranslatableMessage('menu.data.dispatch_areas', domain: 'admin'), 'fas fa-location-dot'),
+            MenuItem::linkTo(DistrictCrudController::class, new TranslatableMessage('menu.data.districts', domain: 'admin'), 'fas fa-map-location-dot'),
+            MenuItem::linkTo(SpecialityCrudController::class, new TranslatableMessage('menu.data.specialities', domain: 'admin'), 'fas fa-sitemap'),
+            MenuItem::linkTo(DepartmentCrudController::class, new TranslatableMessage('menu.data.departments', domain: 'admin'), 'fas fa-bed'),
+            MenuItem::linkTo(IndicationNormalizedCrudController::class, new TranslatableMessage('menu.data.indications_normalized', domain: 'admin'), 'fas fa-heart-pulse'),
+            MenuItem::linkTo(IndicationRawCrudController::class, new TranslatableMessage('menu.data.indications_raw', domain: 'admin'), 'fas fa-file-lines'),
+            MenuItem::linkTo(IndicationGroupCrudController::class, new TranslatableMessage('menu.data.indication_groups', domain: 'admin'), 'fas fa-layer-group'),
+            MenuItem::linkTo(AssignmentCrudController::class, new TranslatableMessage('menu.data.assignments', domain: 'admin'), 'fas fa-right-left'),
+            MenuItem::linkTo(InfectionCrudController::class, new TranslatableMessage('menu.data.infections', domain: 'admin'), 'fas fa-virus'),
+            MenuItem::linkTo(OccasionCrudController::class, new TranslatableMessage('menu.data.occasions', domain: 'admin'), 'fas fa-flag'),
+            MenuItem::linkTo(SecondaryTransportCrudController::class, new TranslatableMessage('menu.data.secondary_transports', domain: 'admin'), 'fas fa-helicopter'),
         ]);
         // The ED visit plugin owns these pages; they are linked by route name because no context may use Encounter
         // (deptrac), and only while the plugin is installed (#1300).
         $mtsCatalogItems = array_values(array_filter([
-            'app_admin_dashboard_encounter_mts_diagram_index' => MenuItem::linkToRoute(new TranslatableMessage('menu.data.mts_catalog.diagrams', domain: 'admin'), 'fas fa-sitemap', 'app_admin_dashboard_encounter_mts_diagram_index'),
+            'app_admin_dashboard_encounter_mts_diagram_index' => MenuItem::linkToRoute(new TranslatableMessage('menu.data.mts_catalog.diagrams', domain: 'admin'), 'fas fa-diagram-project', 'app_admin_dashboard_encounter_mts_diagram_index'),
             'app_admin_dashboard_encounter_mts_indicator_index' => MenuItem::linkToRoute(new TranslatableMessage('menu.data.mts_catalog.indicators', domain: 'admin'), 'fas fa-list', 'app_admin_dashboard_encounter_mts_indicator_index'),
-            'app_admin_dashboard_encounter_mts_alias_index' => MenuItem::linkToRoute(new TranslatableMessage('menu.data.mts_catalog.aliases', domain: 'admin'), 'fas fa-right-left', 'app_admin_dashboard_encounter_mts_alias_index'),
+            'app_admin_dashboard_encounter_mts_alias_index' => MenuItem::linkToRoute(new TranslatableMessage('menu.data.mts_catalog.aliases', domain: 'admin'), 'fas fa-clone', 'app_admin_dashboard_encounter_mts_alias_index'),
             'app_admin_dashboard_encounter_mts_assignment_index' => MenuItem::linkToRoute(new TranslatableMessage('menu.data.mts_catalog.assignments', domain: 'admin'), 'fas fa-link', 'app_admin_dashboard_encounter_mts_assignment_index'),
             // Pilot page for administrators and catalog reviewers (ADR 033), outside the back office.
             'app_tools_encounter_plausibility' => MenuItem::linkToRoute(new TranslatableMessage('menu.data.mts_catalog.plausibility', domain: 'admin'), 'fas fa-table-cells', 'app_tools_encounter_plausibility'),
@@ -350,11 +353,11 @@ final class DashboardController extends AbstractDashboardController
             yield MenuItem::subMenu(new TranslatableMessage('menu.data.mts_catalog', domain: 'admin'), 'fas fa-stethoscope')->setSubItems($mtsCatalogItems);
         }
 
-        yield MenuItem::subMenu(new TranslatableMessage('menu.imports', domain: 'admin'), 'fa fa-database')->setSubItems([
-            MenuItem::linkTo(ImportCrudController::class, new TranslatableMessage('menu.imports.imports', domain: 'admin'), 'fa fa-database'),
-            MenuItem::linkTo(ImportRejectCrudController::class, new TranslatableMessage('menu.imports.rejects', domain: 'admin'), 'fas fa-triangle-exclamation'),
+        yield MenuItem::subMenu(new TranslatableMessage('menu.imports', domain: 'admin'), 'fas fa-file-import')->setSubItems([
+            MenuItem::linkTo(ImportCrudController::class, new TranslatableMessage('menu.imports.imports', domain: 'admin'), 'fas fa-database'),
+            MenuItem::linkTo(ImportRejectCrudController::class, new TranslatableMessage('menu.imports.rejects', domain: 'admin'), 'fas fa-ban'),
             // EasyAdmin renders two menu levels only, so the batch pages sit directly in this submenu.
-            MenuItem::linkTo(ImportBatchRunCrudController::class, new TranslatableMessage('menu.imports.batch_runs', domain: 'admin'), 'fas fa-layer-group'),
+            MenuItem::linkTo(ImportBatchRunCrudController::class, new TranslatableMessage('menu.imports.batch_runs', domain: 'admin'), 'fas fa-boxes-stacked'),
             MenuItem::linkTo(ImportBatchRunItemCrudController::class, new TranslatableMessage('menu.imports.batch_items', domain: 'admin'), 'fas fa-list-check'),
         ]);
         yield MenuItem::linkTo(SavedExplorerViewCrudController::class, new TranslatableMessage('menu.explorer_views', domain: 'admin'), 'fas fa-chart-bar');
@@ -376,13 +379,17 @@ final class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToRoute(new TranslatableMessage('usage_analytics.menu.accesses', domain: 'admin'), 'fas fa-chart-column', 'app_admin_dashboard_operations_usage_analytics_accesses');
 
         yield MenuItem::section(new TranslatableMessage('menu.section.system', domain: 'admin'));
+        yield MenuItem::subMenu(new TranslatableMessage('menu.system.monitoring', domain: 'admin'), 'fas fa-wave-square')->setSubItems([
+            MenuItem::linkToRoute(new TranslatableMessage('ops.messenger.menu', domain: 'admin'), 'fas fa-tower-broadcast', 'app_admin_dashboard_operations_messenger'),
+            MenuItem::linkToRoute(new TranslatableMessage('menu.system.failed_messages', domain: 'admin'), 'fas fa-circle-exclamation', 'app_admin_dashboard_operations_failed_messages'),
+            MenuItem::linkTo(JobRunCrudController::class, new TranslatableMessage('admin.job_run.menu', domain: 'admin'), 'fas fa-stopwatch'),
+            MenuItem::linkToRoute(new TranslatableMessage('storage.menu.disk_usage', domain: 'storage'), 'fas fa-hard-drive', 'app_admin_dashboard_operations_storage'),
+        ]);
+        // The audit timeline is the only log page, so it stays a direct entry instead of a submenu of one.
         yield MenuItem::linkToRoute(new TranslatableMessage('audit.timeline.title', domain: 'admin'), 'fas fa-clipboard-list', 'app_admin_dashboard_audit_timeline');
-        yield MenuItem::linkTo(CookieConsentCrudController::class, new TranslatableMessage('menu.system.cookie_consents', domain: 'admin'), 'fas fa-cookie-bite');
-        yield MenuItem::linkToRoute(new TranslatableMessage('storage.menu.disk_usage', domain: 'storage'), 'fas fa-hard-drive', 'app_admin_dashboard_operations_storage');
-        yield MenuItem::linkToRoute(new TranslatableMessage('ops.messenger.menu', domain: 'admin'), 'fas fa-tower-broadcast', 'app_admin_dashboard_operations_messenger');
-        yield MenuItem::linkToRoute(new TranslatableMessage('menu.system.failed_messages', domain: 'admin'), 'fas fa-triangle-exclamation', 'app_admin_dashboard_operations_failed_messages');
-        yield MenuItem::linkToRoute(new TranslatableMessage('navigation.inspector.menu_label', domain: 'admin'), 'fas fa-sitemap', 'app_admin_dashboard_operations_navigation_index');
-        yield MenuItem::linkTo(JobRunCrudController::class, new TranslatableMessage('admin.job_run.menu', domain: 'admin'), 'fas fa-stopwatch');
-        yield MenuItem::linkTo(MonthlyReminderDispatchCrudController::class, new TranslatableMessage('menu.system.monthly_reminders', domain: 'admin'), 'fas fa-envelope');
+        yield MenuItem::subMenu(new TranslatableMessage('menu.system.configuration', domain: 'admin'), 'fas fa-sliders')->setSubItems([
+            MenuItem::linkToRoute(new TranslatableMessage('navigation.inspector.menu_label', domain: 'admin'), 'fas fa-compass', 'app_admin_dashboard_operations_navigation_index'),
+            MenuItem::linkTo(CookieConsentCrudController::class, new TranslatableMessage('menu.system.cookie_consents', domain: 'admin'), 'fas fa-cookie-bite'),
+        ]);
     }
 }

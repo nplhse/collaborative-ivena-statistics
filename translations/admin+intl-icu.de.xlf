@@ -221,6 +221,14 @@
         <source>menu.system.monthly_reminders</source>
         <target>Monatliche Erinnerungen</target>
       </trans-unit>
+      <trans-unit id="menuSystemMonitoringDe" resname="menu.system.monitoring">
+        <source>menu.system.monitoring</source>
+        <target>Überwachung</target>
+      </trans-unit>
+      <trans-unit id="menuSystemConfigurationDe" resname="menu.system.configuration">
+        <source>menu.system.configuration</source>
+        <target>Konfiguration</target>
+      </trans-unit>
       <trans-unit id="bloga001" resname="label.blog.post">
         <source>label.blog.post</source>
         <target>Blogbeitrag</target>

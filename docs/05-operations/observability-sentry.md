@@ -143,7 +143,7 @@ LIMIT 20;
 
 ### Job runs in the admin area
 
-Admins (`ROLE_ADMIN`) find the runs without SQL under **Admin → System → Job runs** (`/admin/job-run`). The list is read-only; nothing in the UI writes `job_run`.
+Admins (`ROLE_ADMIN`) find the runs without SQL under **Admin → System → Monitoring → Job runs** (`/admin/job-run`). The list is read-only; nothing in the UI writes `job_run`.
 
 - **List:** newest first, 50 per page. Columns: start, job, trigger (badge), status (badge), duration, peak memory and exceeded thresholds; attempt, hospital and import are on the detail page. Duration and peak memory can be sorted to find the slowest or largest runs.
 - **Filters:** job, status, trigger, hospital, start time (before, after, between), thresholds exceeded (yes / no), import id and import run id. The hospital filter matches `hospital_id`; closure rebuilds keep their hospitals in `metrics.hospital_ids` and are not found by it.
