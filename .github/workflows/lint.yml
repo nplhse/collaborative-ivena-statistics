@@ -154,9 +154,9 @@ jobs:
               if: ${{ !cancelled() && steps.composer.outcome == 'success' }}
               run: make -s psalm
 
-            - name: Run Deptrac (architecture report, does not fail)
+            - name: Run Deptrac (fails on violations outside the baseline)
               if: ${{ !cancelled() && steps.composer.outcome == 'success' }}
-              run: make -s deptrac
+              run: make -s deptrac-strict
 
             - name: Save analysis caches
               if: ${{ !cancelled() }}

@@ -247,7 +247,7 @@ lint: $(LINT_REPOSITORY) $(LINT_SYMFONY) $(LINT_STYLE) ## Check syntax, formatti
 
 analyse: phpstan psalm ## Run PHPStan and Psalm (changes no code)
 
-check: lint analyse deptrac ## Run all checks without tests, offline (changes no code; make -k lists every failure)
+check: lint analyse deptrac-strict ## Run all checks without tests, offline (changes no code; make -k lists every failure)
 
 fix: swiss-knife rector fix-php fix-twig fix-js ## Apply Swiss Knife, Rector, PHP-CS-Fixer, twig-cs-fixer, Prettier/ESLint (changes code, review the diff)
 
@@ -344,7 +344,7 @@ phpstan: $(PHPSTAN_CONTAINER_XML) ## Run PHPStan
 psalm: ## Run Psalm
 	@$(PSALM) --show-info=true
 
-deptrac: ## Run Deptrac architecture analysis (report only, does not fail, see ADR 010)
+deptrac: ## Run Deptrac architecture analysis (report only, does not fail)
 	-@$(DEPTRAC) analyse --no-progress
 
 deptrac-strict: ## Run Deptrac and fail on violations that are not in the baseline
