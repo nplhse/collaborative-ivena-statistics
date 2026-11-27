@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Integration\Application;
 
+use App\Allocation\Domain\Enum\HospitalPermission;
+use App\Allocation\Domain\HospitalPermissionMask;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
+use App\Allocation\Infrastructure\Factory\HospitalAccessGrantFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Statistics\Application\DTO\StatisticsFilterInput;
 use App\Statistics\Application\StatisticsFilterFactory;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
+use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 
 final class StatisticsFilterFactoryAccessTest extends DatabaseKernelTestCase
@@ -249,6 +253,30 @@ final class StatisticsFilterFactoryAccessTest extends DatabaseKernelTestCase
         self::assertSame('my_hospitals', $filter->scope->value);
     }
 
+    /**
+     * Statistics of a hospital need the STATISTICS permission; VIEW alone is not enough (permission-model.md).
+     */
+    public function testGranteeWithStatisticsPermissionCanUseHospitalScope(): void
+    {
+        [$grantee, $hospitalId] = $this->granteeWith([HospitalPermission::View, HospitalPermission::Statistics]);
+
+        $filter = $this->factory->createFromInput($this->hospitalScopeInput($hospitalId), $grantee);
+
+        self::assertSame('hospital', $filter->scope->value);
+        self::assertSame($hospitalId, $filter->hospitalId);
+    }
+
+    public function testGranteeWithOnlyViewPermissionIsRedirectedToPublic(): void
+    {
+        [$grantee, $hospitalId] = $this->granteeWith([HospitalPermission::View]);
+
+        $filter = $this->factory->createFromInput($this->hospitalScopeInput($hospitalId), $grantee);
+
+        self::assertSame('public', $filter->scope->value);
+        self::assertNull($filter->hospitalId);
+        self::assertTrue($filter->requiresPublicRedirect);
+    }
+
     public function testUnknownScopeTokenFallsBackToPublic(): void
     {
         $filter = $this->factory->createFromInput(
@@ -268,5 +296,33 @@ final class StatisticsFilterFactoryAccessTest extends DatabaseKernelTestCase
         );
 
         self::assertSame('public', $filter->scope->value);
+    }
+
+    /**
+     * A participant without hospitals of their own, granted access to someone else's hospital.
+     *
+     * @param list<HospitalPermission> $permissions
+     *
+     * @return array{User, int}
+     */
+    private function granteeWith(array $permissions): array
+    {
+        $grantee = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        $hospital = HospitalFactory::createOne(['owner' => $owner]);
+        HospitalAccessGrantFactory::createOne([
+            'hospital' => $hospital,
+            'user' => $grantee,
+            'permissions' => HospitalPermissionMask::fromPermissions($permissions),
+        ]);
+
+        return [$grantee, (int) $hospital->getId()];
+    }
+
+    private function hospitalScopeInput(int $hospitalId): StatisticsFilterInput
+    {
+        return new StatisticsFilterInput('hospital', (string) $hospitalId, '', '', '', 'last_12_months', null, null, null, true);
     }
 }

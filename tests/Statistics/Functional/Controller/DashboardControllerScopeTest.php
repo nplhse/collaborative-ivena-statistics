@@ -4,6 +4,13 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Functional\Controller;
 
+use App\Allocation\Domain\Enum\HospitalPermission;
+use App\Allocation\Domain\HospitalPermissionMask;
+use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
+use App\Allocation\Infrastructure\Factory\HospitalAccessGrantFactory;
+use App\Allocation\Infrastructure\Factory\HospitalFactory;
+use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\User\Domain\Factory\UserFactory;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -96,6 +103,33 @@ final class DashboardControllerScopeTest extends DashboardControllerTestCase
         $this->assertResponseStatusCodeSame(302);
         $location = (string) $client->getResponse()->headers->get('Location');
         $this->assertStringContainsString('scope=public', $location);
+    }
+
+    /**
+     * The one HTTP check for hospital statistics access: a grant without STATISTICS must not open the hospital scope.
+     * The permission cases themselves are covered in StatisticsFilterFactoryAccessTest.
+     */
+    public function testHospitalScopeWithoutStatisticsGrantRedirectsToPublic(): void
+    {
+        $client = self::createClient();
+        $client->followRedirects(false);
+        $grantee = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        $hospital = HospitalFactory::createOne(['owner' => UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']])]);
+        HospitalAccessGrantFactory::createOne([
+            'hospital' => $hospital,
+            'user' => $grantee,
+            'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::View]),
+        ]);
+        $client->loginUser($grantee);
+
+        $client->request(Request::METHOD_GET, sprintf('/statistics/?scope=hospital:%d&period=last_12_months', $hospital->getId()));
+
+        $this->assertResponseStatusCodeSame(302);
+        $location = (string) $client->getResponse()->headers->get('Location');
+        $this->assertStringContainsString('scope=public', $location);
+        $this->assertStringNotContainsString('hospital', $location);
     }
 
     public function testScopeSidebarShowsHospitalCohortGroup(): void
