@@ -102,7 +102,7 @@
             <summary class="text-secondary small">{{ 'stats.case_flow.map.notes'|trans({}, 'statistics') }}</summary>
             <div class="text-secondary small mt-1 d-flex flex-column gap-1">
                 {% if showValueModes %}
-                    <p class="mb-0">{{ 'stats.case_flow.map.legend_hint'|trans({}, 'statistics') }}</p>
+                    <p class="mb-0">{{ 'stats.case_flow.map.legend_hint'|trans({min: constant('App\\Statistics\\CaseFlow\\Application\\CaseFlowPrivacyPolicy::MIN_CASES_PER_CELL')}, 'statistics') }}</p>
                 {% endif %}
                 {% if showIsochroneLegend %}
                     <p class="mb-0">{{ 'stats.case_flow.map.estimated_vs_observed'|trans({}, 'statistics') }}</p>

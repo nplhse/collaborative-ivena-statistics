@@ -88,17 +88,17 @@ export function choroplethStyleForFeature(
     };
 }
 
-export function choroplethTooltip(feature, valueByKey, casesLabel, shareLabel) {
+/**
+ * Areas with fewer than 10 cases are not in the payload (#1767), so an area without an entry may have no cases or a
+ * few: both get the same text, which must not tell them apart.
+ */
+export function choroplethTooltip(feature, valueByKey, casesLabel, shareLabel, fewCasesLabel) {
     const key = feature.properties?.key ?? '';
     const entry = valueByKey.get(key);
     const name = feature.properties?.name ?? key;
 
-    if (!entry) {
-        return `${escapeHtml(name)}: n/a`;
-    }
-
-    if (entry.suppressed) {
-        return `${escapeHtml(name)}: suppressed (n &lt; 10)`;
+    if (!entry || entry.suppressed) {
+        return `${escapeHtml(name)}: ${escapeHtml(fewCasesLabel)}`;
     }
 
     const count = formatCaseCount(entry.caseCount) || String(entry.caseCount);

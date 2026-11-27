@@ -2707,7 +2707,7 @@
       </trans-unit>
       <trans-unit id="De1665d389" resname="stats.case_flow.map.legend_hint">
         <source>stats.case_flow.map.legend_hint</source>
-        <target>Graue Bereiche zeigen unterdrückte Werte wegen geringer Fallzahlen.</target>
+        <target>Graue Bereiche: keine oder weniger als {min} Zuweisungen.</target>
       </trans-unit>
       <trans-unit id="De7ed6b683" resname="stats.case_flow.map.mode.absolute">
         <source>stats.case_flow.map.mode.absolute</source>
@@ -6256,6 +6256,10 @@
       <trans-unit id="statsIsoMapDe05" resname="stats.isochrone_origin_map.share">
         <source>stats.isochrone_origin_map.share</source>
         <target>Anteil</target>
+      </trans-unit>
+      <trans-unit id="statsIsoMapDe12" resname="stats.isochrone_origin_map.few_cases">
+        <source>stats.isochrone_origin_map.few_cases</source>
+        <target>keine oder weniger als {min} Zuweisungen</target>
       </trans-unit>
       <trans-unit id="statsIsoMapDe06" resname="stats.isochrone_origin_map.legend.fewer">
         <source>stats.isochrone_origin_map.legend.fewer</source>

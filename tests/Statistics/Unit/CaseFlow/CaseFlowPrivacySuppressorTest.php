@@ -7,6 +7,7 @@ namespace App\Tests\Statistics\Unit\CaseFlow;
 use App\Statistics\Application\Mapping\AllocationStatsHospitalTierProjectionCode;
 use App\Statistics\CaseFlow\Application\CaseFlowPrivacyPolicy;
 use App\Statistics\CaseFlow\Application\CaseFlowPrivacySuppressor;
+use App\Statistics\CaseFlow\Application\DTO\CaseFlowMapFeature;
 use App\Statistics\CaseFlow\Infrastructure\Query\Dto\CaseFlowDestinationPoolRow;
 use App\Statistics\CaseFlow\Infrastructure\Query\Dto\CaseFlowOriginRow;
 use PHPUnit\Framework\TestCase;
@@ -37,7 +38,7 @@ final class CaseFlowPrivacySuppressorTest extends TestCase
         self::assertSame(13, $slices[1]->caseCount);
     }
 
-    public function testBuildMapFeaturesSuppressesSmallCells(): void
+    public function testBuildMapFeaturesLeavesOutSmallCells(): void
     {
         $rows = [
             new CaseFlowOriginRow(1, 'Frankfurt', 50, 10),
@@ -50,13 +51,37 @@ final class CaseFlowPrivacySuppressorTest extends TestCase
             static fn (int $id, string $name): string => strtolower($name),
         );
 
-        self::assertCount(2, $features);
+        self::assertCount(1, $features);
         self::assertFalse($features[0]->suppressed);
         self::assertSame(50, $features[0]->caseCount);
         self::assertSame('frankfurt', $features[0]->geoFeatureKey);
-        self::assertTrue($features[1]->suppressed);
-        self::assertSame(0, $features[1]->caseCount);
-        self::assertSame(0.0, $features[1]->sharePercent);
+        // 50 of 55: the share stays against all origin rows, including the one left out.
+        self::assertSame(90.9, $features[0]->sharePercent);
+    }
+
+    /**
+     * #1767: A = 50, B = 30, C = 4. The origin bar shows "Other" = 4; if the map named C as suppressed, that would
+     * be C's exact count. The map must not mention C at all.
+     */
+    public function testASingleSmallOriginCannotBeMatchedToTheOtherBar(): void
+    {
+        $rows = [
+            new CaseFlowOriginRow(1, 'Kassel', 50, 10),
+            new CaseFlowOriginRow(2, 'Marburg', 30, 5),
+            new CaseFlowOriginRow(3, 'Fulda', 4, 1),
+        ];
+
+        $slices = $this->suppressor->suppressOriginDistribution($rows, 84);
+        $features = $this->suppressor->buildMapFeatures(
+            $rows,
+            84,
+            static fn (int $id, string $name): string => strtolower($name),
+        );
+
+        self::assertSame(CaseFlowPrivacyPolicy::OTHER_ORIGIN_KEY, $slices[2]->originName);
+        self::assertSame(4, $slices[2]->caseCount);
+        self::assertSame(['Kassel', 'Marburg'], array_map(static fn (CaseFlowMapFeature $feature): string => $feature->originName, $features));
+        self::assertNotContains(3, array_map(static fn (CaseFlowMapFeature $feature): int => $feature->dispatchAreaId, $features));
     }
 
     public function testSuppressDestinationPoolsMergesSmallPools(): void

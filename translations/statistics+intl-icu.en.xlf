@@ -3211,7 +3211,7 @@
       </trans-unit>
       <trans-unit id="statsPf24" resname="stats.case_flow.map.legend_hint">
         <source>stats.case_flow.map.legend_hint</source>
-        <target>Gray areas indicate suppressed values due to small case counts.</target>
+        <target>Gray areas: no or fewer than {min} allocations.</target>
       </trans-unit>
       <trans-unit id="statsPf25" resname="stats.case_flow.tier.basic">
         <source>stats.case_flow.tier.basic</source>
@@ -6256,6 +6256,10 @@
       <trans-unit id="statsIsoMap05" resname="stats.isochrone_origin_map.share">
         <source>stats.isochrone_origin_map.share</source>
         <target>Share</target>
+      </trans-unit>
+      <trans-unit id="statsIsoMap12" resname="stats.isochrone_origin_map.few_cases">
+        <source>stats.isochrone_origin_map.few_cases</source>
+        <target>no or fewer than {min} allocations</target>
       </trans-unit>
       <trans-unit id="statsIsoMap06" resname="stats.isochrone_origin_map.legend.fewer">
         <source>stats.isochrone_origin_map.legend.fewer</source>

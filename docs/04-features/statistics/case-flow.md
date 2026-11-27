@@ -52,7 +52,7 @@ Layers (selected per mode):
 
 - **Service:** `CaseFlowDashboardService` orchestrates queries, destination pins, and isochrone assembly
 - **Queries:** `CaseFlowRegionalMetricsQuery`, `CaseFlowDestinationStructureQuery`, `GeographicDestinationHospitalQuery`, …
-- **Privacy:** `CaseFlowPrivacySuppressor` suppresses small-N cells and omits destination pins with n < 10 or without coordinates (grouped by hospital). Dispatch-area maps count omitted inside/outside destinations in the legend without naming them. The chip for origins without a map shape is one sum without origin names; below `MIN_CASES_PER_CELL` it reads "fewer than 10 cases" without count or share.
+- **Privacy:** `CaseFlowPrivacySuppressor` suppresses small-N cells and omits destination pins with n < 10 or without coordinates (grouped by hospital). Dispatch-area maps count omitted inside/outside destinations in the legend without naming them. Origins with n < 10 are left out of the map payload (#1767): their area looks like one without cases, and the tooltip of both reads "no or fewer than 10 allocations". Naming them as suppressed would let the unnamed "Other" bar of the origin distribution, or the share missing from 100 %, be traced back to a single origin. The chip for origins without a map shape is one sum without origin names; below `MIN_CASES_PER_CELL` it reads "fewer than 10 cases" without count or share.
 - **Filters:** Scope, period, and the statistics drawer (`ProjectionDrawerFilterSql`) apply to map and charts together
 
 ## Geographic segment profile
@@ -112,7 +112,7 @@ Not in MVP: department, indication, assignment, transport type, segment-vs-segme
 
 ### Filter chain and privacy
 
-Population is always Scope **AND** Period **AND** Drawer. A selected segment is an extra AND for the profile counts; the reference shares stay on that parent population. There is no all-data fallback. If the drawer already sets `urgency=1`, the overview urgency table is correspondingly degenerate. The picker lists unsuppressed origins (n ≥ 10) and travel bands with count > 0; a click on a suppressed polygon shows the same suppressed empty state as n < 10.
+Population is always Scope **AND** Period **AND** Drawer. A selected segment is an extra AND for the profile counts; the reference shares stay on that parent population. There is no all-data fallback. If the drawer already sets `urgency=1`, the overview urgency table is correspondingly degenerate. The picker lists unsuppressed origins (n ≥ 10) and travel bands with count > 0; an area without map data (no cases or n < 10) cannot be clicked, and a `geo_segment` for such an origin in the URL shows the suppressed empty state.
 
 Share for a dispatch-area origin is against the **catchment** population (assignments to hospitals of that Leitstelle), not against Related KPI totals that include outflow.
 
