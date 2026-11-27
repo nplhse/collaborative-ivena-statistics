@@ -9,6 +9,7 @@ use App\Shared\Application\PublicId\PublicIdBackfillRunControl;
 use App\Shared\Application\PublicId\PublicIdBackfillService;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Uid\Uuid;
 
 final class PublicIdBackfillServiceTest extends TestCase
@@ -23,7 +24,7 @@ final class PublicIdBackfillServiceTest extends TestCase
             default => 0,
         });
 
-        $service = new PublicIdBackfillService($connection);
+        $service = new PublicIdBackfillService($connection, new MockClock());
         $result = $service->run(dryRun: true);
 
         self::assertFalse($result->completed);
@@ -38,7 +39,7 @@ final class PublicIdBackfillServiceTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->method('fetchOne')->willReturn(0);
 
-        $service = new PublicIdBackfillService($connection);
+        $service = new PublicIdBackfillService($connection, new MockClock());
         $expectedCount = \count(PublicIdBackfillService::TABLE_ORDER);
 
         $resultAll = $service->run(dryRun: true, tables: ['all']);
@@ -54,7 +55,7 @@ final class PublicIdBackfillServiceTest extends TestCase
     public function testInvalidTableThrows(): void
     {
         $connection = $this->createMock(Connection::class);
-        $service = new PublicIdBackfillService($connection);
+        $service = new PublicIdBackfillService($connection, new MockClock());
 
         $this->expectException(\InvalidArgumentException::class);
 
@@ -90,7 +91,7 @@ final class PublicIdBackfillServiceTest extends TestCase
         $connection->method('fetchOne')
             ->willReturnCallback(static fn (string $sql): int => str_contains($sql, 'COUNT') ? 0 : 0);
 
-        $service = new PublicIdBackfillService($connection);
+        $service = new PublicIdBackfillService($connection, new MockClock());
         $result = $service->run(tables: ['hospital']);
 
         self::assertTrue($result->completed);
@@ -104,7 +105,7 @@ final class PublicIdBackfillServiceTest extends TestCase
         $connection->method('fetchOne')->willReturn(0);
         $connection->method('fetchFirstColumn')->willReturn([]);
 
-        $service = new PublicIdBackfillService($connection);
+        $service = new PublicIdBackfillService($connection, new MockClock());
         $result = $service->run(dryRun: true, tables: ['allocation', 'hospital']);
 
         self::assertSame(['hospital', 'allocation'], array_keys($result->remainingByTable));
@@ -116,19 +117,23 @@ final class PublicIdBackfillServiceTest extends TestCase
         $control = new PublicIdBackfillRunControl();
         $control->requestStop(\SIGINT);
 
-        $service = new PublicIdBackfillService($connection);
+        $service = new PublicIdBackfillService($connection, new MockClock());
 
         $this->expectException(PublicIdBackfillInterruptedException::class);
 
         $service->run(tables: ['hospital'], runControl: $control);
     }
 
+    /**
+     * Limit 1 s, one batch per row: the first batch takes 1.1 s on the mocked clock, so the run pauses after it.
+     */
     public function testMaxRuntimePausesAndReportsRemainingTables(): void
     {
+        $clock = new MockClock('2026-11-27 10:00:00');
         $connection = $this->createMock(Connection::class);
         $connection->method('fetchFirstColumn')
-            ->willReturnCallback(static function (): array {
-                usleep(1_100_000);
+            ->willReturnCallback(static function () use ($clock): array {
+                $clock->sleep(1.1);
 
                 return [42];
             });
@@ -143,7 +148,7 @@ final class PublicIdBackfillServiceTest extends TestCase
                 default => 0,
             });
 
-        $service = new PublicIdBackfillService($connection);
+        $service = new PublicIdBackfillService($connection, $clock);
         $result = $service->run(tables: ['hospital'], batchSize: 1, maxRuntimeSeconds: 1);
 
         self::assertFalse($result->completed);
@@ -151,6 +156,31 @@ final class PublicIdBackfillServiceTest extends TestCase
         self::assertSame(1, $result->remainingByTable['hospital']);
         self::assertSame(2, $result->remainingByTable['secondary_transport']);
         self::assertSame(5, $result->remainingByTable['allocation']);
+    }
+
+    /**
+     * Limit 1 s, two rows: the first batch takes 0.9 s, below the limit, so the run goes on and finishes the table.
+     */
+    public function testMaxRuntimeDoesNotPauseBelowTheLimit(): void
+    {
+        $clock = new MockClock('2026-11-27 10:00:00');
+        $batches = [[41], []];
+        $connection = $this->createStub(Connection::class);
+        $connection->method('fetchFirstColumn')
+            ->willReturnCallback(static function () use ($clock, &$batches): array {
+                $clock->sleep(0.9);
+
+                return array_shift($batches) ?? [];
+            });
+        $connection->method('executeStatement')->willReturn(1);
+        $connection->method('fetchOne')->willReturn(0);
+
+        $service = new PublicIdBackfillService($connection, $clock);
+        $result = $service->run(tables: ['hospital'], batchSize: 1, maxRuntimeSeconds: 1);
+
+        self::assertTrue($result->completed);
+        self::assertSame(1, $result->updatedByTable['hospital']);
+        self::assertSame(0, $result->remainingByTable['hospital']);
     }
 
     public function testGeneratedUuidsAreValidV4(): void

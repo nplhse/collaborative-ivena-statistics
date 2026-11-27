@@ -10,6 +10,7 @@ use App\Shared\Application\PublicId\PublicIdBackfillService;
 use App\Shared\UI\Console\Command\BackfillPublicIdsCommand;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Console\Tester\CommandTester;
 
 final class BackfillPublicIdsCommandTest extends TestCase
@@ -44,10 +45,11 @@ final class BackfillPublicIdsCommandTest extends TestCase
 
     public function testIncompleteBackfillReturnsMoreWork(): void
     {
+        $clock = new MockClock('2026-11-27 10:00:00');
         $connection = $this->createMock(Connection::class);
         $connection->method('fetchFirstColumn')
-            ->willReturnCallback(static function (): array {
-                usleep(1_100_000);
+            ->willReturnCallback(static function () use ($clock): array {
+                $clock->sleep(1.1);
 
                 return [42];
             });
@@ -55,7 +57,7 @@ final class BackfillPublicIdsCommandTest extends TestCase
         $connection->method('fetchOne')
             ->willReturnCallback(static fn (string $sql): int => str_contains($sql, 'FROM hospital') ? 1 : 0);
 
-        $tester = $this->createCommandTester($connection);
+        $tester = $this->createCommandTester($connection, $clock);
 
         $exitCode = $tester->execute([
             '--table' => ['hospital'],
@@ -70,7 +72,7 @@ final class BackfillPublicIdsCommandTest extends TestCase
     public function testInterruptedBackfillReturnsMoreWork(): void
     {
         $connection = $this->createMock(Connection::class);
-        $command = new BackfillPublicIdsCommand(new PublicIdBackfillService($connection));
+        $command = new BackfillPublicIdsCommand(new PublicIdBackfillService($connection, new MockClock()), new MockClock());
         $connection->method('fetchFirstColumn')->willReturn([10]);
         $connection->method('executeStatement')->willReturnCallback(
             static function () use ($command): int {
@@ -106,7 +108,7 @@ final class BackfillPublicIdsCommandTest extends TestCase
         $connection->method('fetchFirstColumn')->willReturn([]);
         $connection->method('fetchOne')->willReturn(0);
 
-        $command = new BackfillPublicIdsCommand(new PublicIdBackfillService($connection));
+        $command = new BackfillPublicIdsCommand(new PublicIdBackfillService($connection, new MockClock()), new MockClock());
         $tester = new CommandTester($command);
         $tester->execute(['--table' => ['hospital']]);
 
@@ -119,7 +121,7 @@ final class BackfillPublicIdsCommandTest extends TestCase
 
     public function testSubscribedSignalsDependsOnPcntl(): void
     {
-        $command = new BackfillPublicIdsCommand(new PublicIdBackfillService($this->createMock(Connection::class)));
+        $command = new BackfillPublicIdsCommand(new PublicIdBackfillService($this->createMock(Connection::class), new MockClock()), new MockClock());
 
         $signals = $command->getSubscribedSignals();
 
@@ -130,9 +132,9 @@ final class BackfillPublicIdsCommandTest extends TestCase
         }
     }
 
-    private function createCommandTester(Connection $connection): CommandTester
+    private function createCommandTester(Connection $connection, MockClock $clock = new MockClock()): CommandTester
     {
-        return new CommandTester(new BackfillPublicIdsCommand(new PublicIdBackfillService($connection)));
+        return new CommandTester(new BackfillPublicIdsCommand(new PublicIdBackfillService($connection, $clock), $clock));
     }
 
     private function readRunControl(BackfillPublicIdsCommand $command): PublicIdBackfillRunControl
