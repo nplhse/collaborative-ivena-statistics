@@ -67,6 +67,43 @@ final class SentryLogScrubberTest extends TestCase
         self::assertSame('[Filtered]', $attributes['reason']);
     }
 
+    public function testDropsClosureRowRejectLogs(): void
+    {
+        $log = $this->createLog('closure.reject.row_rejected', ['line' => 12, 'department' => 'Kardiologie']);
+
+        self::assertNull($this->scrubber->scrubLog($log));
+    }
+
+    public function testFailedLoginsKeepTheHashButLoseIpAndUserAgent(): void
+    {
+        $log = $this->createLog('security.login.failure', [
+            'username_hash' => 'abc123',
+            'ip' => '192.0.2.7',
+            'user_agent' => 'Mozilla/5.0',
+            'exception' => 'BadCredentialsException',
+        ]);
+
+        $scrubbed = $this->scrubber->scrubLog($log);
+        self::assertInstanceOf(Log::class, $scrubbed);
+
+        $attributes = $scrubbed->attributes()->toSimpleArray();
+        self::assertSame('abc123', $attributes['username_hash']);
+        self::assertSame('[Filtered]', $attributes['ip']);
+        self::assertSame('[Filtered]', $attributes['user_agent']);
+    }
+
+    public function testDatabaseValuesAreRemovedFromBodyAndAttributes(): void
+    {
+        $error = "SQLSTATE[23505]: Unique violation: 7 ERROR:  duplicate key value\nDETAIL:  Key (email)=(someone@example.test) already exists.";
+        $log = $this->createLog('Refresh failed: '.$error, ['message' => $error, 'exception' => 'UniqueConstraintViolationException']);
+
+        $scrubbed = $this->scrubber->scrubLog($log);
+        self::assertInstanceOf(Log::class, $scrubbed);
+
+        self::assertStringNotContainsString('someone@example.test', $scrubbed->getBody());
+        self::assertStringNotContainsString('someone@example.test', (string) $scrubbed->attributes()->toSimpleArray()['message']);
+    }
+
     /**
      * @param array<string, mixed> $attributes
      */

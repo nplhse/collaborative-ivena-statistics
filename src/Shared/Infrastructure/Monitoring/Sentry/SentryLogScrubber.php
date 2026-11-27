@@ -38,6 +38,7 @@ final readonly class SentryLogScrubber
             return null;
         }
 
+        $log->setBody($this->eventScrubber->scrubMessage($log->getBody()));
         $attributes = $log->attributes()->toSimpleArray();
         $scrubbed = $this->jobRunFilter->isJobRunLog($log->getBody())
             ? $this->jobRunFilter->filterLogAttributes($log->getBody(), $attributes)
@@ -58,7 +59,8 @@ final readonly class SentryLogScrubber
     {
         $message = $log->getBody();
 
-        if (str_starts_with($message, 'reject.')) {
+        // One entry per rejected row, with its validation context (#1577): never sent.
+        if (str_starts_with($message, 'reject.') || str_starts_with($message, 'closure.reject.')) {
             return false;
         }
 

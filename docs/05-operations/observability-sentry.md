@@ -117,6 +117,7 @@ Unexpected errors inside voters, permission services, or other authorization log
 | `import.run.retries_exhausted` | yes (allowlisted attributes only) |
 | `reject.row_rejected` | no (local only) |
 | `reject.row_type_unknown` | no (local only) |
+| `closure.reject.*` | no (local only, #1577) |
 
 Per-row reject logs stay in `var/log/import.*.log` or, in production, on stderr (JSON).
 
@@ -277,6 +278,16 @@ Request bodies and email addresses are not sent to Sentry. Log attributes that c
 - **URLs without query string:** query string and fragment are cut from `request.url`, from the `referer` header, from span and trace data (`http.url`, `url.full`) and from the description of `http.*` spans. Statistics filters, tokens or email addresses in a URL never leave the system. The path stays, so ids in the path (for example `/hospitals/7`) are still visible.
 - **Trace and span data allowlist:** on request and console transactions and on error events, `contexts.trace.data` and span data keep only `http.request.method`, `http.response.status_code`, `http.flavor`, `http.url`, `url.full`, `route`, `net.host.name`, `net.host.port`, `db.system`, the cache summary keys, the data keys of the [request spans](#request-spans) and keys starting with `sentry.` or `thread.`; other span keys are replaced by `[Filtered]`. Job runs use the allowlist of their profile instead (see [Background job runs](#background-job-runs)).
 - **Database values:** SQL is sent with placeholders; bound parameters are not collected (`send_default_pii: false`, no `data_collection` option). Prepare spans are not recorded (`ignore_prepare_spans`), only the execution of each statement.
+- **Values in error messages** (#1577): PostgreSQL quotes the offending values in constraint errors, and DBAL keeps
+  them in the exception message (`DETAIL:  Key (email)=(…) already exists.`, `Failing row contains (…)`).
+  `SentryEventScrubber::scrubMessage()` replaces them by `[Filtered]` (column and constraint names stay) and cuts
+  messages to 1,024 characters. It applies to exception values, the event message (a formatted message with
+  parameters is dropped, only the template stays), breadcrumb messages, the body of a log and every string in extra
+  data, contexts and log attributes, so also the `message` key of logs that pass on `$e->getMessage()`.
+- **Exact keys:** `ip`, `client_ip`, `user_agent` and `raw_value` are always filtered. They match only as whole keys,
+  as `ip` would otherwise also hit `recipient_id` or `description`. Failed logins (`security.login.failure`) keep the
+  hashed identifier, so a run against one account stays visible until #1487 replaces the single entries by aggregated
+  counts in the application.
 - **Users:** the numeric user id only, never a username, name, email address or IP address. Error reports always carry it; performance transactions only with the performance consent of the cookie preferences, which is only offered while Sentry is used. Operators who use Sentry should name it as a processor in their privacy policy.
 
 ## Local smoke test
