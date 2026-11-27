@@ -18,7 +18,7 @@ State after #1201. Names are the same on the Tools card, the page title and the 
 | ED match validation / Abgleichsvalidierung Notaufnahme | Matching and review | Allocations, Encounter data | `EncounterToolProvider` (ED visit plugin) | as the match review | `/tools/encounter-review?mode=validation` (hospital list) |
 | PZC × MTS plausibility table / Plausibilitätstabelle PZC × MTS | Matching and review | Indications, Encounter data | `EncounterToolProvider` (ED visit plugin) | `ROLE_ENCOUNTER_BETA` and `ROLE_ENCOUNTER_CATALOG_REVIEWER` | `/tools/encounter-plausibility` |
 | Assignment conflicts / Zuordnungskonflikte | Matching and review | Encounter data | `AssignmentConflictToolProvider` (Encounter) | `ROLE_ENCOUNTER_BETA`; pages also need encounter grant `REVIEW` or `ROLE_ADMIN` | `/tools/encounter-assignments` (hospital list) |
-| Export allocations / Zuweisungen exportieren | Export data | Allocations | `AllocationExportToolProvider` (Allocation) | `ExportVoter::EXPORT` (owner or grant with the export permission, administrators) | `/tools/allocation-export` (old `/hospitals/export/allocations` redirects until v0.4-beta) |
+| Export allocations / Zuweisungen exportieren | Export data | Allocations | `AllocationExportToolProvider` (Allocation) | `ExportVoter::EXPORT` (owner or grant with the export permission, administrators) | `/tools/allocation-export` (old `/hospitals/export/allocations` answers 404 since v0.4-beta) |
 | Encounter data preparation / Aufbereitung der Behandlungsdaten | Data preparation | Encounter data, Imports | `DataPrepToolProvider` (Encounter) | `ROLE_ENCOUNTER_BETA`, only while a schema contributes to the tool | `/tools/data-prep` (guide and download) |
 
 All encounter tools carry the beta badge. Details of each workflow:

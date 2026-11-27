@@ -200,8 +200,8 @@ No new request: the editor added nothing to the Content Security Policy.
 ## Landing page
 
 `/tools/data-prep` (beta role), linked from the Tools landing page; the main navigation entry
-"Tools" stays active on it and its subpages. Until v0.4-beta the old paths under `/encounter/data-prep`
-redirect here (#1160). The pages show no case data and
+"Tools" stays active on it and its subpages. The old paths under `/encounter/data-prep` answer 404 since
+v0.4-beta (#1160). The pages show no case data and
 ask for no codes. Layout: main column (2/3) and side column (1/3).
 
 | Page | Main column | Side column |

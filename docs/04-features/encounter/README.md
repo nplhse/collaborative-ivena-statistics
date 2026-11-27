@@ -1312,11 +1312,9 @@ grants in the hospital edit pages. `EncounterMyHospitalActionProvider` adds "Enc
 analysis of that hospital) to the My Hospitals cards of the hospitals in `AggregateHospitalScope`; a
 hospital with an encounter grant but outside My Hospitals (no hospital permission) gets no button.
 
-Until v0.4-beta every old path under `/encounter…` and its route name (`app_encounter_index`,
-`app_encounter_review_*`, `app_encounter_validation*`, `app_encounter_data_prep*` except `_latest`)
-answers with a permanent redirect (308, query string kept) to its tool route
-(`LegacyEncounterRedirectController`, removal in #1160). `/data-prep/latest.json`
-(`app_encounter_data_prep_latest`) is called by the downloaded tool and stays where it is.
+The old paths under `/encounter…` redirected to their tool routes until v0.3; since v0.4-beta they answer 404
+(#1160). `/data-prep/latest.json` (`app_encounter_data_prep_latest`) is called by the downloaded tool and stays
+where it is.
 
 ## Governance
 
