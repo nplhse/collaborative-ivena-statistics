@@ -73,8 +73,14 @@ Users can protect their account with a six-digit code from an authenticator app 
 - **Not asked** for remember-me sessions (the cookie is set only after the code), on `/login/confirm`
   (`SkipOnPasswordConfirmationCondition`; it never confirms a sign-in that still waits for its code, #1689) and when an
   administrator impersonates a user.
-- **Wrong codes** count towards `login_throttling` and are logged as `security.login.failure` with
-  `InvalidTwoFactorCodeException`. A code is accepted once (`code_reuse_cache`); `leeway: 10` seconds.
+- **Wrong codes** are limited per account by `two_factor_code` (5 per 15 minutes, sliding window,
+  `TwoFactorFailureThrottlingListener`, #1691): every code on `/2fa/check` takes a token before it is checked, and
+  only an accepted code resets the limit. A password login or a login link does not, and a new IP or session does
+  not help either. They also count towards `login_throttling` ([Throttling](#throttling)) and are logged as
+  `security.login.failure` with `InvalidTwoFactorCodeException` (or `TooManyLoginAttemptsAuthenticationException`
+  once a limit is reached). Someone who knows the password can therefore block the code form of that account for
+  up to 15 minutes; the account owner then waits or uses the same limit after it expires. A code is accepted once
+  (`code_reuse_cache`); `leeway: 10` seconds.
 - **Setup:** `/settings/two-factor` (needs `IS_AUTHENTICATED_FULLY`) shows a QR code and the key; the first code
   switches it on. Several devices scan the same QR code; setting it up again creates a new secret. The pending secret
   stays in the session (encrypted) until the code is confirmed.
@@ -153,6 +159,9 @@ confirmed. Sign-in also requires a cookie-consent decision.
 `login_throttling` in `config/packages/security.yaml` allows 5 failed attempts per 15 minutes per IP and identifier
 (Symfony's default limiter, which keys on the `UserBadge` identifier). Because emails are resolved to the username
 first, a username and the email of the same account share one limit. Unknown identifiers are limited on the raw input.
+A successful password login resets this limiter, so two-factor codes have their own per-account limit
+`two_factor_code` ([Two-factor authentication](#two-factor-authentication)). Codes in the two-factor settings use
+`two_factor_settings_code` (5 per 15 minutes per user).
 
 ## Sessions and re-authentication
 

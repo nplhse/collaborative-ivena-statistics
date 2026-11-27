@@ -33,9 +33,15 @@ framework:
             limit: 10
             interval: '1 hour'
         # Codes entered in the two-factor settings (#1357) to switch it off or renew the backup codes, per user.
-        # Codes at sign-in count towards login_throttling in security.yaml.
         two_factor_settings_code:
             policy: fixed_window
+            limit: 5
+            interval: '15 minutes'
+        # Codes entered at sign-in (/2fa/check), per account (#1691, TwoFactorFailureThrottlingListener). Every code
+        # takes a token; only an accepted code resets it, a password login or login link does not. They also count
+        # towards login_throttling (IP + username) in security.yaml, which a password login resets.
+        two_factor_code:
+            policy: sliding_window
             limit: 5
             interval: '15 minutes'
         # Login link requests (#1355): per IP and per entered identifier (hashed). Exceeding either sends no mail

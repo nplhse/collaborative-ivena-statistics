@@ -122,6 +122,78 @@ final class TwoFactorLoginTest extends WebTestCase
         self::assertResponseRedirects('http://localhost/2fa');
     }
 
+    public function testPasswordLoginDoesNotResetTheTwoFactorFailureCount(): void
+    {
+        $this->createUserWithTwoFactor('totp-user');
+        $wrongCode = '000000' === $this->currentCode() ? '111111' : '000000';
+
+        // Three wrong codes, then a fresh password login, which resets login_throttling (IP + username) ...
+        $this->loginWithPassword('totp-user');
+        for ($i = 0; $i < 3; ++$i) {
+            $this->submitCode($wrongCode);
+        }
+
+        $this->client->request(Request::METHOD_GET, '/logout');
+        $this->loginWithPassword('totp-user');
+        $this->followRedirects();
+        self::assertRouteSame('app_two_factor_login');
+
+        // ... but not the per-account limit of two_factor_code: two more wrong codes use up its 5 attempts.
+        for ($i = 0; $i < 2; ++$i) {
+            $this->submitCode($wrongCode);
+        }
+
+        $this->submitCode($this->currentCode());
+        $this->followRedirects();
+        self::assertRouteSame('app_two_factor_login');
+        self::assertSelectorTextContains('[data-test="two-factor-error"]', 'Too many failed login attempts');
+        $this->client->request(Request::METHOD_GET, '/settings/account');
+        self::assertResponseRedirects('http://localhost/2fa');
+    }
+
+    public function testTwoFactorFailureCountIsPerAccountAndNotPerIp(): void
+    {
+        $this->createUserWithTwoFactor('totp-user');
+        $wrongCode = '000000' === $this->currentCode() ? '111111' : '000000';
+
+        $this->loginWithPassword('totp-user');
+        for ($i = 0; $i < 5; ++$i) {
+            $this->submitCode($wrongCode);
+        }
+
+        // A new session from another IP signs in with the password but cannot try further codes for this account.
+        $this->client->restart();
+        $this->client->setServerParameter('REMOTE_ADDR', '192.0.2.44');
+        $this->loginWithPassword('totp-user');
+        $this->submitCode($this->currentCode());
+        $this->followRedirects();
+        self::assertSelectorTextContains('[data-test="two-factor-error"]', 'Too many failed login attempts');
+    }
+
+    public function testAcceptedCodeResetsTheTwoFactorFailureCount(): void
+    {
+        $this->createUserWithTwoFactor('totp-user');
+        $wrongCode = '000000' === $this->currentCode() ? '111111' : '000000';
+
+        $this->loginWithPassword('totp-user');
+        for ($i = 0; $i < 4; ++$i) {
+            $this->submitCode($wrongCode);
+        }
+        $this->submitCode(self::BACKUP_CODE);
+        $this->followRedirects();
+        self::assertSelectorTextContains('#user_name', 'totp-user');
+
+        // After the accepted code the account has its full allowance again: four wrong codes, then the right one.
+        $this->client->request(Request::METHOD_GET, '/logout');
+        $this->loginWithPassword('totp-user');
+        for ($i = 0; $i < 4; ++$i) {
+            $this->submitCode($wrongCode);
+        }
+        $this->submitCode('ZYXWVUTSRQ');
+        $this->followRedirects();
+        self::assertSelectorTextContains('#user_name', 'totp-user');
+    }
+
     public function testCodeOfAnUndecryptableSecretIsRejectedButBackupCodesWork(): void
     {
         $user = $this->createUserWithTwoFactor('totp-user');
