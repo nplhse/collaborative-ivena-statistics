@@ -22,8 +22,8 @@ rendered from code, need `ROLE_PARTICIPANT`, and the MTS glossary shows hospital
    depend on Allocation, and the entries stay reachable when the help is unpublished.
 4. **The pages are not help articles.** They keep their full width, have no Explore sidebar and start their breadcrumb
    with the help start page when it is visible. They are not part of the help search.
-5. **Only released URLs redirect.** `/explore/glossary` and `/explore/glossary/{slug}` redirect permanently until
-   v0.4-beta (#1530). Data catalog and MTS glossary were never released under `/explore`.
+5. **Only released URLs redirect.** `/explore/glossary` and `/explore/glossary/{slug}` redirected permanently until
+   v0.3; the redirects were removed in v0.4-beta (#1530). Data catalog and MTS glossary were never released under `/explore`.
 
 ## Consequences
 

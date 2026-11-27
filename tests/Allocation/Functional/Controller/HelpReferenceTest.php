@@ -74,36 +74,20 @@ final class HelpReferenceTest extends WebTestCase
     }
 
     /**
-     * @return iterable<string, array{string, string}>
-     */
-    public static function releasedGlossaryUrls(): iterable
-    {
-        yield 'hub' => ['/explore/glossary', '/help/glossary'];
-        yield 'page' => ['/explore/glossary/urgency', '/help/glossary/urgency'];
-    }
-
-    #[DataProvider('releasedGlossaryUrls')]
-    public function testReleasedGlossaryUrlsRedirectPermanently(string $old, string $new): void
-    {
-        $client = $this->clientWithRoles(['ROLE_USER', 'ROLE_PARTICIPANT']);
-        $client->request(Request::METHOD_GET, $old);
-
-        self::assertResponseRedirects($new, 301);
-    }
-
-    /**
      * @return iterable<string, array{string}>
      */
-    public static function unreleasedOldUrls(): iterable
+    public static function oldExploreUrls(): iterable
     {
+        yield 'glossary hub' => ['/explore/glossary'];
+        yield 'glossary page' => ['/explore/glossary/urgency'];
         yield 'MTS glossary' => ['/explore/glossary/mts'];
         yield 'MTS diagram' => ['/explore/glossary/mts/diagram/thoraxschmerz'];
         yield 'data catalog' => ['/explore/data-catalog'];
         yield 'catalog object' => ['/explore/data-catalog/allocation'];
     }
 
-    #[DataProvider('unreleasedOldUrls')]
-    public function testUnreleasedOldUrlsHaveNoRedirect(string $url): void
+    #[DataProvider('oldExploreUrls')]
+    public function testOldExploreUrlsHaveNoRedirect(string $url): void
     {
         $client = $this->clientWithRoles(['ROLE_USER', 'ROLE_PARTICIPANT']);
         $client->request(Request::METHOD_GET, $url);

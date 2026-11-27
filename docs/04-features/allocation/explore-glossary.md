@@ -6,7 +6,7 @@ The glossary (`/help/glossary`, `ROLE_PARTICIPANT`) holds definition pages for e
 classifications ([ADR 012](../../02-architecture/decisions/012-explore-data-catalog.md), page type
 "Glossary / definition pages"). Pages are addressed by stable codes, never by database ids, and show
 definitions. The MTS page adds counts for users with encounter access. The released URLs under
-`/explore/glossary` redirect until v0.4-beta (#1530).
+`/explore/glossary` redirected until v0.3 and answer 404 since v0.4-beta (#1530).
 
 ## Pages
 
