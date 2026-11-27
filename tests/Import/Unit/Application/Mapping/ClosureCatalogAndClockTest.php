@@ -51,6 +51,23 @@ final class ClosureCatalogAndClockTest extends TestCase
         new ClosureReasonCatalog()->resolve('Nicht im Katalog');
     }
 
+    public function testCareLevelCatalogNormalizesCaseUmlautsAndSpaces(): void
+    {
+        self::assertSame(ClosureCareLevel::INPATIENT, new ClosureCareLevelCatalog()->resolve('  STATIONÄRE   versorgung '));
+    }
+
+    public function testUnknownCareLevelIsRejectedWithItsCode(): void
+    {
+        try {
+            new ClosureCareLevelCatalog()->resolve('Intensivversorgung');
+            self::fail('An unknown care level must reject the row.');
+        } catch (ImportException $exception) {
+            self::assertSame('UNKNOWN_CARE_LEVEL', $exception->getCodeStr());
+            self::assertSame('careLevel', $exception->getField());
+            self::assertSame('Intensivversorgung', $exception->getValue());
+        }
+    }
+
     public function testFacilityKindRejectsUnknown(): void
     {
         $this->expectException(ImportException::class);
