@@ -67,7 +67,8 @@ Run the deploy from an up-to-date checkout of `main`: Deployer uses the `deploy.
 php -m | grep pcntl                  # without it, stopping the worker interrupts the running message
 systemctl --user cat messenger       # must consume async_priority_high async_priority_low async_mail scheduler_default
 php bin/console messenger:stats --env=prod
-php -m | grep -E '^(phar|zlib)$'     # data extract archives
+php -m | grep -i -E '^(phar|zlib)$'  # data extract archives: lists both Phar and zlib
+php -r 'var_dump(class_exists("PharData"));'  # must print bool(true)
 grep _ro ~/.pgpass                   # read-only database user for data extract requests (Uberspace)
 ```
 
