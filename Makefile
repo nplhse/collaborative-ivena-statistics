@@ -4,7 +4,7 @@
         backup backup-verify backup-restore env-check \
         fixtures trans trans-de trans-all trans-de-all lint analyse check fix ci ci-full cs \
         static-analysis audit security check-phpunit-suite-dirs composer-validate check-conflicts \
-        lint-yaml lint-container check-deprecations lint-xliff lint-trans lint-trans-de \
+        lint-yaml lint-container check-deprecations lint-xliff lint-trans lint-trans-de lint-trans-address \
         lint-templates swiss-knife swiss-knife-check rector rector-check fix-php lint-php fix-twig \
         lint-twig fix-js lint-js phpstan psalm deptrac deptrac-strict deptrac-baseline test testdox \
         demo-install demo-install-guard demo-start demo-consume demo-reminder \
@@ -240,7 +240,7 @@ trans-de-all: ## Extract missing DE translation skeletons for all application do
 # and reports. Only fix changes code. The Linting workflow calls the single targets one step at a time
 # in the order of `make check`. Add a new check as a target first, then to its group and the workflow.
 LINT_REPOSITORY = check-phpunit-suite-dirs composer-validate check-conflicts
-LINT_SYMFONY    = lint-yaml lint-container lint-xliff lint-trans lint-templates
+LINT_SYMFONY    = lint-yaml lint-container lint-xliff lint-trans lint-trans-address lint-templates
 LINT_STYLE      = swiss-knife-check rector-check lint-php lint-twig lint-js
 
 lint: $(LINT_REPOSITORY) $(LINT_SYMFONY) $(LINT_STYLE) ## Check syntax, formatting, configuration and conventions (changes no code)
@@ -293,6 +293,9 @@ lint-trans: ## Lint EN + DE translation contents
 
 lint-trans-de: ## Lint DE translation contents
 	@$(CONSOLE) lint:translations --locale=de
+
+lint-trans-address: ## Fail on informal address (du, dein…) in German translations
+	@./bin/check-german-address
 
 lint-templates: ## Lint Twig template syntax (templates/, src/ and plugin templates)
 	@$(CONSOLE) lint:twig templates src plugins/ed-visit/templates --env=prod

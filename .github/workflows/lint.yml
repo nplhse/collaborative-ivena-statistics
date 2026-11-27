@@ -122,6 +122,10 @@ jobs:
               if: ${{ !cancelled() && steps.composer.outcome == 'success' }}
               run: make -s lint-trans
 
+            - name: Check the formal address in German translations
+              if: ${{ !cancelled() && steps.composer.outcome == 'success' }}
+              run: make -s lint-trans-address
+
             - name: Lint Twig template syntax
               if: ${{ !cancelled() && steps.composer.outcome == 'success' }}
               run: make -s lint-templates
