@@ -34,7 +34,7 @@ Logs, Sentry events, the audit log and EasyAdmin name objects by their internal 
 | Cannot delete a user in EasyAdmin | User still owns a hospital or other rows reference the account | Reassign hospital ownership; disable the account if it must stay; see [admin-entity-coverage.md](admin-entity-coverage.md#user-accounts) |
 | Visitors get "Temporarily unavailable" (503) on every page, `/health` shows `database: unreachable` | PostgreSQL down or `DATABASE_URL` wrong | Start the database or fix the variable. The error page needs no database (#1684): its links come from a copy that normal pages keep, so right after `cache:clear` it shows none |
 | Mail links point to `localhost` | Missing/wrong `APP_URL` in prod | Fix `APP_URL`, clear cache, restart worker |
-| Navigation entry missing, in the wrong place or not marked active | Permission of the entry or a parent, provider order, or a route not claimed by the entry | **Admin → System → Navigation tree**: find the entry and its visibility reason, or check the route; evaluate for the affected user. See [extension-points.md](../02-architecture/extension-points.md#navigation-tree) |
+| Navigation entry missing, in the wrong place or not marked active | Permission of the entry or a parent, provider order, or a route not claimed by the entry | **Admin → System → Configuration → Navigation tree**: find the entry and its visibility reason, or check the route; evaluate for the affected user. See [extension-points.md](../02-architecture/extension-points.md#navigation-tree) |
 
 ## Import-specific diagnosis
 

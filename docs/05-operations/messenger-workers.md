@@ -70,7 +70,7 @@ Trigger an async action in the app (for example an import or statistics rebuild)
 
 ## Monitoring
 
-**Admin → System → Messenger** shows handled, retried and failed messages, the queues and their history; scheduler jobs appear in **Job runs**. A stopped worker makes `/health` unhealthy (`messenger_stalled`) as soon as messages wait longer than 15 minutes. See [messenger-monitoring.md](messenger-monitoring.md).
+**Admin → System → Monitoring → Messenger** shows handled, retried and failed messages, the queues and their history; scheduler jobs appear in **Job runs**. A stopped worker makes `/health` unhealthy (`messenger_stalled`) as soon as messages wait longer than 15 minutes. See [messenger-monitoring.md](messenger-monitoring.md).
 
 ## Logs
 

@@ -93,7 +93,7 @@ Exit code `1` when files or database could not be measured, `2` for invalid opti
 ## Admin backend
 
 - **Dashboard card:** one compact card with a segmented bar of the six categories, total usage, capacity with its source, remaining capacity, level and measurement time (with a hint when it is stale). It reads only the latest measurement and shows an empty state before the first one.
-- **Disk Usage page** (`/admin/operations/storage`, route `app_admin_dashboard_operations_storage`, menu *System → Disk usage*): KPIs, segmented bar, category table with contributors and changes over 7 and 30 days, location table (each previous release, shared directory, leftovers), capacity card that keeps budget and filesystem apart, the largest database tables (read live) and a history chart (7 / 30 / 90 / 365 days, stacked by category, capacity as reference line). Imports and Media link to their admin lists.
+- **Disk Usage page** (`/admin/operations/storage`, route `app_admin_dashboard_operations_storage`, menu *System → Monitoring → Disk usage*): KPIs, segmented bar, category table with contributors and changes over 7 and 30 days, location table (each previous release, shared directory, leftovers), capacity card that keeps budget and filesystem apart, the largest database tables (read live) and a history chart (7 / 30 / 90 / 365 days, stacked by category, capacity as reference line). Imports and Media link to their admin lists.
 - **Health card:** a storage item with usage, capacity, remaining percentage, level and measurement time, linking to the Disk Usage page. See [health-check.md](../../05-operations/health-check.md).
 
 ## Notifications

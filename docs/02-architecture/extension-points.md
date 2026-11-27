@@ -715,7 +715,7 @@ Lets a context add groups and entries to the named menus of `Menu` (`primary`, `
   as for a visitor who is not signed in, renewed at most once an hour); the error pages show that copy, or no
   links when there is none (after `cache:clear`). A change to a menu reaches the error pages within an hour.
 
-**Debugging:** **Admin → System → Navigation tree** (`/admin/operations/navigation`, `ROLE_ADMIN`, #1237)
+**Debugging:** **Admin → System → Configuration → Navigation tree** (`/admin/operations/navigation`, `ROLE_ADMIN`, #1237)
 shows every group and entry of every menu with its provider, label source, route data, permission and
 visibility (with the reason a hidden entry is hidden), the problems the builder would throw for as warnings,
 duplicate route claims, overlapping area prefixes, route names the router does not know, and the GET routes
