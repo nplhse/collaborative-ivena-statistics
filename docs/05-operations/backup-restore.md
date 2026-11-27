@@ -235,21 +235,30 @@ The policy (#1568):
    the new one).
 3. It deletes only directories named like a finished backup (`ivena-stats-full-<UTC time>`). `.partial`
    directories and other files stay.
-4. Any failure ends it with a non-zero exit code, so cron mails the output.
+4. Any failure ends it with a non-zero exit code. Cron mails only what a job prints, not its exit code, so with
+   `--log FILE` the script appends its whole output to the file, prints nothing on success and, on a failure, the
+   last 40 lines of the run: that is what cron mails (#1709).
 
 ```bash
 bin/ops/scheduled-backup.sh --dry-run                  # what it would run and delete
 bin/ops/scheduled-backup.sh --target-dir $HOME/backups # default: BACKUP_DIR, else $HOME/backups
 bin/ops/scheduled-backup.sh --keep 2                   # keep the two newest backups instead of one
+bin/ops/scheduled-backup.sh --log $HOME/backups/backup.log # output into the log, printed only on failure
 ```
 
 Crontab on the server (`crontab -e` on Uberspace; cron is configured there, not in this repository):
 
 ```cron
 MAILTO=<operator mail address>
-# Weekly full backup, Wednesdays 03:00 UTC: create, verify, then delete all older backups
-0 3 * * 3 cd <deploy_path>/current && bin/ops/scheduled-backup.sh --target-dir $HOME/backups >> $HOME/backups/backup.log 2>&1
+# Weekly full backup, Wednesdays 03:00 UTC: create, verify, then delete all older backups; mails only on failure
+0 3 * * 3 <deploy_path>/current/bin/ops/scheduled-backup.sh --log $HOME/backups/backup.log
 ```
+
+Keep the entry on one line when you paste it into `crontab -e`; a line broken by the editor or the terminal fails
+with `bad minute`. Do not redirect the output (`>> … 2>&1`): cron would then have nothing to mail. To check that
+failures arrive, run the script once with a target directory it cannot write to, for example
+`bin/ops/scheduled-backup.sh --target-dir /nonexistent/backups --log /tmp/backup-test.log`, and check the mail of
+the crontab's `MAILTO` (or run it from cron with that option for one night).
 
 Cron runs in the server's time zone; on Uberspace that is UTC. The script uses `bin/console` of the current release
 with `APP_ENV=prod`, and needs `pg_dump` and `pg_restore` on cron's `PATH`.
