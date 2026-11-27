@@ -84,10 +84,36 @@ final class SentryEventScrubber
     ];
 
     /**
+     * Keys filtered only on an exact match (#1577): as a substring, `ip` would also hit `recipient_id` or `description`.
+     *
+     * @var list<string>
+     */
+    private const array EXACT_SENSITIVE_KEYS = [
+        'ip',
+        'client_ip',
+        'user_agent',
+        'raw_value',
+    ];
+
+    /** Exception and log messages are cut here; database errors can be long. */
+    private const int MAX_MESSAGE_LENGTH = 1024;
+
+    /**
      * @param bool $traceDataAllowlisted true when SentryJobRunFilter already reduced trace and span data to a job's allowlist
      */
     public function scrubEvent(Event $event, bool $traceDataAllowlisted = false): Event
     {
+        foreach ($event->getExceptions() as $exception) {
+            $exception->setValue($this->scrubMessage($exception->getValue()));
+        }
+
+        $message = $event->getMessage();
+        if (null !== $message) {
+            // Parameters are the values a formatted message shows: with parameters only the template is kept.
+            $formatted = [] === $event->getMessageParams() ? $event->getMessageFormatted() : null;
+            $event->setMessage($this->scrubMessage($message), [], null === $formatted ? null : $this->scrubMessage($formatted));
+        }
+
         $event->setExtra($this->scrubArray($event->getExtra()));
         $event->setTags($this->scrubTags($event->getTags()));
         $event->setRequest($this->scrubRequest($event->getRequest()));
@@ -249,7 +275,7 @@ final class SentryEventScrubber
             }
 
             if (\is_string($value)) {
-                $scrubbed[$key] = $this->truncate($isUrl ? $this->stripQuery($value) : $value);
+                $scrubbed[$key] = $this->truncate($isUrl ? $this->stripQuery($value) : $this->removeDatabaseValues($value));
 
                 continue;
             }
@@ -269,7 +295,8 @@ final class SentryEventScrubber
         }
 
         $scrubbed = $this->scrubArray($breadcrumb->getMetadata());
-        $next = $breadcrumb;
+        $message = $breadcrumb->getMessage();
+        $next = null === $message ? $breadcrumb : $breadcrumb->withMessage($this->scrubMessage($message));
         foreach ($scrubbed as $name => $value) {
             $next = $next->withMetadata($name, $value);
         }
@@ -277,11 +304,43 @@ final class SentryEventScrubber
         return $next;
     }
 
+    /**
+     * An exception or log message without the values a database error quotes (#1577), cut to a maximum length.
+     */
+    public function scrubMessage(string $message): string
+    {
+        return $this->truncate($this->removeDatabaseValues($message), self::MAX_MESSAGE_LENGTH);
+    }
+
+    /**
+     * PostgreSQL quotes the offending values in constraint errors (`DETAIL:  Key (email)=(…) already exists.`,
+     * `Failing row contains (…)`), and DBAL keeps them in the exception message.
+     */
+    private function removeDatabaseValues(string $text): string
+    {
+        if (!str_contains($text, 'Key (') && !str_contains($text, 'DETAIL:') && !str_contains($text, 'Failing row') && !str_contains($text, 'with params')) {
+            return $text;
+        }
+
+        // The column names stay, they help to find the constraint; the values go.
+        $text = (string) preg_replace('/\bKey \(([^)]*)\)=\((?:[^()]|\([^()]*\))*\)/', 'Key ($1)=([Filtered])', $text);
+        $text = (string) preg_replace('/\bFailing row contains \(.*\)/m', 'Failing row contains ([Filtered])', $text);
+        $text = (string) preg_replace('/ with params \[.*?\](?=:|\s|$)/s', ' with params [Filtered]', $text);
+
+        // Any other DETAIL line may quote values as well.
+        return (string) preg_replace_callback(
+            '/^(\s*DETAIL:)(.*)$/m',
+            static fn (array $match): string => str_contains($match[2], '[Filtered]') ? $match[0] : $match[1].' [Filtered]',
+            $text,
+        );
+    }
+
     private function isSensitiveKey(string|int $key): bool
     {
         $normalized = strtolower((string) $key);
 
-        return array_any(self::SENSITIVE_KEYS, fn (string $sensitiveKey): bool => str_contains($normalized, $sensitiveKey));
+        return \in_array($normalized, self::EXACT_SENSITIVE_KEYS, true)
+            || array_any(self::SENSITIVE_KEYS, fn (string $sensitiveKey): bool => str_contains($normalized, $sensitiveKey));
     }
 
     private function isUrlKey(string|int $key): bool

@@ -198,7 +198,7 @@ A successful password login resets this limiter, so two-factor codes have their 
 
 `LoginFailureSubscriber` logs every failed sign-in as `security.login.failure` to the `security` channel, with a
 SHA-256 hash of the lower-cased identifier, the IP, the user agent and the exception class. Successful sign-ins are not
-logged. An aggregated view for administrators is planned in #1487.
+logged. These entries are not sent to Sentry (#1577); an aggregated view for administrators is planned in #1487.
 
 ## Tests
 

@@ -67,6 +67,47 @@ final class SentryLogScrubberTest extends TestCase
         self::assertSame('[Filtered]', $attributes['reason']);
     }
 
+    public function testDropsClosureRowRejectLogs(): void
+    {
+        $log = $this->createLog('closure.reject.row_rejected', ['line' => 12, 'department' => 'Kardiologie']);
+
+        self::assertNull($this->scrubber->scrubLog($log));
+    }
+
+    public function testFailedSignInsAreNotSent(): void
+    {
+        foreach (['security.login.failure', 'security.login_link.rate_limited'] as $message) {
+            $log = $this->createLog($message, ['username_hash' => 'abc123', 'ip' => '192.0.2.7', 'user_agent' => 'Mozilla/5.0']);
+
+            self::assertNull($this->scrubber->scrubLog($log), $message);
+        }
+    }
+
+    public function testIpAndUserAgentAreFilteredInOtherLogs(): void
+    {
+        $log = $this->createLog('upload.failed', ['ip' => '192.0.2.7', 'user_agent' => 'Mozilla/5.0', 'import_id' => 7]);
+
+        $scrubbed = $this->scrubber->scrubLog($log);
+        self::assertInstanceOf(Log::class, $scrubbed);
+
+        $attributes = $scrubbed->attributes()->toSimpleArray();
+        self::assertSame('[Filtered]', $attributes['ip']);
+        self::assertSame('[Filtered]', $attributes['user_agent']);
+        self::assertSame(7, $attributes['import_id']);
+    }
+
+    public function testDatabaseValuesAreRemovedFromBodyAndAttributes(): void
+    {
+        $error = "SQLSTATE[23505]: Unique violation: 7 ERROR:  duplicate key value\nDETAIL:  Key (email)=(someone@example.test) already exists.";
+        $log = $this->createLog('Refresh failed: '.$error, ['message' => $error, 'exception' => 'UniqueConstraintViolationException']);
+
+        $scrubbed = $this->scrubber->scrubLog($log);
+        self::assertInstanceOf(Log::class, $scrubbed);
+
+        self::assertStringNotContainsString('someone@example.test', $scrubbed->getBody());
+        self::assertStringNotContainsString('someone@example.test', (string) $scrubbed->attributes()->toSimpleArray()['message']);
+    }
+
     /**
      * @param array<string, mixed> $attributes
      */
