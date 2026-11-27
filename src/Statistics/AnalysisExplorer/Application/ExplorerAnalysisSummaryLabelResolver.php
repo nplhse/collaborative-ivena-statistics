@@ -71,7 +71,7 @@ final readonly class ExplorerAnalysisSummaryLabelResolver implements ExplorerAna
                 $locale,
             ),
             StatisticsFilterPeriod::AllTime => $this->translator->trans(
-                'stats.filter.period.all_time',
+                'stats.filter.period.all',
                 [],
                 'statistics',
                 $locale,

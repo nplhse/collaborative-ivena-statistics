@@ -89,7 +89,7 @@ final readonly class BenchmarkComparisonPageViewModelFactory
                 [StatisticsQueryKeys::COMPARISON_PERIOD => StatisticsFilterPeriod::Last12Months->value],
                 StatisticsQueryKeys::REMOVE_COMPARISON_PERIOD_DEPENDENT,
             ),
-            'all_time' => $this->statisticsNavigationUrlBuilder->build(
+            StatisticsFilterPeriod::AllTime->value => $this->statisticsNavigationUrlBuilder->build(
                 $request,
                 $routeName,
                 [StatisticsQueryKeys::COMPARISON_PERIOD => StatisticsFilterPeriod::AllTime->value],
@@ -554,7 +554,7 @@ final readonly class BenchmarkComparisonPageViewModelFactory
 
         return match ($filter->period) {
             StatisticsFilterPeriod::Last12Months => $this->translator->trans('stats.filter.period.last_12_months', [], 'statistics', $locale),
-            StatisticsFilterPeriod::AllTime => $this->translator->trans('stats.filter.period.all_time', [], 'statistics', $locale),
+            StatisticsFilterPeriod::AllTime => $this->translator->trans('stats.filter.period.all', [], 'statistics', $locale),
             StatisticsFilterPeriod::Year => (string) ($filter->referenceYear ?? $now->format('Y')),
             StatisticsFilterPeriod::Quarter => $this->translator->trans(
                 'stats.dashboard.heading.quarter',

@@ -73,7 +73,7 @@ final class DashboardController extends AbstractController
                 return $this->redirectToRoute('app_stats_dashboard', $query);
             }
 
-            // Shared factory defaults to rolling 12 months. Overview keeps all_time
+            // Shared factory defaults to rolling 12 months. Overview keeps all (whole history)
             // when that window has too little monthly coverage, without putting
             // period on the URL.
             if (StatisticsFilterPeriod::AllTime !== $filter->period) {

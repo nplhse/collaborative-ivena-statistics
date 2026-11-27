@@ -52,9 +52,9 @@ final class StatisticsPeriodResolverTest extends TestCase
     public function testPeriodIdentifiers(): void
     {
         self::assertSame('last_12_months', StatisticsFilterPeriod::Last12Months->value);
-        self::assertSame('all_time', StatisticsFilterPeriod::AllTime->value);
-        // Reserved for the whole history once the #1017 transition redirect is removed (v0.4-beta).
-        self::assertNull(StatisticsFilterPeriod::tryFrom('all'));
+        self::assertSame('all', StatisticsFilterPeriod::AllTime->value);
+        // The v0.3 identifier of the whole history; old links are redirected until v1.0 (#1035).
+        self::assertNull(StatisticsFilterPeriod::tryFrom('all_time'));
     }
 
     public function testResolvesQuarterBounds(): void

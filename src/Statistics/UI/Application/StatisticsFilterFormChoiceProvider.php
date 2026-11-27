@@ -225,7 +225,7 @@ final class StatisticsFilterFormChoiceProvider
     public function periodPrimaryChoices(string $locale): array
     {
         return [
-            StatisticsFilterPeriod::AllTime->value => $this->translator->trans('stats.filter.period.all_time', [], 'statistics', $locale),
+            StatisticsFilterPeriod::AllTime->value => $this->translator->trans('stats.filter.period.all', [], 'statistics', $locale),
             StatisticsFilterPeriod::Last12Months->value => $this->translator->trans('stats.filter.period.last_12_months', [], 'statistics', $locale),
             StatisticsFilterPeriod::Year->value => $this->translator->trans('stats.filter.period.year', [], 'statistics', $locale),
             StatisticsFilterPeriod::Quarter->value => $this->translator->trans('stats.filter.period.quarter', [], 'statistics', $locale),

@@ -48,7 +48,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
 
         $initialData = new BenchmarkSelectionFormData(
             new BenchmarkSelectionSideFormData('public', null, 'last_12_months'),
-            new BenchmarkSelectionSideFormData('public', null, 'all_time'),
+            new BenchmarkSelectionSideFormData('public', null, 'all'),
         );
 
         $testComponent = $this->createLiveComponent('BenchmarkSelectionForm', [
@@ -74,7 +74,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
                     ],
                     'comparison' => [
                         'scopeGroup' => 'public',
-                        'period' => 'all_time',
+                        'period' => 'all',
                     ],
                 ],
             ])
@@ -95,7 +95,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
         $testComponent = $this->createLiveComponent('BenchmarkSelectionForm', [
             'initialData' => new BenchmarkSelectionFormData(
                 new BenchmarkSelectionSideFormData('public', null, 'last_12_months'),
-                new BenchmarkSelectionSideFormData('public', null, 'all_time'),
+                new BenchmarkSelectionSideFormData('public', null, 'all'),
             ),
             'preservedQuery' => [],
             'locale' => 'en',
@@ -114,7 +114,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
                     ],
                     'comparison' => [
                         'scopeGroup' => 'public',
-                        'period' => 'all_time',
+                        'period' => 'all',
                     ],
                 ],
             ])
@@ -138,7 +138,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
         $testComponent = $this->createLiveComponent('BenchmarkSelectionForm', [
             'initialData' => new BenchmarkSelectionFormData(
                 new BenchmarkSelectionSideFormData('public', null, 'last_12_months'),
-                new BenchmarkSelectionSideFormData('public', null, 'all_time'),
+                new BenchmarkSelectionSideFormData('public', null, 'all'),
             ),
             'preservedQuery' => ['gender' => 'male'],
             'locale' => 'en',
@@ -178,7 +178,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
 
         $initialData = new BenchmarkSelectionFormData(
             new BenchmarkSelectionSideFormData('public', null, 'last_12_months'),
-            new BenchmarkSelectionSideFormData('public', null, 'all_time'),
+            new BenchmarkSelectionSideFormData('public', null, 'all'),
         );
 
         $testComponent = $this->createLiveComponent('BenchmarkSelectionForm', [
@@ -200,7 +200,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
                     ],
                     'comparison' => [
                         'scopeGroup' => 'public',
-                        'period' => 'all_time',
+                        'period' => 'all',
                     ],
                 ],
             ])
@@ -211,7 +211,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
         self::assertStringContainsString(StatisticsQueryKeys::SCOPE.'=public', $location);
         self::assertStringContainsString(StatisticsQueryKeys::PERIOD.'=year', $location);
         self::assertStringContainsString(StatisticsQueryKeys::COMPARISON_SCOPE.'=public', $location);
-        self::assertStringContainsString(StatisticsQueryKeys::COMPARISON_PERIOD.'=all_time', $location);
+        self::assertMatchesRegularExpression('/[?&]'.StatisticsQueryKeys::COMPARISON_PERIOD.'=all(&|$)/', $location);
     }
 
     public function testApplyRedirectsWithStateScopeQueryParams(): void
@@ -223,7 +223,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
         $testComponent = $this->createLiveComponent('BenchmarkSelectionForm', [
             'initialData' => new BenchmarkSelectionFormData(
                 new BenchmarkSelectionSideFormData('public', null, 'last_12_months'),
-                new BenchmarkSelectionSideFormData('public', null, 'all_time'),
+                new BenchmarkSelectionSideFormData('public', null, 'all'),
             ),
             'preservedQuery' => ['gender' => 'male'],
             'locale' => 'en',
@@ -242,7 +242,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
                     ],
                     'comparison' => [
                         'scopeGroup' => 'public',
-                        'period' => 'all_time',
+                        'period' => 'all',
                     ],
                 ],
             ])
@@ -267,7 +267,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
             'scope' => 'public',
             'period' => 'last_12_months',
             'comparison_scope' => 'public',
-            'comparison_period' => 'all_time',
+            'comparison_period' => 'all',
         ]);
         if ($client->getResponse()->isRedirect()) {
             $client->followRedirect();
@@ -277,7 +277,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
 
         $initialData = new BenchmarkSelectionFormData(
             new BenchmarkSelectionSideFormData('public', null, 'last_12_months'),
-            new BenchmarkSelectionSideFormData('public', null, 'all_time'),
+            new BenchmarkSelectionSideFormData('public', null, 'all'),
         );
 
         $testComponent = $this->createLiveComponent('BenchmarkSelectionForm', [
@@ -319,7 +319,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
                     ],
                     'comparison' => [
                         'scopeGroup' => 'public',
-                        'period' => 'all_time',
+                        'period' => 'all',
                         'scopeDetail' => $stateId,
                         'periodYear' => '2025',
                         'periodQuarter' => '2',
@@ -332,7 +332,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
                         ],
                         'comparison' => [
                             'scopeGroup' => 'public',
-                            'period' => 'all_time',
+                            'period' => 'all',
                         ],
                     ],
                 ],
@@ -356,7 +356,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
         $testComponent = $this->createLiveComponent('BenchmarkSelectionForm', [
             'initialData' => new BenchmarkSelectionFormData(
                 new BenchmarkSelectionSideFormData('public', null, 'last_12_months'),
-                new BenchmarkSelectionSideFormData('public', null, 'all_time'),
+                new BenchmarkSelectionSideFormData('public', null, 'all'),
             ),
             'preservedQuery' => [],
             'locale' => 'en',
@@ -374,7 +374,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
                     ],
                     'comparison' => [
                         'scopeGroup' => 'state',
-                        'period' => 'all_time',
+                        'period' => 'all',
                         'scopeDetail' => '999999',
                     ],
                 ],
@@ -394,7 +394,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
         $testComponent = $this->createLiveComponent('BenchmarkSelectionForm', [
             'initialData' => new BenchmarkSelectionFormData(
                 new BenchmarkSelectionSideFormData('public', null, 'last_12_months'),
-                new BenchmarkSelectionSideFormData('public', null, 'all_time'),
+                new BenchmarkSelectionSideFormData('public', null, 'all'),
             ),
             'preservedQuery' => [],
             'locale' => 'en',
@@ -412,7 +412,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
                     ],
                     'comparison' => [
                         'scopeGroup' => 'public',
-                        'period' => 'all_time',
+                        'period' => 'all',
                     ],
                 ],
             ])

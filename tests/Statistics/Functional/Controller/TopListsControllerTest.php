@@ -774,7 +774,7 @@ final class TopListsControllerTest extends WebTestCase
         $client = $this->createClientAsRoleUser();
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists/top_diagnoses?scope=public&period=all_time',
+            '/statistics/top-lists/top_diagnoses?scope=public&period=all',
         );
 
         $this->assertResponseIsSuccessful();

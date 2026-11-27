@@ -212,7 +212,7 @@ final class ReferenceComparisonEditFormTest extends KernelTestCase
         bool $showPercentOfTotal = false,
     ): ExplorerEditFormData {
         return new ExplorerEditFormData(
-            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'all_time'),
+            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'all'),
             dataSource: 'allocations',
             rowDimension: 'indication',
             rowGrain: 'total',
@@ -237,7 +237,7 @@ final class ReferenceComparisonEditFormTest extends KernelTestCase
     {
         return [
             'referenceComparison' => ($comparison ?? [] !== $referenceHospitals) ? '1' : null,
-            'scopePeriod' => ['scopeGroup' => 'public', 'period' => 'all_time'],
+            'scopePeriod' => ['scopeGroup' => 'public', 'period' => 'all'],
             'dataSource' => 'allocations',
             'rowDimension' => 'indication',
             'rowGrain' => 'total',

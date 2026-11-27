@@ -69,7 +69,7 @@ final readonly class BenchmarkComparisonPeriodViewModelFactory
 
         /** @var list<array{0: StatisticsFilterPeriod, 1: string}> $modes */
         $modes = [
-            [StatisticsFilterPeriod::AllTime, 'stats.filter.period.all_time'],
+            [StatisticsFilterPeriod::AllTime, 'stats.filter.period.all'],
             [StatisticsFilterPeriod::Last12Months, 'stats.filter.period.last_12_months'],
             [StatisticsFilterPeriod::Year, 'stats.filter.period.year'],
             [StatisticsFilterPeriod::Quarter, 'stats.filter.period.quarter'],
@@ -267,7 +267,7 @@ final readonly class BenchmarkComparisonPeriodViewModelFactory
 
         return match ($filter->period) {
             StatisticsFilterPeriod::Last12Months => $this->translator->trans('stats.filter.period.last_12_months', [], 'statistics', $locale),
-            StatisticsFilterPeriod::AllTime => $this->translator->trans('stats.filter.period.all_time', [], 'statistics', $locale),
+            StatisticsFilterPeriod::AllTime => $this->translator->trans('stats.filter.period.all', [], 'statistics', $locale),
             StatisticsFilterPeriod::Year => (string) ($filter->referenceYear ?? $now->format('Y')),
             StatisticsFilterPeriod::Quarter => $this->translator->trans(
                 'stats.dashboard.heading.quarter',
@@ -290,7 +290,7 @@ final readonly class BenchmarkComparisonPeriodViewModelFactory
     {
         return match ($filter->period) {
             StatisticsFilterPeriod::Last12Months => $this->translator->trans('stats.filter.period.last_12_months', [], 'statistics', $locale),
-            StatisticsFilterPeriod::AllTime => $this->translator->trans('stats.filter.period.all_time', [], 'statistics', $locale),
+            StatisticsFilterPeriod::AllTime => $this->translator->trans('stats.filter.period.all', [], 'statistics', $locale),
             StatisticsFilterPeriod::Year => $this->translator->trans('stats.filter.period.year', [], 'statistics', $locale),
             StatisticsFilterPeriod::Quarter => $this->translator->trans('stats.filter.period.quarter', [], 'statistics', $locale),
             StatisticsFilterPeriod::Month => $this->translator->trans('stats.filter.period.month', [], 'statistics', $locale),

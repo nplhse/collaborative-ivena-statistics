@@ -7,7 +7,7 @@ namespace App\Statistics\Application\DTO;
 /**
  * Half-open interval [from, toExclusive) for createdAt filtering.
  *
- * from null: no lower bound (all_time without pseudo-dates).
+ * from null: no lower bound (period `all`, whole history, without pseudo-dates).
  * toExclusive null: open-ended upper bound (rolling window style).
  */
 final readonly class StatisticsPeriodBounds

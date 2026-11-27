@@ -233,7 +233,7 @@ final class ExplorerAnalysisSummaryLabelResolverTest extends TestCase
     {
         $resolver = $this->resolver([
             'stats.filter.period.last_12_months' => 'Last 12 months',
-            'stats.filter.period.all_time' => 'All time',
+            'stats.filter.period.all' => 'All time',
             'stats.dashboard.heading.quarter' => 'Q{quarter} {year}',
         ]);
 

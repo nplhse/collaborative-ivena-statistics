@@ -25,7 +25,7 @@ final class BenchmarkDefaultResolverTest extends TestCase
         self::assertSame('public', $payload['query']['scope']);
         self::assertSame('last_12_months', $payload['query']['period']);
         self::assertSame('public', $payload['query'][StatisticsQueryKeys::COMPARISON_SCOPE]);
-        self::assertSame('all_time', $payload['query'][StatisticsQueryKeys::COMPARISON_PERIOD]);
+        self::assertSame('all', $payload['query'][StatisticsQueryKeys::COMPARISON_PERIOD]);
     }
 
     public function testRedirectsToMyHospitalsAndHospitalCohortForParticipant(): void
@@ -43,7 +43,7 @@ final class BenchmarkDefaultResolverTest extends TestCase
         self::assertSame('my_hospitals', $payload['query']['scope']);
         self::assertSame('last_12_months', $payload['query']['period']);
         self::assertSame('hospital_cohort', $payload['query'][StatisticsQueryKeys::COMPARISON_SCOPE]);
-        self::assertSame('all_time', $payload['query'][StatisticsQueryKeys::COMPARISON_PERIOD]);
+        self::assertSame('all', $payload['query'][StatisticsQueryKeys::COMPARISON_PERIOD]);
     }
 
     public function testDoesNotRedirectWhenComparisonScopePresent(): void

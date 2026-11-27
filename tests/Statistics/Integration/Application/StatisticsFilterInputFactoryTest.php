@@ -60,9 +60,9 @@ final class StatisticsFilterInputFactoryTest extends DatabaseKernelTestCase
     public function testExplicitAllTimePeriodIsPreserved(): void
     {
         $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
-        $input = $this->factory->fromQuery($this->queryBag(['period' => 'all_time']), $user);
+        $input = $this->factory->fromQuery($this->queryBag(['period' => 'all']), $user);
 
-        self::assertSame('all_time', $input->period);
+        self::assertSame('all', $input->period);
     }
 
     public function testAdminCanExplicitlySelectMyHospitalsScope(): void

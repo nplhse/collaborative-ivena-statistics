@@ -27,7 +27,7 @@ final class TimeSeriesGrainResolver
     /**
      * Refines an explicit time-axis grain when it would collapse to a single period-sized bucket.
      *
-     * Finer grains (e.g. week within a year) are left unchanged. Open periods (`last_12_months`, `all_time`)
+     * Finer grains (e.g. week within a year) are left unchanged. Open periods (`last_12_months`, `all`)
      * never clamp, so views such as allocations-by-year keep yearly buckets.
      */
     public static function clampGrainValue(StatisticsFilterPeriod $period, string $grain): string

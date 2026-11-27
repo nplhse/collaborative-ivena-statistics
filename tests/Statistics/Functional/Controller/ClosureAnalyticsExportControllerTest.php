@@ -32,7 +32,7 @@ final class ClosureAnalyticsExportControllerTest extends WebTestCase
     public function testExportRequiresClosureBetaRole(): void
     {
         $client = $this->createClientAsRoleUser();
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/export.csv?scope=public&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/export.csv?scope=public&period=all');
 
         $this->assertResponseStatusCodeSame(403);
     }

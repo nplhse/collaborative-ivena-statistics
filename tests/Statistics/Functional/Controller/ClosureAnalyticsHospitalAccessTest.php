@@ -37,13 +37,13 @@ final class ClosureAnalyticsHospitalAccessTest extends WebTestCase
         $own = $this->seedClosure($owner, 'Own Closure Hospital', 'own-group');
         $foreign = $this->seedClosure($other, 'Foreign Closure Hospital', 'foreign-group');
 
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all');
         $this->assertResponseIsSuccessful();
         self::assertStringContainsString('scope=hospital', (string) $client->getRequest()->getUri());
         self::assertStringContainsString('hospital='.$own['hospitalId'], (string) $client->getRequest()->getUri());
         $this->assertSelectorTextContains('[data-testid="stats-closure-breakdowns"]', 'Own Closure Hospital');
         $this->assertSelectorTextNotContains('body', 'Foreign Closure Hospital');
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/duration?scope=public&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/duration?scope=public&period=all');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-closure-tab-duration"].active');
         $this->assertSelectorTextContains('[data-testid="stats-closure-duration-median"]', '2 h');
@@ -70,7 +70,7 @@ final class ClosureAnalyticsHospitalAccessTest extends WebTestCase
         $this->assertSelectorTextNotContains('body', 'Foreign Closure Hospital');
 
         $client->request(Request::METHOD_GET, sprintf(
-            '/statistics/closure-analytics?scope=my_hospitals&closureHospitals[]=%d&closureHospitals[]=%d&closureHospitalsSubmitted=1&period=all_time',
+            '/statistics/closure-analytics?scope=my_hospitals&closureHospitals[]=%d&closureHospitals[]=%d&closureHospitalsSubmitted=1&period=all',
             $own['hospitalId'],
             $foreign['hospitalId'],
         ));
@@ -78,7 +78,7 @@ final class ClosureAnalyticsHospitalAccessTest extends WebTestCase
         $this->assertSelectorTextContains('[data-testid="stats-closure-breakdowns"]', 'Own Closure Hospital');
         $this->assertSelectorTextNotContains('body', 'Foreign Closure Hospital');
         $client->request(Request::METHOD_GET, sprintf(
-            '/statistics/closure-analytics/duration?scope=my_hospitals&closureHospitals[]=%d&closureHospitals[]=%d&closureHospitalsSubmitted=1&period=all_time',
+            '/statistics/closure-analytics/duration?scope=my_hospitals&closureHospitals[]=%d&closureHospitals[]=%d&closureHospitalsSubmitted=1&period=all',
             $own['hospitalId'],
             $foreign['hospitalId'],
         ));
@@ -86,7 +86,7 @@ final class ClosureAnalyticsHospitalAccessTest extends WebTestCase
         $this->assertSelectorTextContains('[data-testid="stats-closure-duration-median"]', '2 h');
         $this->assertSelectorTextNotContains('[data-testid="stats-closure-duration-load"]', 'Foreign Closure Hospital');
 
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=my_hospitals&closureHospitalsSubmitted=1&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=my_hospitals&closureHospitalsSubmitted=1&period=all');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-closure-empty"]');
         $this->assertSelectorTextNotContains('body', 'Foreign Closure Hospital');
@@ -95,21 +95,21 @@ final class ClosureAnalyticsHospitalAccessTest extends WebTestCase
         $this->assertResponseStatusCodeSame(404);
         $client->request(Request::METHOD_GET, '/statistics/closure-analytics/events/'.$foreign['eventId']);
         $this->assertResponseStatusCodeSame(404);
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/details?scope=public&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/details?scope=public&period=all');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextNotContains('body', 'Foreign Closure Hospital');
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/timeline/frame?scope=public&period=all_time&timeline_grain=year');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/timeline/frame?scope=public&period=all&timeline_grain=year');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('[data-testid="stats-closure-duration-pauses"]');
         $this->assertSelectorTextNotContains('body', 'Foreign Closure Hospital');
 
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/export.csv?scope=public&period=all_time&columns=hospital');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/export.csv?scope=public&period=all&columns=hospital');
         $this->assertResponseIsSuccessful();
         $csv = (string) $client->getInternalResponse()->getContent();
         self::assertStringContainsString('Own Closure Hospital', $csv);
         self::assertStringNotContainsString('Foreign Closure Hospital', $csv);
 
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/export.csv?scope=hospital&hospital='.$foreign['hospitalId'].'&period=all_time&columns=hospital');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/export.csv?scope=hospital&hospital='.$foreign['hospitalId'].'&period=all&columns=hospital');
         $this->assertResponseIsSuccessful();
         self::assertStringNotContainsString('Foreign Closure Hospital', (string) $client->getInternalResponse()->getContent());
     }
@@ -121,7 +121,7 @@ final class ClosureAnalyticsHospitalAccessTest extends WebTestCase
         $first = $this->seedClosure($owner, 'Closure Hospital A', 'group-a');
         $second = $this->seedClosure($owner, 'Closure Hospital B', 'group-b');
 
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=my_hospitals&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=my_hospitals&period=all');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('body', 'Closure Hospital A');
         $this->assertSelectorTextContains('body', 'Closure Hospital B');
@@ -134,13 +134,13 @@ final class ClosureAnalyticsHospitalAccessTest extends WebTestCase
         $this->assertSelectorNotExists('[data-testid="stats-analysis-context-hospitals"][multiple]');
         $this->assertSelectorExists('[data-testid="stats-analysis-context-period"]');
 
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=hospital&hospital='.$first['hospitalId'].'&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=hospital&hospital='.$first['hospitalId'].'&period=all');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('body', 'Closure Hospital A');
         $this->assertSelectorTextNotContains('[data-testid="stats-closure-breakdowns"]', 'Closure Hospital B');
 
         $client->request(Request::METHOD_GET, sprintf(
-            '/statistics/closure-analytics?scope=my_hospitals&closureHospitals[]=%d&closureHospitals[]=%d&closureHospitalsSubmitted=1&period=all_time',
+            '/statistics/closure-analytics?scope=my_hospitals&closureHospitals[]=%d&closureHospitals[]=%d&closureHospitalsSubmitted=1&period=all',
             $first['hospitalId'],
             $second['hospitalId'],
         ));
@@ -156,18 +156,18 @@ final class ClosureAnalyticsHospitalAccessTest extends WebTestCase
         $other = UserFactory::createOne(['roles' => [UserRole::USER, UserRole::PARTICIPANT]]);
         $this->seedClosure($other, 'Hidden Closure Hospital', 'hidden-group');
 
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-closure-no-hospital-access"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-context-no-hospitals"]');
         $this->assertSelectorTextNotContains('body', 'Hidden Closure Hospital');
 
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/timeline?scope=public&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/timeline?scope=public&period=all');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-closure-no-hospital-access"]');
         $this->assertSelectorTextNotContains('body', 'Hidden Closure Hospital');
 
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/events?scope=public&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/events?scope=public&period=all');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-closure-no-hospital-access"]');
         $this->assertSelectorTextNotContains('body', 'Hidden Closure Hospital');
@@ -177,9 +177,9 @@ final class ClosureAnalyticsHospitalAccessTest extends WebTestCase
     {
         $client = self::createClient();
         $this->login($client, [UserRole::USER]);
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all');
         $this->assertResponseStatusCodeSame(403);
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/export.csv?scope=public&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/export.csv?scope=public&period=all');
         $this->assertResponseStatusCodeSame(403);
 
         $owner = UserFactory::createOne(['roles' => [UserRole::USER, UserRole::PARTICIPANT]]);
@@ -187,7 +187,7 @@ final class ClosureAnalyticsHospitalAccessTest extends WebTestCase
         $second = $this->seedClosure($owner, 'Admin Visible Hospital B', 'admin-b');
         $this->login($client, [UserRole::USER, UserRole::ADMIN]);
 
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all');
         $this->assertResponseIsSuccessful();
         self::assertStringContainsString('scope=my_hospitals', (string) $client->getRequest()->getUri());
         $this->assertSelectorTextContains('body', 'Admin Visible Hospital A');
@@ -198,11 +198,11 @@ final class ClosureAnalyticsHospitalAccessTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-analysis-context-hospitals"] option[value="hospital:'.$second['hospitalId'].'"]');
         $this->assertSelectorNotExists('[data-testid="stats-analysis-context-scope-group"] option[value="public"]');
 
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=hospital&hospital='.$second['hospitalId'].'&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=hospital&hospital='.$second['hospitalId'].'&period=all');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('body', 'Admin Visible Hospital B');
 
-        $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-analysis-context-scope-group"] option[value="public"]');
         self::assertNotSame($first['hospitalId'], $second['hospitalId']);

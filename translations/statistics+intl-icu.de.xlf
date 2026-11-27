@@ -3281,8 +3281,8 @@
         <source>stats.filter.period.last_12_months</source>
         <target>Letzte 12 Monate</target>
       </trans-unit>
-      <trans-unit id="De1c3d21e5" resname="stats.filter.period.all_time">
-        <source>stats.filter.period.all_time</source>
+      <trans-unit id="De1c3d21e5" resname="stats.filter.period.all">
+        <source>stats.filter.period.all</source>
         <target>Gesamter Zeitraum</target>
       </trans-unit>
       <trans-unit id="De09fa11b7" resname="stats.filter.period.month">
