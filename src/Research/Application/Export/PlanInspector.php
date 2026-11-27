@@ -221,12 +221,8 @@ final class PlanInspector
     {
         // String literals are data, not references.
         $expression = (string) preg_replace("/'(?:[^']|'')*'/", "''", $expression);
-        $bareColumn = match ($single) {
-            'allocation' => 'hospital_id',
-            'hospital' => 'id',
-            default => null,
-        };
-        if (null !== $bareColumn && 1 === preg_match('/(?<![.\w])'.$bareColumn.'\b(?!\s*[.(])/', $expression)) {
+        // With a single table it is allocation (the reserved column was checked first), and Postgres prints bare names.
+        if ('allocation' === $single && 1 === preg_match('/(?<![.\w])hospital_id\b(?!\s*[.(])/', $expression)) {
             return true;
         }
 

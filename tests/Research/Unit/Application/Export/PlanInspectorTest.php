@@ -145,6 +145,27 @@ final class PlanInspectorTest extends TestCase
         ];
 
         self::assertSame([], PlanInspector::inspectPlan($plan, ['urgency', 'n', '_hospital_ids'], QueryKind::Aggregated));
+
+        $plan['Output'][1] = 'count(*) FILTER (WHERE (hospital_id = 1))';
+        self::assertSame(
+            [['hospital_dependent_output', ['column' => 'n']]],
+            $this->codes(PlanInspector::inspectPlan($plan, ['urgency', 'n', '_hospital_ids'], QueryKind::Aggregated)),
+        );
+    }
+
+    public function testANodeAboveTheGroupingThatChangesTheColumnsIsNotAPassThrough(): void
+    {
+        $aggregate = $this->aggregate(['h.location', 'count(*)', 'array_agg(DISTINCT a.hospital_id)']);
+        $changed = ['Node Type' => 'Sort', 'Output' => ['h.location', '(count(*))', "'{1,2,3}'::integer[]"], 'Plans' => [$aggregate]];
+        $withoutChild = ['Node Type' => 'Limit', 'Output' => ['h.location', '(count(*))', '(array_agg(DISTINCT a.hospital_id))']];
+
+        foreach (['changed column' => $changed, 'no child' => $withoutChild] as $label => $plan) {
+            self::assertSame(
+                [['reserved_not_derived', ['column' => '_hospital_ids']]],
+                $this->codes(PlanInspector::inspectPlan($plan, ['location', 'n', '_hospital_ids'], QueryKind::Aggregated)),
+                $label,
+            );
+        }
     }
 
     public function testAResultColumnMayNotBeComputedFromSingleHospitals(): void
