@@ -162,8 +162,17 @@ description; check results, dry runs and the forms are for administrators. The t
     hospital name, address, coordinates, beds, participation dates and timestamps, references to user accounts,
     review comments;
   - hospital and allocation IDs only to join and count, never as a result column;
-  - the reserved column: `_hospital_ids` (`array_agg(DISTINCT a.hospital_id)` in the same grouping) for aggregated
-    queries, `_hospital_id` for single cases.
+  - the reserved column: `_hospital_ids` for aggregated queries, `_hospital_id` for single cases. The runner counts
+    the contributing hospitals of every group from `_hospital_ids`, so its form is enforced on the plan (#1692): in the
+    top grouping (only `Limit`, `Sort` and `Incremental Sort` may lie above it) it must be exactly
+    `array_agg(DISTINCT <alias>.hospital_id)` with an alias of `allocation`, without `FILTER`. A constant, an
+    `array_agg` without `DISTINCT`, another column, or a list built in a subquery or materialized CTE and passed on is
+    refused (`reserved_not_derived`). Whether an equivalent query with a subquery passes depends on the plan Postgres
+    chooses (it may merge the subquery); a refused query can always be written in the direct form;
+  - no other result column of the top grouping reads a hospital ID (`allocation.hospital_id`, `hospital.id`), for
+    example in `FILTER (WHERE h.id = 3)` or `CASE WHEN a.hospital_id = …`: such a column would come from single
+    hospitals that the listed group does not cover (`hospital_dependent_output`). A `WHERE` on hospitals stays allowed,
+    as it limits `_hospital_ids` as well. Values brought in by a subquery in a result column are not traced.
   With a single table Postgres prints bare column names; they count as that table's columns. String literals are
   ignored. The check is a plausibility check; #1636 makes the limit technical.
 - **Dry run** (`QueryDryRunner`): read-only `REPEATABLE READ` transaction, 30 s statement timeout, at most 50,000 rows.

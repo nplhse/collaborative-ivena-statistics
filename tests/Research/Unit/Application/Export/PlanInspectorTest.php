@@ -76,6 +76,122 @@ final class PlanInspectorTest extends TestCase
         );
     }
 
+    public function testTheReservedColumnMayNotBeAConstantOrAnotherAggregate(): void
+    {
+        foreach (["'{1,2,3}'::integer[]", 'array_agg(a.hospital_id)', 'array_agg(DISTINCT h.id)', 'array_agg(DISTINCT a.hospital_id) FILTER (WHERE (a.age > 80))'] as $expression) {
+            $plan = $this->aggregate(['h.location', 'count(*)', $expression]);
+
+            self::assertSame(
+                [['reserved_not_derived', ['column' => '_hospital_ids']]],
+                $this->codes(PlanInspector::inspectPlan($plan, ['location', 'n', '_hospital_ids'], QueryKind::Aggregated)),
+                $expression,
+            );
+        }
+    }
+
+    public function testTheReservedColumnMustComeFromTheTopGrouping(): void
+    {
+        // Postgres renames the inner alias (a_1); the outer one names the subquery, not a table.
+        $inner = [
+            'Node Type' => 'Aggregate',
+            'Output' => ['a_1.urgency', 'a_1.hospital_id', 'count(*)'],
+            'Plans' => [['Node Type' => 'Seq Scan', 'Relation Name' => 'allocation', 'Schema' => 'public', 'Alias' => 'a_1', 'Output' => ['a_1.urgency', 'a_1.hospital_id']]],
+        ];
+        $subquery = ['Node Type' => 'Subquery Scan', 'Alias' => 'a', 'Output' => ['a.urgency', 'a.n', 'a.hospital_id'], 'Plans' => [$inner]];
+        $regrouped = ['Node Type' => 'Aggregate', 'Output' => ['a.urgency', 'sum(a.n)', 'array_agg(DISTINCT a.hospital_id)'], 'Plans' => [$subquery]];
+
+        $passedOn = [
+            'Node Type' => 'Subquery Scan',
+            'Alias' => 'x',
+            'Output' => ['x.urgency', 'x.n', 'x.ids'],
+            'Plans' => [[
+                'Node Type' => 'Aggregate',
+                'Output' => ['a.urgency', 'count(*)', 'array_agg(DISTINCT a.hospital_id)', 'a.hospital_id'],
+                'Plans' => [['Node Type' => 'Seq Scan', 'Relation Name' => 'allocation', 'Schema' => 'public', 'Alias' => 'a', 'Output' => ['a.urgency', 'a.hospital_id']]],
+            ]],
+        ];
+
+        foreach (['regrouped subquery' => $regrouped, 'subquery on top' => $passedOn] as $label => $plan) {
+            self::assertSame(
+                [['reserved_not_derived', ['column' => '_hospital_ids']]],
+                $this->codes(PlanInspector::inspectPlan($plan, ['urgency', 'n', '_hospital_ids'], QueryKind::Aggregated)),
+                $label,
+            );
+        }
+    }
+
+    public function testSortAndLimitAboveTheGroupingPassTheReservedColumnOn(): void
+    {
+        $aggregate = $this->aggregate(['h.location', 'count(*)', 'array_agg(DISTINCT a.hospital_id)']);
+        $passedOn = ['h.location', '(count(*))', '(array_agg(DISTINCT a.hospital_id))'];
+        $plan = ['Node Type' => 'Limit', 'Output' => $passedOn, 'Plans' => [['Node Type' => 'Sort', 'Output' => $passedOn, 'Plans' => [$aggregate]]]];
+
+        self::assertSame([], PlanInspector::inspectPlan($plan, ['location', 'n', '_hospital_ids'], QueryKind::Aggregated));
+
+        // SELECT DISTINCT adds a Unique node, which is not a pure pass-through.
+        $unique = ['Node Type' => 'Unique', 'Output' => $passedOn, 'Plans' => [$aggregate]];
+        self::assertSame(
+            [['reserved_not_derived', ['column' => '_hospital_ids']]],
+            $this->codes(PlanInspector::inspectPlan($unique, ['location', 'n', '_hospital_ids'], QueryKind::Aggregated)),
+        );
+    }
+
+    public function testWithASingleTableTheBareHospitalListPasses(): void
+    {
+        $plan = [
+            'Node Type' => 'Aggregate',
+            'Output' => ['urgency', 'count(*)', 'array_agg(DISTINCT hospital_id)'],
+            'Plans' => [['Node Type' => 'Seq Scan', 'Relation Name' => 'allocation', 'Schema' => 'public', 'Alias' => 'a', 'Output' => ['urgency', 'hospital_id']]],
+        ];
+
+        self::assertSame([], PlanInspector::inspectPlan($plan, ['urgency', 'n', '_hospital_ids'], QueryKind::Aggregated));
+
+        $plan['Output'][1] = 'count(*) FILTER (WHERE (hospital_id = 1))';
+        self::assertSame(
+            [['hospital_dependent_output', ['column' => 'n']]],
+            $this->codes(PlanInspector::inspectPlan($plan, ['urgency', 'n', '_hospital_ids'], QueryKind::Aggregated)),
+        );
+    }
+
+    public function testANodeAboveTheGroupingThatChangesTheColumnsIsNotAPassThrough(): void
+    {
+        $aggregate = $this->aggregate(['h.location', 'count(*)', 'array_agg(DISTINCT a.hospital_id)']);
+        $changed = ['Node Type' => 'Sort', 'Output' => ['h.location', '(count(*))', "'{1,2,3}'::integer[]"], 'Plans' => [$aggregate]];
+        $withoutChild = ['Node Type' => 'Limit', 'Output' => ['h.location', '(count(*))', '(array_agg(DISTINCT a.hospital_id))']];
+
+        foreach (['changed column' => $changed, 'no child' => $withoutChild] as $label => $plan) {
+            self::assertSame(
+                [['reserved_not_derived', ['column' => '_hospital_ids']]],
+                $this->codes(PlanInspector::inspectPlan($plan, ['location', 'n', '_hospital_ids'], QueryKind::Aggregated)),
+                $label,
+            );
+        }
+    }
+
+    public function testAResultColumnMayNotBeComputedFromSingleHospitals(): void
+    {
+        $plan = $this->aggregate([
+            'h.location',
+            'count(*) FILTER (WHERE (h.id = 3))',
+            'sum(CASE WHEN (a.hospital_id = 7) THEN 1 ELSE 0 END)',
+            "count(*) FILTER (WHERE (a.transport_type = 'id'::text))",
+            'array_agg(DISTINCT a.hospital_id)',
+        ]);
+
+        self::assertSame(
+            [['hospital_dependent_output', ['column' => 'only_three']], ['hospital_dependent_output', ['column' => 'only_seven']]],
+            $this->codes(PlanInspector::inspectPlan($plan, ['location', 'only_three', 'only_seven', 'ground', '_hospital_ids'], QueryKind::Aggregated)),
+        );
+    }
+
+    public function testAFilterOnHospitalsBeforeTheGroupingIsAllowed(): void
+    {
+        // A WHERE on hospitals limits the listed hospitals as well, so the minimum still counts the right ones.
+        $plan = $this->aggregate(['h.location', 'count(*)', 'array_agg(DISTINCT a.hospital_id)'], filter: '(a.hospital_id = ANY (\'{1,2,3}\'::integer[]))');
+
+        self::assertSame([], PlanInspector::inspectPlan($plan, ['location', 'n', '_hospital_ids'], QueryKind::Aggregated));
+    }
+
     public function testTheTextIsOneSelectWithoutDeniedFunctions(): void
     {
         self::assertSame([], PlanInspector::inspectText("WITH m AS (SELECT 1) SELECT * FROM m;\n"));

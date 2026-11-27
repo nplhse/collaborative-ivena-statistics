@@ -68,6 +68,21 @@ final class QueryGuardAndDryRunTest extends KernelTestCase
         self::assertSame(['sql_error'], $this->codes('SELECT no_such_column FROM allocation'));
     }
 
+    public function testTheReservedColumnIsCheckedAgainstTheRealPlan(): void
+    {
+        // #1692: the runner counts contributing hospitals from _hospital_ids, so it must be the real list of the group.
+        self::assertSame(['reserved_not_derived'], $this->codes('SELECT a.urgency, count(*) AS n, ARRAY[1,2,3] AS _hospital_ids FROM allocation a GROUP BY a.urgency'));
+        self::assertSame(['reserved_not_derived'], $this->codes('SELECT a.urgency, count(*) AS n, array_agg(a.hospital_id) AS _hospital_ids FROM allocation a GROUP BY a.urgency'));
+        self::assertSame(['reserved_not_derived'], $this->codes('SELECT x.urgency, x.n, x.ids AS _hospital_ids FROM (SELECT a.urgency, count(*) AS n, array_agg(DISTINCT a.hospital_id) AS ids FROM allocation a GROUP BY a.urgency, a.hospital_id) x'));
+        self::assertSame(['reserved_not_derived'], $this->codes('WITH a AS MATERIALIZED (SELECT a.urgency, a.hospital_id FROM allocation a) SELECT a.urgency, count(*) AS n, array_agg(DISTINCT a.hospital_id) AS _hospital_ids FROM a GROUP BY a.urgency'));
+        self::assertSame(['hospital_dependent_output'], $this->codes('SELECT h.location, count(*) FILTER (WHERE h.id = 3) AS n, array_agg(DISTINCT a.hospital_id) AS _hospital_ids FROM allocation a JOIN hospital h ON h.id = a.hospital_id GROUP BY h.location'));
+
+        // Accepted: ORDER BY and LIMIT above the grouping, a WHERE on hospitals, an inlined CTE.
+        self::assertSame([], $this->codes(self::BY_LOCATION.' LIMIT 5'));
+        self::assertSame([], $this->codes('SELECT a.urgency, count(*) AS n, array_agg(DISTINCT a.hospital_id) AS _hospital_ids FROM allocation a WHERE a.hospital_id IN (1, 2, 3) GROUP BY a.urgency'));
+        self::assertSame([], $this->codes('WITH x AS (SELECT a.urgency, a.hospital_id FROM allocation a) SELECT x.urgency, count(*) AS n, array_agg(DISTINCT x.hospital_id) AS _hospital_ids FROM x GROUP BY x.urgency'));
+    }
+
     public function testTheDryRunCannotWrite(): void
     {
         $run = self::getContainer()->get(QueryDryRunner::class)->run("SELECT nextval('allocation_id_seq') AS n", QueryKind::Aggregated);

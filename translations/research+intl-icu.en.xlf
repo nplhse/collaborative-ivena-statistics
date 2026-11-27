@@ -497,6 +497,14 @@
         <source>data_request.query.violation.reserved_missing</source>
         <target>The reserved column {column} is missing.</target>
       </trans-unit>
+      <trans-unit id="RscReservedNotDerived" resname="data_request.query.violation.reserved_not_derived">
+        <source>data_request.query.violation.reserved_not_derived</source>
+        <target>The reserved column {column} must be array_agg(DISTINCT &lt;alias&gt;.hospital_id) over allocation in the top grouping of the query.</target>
+      </trans-unit>
+      <trans-unit id="RscHospitalDependentOutput" resname="data_request.query.violation.hospital_dependent_output">
+        <source>data_request.query.violation.hospital_dependent_output</source>
+        <target>The column {column} is computed from single hospitals (hospital ID in FILTER or CASE); the listed hospitals would not cover it.</target>
+      </trans-unit>
       <trans-unit id="Rsc8FDB1F84" resname="data_request.query.violation.sql_error">
         <source>data_request.query.violation.sql_error</source>
         <target>The database refused the query: {message}</target>
