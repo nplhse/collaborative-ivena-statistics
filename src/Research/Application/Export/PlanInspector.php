@@ -12,7 +12,9 @@ use App\Research\Domain\Enum\QueryKind;
  *
  * - The text is one SELECT (or WITH) statement and calls no denied function.
  * - Every table in the plan is an allowlisted table in the public schema.
- * - No blocked column is referenced anywhere in the plan, not even in a filter or join.
+ * - No blocked column is referenced anywhere in the plan, not even in a filter or join. The output of a table scan
+ *   below the top node is not a reference: Postgres may let a scan return the whole row (physical target list, for
+ *   example after a table rewrite), and the nodes above it name the columns they use.
  * - No result column returns an internal-only column as such (for example a hospital ID), except the reserved column
  *   of a single-case query.
  * - The reserved column of the query kind is present.
@@ -79,7 +81,7 @@ final class PlanInspector
         $single = 1 === \count($aliases) && 1 === \count($tables) ? $tables[0] : null;
 
         $references = [];
-        self::collectReferences($plan, $aliases, $single, $references);
+        self::collectReferences($plan, $aliases, $single, $references, true);
         foreach ($references as $reference => [$table, $column]) {
             if (ExportAllowlist::isBlocked($table, $column)) {
                 $violations[] = new QueryViolation(QueryViolation::COLUMN, ['column' => $reference]);
@@ -375,8 +377,9 @@ final class PlanInspector
      * @param array<string, list<string>>                $aliases
      * @param array<string, array{0: string, 1: string}> $references
      */
-    private static function collectReferences(array $node, array $aliases, ?string $single, array &$references): void
+    private static function collectReferences(array $node, array $aliases, ?string $single, array &$references, bool $top = false): void
     {
+        $innerScan = !$top && isset($node['Relation Name']);
         foreach ($node as $key => $value) {
             if ('Plans' === $key) {
                 foreach (\is_array($value) ? $value : [] as $child) {
@@ -385,6 +388,10 @@ final class PlanInspector
                     }
                 }
 
+                continue;
+            }
+
+            if ($innerScan && 'Output' === $key) {
                 continue;
             }
 
