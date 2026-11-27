@@ -15,6 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: MonthlyReminderDispatchRepository::class)]
 #[ORM\Table(name: 'monthly_reminder_dispatch')]
 #[ORM\UniqueConstraint(name: 'uniq_monthly_reminder_dispatch', columns: ['hospital_id', 'reporting_period', 'trigger'])]
+#[ORM\Index(name: 'idx_monthly_reminder_dispatch_hospital', columns: ['hospital_id'])]
 class MonthlyReminderDispatch
 {
     #[ORM\Id]
@@ -32,9 +33,9 @@ class MonthlyReminderDispatch
         private string $trigger,
         #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
         private \DateTimeImmutable $sentAt,
-        #[ORM\Column(enumType: MonthlyReminderDispatchStatus::class, options: ['default' => 'queued'])]
+        #[ORM\Column(length: 16, enumType: MonthlyReminderDispatchStatus::class, options: ['default' => 'queued'])]
         private MonthlyReminderDispatchStatus $status = MonthlyReminderDispatchStatus::Queued,
-        #[ORM\Column(length: 255)]
+        #[ORM\Column(length: 255, options: ['default' => ''])]
         private string $recipientEmail = '',
         #[ORM\Column(type: Types::TEXT, nullable: true)]
         private ?string $failureReason = null,

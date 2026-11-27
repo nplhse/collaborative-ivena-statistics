@@ -52,7 +52,7 @@ class Page implements \Stringable
     #[ORM\OrderBy(['locale' => \SortDirection::Ascending])]
     private Collection $translations;
 
-    #[ORM\Column(nullable: true, enumType: PageKey::class)]
+    #[ORM\Column(length: 32, nullable: true, enumType: PageKey::class)]
     private ?PageKey $key = null;
 
     /** Help articles (#596) live below the help start page and are left out of the general page navigation. */

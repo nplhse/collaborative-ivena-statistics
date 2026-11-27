@@ -16,12 +16,15 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @psalm-suppress ClassMustBeFinal
  * @psalm-suppress UnusedClass Doctrine-mapped; written via DBAL.
+ *
+ * The partial index conditions are written in the form PostgreSQL stores them (pg_get_expr), so the schema diff
+ * stays empty (#1398).
  */
 #[ORM\Entity(readOnly: true)]
 #[ORM\Table(name: 'notification_delivery')]
 #[ORM\UniqueConstraint(name: 'uniq_notification_delivery_channel', columns: ['notification_id', 'channel'])]
 #[ORM\Index(name: 'idx_notification_delivery_notification', columns: ['notification_id'])]
-#[ORM\Index(name: 'idx_notification_delivery_pending', columns: ['created_at'], options: ['where' => "(status = 'pending')"])]
+#[ORM\Index(name: 'idx_notification_delivery_pending', columns: ['created_at'], options: ['where' => "((status)::text = 'pending'::text)"])]
 class NotificationDelivery
 {
     #[ORM\Id]

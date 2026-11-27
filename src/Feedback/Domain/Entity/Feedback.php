@@ -52,7 +52,7 @@ class Feedback implements \Stringable
     #[ORM\Column(length: 64, nullable: true)]
     private ?string $appVersion = null;
 
-    #[ORM\Column(enumType: FeedbackStatus::class, options: ['default' => 'new'])]
+    #[ORM\Column(enumType: FeedbackStatus::class)]
     private FeedbackStatus $status = FeedbackStatus::NEW;
 
     #[ORM\Column]

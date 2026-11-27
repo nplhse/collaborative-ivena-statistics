@@ -14,6 +14,9 @@ use Doctrine\ORM\Mapping as ORM;
  */
 #[ORM\Entity(readOnly: true)]
 #[ORM\Table(name: 'test_inpatient_stay')]
+#[ORM\Index(name: 'idx_test_inpatient_stay_encounter', columns: ['encounter_id'])]
+#[ORM\Index(name: 'idx_test_inpatient_stay_import', columns: ['import_id'])]
+#[ORM\UniqueConstraint(name: 'uniq_test_inpatient_stay', columns: ['hospital_id', 'key_generation', 'stay_fingerprint'])]
 class InpatientStay
 {
     #[ORM\Id]

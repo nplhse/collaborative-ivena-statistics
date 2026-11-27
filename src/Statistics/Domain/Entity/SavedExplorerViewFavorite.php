@@ -12,6 +12,8 @@ use Symfony\Component\Clock\Clock;
 #[ORM\Entity(repositoryClass: SavedExplorerViewFavoriteRepository::class)]
 #[ORM\Table(name: 'saved_explorer_view_favorite')]
 #[ORM\UniqueConstraint(name: 'uniq_saved_explorer_view_favorite', columns: ['user_id', 'saved_explorer_view_id'])]
+#[ORM\Index(name: 'idx_saved_explorer_view_favorite_user', columns: ['user_id'])]
+#[ORM\Index(name: 'idx_saved_explorer_view_favorite_view', columns: ['saved_explorer_view_id'])]
 class SavedExplorerViewFavorite
 {
     #[ORM\Id]

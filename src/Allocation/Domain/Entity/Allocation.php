@@ -17,6 +17,14 @@ use Doctrine\ORM\Mapping as ORM;
 #[Audit\Audited]
 #[ORM\Entity(repositoryClass: AllocationRepository::class)]
 #[ORM\HasLifecycleCallbacks]
+#[ORM\Index(name: 'idx_allocation_age_id', columns: ['age', 'id'])]
+#[ORM\Index(name: 'idx_allocation_arrival_at_id', columns: ['arrival_at', 'id'])]
+#[ORM\Index(name: 'idx_allocation_case_id_hash', columns: ['case_id_hash'])]
+#[ORM\Index(name: 'idx_allocation_import_age_id', columns: ['import_id', 'age', 'id'])]
+#[ORM\Index(name: 'idx_allocation_import_arrival_at_id', columns: ['import_id', 'arrival_at', 'id'])]
+#[ORM\Index(name: 'idx_allocation_secondary_indication_normalized', columns: ['secondary_indication_normalized_id'])]
+#[ORM\Index(name: 'idx_allocation_secondary_indication_raw', columns: ['secondary_indication_raw_id'])]
+#[ORM\Index(name: 'idx_allocation_secondary_transport', columns: ['secondary_transport_id'])]
 class Allocation
 {
     use HasPublicId;

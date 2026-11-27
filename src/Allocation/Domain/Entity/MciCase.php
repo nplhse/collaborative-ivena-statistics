@@ -17,6 +17,16 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: MciCaseRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Index(name: 'idx_mci_case_mci_id', columns: ['mci_id'])]
+#[ORM\Index(name: 'idx_mci_case_department_id', columns: ['department_id'])]
+#[ORM\Index(name: 'idx_mci_case_dispatch_area_id', columns: ['dispatch_area_id'])]
+#[ORM\Index(name: 'idx_mci_case_hospital_id', columns: ['hospital_id'])]
+#[ORM\Index(name: 'idx_mci_case_import_id', columns: ['import_id'])]
+#[ORM\Index(name: 'idx_mci_case_indication_normalized_id', columns: ['indication_normalized_id'])]
+#[ORM\Index(name: 'idx_mci_case_indication_raw_id', columns: ['indication_raw_id'])]
+#[ORM\Index(name: 'idx_mci_case_infection_id', columns: ['infection_id'])]
+#[ORM\Index(name: 'idx_mci_case_occasion_id', columns: ['occasion_id'])]
+#[ORM\Index(name: 'idx_mci_case_speciality_id', columns: ['speciality_id'])]
+#[ORM\Index(name: 'idx_mci_case_state_id', columns: ['state_id'])]
 class MciCase
 {
     use HasPublicId;
@@ -47,7 +57,7 @@ class MciCase
     #[ORM\Column]
     private ?\DateTimeImmutable $arrivalAt = null;
 
-    #[ORM\Column(nullable: true, enumType: AllocationGender::class)]
+    #[ORM\Column(length: 1, nullable: true, enumType: AllocationGender::class)]
     private ?AllocationGender $gender = null;
 
     #[ORM\Column(nullable: true)]

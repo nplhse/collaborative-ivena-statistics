@@ -15,6 +15,7 @@ use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordRequestTrait;
  * @psalm-suppress UnusedClass, PossiblyUnusedProperty
  */
 #[ORM\Entity(repositoryClass: ResetPasswordRequestRepository::class)]
+#[ORM\UniqueConstraint(name: 'uniq_reset_password_request_selector', columns: ['selector'])]
 class ResetPasswordRequest implements ResetPasswordRequestInterface
 {
     use ResetPasswordRequestTrait;

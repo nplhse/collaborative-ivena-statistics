@@ -16,6 +16,8 @@ use Symfony\Component\Clock\Clock;
 #[Audit\Audited]
 #[ORM\Entity(repositoryClass: IndicationRawRepository::class)]
 #[ORM\HasLifecycleCallbacks()]
+#[ORM\Index(name: 'idx_indication_raw_review_status', columns: ['review_status'])]
+#[ORM\Index(name: 'idx_indication_raw_review_status_created_at', columns: ['review_status', 'created_at'])]
 class IndicationRaw implements \Stringable
 {
     use Blamable;
@@ -56,7 +58,7 @@ class IndicationRaw implements \Stringable
     #[ORM\ManyToOne(inversedBy: 'children')]
     private ?IndicationNormalized $target = null;
 
-    #[ORM\Column(enumType: IndicationRawReviewStatus::class, options: ['default' => 'unreviewed'])]
+    #[ORM\Column(length: 32, enumType: IndicationRawReviewStatus::class, options: ['default' => 'unreviewed'])]
     private IndicationRawReviewStatus $reviewStatus = IndicationRawReviewStatus::Unreviewed;
 
     #[ORM\Column(type: \Doctrine\DBAL\Types\Types::TEXT, nullable: true)]

@@ -17,6 +17,8 @@ use Symfony\Component\Clock\Clock;
 #[Audit\Audited]
 #[ORM\Entity(repositoryClass: IndicationGroupRepository::class)]
 #[ORM\HasLifecycleCallbacks()]
+#[ORM\Index(name: 'idx_indication_group_created_by', columns: ['created_by_id'])]
+#[ORM\Index(name: 'idx_indication_group_updated_by', columns: ['updated_by_id'])]
 class IndicationGroup implements \Stringable
 {
     use Blamable;
