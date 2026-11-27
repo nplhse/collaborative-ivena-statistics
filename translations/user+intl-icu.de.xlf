@@ -1065,6 +1065,38 @@
         <source>help.terms.upload_authority</source>
         <target>Andernfalls bestätigen Sie es vor Ihrem nächsten Upload erneut.</target>
       </trans-unit>
+      <trans-unit id="DeRA01" resname="email.registration_attempt.title">
+        <source>email.registration_attempt.title</source>
+        <target>Registrierungsversuch mit Ihrer E-Mail-Adresse</target>
+      </trans-unit>
+      <trans-unit id="DeRA02" resname="email.registration_attempt.preheader">
+        <source>email.registration_attempt.preheader</source>
+        <target>Sie haben bereits ein Konto. Es wurde nichts geändert.</target>
+      </trans-unit>
+      <trans-unit id="DeRA03" resname="email.registration_attempt.heading">
+        <source>email.registration_attempt.heading</source>
+        <target>Sie haben bereits ein Konto</target>
+      </trans-unit>
+      <trans-unit id="DeRA04" resname="email.registration_attempt.intro">
+        <source>email.registration_attempt.intro</source>
+        <target>Jemand hat versucht, sich mit dieser E-Mail-Adresse bei {app} zu registrieren.</target>
+      </trans-unit>
+      <trans-unit id="DeRA05" resname="email.registration_attempt.existing_account">
+        <source>email.registration_attempt.existing_account</source>
+        <target>Falls Sie das waren: Sie haben bereits ein Konto mit dem Benutzernamen {username}. Wenn Sie Ihr Passwort nicht mehr kennen, können Sie es zurücksetzen.</target>
+      </trans-unit>
+      <trans-unit id="DeRA06" resname="email.registration_attempt.not_you">
+        <source>email.registration_attempt.not_you</source>
+        <target>Falls Sie es nicht waren, können Sie diese E-Mail ignorieren. Ihr Konto wurde nicht geändert und es wurde kein neues Konto angelegt.</target>
+      </trans-unit>
+      <trans-unit id="DeRA07" resname="email.registration_attempt.cta">
+        <source>email.registration_attempt.cta</source>
+        <target>Passwort zurücksetzen</target>
+      </trans-unit>
+      <trans-unit id="DeRA08" resname="email.registration_attempt.login_before_link">
+        <source>email.registration_attempt.login_before_link</source>
+        <target>Zur Anmeldung mit Ihrem Passwort:</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

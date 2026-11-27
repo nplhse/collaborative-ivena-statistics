@@ -92,6 +92,27 @@ final readonly class SymfonyTransactionalMailer implements TransactionalMailer
         $this->mailer->send($email);
     }
 
+    #[\Override]
+    public function sendRegistrationAttemptEmail(
+        string $recipientEmail,
+        string $username,
+        string $passwordResetUrl,
+        string $loginUrl,
+        string $locale,
+    ): void {
+        $email = $this->createTemplatedEmail($locale)
+            ->to($recipientEmail)
+            ->subject($this->translator->trans('email.registration_attempt.title', [], 'user', $locale))
+            ->htmlTemplate('@User/registration/registration_attempt_email.html.twig')
+            ->context([
+                'username' => $username,
+                'passwordResetUrl' => $passwordResetUrl,
+                'loginUrl' => $loginUrl,
+            ]);
+
+        $this->mailer->send($email);
+    }
+
     private function createTemplatedEmail(string $locale): TemplatedEmail
     {
         $email = new TemplatedEmail()

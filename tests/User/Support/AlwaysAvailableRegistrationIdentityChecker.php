@@ -26,10 +26,16 @@ final readonly class AlwaysAvailableRegistrationIdentityChecker implements Regis
     }
 
     #[\Override]
-    public function createIdentityTakenFormError(): FormError
+    public function isUsernameTaken(string $username): bool
+    {
+        return false;
+    }
+
+    #[\Override]
+    public function createUsernameTakenFormError(): FormError
     {
         return new FormError(
-            $this->translator->trans(RegistrationIdentityChecker::MESSAGE_KEY, [], 'validators'),
+            $this->translator->trans(RegistrationIdentityChecker::USERNAME_TAKEN_MESSAGE_KEY, [], 'validators'),
         );
     }
 }

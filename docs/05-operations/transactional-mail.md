@@ -1,6 +1,6 @@
 # Transactional mail
 
-Registration verification and password reset are sent through a central mail layer ([`TransactionalMailer`](../../src/Shared/Infrastructure/Mail/TransactionalMailer.php)).
+Registration verification, the notice after a registration attempt with an existing address (#936), password reset and login links are sent through a central mail layer ([`TransactionalMailer`](../../src/Shared/Infrastructure/Mail/TransactionalMailer.php)).
 
 A **participation welcome email** is sent when an administrator first grants `ROLE_PARTICIPANT` (signed grant link or EasyAdmin user form). Re-saving an already active participant does not send it again. The mail uses the user's username for the greeting, links back to the dashboard, and lists a few next steps based on whether the user owns hospitals.
 

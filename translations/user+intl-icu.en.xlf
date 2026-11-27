@@ -1065,6 +1065,38 @@
         <source>help.terms.upload_authority</source>
         <target>Otherwise you confirm it again before your next upload.</target>
       </trans-unit>
+      <trans-unit id="RA01" resname="email.registration_attempt.title">
+        <source>email.registration_attempt.title</source>
+        <target>Registration attempt with your email address</target>
+      </trans-unit>
+      <trans-unit id="RA02" resname="email.registration_attempt.preheader">
+        <source>email.registration_attempt.preheader</source>
+        <target>You already have an account. Nothing was changed.</target>
+      </trans-unit>
+      <trans-unit id="RA03" resname="email.registration_attempt.heading">
+        <source>email.registration_attempt.heading</source>
+        <target>You already have an account</target>
+      </trans-unit>
+      <trans-unit id="RA04" resname="email.registration_attempt.intro">
+        <source>email.registration_attempt.intro</source>
+        <target>Someone tried to register on {app} with this email address.</target>
+      </trans-unit>
+      <trans-unit id="RA05" resname="email.registration_attempt.existing_account">
+        <source>email.registration_attempt.existing_account</source>
+        <target>If that was you: you already have an account with the username {username}. If you no longer know your password, you can reset it.</target>
+      </trans-unit>
+      <trans-unit id="RA06" resname="email.registration_attempt.not_you">
+        <source>email.registration_attempt.not_you</source>
+        <target>If it was not you, you can ignore this email. Your account was not changed and no new account was created.</target>
+      </trans-unit>
+      <trans-unit id="RA07" resname="email.registration_attempt.cta">
+        <source>email.registration_attempt.cta</source>
+        <target>Reset password</target>
+      </trans-unit>
+      <trans-unit id="RA08" resname="email.registration_attempt.login_before_link">
+        <source>email.registration_attempt.login_before_link</source>
+        <target>To sign in with your password, go to</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

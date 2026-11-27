@@ -757,9 +757,9 @@
         <source>validation.terms.accept_required</source>
         <target>You must accept the terms of use to continue.</target>
       </trans-unit>
-      <trans-unit id="regv002" resname="validation.registration.identity_taken">
-        <source>validation.registration.identity_taken</source>
-        <target>This username or email address is already taken.</target>
+      <trans-unit id="regv003" resname="validation.registration.username_taken">
+        <source>validation.registration.username_taken</source>
+        <target>This username is already taken.</target>
       </trans-unit>
       <trans-unit id="usrv001" resname="validation.username.format">
         <source>validation.username.format</source>

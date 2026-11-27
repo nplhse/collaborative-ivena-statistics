@@ -13,6 +13,7 @@ use App\User\Application\Registration\RegistrationEmailSuppressionLogger;
 use App\User\Application\Registration\RegistrationEmailSuppressionPolicy;
 use App\User\Application\Terms\TermsAcceptanceFactory;
 use App\User\Domain\Entity\User;
+use App\User\Infrastructure\Registration\ExistingAccountRegistrationNotifier;
 use App\User\Infrastructure\Registration\RegistrationIdentityGuard;
 use App\User\Infrastructure\Security\EmailVerifier;
 use App\User\UI\Form\RegistrationFormType;
@@ -45,6 +46,7 @@ final class RegistrationController extends AbstractController
         private readonly RegistrationEmailSuppressionPolicy $registrationEmailSuppressionPolicy,
         private readonly RegistrationEmailSuppressionLogger $registrationEmailSuppressionLogger,
         private readonly TermsAcceptanceFactory $termsAcceptanceFactory,
+        private readonly ExistingAccountRegistrationNotifier $existingAccountNotifier,
     ) {
     }
 
@@ -94,7 +96,16 @@ final class RegistrationController extends AbstractController
                 ->setIsVerified(false)
                 ->setLocale($this->localeResolver->resolve($request, null));
 
+            // Hashed in both cases, so an existing address does not answer noticeably faster.
             $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
+
+            // An address that already has an account gets the same answer as a new one (#936); its owner gets a mail.
+            $existingAccount = $this->findAccountByEmail((string) $user->getEmail());
+            if ($existingAccount instanceof User) {
+                $this->existingAccountNotifier->notify($existingAccount);
+
+                return $this->redirectToRoute('app_register_check_email');
+            }
 
             $this->entityManager->persist($user);
             // The form requires the terms checkbox; store that acceptance with the account (#1564).
@@ -103,8 +114,16 @@ final class RegistrationController extends AbstractController
             try {
                 $this->entityManager->flush();
             } catch (UniqueConstraintViolationException) {
+                // Another registration took the username or the email between the form check and the flush.
                 $this->entityManager->clear();
-                $form->addError($this->registrationIdentityChecker->createIdentityTakenFormError());
+                $existingAccount = $this->findAccountByEmail((string) $user->getEmail());
+                if ($existingAccount instanceof User) {
+                    $this->existingAccountNotifier->notify($existingAccount);
+
+                    return $this->redirectToRoute('app_register_check_email');
+                }
+
+                $form->addError($this->registrationIdentityChecker->createUsernameTakenFormError());
 
                 return $this->renderInvalidRegistrationForm($form);
             } finally {
@@ -173,6 +192,12 @@ final class RegistrationController extends AbstractController
         $this->addFlash('success', new TranslatableMessage('flash.registration.verify.success', domain: 'user'));
 
         return $this->redirectToRoute('app_login');
+    }
+
+    /** `$email` is already normalised by User::setEmail(). */
+    private function findAccountByEmail(string $email): ?User
+    {
+        return $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
     }
 
     /**
