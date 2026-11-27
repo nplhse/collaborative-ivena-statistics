@@ -110,6 +110,29 @@ Users can protect their account with a six-digit code from an authenticator app 
   (`TwoFactorAvailability`). If accounts use it and the key is missing or wrong, codes fail and only backup codes work;
   the `two_factor` health check reports it ([health-check.md](../../05-operations/health-check.md)).
 
+## Registration
+
+Self-registration on `/register` does not reveal whether an email address already has an account (#936, decision in
+the issue). Usernames are public in Explore, so a taken username is still shown as a form error
+(`validation.registration.username_taken`, `RegistrationIdentityGuard::isUsernameTaken()`).
+
+- **New address:** the account is created unverified and gets the verification mail; the visitor is sent to
+  `/register/check-email`.
+- **Address of an existing account** (compared lower-cased): no account is created and the visitor gets the same
+  redirect to `/register/check-email`. `ExistingAccountRegistrationNotifier` mails the existing account instead
+  (`@User/registration/registration_attempt_email.html.twig`): someone tried to register with this address, its
+  username, a link to the password reset and to the login, and the advice to contact an administrator if it
+  happens repeatedly. The password is hashed in both cases so the answer time
+  stays similar; both mails go through `async_mail`.
+- **Flooding:** at most one such mail per account within 24 hours (`registration_attempt_notice`); further attempts
+  get the same answer, no mail, and a `security.registration.existing_email_notice_limited` log entry. The
+  `register` limit (5 per hour per IP) applies first.
+- **Race:** if another registration takes the address between the check and the flush, the unique constraint is
+  answered the same way; a taken username shows the username error.
+- Blocked email domains (`RegistrationEmailSuppressionPolicy`) are answered with the same redirect and send nothing.
+- Accounts created by administrators (EasyAdmin, `app:user:create`) still report a taken username or email
+  (`isIdentityTaken()`).
+
 ## Terms of use acceptance
 
 Registration requires accepting the terms of use (#1564, [ADR 043](../../02-architecture/decisions/043-terms-of-use-version-by-configuration.md)).
@@ -183,5 +206,5 @@ logged. An aggregated view for administrators is planned in #1487.
 `tests/User/Functional/Controller/SecurityControllerTest.php` covers username and email login, the generic errors and
 the shared throttling; `LoginLinkTest` covers the login link (opt-in, same answer for every request, rate limit,
 confirmation page, single use, invalidation, consent); `TwoFactorLoginTest`, `TwoFactorSettingsTest`,
-`TwoFactorObligationAndResetTest`, `SignInGatesTest` and `ResetTwoFactorCommandTest` cover the second factor; `RememberMeLoginTest` and `ConfirmPasswordControllerTest` cover
+`TwoFactorObligationAndResetTest`, `SignInGatesTest` and `ResetTwoFactorCommandTest` cover the second factor; `RegistrationControllerTest` covers the registration answers for new and existing addresses; `RememberMeLoginTest` and `ConfirmPasswordControllerTest` cover
 sessions and re-authentication.

@@ -11,14 +11,15 @@ use Symfony\Component\Form\FormError;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * Shared uniqueness check for registration and administrative user creation (generic message — no field
- * leak). Usernames are compared case-insensitively, emails lowercased.
+ * Uniqueness checks for registration and administrative user creation. Usernames are compared case-insensitively,
+ * emails lowercased. Self-registration only reports a taken username (#936); a taken email is answered like a new one
+ * by RegistrationController.
  *
  * @psalm-suppress UnusedClass Wired via services.yaml alias for RegistrationIdentityGuard
  */
 final readonly class RegistrationIdentityChecker implements RegistrationIdentityGuard
 {
-    public const string MESSAGE_KEY = 'validation.registration.identity_taken';
+    public const string USERNAME_TAKEN_MESSAGE_KEY = 'validation.registration.username_taken';
 
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
@@ -30,17 +31,22 @@ final readonly class RegistrationIdentityChecker implements RegistrationIdentity
     #[\Override]
     public function isIdentityTaken(string $username, string $email): bool
     {
-        $normalizedUsername = UserUsernameConstraints::trim($username);
         $normalizedEmail = mb_strtolower(trim($email));
 
-        // Usernames differing only in case are the same identity (#1353): profile URLs ignore the case.
-        return $this->userRepository->findOneByUsernameInsensitive($normalizedUsername) instanceof User
+        return $this->isUsernameTaken($username)
             || null !== $this->userRepository->findOneBy(['email' => $normalizedEmail]);
     }
 
     #[\Override]
-    public function createIdentityTakenFormError(): FormError
+    public function isUsernameTaken(string $username): bool
     {
-        return new FormError($this->translator->trans(self::MESSAGE_KEY, [], 'validators'));
+        // Usernames differing only in case are the same identity (#1353): profile URLs ignore the case.
+        return $this->userRepository->findOneByUsernameInsensitive(UserUsernameConstraints::trim($username)) instanceof User;
+    }
+
+    #[\Override]
+    public function createUsernameTakenFormError(): FormError
+    {
+        return new FormError($this->translator->trans(self::USERNAME_TAKEN_MESSAGE_KEY, [], 'validators'));
     }
 }

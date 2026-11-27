@@ -88,11 +88,10 @@ final class RegistrationFormType extends AbstractType
 
         /** @var array{username: string, email: string} $data */
         $data = $form->getData();
-        $username = $data['username'];
-        $email = $data['email'];
 
-        if ($this->registrationIdentityChecker->isIdentityTaken($username, $email)) {
-            $form->addError($this->registrationIdentityChecker->createIdentityTakenFormError());
+        // A taken email is not reported here (#936); RegistrationController answers it like a new address.
+        if ($this->registrationIdentityChecker->isUsernameTaken($data['username'])) {
+            $form->addError($this->registrationIdentityChecker->createUsernameTakenFormError());
         }
     }
 }

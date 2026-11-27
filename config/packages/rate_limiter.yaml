@@ -28,6 +28,12 @@ framework:
             policy: fixed_window
             limit: 5
             interval: '1 hour'
+        # Mail to an existing account after a registration attempt with its email address (#936), per account.
+        # Further attempts get the same answer but no mail.
+        registration_attempt_notice:
+            policy: fixed_window
+            limit: 1
+            interval: '24 hours'
         reset_password_request:
             policy: fixed_window
             limit: 10

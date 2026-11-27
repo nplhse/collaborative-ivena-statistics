@@ -35,4 +35,16 @@ interface TransactionalMailer
         int $lifetimeMinutes,
         string $locale,
     ): void;
+
+    /**
+     * Someone tried to register with the address of an existing account (#936); the registration form answers as for
+     * a new address, the account owner learns about it here.
+     */
+    public function sendRegistrationAttemptEmail(
+        string $recipientEmail,
+        string $username,
+        string $passwordResetUrl,
+        string $loginUrl,
+        string $locale,
+    ): void;
 }

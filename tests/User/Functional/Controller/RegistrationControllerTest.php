@@ -17,6 +17,7 @@ use App\User\Domain\Factory\UserFactory;
 use App\User\Infrastructure\Registration\RegistrationIdentityGuard;
 use App\User\Infrastructure\Repository\UserRepository;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\MailerAssertionsTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
@@ -258,7 +259,7 @@ final class RegistrationControllerTest extends WebTestCase
         ;
     }
 
-    public function testRegistrationFailsWithGenericMessageWhenUsernameIsTaken(): void
+    public function testRegistrationShowsTakenUsername(): void
     {
         $suffix = bin2hex(random_bytes(4));
         $existingUsername = sprintf('taken-user-%s', $suffix);
@@ -278,7 +279,7 @@ final class RegistrationControllerTest extends WebTestCase
             ->click('Register')
             ->assertStatus(422)
             ->assertSeeIn('h2', 'Register')
-            ->assertSee('This username or email address is already taken.')
+            ->assertSee('This username is already taken.')
             ->assertNotSee('Check your email')
         ;
 
@@ -286,35 +287,68 @@ final class RegistrationControllerTest extends WebTestCase
         UserFactory::assert()->count(1, ['username' => $existingUsername]);
     }
 
-    public function testRegistrationFailsWithSameGenericMessageWhenEmailIsTaken(): void
+    public function testRegistrationWithTakenEmailAnswersLikeANewAddressAndNotifiesTheAccount(): void
     {
+        $client = self::createClient();
+        $client->disableReboot();
+        $client->getContainer()->get('cache.rate_limiter')->clear();
+
         $suffix = bin2hex(random_bytes(4));
+        $existingUsername = sprintf('existing-user-%s', $suffix);
         $existingEmail = sprintf('taken-email-%s@example.test', $suffix);
-        UserFactory::createOne([
-            'username' => sprintf('existing-user-%s', $suffix),
-            'email' => $existingEmail,
-        ]);
+        UserFactory::createOne(['username' => $existingUsername, 'email' => $existingEmail, 'locale' => 'en']);
 
-        $attemptUsername = sprintf('new-user-%s', $suffix);
+        // A new address: account, verification mail, redirect to the check-email page.
+        $newEmail = sprintf('new-address-%s@example.test', $suffix);
+        $this->submitRegistration($client, sprintf('new-user-%s', $suffix), $newEmail);
+        $newStatus = $client->getResponse()->getStatusCode();
+        $newLocation = $client->getResponse()->headers->get('Location');
+        $newMails = $this->mailSubjectsTo($newEmail);
+        self::assertSame(['Confirm your email address'], $newMails);
+        UserFactory::assert()->exists(['email' => $newEmail]);
 
-        $this->browser()
-            ->visit('/register')
-            ->fillField('registration_form[username]', $attemptUsername)
-            ->fillField('registration_form[email]', strtoupper($existingEmail))
-            ->fillField('registration_form[plainPassword]', 'super-secret-password')
-            ->checkField('registration_form[acceptTerms]')
-            ->click('Register')
-            ->assertStatus(422)
-            ->assertSeeIn('h2', 'Register')
-            ->assertSee('This username or email address is already taken.')
-            ->assertNotSee('Check your email')
-        ;
+        // A taken address (in other case): the same answer, but no account and a notice to the existing account.
+        $attemptUsername = sprintf('attempt-user-%s', $suffix);
+        $this->submitRegistration($client, $attemptUsername, strtoupper($existingEmail));
+        self::assertSame($newStatus, $client->getResponse()->getStatusCode());
+        self::assertSame($newLocation, $client->getResponse()->headers->get('Location'));
+        self::assertSame('/register/check-email', $newLocation);
 
+        $notices = $this->mailsTo($existingEmail);
+        self::assertCount(1, $notices);
+        self::assertSame('Registration attempt with your email address', $notices[0]->getSubject());
+        $body = (string) $notices[0]->getHtmlBody();
+        self::assertStringContainsString($existingUsername, $body);
+        self::assertStringContainsString('http://localhost/reset-password', $body);
+        self::assertStringNotContainsString($attemptUsername, $body);
         UserFactory::assert()->notExists(['username' => $attemptUsername]);
+        UserFactory::assert()->count(1, ['email' => $existingEmail]);
+
+        $client->followRedirect();
+        self::assertSelectorTextContains('h2', 'Check your email');
+    }
+
+    public function testRegistrationAttemptNoticeIsSentAtMostOncePerAccountWithinTheLimit(): void
+    {
+        $client = self::createClient();
+        $client->disableReboot();
+        $client->getContainer()->get('cache.rate_limiter')->clear();
+
+        $suffix = bin2hex(random_bytes(4));
+        $existingEmail = sprintf('flood-%s@example.test', $suffix);
+        UserFactory::createOne(['username' => sprintf('flood-user-%s', $suffix), 'email' => $existingEmail]);
+
+        $this->submitRegistration($client, sprintf('flood-a-%s', $suffix), $existingEmail);
+        self::assertCount(1, $this->mailsTo($existingEmail));
+
+        // The second attempt gets the same answer, but no further mail (registration_attempt_notice: 1 per 24 hours).
+        $this->submitRegistration($client, sprintf('flood-b-%s', $suffix), $existingEmail);
+        self::assertResponseRedirects('/register/check-email');
+        self::assertCount(0, $this->mailsTo($existingEmail));
         UserFactory::assert()->count(1, ['email' => $existingEmail]);
     }
 
-    public function testRegistrationHandlesUniqueConstraintRaceWithGenericMessage(): void
+    public function testRegistrationHandlesUniqueConstraintRaceOnTheUsername(): void
     {
         self::ensureKernelShutdown();
         $client = self::createClient();
@@ -349,7 +383,7 @@ final class RegistrationControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(422);
         self::assertSelectorTextContains('h2', 'Register');
         self::assertStringContainsString(
-            'This username or email address is already taken.',
+            'This username is already taken.',
             (string) $client->getResponse()->getContent(),
         );
         self::assertStringNotContainsString('Check your email', (string) $client->getResponse()->getContent());
@@ -595,7 +629,7 @@ final class RegistrationControllerTest extends WebTestCase
             ->click('Register')
             ->assertStatus(422)
             ->assertSeeIn('h2', 'Register')
-            ->assertSee('This username or email address is already taken.')
+            ->assertSee('This username is already taken.')
         ;
 
         UserFactory::assert()->notExists(['email' => $attemptEmail]);
@@ -651,6 +685,49 @@ final class RegistrationControllerTest extends WebTestCase
                 $_SERVER['BROWSER_FOLLOW_REDIRECTS'] = $previousFollowRedirects;
             }
         }
+    }
+
+    private function submitRegistration(KernelBrowser $client, string $username, string $email): void
+    {
+        $client->request(Request::METHOD_GET, '/register');
+        self::assertResponseIsSuccessful();
+        $client->submitForm('Register', [
+            'registration_form[username]' => $username,
+            'registration_form[email]' => $email,
+            'registration_form[plainPassword]' => 'super-secret-password',
+            'registration_form[acceptTerms]' => true,
+        ]);
+    }
+
+    /**
+     * Mails of the last request sent to `$address`.
+     *
+     * @return list<Email>
+     */
+    private function mailsTo(string $address): array
+    {
+        $mails = [];
+        foreach (self::getMailerMessages() as $message) {
+            if (!$message instanceof Email) {
+                continue;
+            }
+
+            foreach ($message->getTo() as $to) {
+                if (mb_strtolower($to->getAddress()) === mb_strtolower($address)) {
+                    $mails[] = $message;
+                }
+            }
+        }
+
+        return $mails;
+    }
+
+    /**
+     * @return list<string|null>
+     */
+    private function mailSubjectsTo(string $address): array
+    {
+        return array_map(static fn (Email $mail): ?string => $mail->getSubject(), $this->mailsTo($address));
     }
 
     private function getUserRepository(): UserRepository

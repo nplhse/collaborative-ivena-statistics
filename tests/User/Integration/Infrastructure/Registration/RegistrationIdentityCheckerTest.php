@@ -58,11 +58,18 @@ final class RegistrationIdentityCheckerTest extends KernelTestCase
         self::assertFalse($checker->isIdentityTaken('bob', 'bob@example.test'));
     }
 
-    public function testCreateIdentityTakenFormErrorMessage(): void
+    public function testIsUsernameTakenIgnoresTheEmail(): void
     {
-        $checker = self::getContainer()->get(RegistrationIdentityChecker::class);
-        $error = $checker->createIdentityTakenFormError();
+        UserFactory::createOne([
+            'username' => 'Alice',
+            'email' => 'alice@example.test',
+        ]);
 
-        self::assertSame('This username or email address is already taken.', $error->getMessage());
+        $checker = self::getContainer()->get(RegistrationIdentityChecker::class);
+
+        self::assertTrue($checker->isUsernameTaken('  aLiCe  '));
+        // Self-registration must not learn whether an email has an account (#936).
+        self::assertFalse($checker->isUsernameTaken('bob'));
+        self::assertSame('This username is already taken.', $checker->createUsernameTakenFormError()->getMessage());
     }
 }
