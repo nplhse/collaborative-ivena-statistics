@@ -210,6 +210,7 @@ Typical order (Symfony recipe plus project tasks):
 | Queue stats | `cd <deploy_path>/current && php bin/console messenger:stats` |
 | Failed messages | `php bin/console messenger:failed:show` |
 | Retry failed | `php bin/console messenger:failed:retry` |
+| Deprecation notices | `tail <deploy_path>/current/var/log/deprecation-*.log` (JSON, one file per day, the last 7 kept; not on stderr, so they stay out of command, cron and web server output, #1708) |
 
 See [health-check.md](health-check.md) for the `/health` endpoint and [backup-restore.md](backup-restore.md) for backups.
 

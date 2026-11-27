@@ -138,11 +138,14 @@ when@prod:
             console:
                 type: console
                 process_psr_3_messages: false
-                channels: ["!event", "!doctrine"]
+                channels: ["!event", "!doctrine", "!deprecation"]
+            # A file, not stderr (#1708): on stderr the notices mixed with the output of console commands, cron jobs
+            # and the web server error log. var/log belongs to the release, so the files go with old releases.
             deprecation:
-                type: stream
+                type: rotating_file
                 channels: [deprecation]
-                path: php://stderr
+                path: "%kernel.logs_dir%/deprecation.log"
+                max_files: 7
                 formatter: monolog.formatter.json
             import_stderr:
                 type: stream
