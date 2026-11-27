@@ -34,7 +34,7 @@ Aligned with ADR 007–009:
 - **Shared:** may depend on Shared layers and `User` only (ADR 008 exception); must not depend on feature contexts such as Feedback, Content, or Allocation
 - **Admin:** may depend on all production context layers (CRUD back office)
 - **No production context → Admin UI** (e.g. no imports of `Admin\UI\…Controller` for URL generation)
-- **Documented partnerships:** Import/Allocation/Statistics/Engagement edges as defined in ADR 007
+- **Documented partnerships:** Import/Allocation/Statistics/Engagement/Onboarding/User edges as defined in ADR 007
 - **Encounter contract:** `Encounter_Contract` (`src/Encounter/Contract/`) is the public API for encounter schema plugins ([ADR 037](decisions/037-encounter-case-hub-and-schema-plugins.md)); every Encounter layer may use it, and it depends on nothing of the application
 - **Plugins** (`Encounter_Plugin`: `plugins/*/src`, test bundles): the contract plus `Encounter_PluginApi` (named Encounter classes) and `Statistics_PageApiApplication` / `Statistics_PageApiUi` (the [Statistics page API](extension-points.md#statistics-pages)), the entity layers of other contexts and their extension points (#1300). The API layers take their classes out of the layer of their folder by a `bool` collector and keep that layer's rules, so the core's own rules do not change. `PluginBoundaryTest` is the exact list and fails CI
 

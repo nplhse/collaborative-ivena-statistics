@@ -36,11 +36,13 @@ The following directories under `src/` are the official bounded contexts / modul
 
 These couplings are intentional and may remain until a dedicated follow-up ADR changes them:
 
-- **Allocation ↔ Import** at the domain association level (`Allocation` / `MciCase` reference `Import`)
+- **Allocation ↔ Import** at the domain association level (`Allocation` / `MciCase` reference `Import`); Allocation UI may also use Import application services (upload targets on the allocation list)
 - **User ↔ Allocation** for hospital ownership (`User` ↔ `Hospital`)
 - **Import → Statistics** for projection rebuild / deduplication via Statistics application contracts
 - **Statistics → Allocation / User** as a read model over allocation domain types and identity
 - **Engagement** may read Statistics, Kpi, Allocation, and Import application/infrastructure read APIs to compose reminder content
+- **Import → User** for the uploading and notified user: Import application services and UI use the `User` entity and its roles (#1102)
+- **Onboarding → Allocation / Import** to derive the participant's next steps: Onboarding application reads hospital assignment requests and permissions (Allocation domain) and the upload targets and import types (Import application and domain) (#1102)
 - **Admin** may depend on other contexts’ domain entities and application services for CRUD
 
 ### Edges to avoid or remove over time

@@ -235,26 +235,19 @@ deptrac:
       - App\Import\Infrastructure\Mapping\ClosureRowMapper
     App\Import\Application\Service\ImportAllocationsDispatcher:
       - App\Import\Infrastructure\Repository\ImportRepository
-      - App\User\Domain\Entity\User
     App\Import\Application\Service\ImportBulkDeletionService:
       - App\Import\Infrastructure\Repository\ImportRepository
     App\Import\Application\Service\ImportBulkReprocessService:
       - App\Import\Infrastructure\Repository\ImportBatchRunRepository
       - App\Import\Infrastructure\Repository\ImportRepository
-    App\Import\Application\Service\ImportCreatorPermissionCheck:
-      - App\User\Domain\Entity\User
     App\Import\Application\Service\ImportDeletionService:
       - App\Import\Infrastructure\Repository\ImportBatchRunItemRepository
-    App\Import\Application\Service\ImportListAccess:
-      - App\User\Domain\Entity\User
     App\Import\Application\Service\ImportRelatedDataCleanupService:
       - App\Import\Infrastructure\Repository\ImportRejectRepository
       - App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewGroups
     App\Import\Application\Service\ImportRequeueBatchOrchestrator:
       - App\Import\Infrastructure\Repository\ImportBatchRunRepository
       - App\Import\Infrastructure\Repository\ImportRepository
-    App\Import\Application\Service\ImportRunLifecycle:
-      - App\User\Domain\Entity\User
     App\Import\Application\Service\MciCaseRowProcessor:
       - App\Import\Infrastructure\Mapping\MciCaseImportFactory
     App\Import\Domain\Entity\Import:
@@ -281,14 +274,10 @@ deptrac:
       - App\Import\UI\Http\DTO\ListImportQueryParametersDTO
     App\Import\UI\Console\Command\AnalyzeImportRejectsCommand:
       - App\Import\Infrastructure\Analysis\Export\RejectAnalysisExporterRegistry
-    App\Import\UI\Form\ImportCreateType:
-      - App\User\Domain\Entity\User
     App\Import\UI\Console\NotifyUserResolver:
-      - App\User\Domain\Entity\User
       - App\User\Infrastructure\Repository\UserRepository
     App\Import\UI\Http\Controller\BulkImportActionController:
       - App\Import\Infrastructure\Security\Voter\ImportVoter
-      - App\User\Domain\Entity\User
     App\Import\UI\Http\Controller\DeleteImportController:
       - App\Import\Infrastructure\Security\Voter\ImportVoter
     App\Import\UI\Http\Controller\DownloadImportSourceFileController:
@@ -299,14 +288,10 @@ deptrac:
       - App\Import\Infrastructure\Query\ImportBatchProgressQuery
       - App\Import\Infrastructure\Query\ListImportsQuery
       - App\Import\Infrastructure\Security\Voter\ImportVoter
-      - App\User\Domain\Entity\User
-    App\Import\UI\Http\Controller\NewImportController:
-      - App\User\Domain\Entity\User
     App\Import\UI\Http\Controller\ProcessingImportController:
       - App\Import\Infrastructure\Security\Voter\ImportVoter
     App\Import\UI\Http\Controller\ReprocessImportController:
       - App\Import\Infrastructure\Security\Voter\ImportVoter
-      - App\User\Domain\Entity\User
     App\Import\UI\Http\Controller\ShowImportController:
       - App\Import\Infrastructure\Security\Voter\ImportVoter
     App\Kpi\Application\Service\KpiAggregationService:
@@ -326,7 +311,6 @@ deptrac:
     App\Onboarding\Application\OnboardingStepCatalog:
       - App\Allocation\Application\Allocations\AllocationListHospitalScopeResolver
       - App\Allocation\Application\Service\HospitalPermissionAccess
-      - App\Allocation\Domain\Enum\HospitalPermission
     App\Onboarding\Domain\Entity\UserOnboardingStep:
       - App\Onboarding\Infrastructure\Repository\UserOnboardingStepRepository
     App\Statistics\Application\ClinicalFeaturesProvider:
