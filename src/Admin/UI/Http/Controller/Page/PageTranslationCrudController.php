@@ -532,39 +532,61 @@ final class PageTranslationCrudController extends AbstractCrudController
 
         return [
             ...$this->pageContentValidator->validateBlockAt($position, $prepared[0] ?? $block),
-            ...$this->unknownCardIcons($position, $prepared[0] ?? $block),
+            ...$this->unknownIcons($position, $prepared[0] ?? $block),
         ];
     }
 
     /**
-     * Card icons (#1578) that the icon set does not know; they would fail when the page is shown.
+     * Card icons (#1578) and the custom highlight icon (#1589) that the icon set does not know; they
+     * would fail when the page is shown.
      *
      * @param array<array-key, mixed> $block
      *
      * @return list<string>
      */
-    private function unknownCardIcons(int $position, array $block): array
+    private function unknownIcons(int $position, array $block): array
     {
-        $items = $block['data']['items'] ?? null;
-        if (\App\Content\Domain\Enum\PageContentBlockType::Cards->value !== ($block['type'] ?? null) || !is_array($items)) {
+        $type = $block['type'] ?? null;
+        $data = is_array($block['data'] ?? null) ? $block['data'] : [];
+
+        if (\App\Content\Domain\Enum\PageContentBlockType::Highlight->value === $type) {
+            $icon = 'custom' === ($data['iconMode'] ?? null) ? trim((string) ($data['icon'] ?? '')) : '';
+
+            return '' !== $icon && !$this->iconExists($icon)
+                ? [sprintf('Block %d: %s', $position, $this->unknownIconMessage($icon))]
+                : [];
+        }
+
+        $items = $data['items'] ?? null;
+        if (\App\Content\Domain\Enum\PageContentBlockType::Cards->value !== $type || !is_array($items)) {
             return [];
         }
 
         $errors = [];
         foreach (array_values($items) as $index => $item) {
             $icon = is_array($item) ? trim((string) ($item['icon'] ?? '')) : '';
-            if ('' === $icon) {
-                continue;
-            }
-
-            try {
-                $this->iconRenderer->renderIcon($icon);
-            } catch (IconNotFoundException) {
-                $errors[] = sprintf('Block %d card %d: %s', $position, $index + 1, $this->translator->trans('page.validation.cards_unknown_icon', ['{icon}' => $icon], 'validators'));
+            if ('' !== $icon && !$this->iconExists($icon)) {
+                $errors[] = sprintf('Block %d card %d: %s', $position, $index + 1, $this->unknownIconMessage($icon));
             }
         }
 
         return $errors;
+    }
+
+    private function iconExists(string $icon): bool
+    {
+        try {
+            $this->iconRenderer->renderIcon($icon);
+        } catch (IconNotFoundException) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function unknownIconMessage(string $icon): string
+    {
+        return $this->translator->trans('page.validation.cards_unknown_icon', ['{icon}' => $icon], 'validators');
     }
 
     private function shouldSynchronizePath(PageTranslation $translation): bool
