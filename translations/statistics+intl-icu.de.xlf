@@ -2753,6 +2753,10 @@
         <source>stats.case_flow.section.origin_distribution</source>
         <target>Fallherkünfte</target>
       </trans-unit>
+      <trans-unit id="CaseFlowOriginOtherDe" resname="stats.case_flow.origin.other">
+        <source>stats.case_flow.origin.other</source>
+        <target>Sonstige</target>
+      </trans-unit>
       <trans-unit id="Deec841f00" resname="stats.case_flow.section.transport_time">
         <source>stats.case_flow.section.transport_time</source>
         <target>Transportzeitverteilung</target>

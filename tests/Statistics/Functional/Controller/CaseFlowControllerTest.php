@@ -98,6 +98,48 @@ final class CaseFlowControllerTest extends WebTestCase
         $this->assertSelectorNotExists('[data-testid="stats-case-flow-stacked-bar"]');
     }
 
+    /**
+     * #1772: the origin bar groups origins below 10 cases as "Other"; in German it reads "Sonstige".
+     */
+    public function testOriginBarLabelsTheOtherBucketInTheUsersLanguage(): void
+    {
+        $client = self::createClient();
+
+        $state = StateFactory::createOne(['name' => 'CaseFlowOtherState']);
+        $largeOrigin = DispatchAreaFactory::createOne(['name' => 'CaseFlowOtherLarge', 'state' => $state]);
+        $smallOrigin = DispatchAreaFactory::createOne(['name' => 'CaseFlowOtherSmall', 'state' => $state]);
+        $hospital = HospitalFactory::createOne(['name' => 'CaseFlowOtherHospital', 'state' => $state, 'dispatchArea' => $largeOrigin]);
+        SpecialityFactory::createOne(['name' => 'CaseFlowOtherSpec']);
+        DepartmentFactory::createOne(['name' => 'CaseFlowOtherDept']);
+        AssignmentFactory::createOne(['name' => 'CaseFlowOtherAssign']);
+        IndicationRawFactory::createOne(['name' => 'CaseFlowOtherRaw', 'code' => 912_503]);
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER'], 'locale' => 'de']);
+        $import = ImportFactory::createOne(['name' => 'CaseFlowOtherImport', 'hospital' => $hospital, 'createdBy' => $user]);
+
+        foreach ([[$largeOrigin, 12], [$smallOrigin, 3]] as [$origin, $count]) {
+            AllocationFactory::createMany($count, [
+                'import' => $import,
+                'hospital' => $hospital,
+                'state' => $state,
+                'dispatchArea' => $origin,
+                'createdAt' => new \DateTimeImmutable('2026-04-01 09:00:00'),
+                'arrivalAt' => new \DateTimeImmutable('2026-04-01 09:20:00'),
+            ]);
+        }
+
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
+
+        $client->loginUser($user);
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/case-flow?scope=public&period=last_12_months');
+
+        $this->assertResponseIsSuccessful();
+        $payloadJson = (string) $crawler->filter('[data-controller="case-flow-charts"]')->attr('data-case-flow-charts-payload-value');
+        $payload = json_decode(html_entity_decode($payloadJson, ENT_QUOTES), true, 512, JSON_THROW_ON_ERROR);
+
+        self::assertSame(['CaseFlowOtherLarge', 'Sonstige'], $payload['originBar']['labels']);
+        self::assertSame([12, 3], $payload['originBar']['values']);
+    }
+
     public function testCaseFlowPageIsDisplayedForPublicScope(): void
     {
         $client = $this->createClientAsRoleUser();
