@@ -243,7 +243,7 @@ New migrations:
 
 - Generate them with `php bin/console doctrine:migrations:diff` (or `make:migration`) and review the SQL.
   - Tables that a context manages with DBAL only, without an entity, are hidden from the diff by a schema filter (#1372). Register a new one through `DbalManagedTablesInterface` in its context; never register a table an entity maps. `SchemaDiffDropsNoTableTest` fails while a table is neither mapped nor registered.
-  - The diff still proposes changes on mapped tables where the mapping and the migrations differ: index names, the `public_id` type, identity columns, indexes that exist only in migrations (#1398). Remove those statements from a generated migration.
+  - Mapping and migrations describe the same schema (#1398): `MappingMatchesMigrationsTest` fails while the diff against the migrated test database is not empty. Name indexes in the mapping (`#[ORM\Index(name: …)]`) when a migration creates them under a readable name, and write partial index conditions in the form PostgreSQL stores them (`pg_get_expr`); otherwise the diff proposes to drop and recreate them.
   - Without the ED visit plugin, its tables are unmapped and the diff proposes to drop them. Generate migrations with the plugin installed.
 - Name the version with the actual current time, `Version<YYYYMMDDHHMMSS>` (`date '+%Y%m%d%H%M%S'`), never a rounded value such as `Version20261014190000`. If you rename one that already ran locally, update `doctrine_migration_versions` too.
 - Never edit a migration that is already on `develop` (or on `main`); add a new one instead. Other checkouts and the next release already depend on it.

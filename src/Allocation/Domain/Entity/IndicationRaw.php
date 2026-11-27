@@ -18,6 +18,7 @@ use Symfony\Component\Clock\Clock;
 #[ORM\HasLifecycleCallbacks()]
 #[ORM\Index(name: 'idx_indication_raw_review_status', columns: ['review_status'])]
 #[ORM\Index(name: 'idx_indication_raw_review_status_created_at', columns: ['review_status', 'created_at'])]
+#[ORM\Index(name: 'idx_indication_raw_unmatched_code', columns: ['code'], options: ['where' => '(target_id IS NULL)'])]
 class IndicationRaw implements \Stringable
 {
     use Blamable;

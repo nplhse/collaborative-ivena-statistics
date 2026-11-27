@@ -51,7 +51,7 @@ final class AllocationRowWriter
             return;
         }
 
-        $placeholders = '(nextval(\'allocation_id_seq\'), gen_random_uuid()::text, '.implode(', ', array_fill(0, \count(self::COLUMNS), '?')).')';
+        $placeholders = '(nextval(\'allocation_id_seq\'), gen_random_uuid(), '.implode(', ', array_fill(0, \count(self::COLUMNS), '?')).')';
         $parameters = [];
         foreach ($this->rows as $row) {
             foreach ($row as $value) {

@@ -21,6 +21,8 @@ doctrine:
         identity_generation_preferences:
             Doctrine\DBAL\Platforms\PostgreSQLPlatform: identity
         auto_mapping: true
+        # Schema generation through the DBAL schema editor API, the only way in ORM 4 (#1398).
+        use_schema_editor_api: true
         mappings:
             Allocation:
                 type: attribute

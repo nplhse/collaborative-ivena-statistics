@@ -185,7 +185,7 @@ final readonly class PublicIdBackfillService
 
         return $this->connection->executeStatement(
             sprintf(
-                'UPDATE %s AS t SET public_id = v.pid FROM (VALUES %s) AS v(id, pid) WHERE t.id = v.id::int',
+                'UPDATE %s AS t SET public_id = v.pid::uuid FROM (VALUES %s) AS v(id, pid) WHERE t.id = v.id::int',
                 $table,
                 implode(', ', $values),
             ),
