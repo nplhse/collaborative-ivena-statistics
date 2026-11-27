@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Shared\Integration\Twig;
 
+use App\Shared\Application\Navigation\Menu\NavigationBuilder;
 use App\Shared\UI\Twig\NavigationSnapshotExtension;
+use Psr\Cache\CacheItemPoolInterface;
+use Psr\Clock\ClockInterface;
+use Symfony\Component\ErrorHandler\BufferingLogger;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Twig\Environment;
@@ -62,6 +66,23 @@ final class NavigationSnapshotExtensionTest extends KernelTestCase
         $this->extension()->refresh($this->twig(), 'en');
         self::assertSame(strtotime('2026-11-27 11:00:00'), $this->storedAt('primary'), 'an hour old: renewed');
         self::assertSame(strtotime('2026-11-27 11:00:00'), $this->storedAt('footer'));
+    }
+
+    public function testABrokenCacheNeitherBreaksANormalPageNorTheErrorPage(): void
+    {
+        $cache = $this->createStub(CacheItemPoolInterface::class);
+        $cache->method('getItem')->willThrowException(new \RuntimeException('The cache directory is not writable.'));
+        $logger = new BufferingLogger();
+        $extension = new NavigationSnapshotExtension(
+            self::getContainer()->get(NavigationBuilder::class),
+            $cache,
+            self::getContainer()->get(ClockInterface::class),
+            $logger,
+        );
+
+        self::assertSame('', $extension->refresh($this->twig(), 'en'));
+        self::assertNull($extension->snapshot('footer', 'en'));
+        self::assertCount(3, $logger->cleanLogs(), 'two menus not renewed, one not read');
     }
 
     private function storedAt(string $menu): ?int
