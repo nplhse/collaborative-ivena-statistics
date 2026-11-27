@@ -3173,6 +3173,10 @@
         <source>stats.case_flow.section.origin_distribution</source>
         <target>Case origins</target>
       </trans-unit>
+      <trans-unit id="CaseFlowOriginOther" resname="stats.case_flow.origin.other">
+        <source>stats.case_flow.origin.other</source>
+        <target>Other</target>
+      </trans-unit>
       <trans-unit id="statsPf16" resname="stats.case_flow.section.destination_tier">
         <source>stats.case_flow.section.destination_tier</source>
         <target>Destination by tier</target>

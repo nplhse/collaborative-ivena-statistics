@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\CaseFlow;
 
+use App\Statistics\CaseFlow\Application\CaseFlowPrivacyPolicy;
 use App\Statistics\CaseFlow\Application\DTO\CaseFlowDashboardResult;
 use App\Statistics\CaseFlow\Application\DTO\CaseFlowDispatchAreaFlow;
 use App\Statistics\CaseFlow\Application\DTO\CaseFlowDistributionSlice;
@@ -16,6 +17,8 @@ use App\Statistics\CaseFlow\UI\Http\Controller\CaseFlowChartPayloadFactory;
 use App\Statistics\GeographicMap\Application\DTO\GeographicHospitalPin;
 use App\Statistics\GeographicMap\Application\GeographicMapPayloadBuilder;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Translation\Loader\ArrayLoader;
+use Symfony\Component\Translation\Translator;
 
 final class CaseFlowChartPayloadFactoryTest extends TestCase
 {
@@ -24,7 +27,42 @@ final class CaseFlowChartPayloadFactoryTest extends TestCase
     #[\Override]
     protected function setUp(): void
     {
-        $this->factory = new CaseFlowChartPayloadFactory(new GeographicMapPayloadBuilder());
+        $translator = new Translator('de');
+        $translator->addLoader('array', new ArrayLoader());
+        $translator->addResource('array', ['stats.case_flow.origin.other' => 'Sonstige'], 'de', 'statistics');
+
+        $this->factory = new CaseFlowChartPayloadFactory(new GeographicMapPayloadBuilder(), $translator);
+    }
+
+    /**
+     * #1772: the bucket of small and further origins gets a translated label, not the English "Other".
+     */
+    public function testOriginBarTranslatesTheOtherBucket(): void
+    {
+        $result = new CaseFlowDashboardResult(
+            CaseFlowMode::SystemFlow,
+            new CaseFlowKpiSet(44, 70.0, 45.0, 35.0, 'Frankfurt', 90.9, null, 20.0),
+            [],
+            [
+                new CaseFlowOriginSlice(1, 'Frankfurt', 40, 10, false),
+                new CaseFlowOriginSlice(0, CaseFlowPrivacyPolicy::OTHER_ORIGIN_KEY, 4, 1, false),
+            ],
+            [],
+            [],
+            [],
+            null,
+            null,
+            null,
+            [],
+            [],
+            30.0,
+            40.0,
+        );
+
+        $payload = $this->factory->create($result);
+
+        self::assertSame(['Frankfurt', 'Sonstige'], $payload['originBar']['labels']);
+        self::assertSame([40, 4], $payload['originBar']['values']);
     }
 
     public function testCreateBuildsOriginBarAndMapPayload(): void
