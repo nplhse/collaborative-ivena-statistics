@@ -18,6 +18,8 @@ final readonly class QueryViolation
     public const string COLUMN = 'column';
     public const string INTERNAL_OUTPUT = 'internal_output';
     public const string RESERVED_MISSING = 'reserved_missing';
+    public const string RESERVED_NOT_DERIVED = 'reserved_not_derived';
+    public const string HOSPITAL_DEPENDENT_OUTPUT = 'hospital_dependent_output';
     public const string SQL_ERROR = 'sql_error';
     public const string CONNECTION_MISSING = 'connection_missing';
     public const string CONNECTION_WRITABLE = 'connection_writable';

@@ -497,6 +497,14 @@
         <source>data_request.query.violation.reserved_missing</source>
         <target>Die reservierte Spalte {column} fehlt.</target>
       </trans-unit>
+      <trans-unit id="RscReservedNotDerived" resname="data_request.query.violation.reserved_not_derived">
+        <source>data_request.query.violation.reserved_not_derived</source>
+        <target>Die reservierte Spalte {column} muss array_agg(DISTINCT &lt;alias&gt;.hospital_id) über allocation in der obersten Gruppierung der Abfrage sein.</target>
+      </trans-unit>
+      <trans-unit id="RscHospitalDependentOutput" resname="data_request.query.violation.hospital_dependent_output">
+        <source>data_request.query.violation.hospital_dependent_output</source>
+        <target>Die Spalte {column} wird aus einzelnen Kliniken berechnet (Klinik-ID in FILTER oder CASE); die aufgeführten Kliniken würden sie nicht abdecken.</target>
+      </trans-unit>
       <trans-unit id="Rsc8FDB1F84" resname="data_request.query.violation.sql_error">
         <source>data_request.query.violation.sql_error</source>
         <target>Die Datenbank hat die Abfrage abgelehnt: {message}</target>

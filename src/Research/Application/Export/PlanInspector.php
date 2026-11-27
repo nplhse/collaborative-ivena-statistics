@@ -16,6 +16,10 @@ use App\Research\Domain\Enum\QueryKind;
  * - No result column returns an internal-only column as such (for example a hospital ID), except the reserved column
  *   of a single-case query.
  * - The reserved column of the query kind is present.
+ * - In an aggregated query the reserved column is `array_agg(DISTINCT <alias>.hospital_id)` over `allocation` in the
+ *   top grouping, and no other result column of that grouping uses a hospital ID (#1692). The runner counts the
+ *   contributing hospitals of every group from this column, so it must not be a constant, come from another grouping
+ *   or list hospitals a result column does not cover.
  */
 final class PlanInspector
 {
@@ -23,6 +27,9 @@ final class PlanInspector
 
     /** A bare identifier that is not a function call. */
     private const string BARE = '/(?<![.\w])([a-z_][a-z0-9_]*)\b(?!\s*[.(])/';
+
+    /** Nodes above the top grouping that only pass its rows on, with every expression in parentheses. */
+    private const array PASS_THROUGH_NODES = ['Limit', 'Sort', 'Incremental Sort'];
 
     /**
      * @return list<QueryViolation>
@@ -103,9 +110,137 @@ final class PlanInspector
 
         if (!\in_array($kind->reservedColumn(), $columns, true)) {
             $violations[] = new QueryViolation(QueryViolation::RESERVED_MISSING, ['column' => $kind->reservedColumn()]);
+        } elseif (QueryKind::Aggregated === $kind) {
+            $violations = [...$violations, ...self::inspectGrouping($plan, $columns, $aliases, $single, $kind->reservedColumn())];
         }
 
         return self::unique($violations);
+    }
+
+    /**
+     * The reserved column and the other result columns of the top grouping (#1692).
+     *
+     * @param array<array-key, mixed>     $plan
+     * @param list<string>                $columns
+     * @param array<string, list<string>> $aliases
+     *
+     * @return list<QueryViolation>
+     */
+    private static function inspectGrouping(array $plan, array $columns, array $aliases, ?string $single, string $reserved): array
+    {
+        $index = array_search($reserved, $columns, true);
+        $node = $plan;
+        while (\in_array($node['Node Type'] ?? null, self::PASS_THROUGH_NODES, true)) {
+            $child = \is_array($node['Plans'] ?? null) ? ($node['Plans'][0] ?? null) : null;
+            if (!\is_array($child) || !self::passesOn($node, $child, \count($columns))) {
+                return [new QueryViolation(QueryViolation::RESERVED_NOT_DERIVED, ['column' => $reserved])];
+            }
+
+            $node = $child;
+        }
+
+        $outputs = 'Aggregate' === ($node['Node Type'] ?? null) ? self::outputs($node) : [];
+        $expression = \is_int($index) ? ($outputs[$index] ?? null) : null;
+        if (null === $expression || !self::isHospitalList($expression, $aliases, $single)) {
+            return [new QueryViolation(QueryViolation::RESERVED_NOT_DERIVED, ['column' => $reserved])];
+        }
+
+        // A result column computed from single hospitals (FILTER, CASE) would not be covered by the listed hospitals.
+        $violations = [];
+        foreach ($columns as $position => $name) {
+            $output = $outputs[$position] ?? null;
+            if ($position === $index || null === $output || 1 === preg_match('/^(?:[a-z_][a-z0-9_]*\.)?hospital_id$/', $output)) {
+                continue; // A bare hospital ID is reported as internal output already.
+            }
+
+            if (self::usesHospitalId($output, $aliases, $single)) {
+                $violations[] = new QueryViolation(QueryViolation::HOSPITAL_DEPENDENT_OUTPUT, ['column' => $name]);
+            }
+        }
+
+        return $violations;
+    }
+
+    /**
+     * Whether a pass-through node returns its child's result columns unchanged (Postgres prints them in parentheses).
+     *
+     * @param array<array-key, mixed> $node
+     * @param array<array-key, mixed> $child
+     */
+    private static function passesOn(array $node, array $child, int $count): bool
+    {
+        $outputs = self::outputs($node);
+        $childOutputs = self::outputs($child);
+        for ($position = 0; $position < $count; ++$position) {
+            $output = $outputs[$position] ?? null;
+            $childOutput = $childOutputs[$position] ?? null;
+            if (null === $output || null === $childOutput || ($output !== $childOutput && $output !== '('.$childOutput.')')) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * The output expressions of a plan node; anything that is not a string becomes an empty string.
+     *
+     * @param array<array-key, mixed> $node
+     *
+     * @return list<string>
+     */
+    private static function outputs(array $node): array
+    {
+        $outputs = \is_array($node['Output'] ?? null) ? $node['Output'] : [];
+
+        return array_values(array_map(static fn (mixed $output): string => \is_string($output) ? $output : '', $outputs));
+    }
+
+    /**
+     * `array_agg(DISTINCT <alias>.hospital_id)` where the alias is a scan of `allocation`, nothing more.
+     *
+     * @param array<string, list<string>> $aliases
+     */
+    private static function isHospitalList(string $expression, array $aliases, ?string $single): bool
+    {
+        if (1 !== preg_match('/^array_agg\(DISTINCT (?:([a-z_][a-z0-9_]*)\.)?hospital_id\)$/', $expression, $match)) {
+            return false;
+        }
+
+        $alias = $match[1] ?? '';
+
+        return '' === $alias ? 'allocation' === $single : ['allocation'] === ($aliases[$alias] ?? []);
+    }
+
+    /**
+     * Whether an expression reads a hospital ID: `allocation.hospital_id` or `hospital.id`.
+     *
+     * @param array<string, list<string>> $aliases
+     */
+    private static function usesHospitalId(string $expression, array $aliases, ?string $single): bool
+    {
+        // String literals are data, not references.
+        $expression = (string) preg_replace("/'(?:[^']|'')*'/", "''", $expression);
+        $bareColumn = match ($single) {
+            'allocation' => 'hospital_id',
+            'hospital' => 'id',
+            default => null,
+        };
+        if (null !== $bareColumn && 1 === preg_match('/(?<![.\w])'.$bareColumn.'\b(?!\s*[.(])/', $expression)) {
+            return true;
+        }
+
+        if (preg_match_all(self::REFERENCE, $expression, $matches, \PREG_SET_ORDER) > 0) {
+            foreach ($matches as [, $alias, $column]) {
+                foreach ($aliases[$alias] ?? [] as $table) {
+                    if (('allocation' === $table && 'hospital_id' === $column) || ('hospital' === $table && 'id' === $column)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     /** Without a trailing semicolon and surrounding space, as it is stored and run. */
