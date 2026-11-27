@@ -16,7 +16,11 @@ final readonly class HealthCheckController
     ) {
     }
 
-    #[Route('/health', name: 'app_health', methods: [Request::METHOD_GET])]
+    /**
+     * Stateless (#1685): monitoring sends no cookies, and the cookie consent and analytics listeners skip stateless
+     * routes, so nothing before the controller reads the database. With the database down it still answers its 503.
+     */
+    #[Route('/health', name: 'app_health', methods: [Request::METHOD_GET], stateless: true)]
     public function __invoke(): JsonResponse
     {
         $report = $this->healthCheckService->check();
