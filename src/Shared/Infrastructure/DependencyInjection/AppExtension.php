@@ -42,6 +42,8 @@ final class AppExtension extends Extension
 
         $container->setParameter('app.security.two_factor.required_for_admins', $config['security']['two_factor']['required_for_admins']);
 
+        $container->setParameter('app.security.account_lock.enabled', $config['security']['account_lock']['enabled']);
+
         $container->setParameter('app.research.vote_period_days', $config['research']['vote_period_days']);
 
         $container->setParameter('app.closure_volume.reference_weeks_before', $config['closure_volume']['reference_weeks_before']);

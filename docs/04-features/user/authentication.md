@@ -203,7 +203,8 @@ account for three hours (`AccountLock::LOCK_DURATION`, column `user.login_locked
   tells the owner once per lock with the notification `security.account_locked` (in-app and a mandatory email), which
   points to the password reset.
 
-The lock is **off by default** (`APP_ACCOUNT_LOCK_ENABLED=false`, [configuration](../../06-reference/configuration.md)).
+The lock is **off by default** (`app.security.account_lock.enabled: false` in `config/packages/app.yaml`,
+[configuration](../../06-reference/configuration.md)).
 Off, wrong passwords are counted the same way, but reaching the threshold only logs
 `security.login.account_lock_threshold_reached` (user id only, `security` channel) and starts counting again: nothing is
 locked, nobody is told and no audit entry is written. This shows how often such attacks happen before sign-ins are
