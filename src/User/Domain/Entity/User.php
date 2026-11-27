@@ -6,7 +6,6 @@ namespace App\User\Domain\Entity;
 
 use App\Allocation\Domain\Entity\Hospital;
 use App\Shared\Application\Locale\SupportedLocales;
-use App\Shared\Domain\Traits\HasPublicId;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use App\User\Domain\Security\UserRole;
 use App\User\Domain\Validator\UserUsernameConstraints;
@@ -33,8 +32,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\HasLifecycleCallbacks]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFactorInterface, BackupCodeInterface, \Stringable
 {
-    use HasPublicId;
-
     public const int DISPLAY_NAME_MAX_LENGTH = 100;
 
     /** Alphabet of the stand-in secret used when the stored one cannot be decrypted (`getTotpAuthenticationConfiguration()`). */

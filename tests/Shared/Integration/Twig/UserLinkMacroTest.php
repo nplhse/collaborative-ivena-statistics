@@ -9,7 +9,6 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
-use Symfony\Component\Uid\Uuid;
 use Twig\Environment;
 
 /**
@@ -115,7 +114,6 @@ final class UserLinkMacroTest extends KernelTestCase
         $user = new User();
         $user->setUsername($username);
         $user->setDisplayName($displayName);
-        $user->setPublicId(Uuid::v7());
 
         return $user;
     }
