@@ -15,9 +15,4 @@ interface ImportTimelineInterface
      * @return array<int,array{year:int,month:int,count:int}>
      */
     public function countByMonthInRange(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive): array;
-
-    /**
-     * @return array<int,array{year:int,count:int}>
-     */
-    public function countByYearInRange(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive): array;
 }

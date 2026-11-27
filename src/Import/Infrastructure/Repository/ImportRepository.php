@@ -112,42 +112,6 @@ SQL;
     }
 
     /**
-     * @return array<int, array{year: int, count: int}>
-     */
-    public function countImportsByYearInRange(\DateTimeInterface $from, ?\DateTimeInterface $toExclusive): array
-    {
-        $qb = $this->createQueryBuilder('i')
-            ->select('i.createdAt AS createdAt')
-            ->where('i.createdAt >= :from')
-            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('i.createdAt', \SortDirection::Ascending);
-
-        if ($toExclusive instanceof \DateTimeInterface) {
-            $qb->andWhere('i.createdAt < :toExclusive')
-                ->setParameter('toExclusive', $toExclusive, Types::DATETIME_IMMUTABLE);
-        }
-
-        /** @var list<array{createdAt:\DateTimeInterface}> $rows */
-        $rows = $qb->getQuery()->getArrayResult();
-        $bucketed = [];
-        foreach ($rows as $row) {
-            $year = (int) $row['createdAt']->format('Y');
-            $bucketed[$year] ??= 0;
-            ++$bucketed[$year];
-        }
-
-        $result = [];
-        foreach ($bucketed as $year => $count) {
-            $result[] = [
-                'year' => $year,
-                'count' => $count,
-            ];
-        }
-
-        return $result;
-    }
-
-    /**
      * @param list<int>|null $onlyIds
      *
      * @return list<array{id: int, name: ?string, filePath: ?string}>
@@ -200,26 +164,6 @@ SQL;
     }
 
     /**
-     * @return list<array{year: int, month: int, count: int}>
-     */
-    public function countSuccessfulImportsByMonthForHospital(int $hospitalId, \DateTimeInterface $from): array
-    {
-        $qb = $this->createQueryBuilder('i')
-            ->where('IDENTITY(i.hospital) = :hospitalId')
-            ->andWhere('i.status IN (:statuses)')
-            ->andWhere('i.createdAt >= :from')
-            ->setParameter('hospitalId', $hospitalId)
-            ->setParameter('statuses', [ImportStatus::COMPLETED, ImportStatus::PARTIAL])
-            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('i.createdAt', \SortDirection::Ascending);
-
-        /** @var Import[] $rows */
-        $rows = $qb->getQuery()->getResult();
-
-        return $this->bucketImportsByMonth($rows);
-    }
-
-    /**
      * @param list<string> $monthKeys list of Y-m keys in chronological order
      *
      * @return array<string, string> Y-m => success|failed|missing
@@ -255,36 +199,6 @@ SQL;
         }
 
         return $statusByMonth;
-    }
-
-    /**
-     * @param Import[] $rows
-     *
-     * @return list<array{year: int, month: int, count: int}>
-     */
-    private function bucketImportsByMonth(array $rows): array
-    {
-        $buckets = [];
-        foreach ($rows as $import) {
-            $createdAt = $import->getCreatedAt();
-            $key = $createdAt->format('Y-m');
-            $buckets[$key] ??= 0;
-            ++$buckets[$key];
-        }
-
-        $result = [];
-        foreach ($buckets as $key => $count) {
-            [$year, $month] = explode('-', $key);
-            $result[] = [
-                'year' => (int) $year,
-                'month' => (int) $month,
-                'count' => $count,
-            ];
-        }
-
-        usort($result, static fn (array $a, array $b): int => [$a['year'], $a['month']] <=> [$b['year'], $b['month']]);
-
-        return $result;
     }
 
     public function hasImportsCreatedByUserSince(User $user, \DateTimeImmutable $since): bool

@@ -57,23 +57,6 @@ final class PageRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return list<Page>
-     */
-    public function findChildrenSorted(Page $parent): array
-    {
-        /** @var list<Page> $pages */
-        $pages = $this->createQueryBuilder('p')
-            ->andWhere('IDENTITY(p.parent) = :parentId')
-            ->setParameter('parentId', $parent->getId(), Types::INTEGER)
-            ->orderBy('p.sortOrder', \SortDirection::Ascending)
-            ->addOrderBy('p.id', \SortDirection::Ascending)
-            ->getQuery()
-            ->getResult();
-
-        return $pages;
-    }
-
-    /**
      * Pages that have at least one published translation.
      *
      * @return list<Page>

@@ -240,28 +240,6 @@ final class ProjectionTimeSeriesQuery
      *
      * @return array<string,int>
      */
-    public function countByCalendarMonthInPeriod(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
-    {
-        $qb = $this->createBaseCountQb($from, $toExclusive, $hospitalIds)
-            ->select('p.createdMonth AS month', 'COUNT(p.id) AS count')
-            ->groupBy('month')
-            ->orderBy('month', \SortDirection::Ascending);
-
-        /** @var list<array{month:numeric-string|int,count:numeric-string|int}> $rows */
-        $rows = $qb->getQuery()->getArrayResult();
-        $out = [];
-        foreach ($rows as $row) {
-            $out[sprintf('cal-%02d', (int) $row['month'])] = (int) $row['count'];
-        }
-
-        return $out;
-    }
-
-    /**
-     * @param list<int>|null $hospitalIds
-     *
-     * @return array<string,int>
-     */
     public function countGroupedByGenderInPeriod(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         $qb = $this->createBaseCountQb($from, $toExclusive, $hospitalIds)

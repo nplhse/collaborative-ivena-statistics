@@ -70,16 +70,6 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository 
      *
      * @return array<string,int>
      */
-    public function countByCalendarMonthInPeriod(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
-    {
-        return $this->timeSeriesQuery->countByCalendarMonthInPeriod($from, $toExclusive, $hospitalIds);
-    }
-
-    /**
-     * @param list<int>|null $hospitalIds
-     *
-     * @return array<string,int>
-     */
     public function countGroupedByGenderInPeriod(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
     {
         return $this->timeSeriesQuery->countGroupedByGenderInPeriod($from, $toExclusive, $hospitalIds);
