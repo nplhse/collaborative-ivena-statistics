@@ -15,7 +15,7 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
  * registered through DbalManagedTablesInterface. A new DBAL table without registration fails here.
  *
  * Compares table names directly instead of running SchemaTool, which is what `doctrine:schema:update` and
- * `doctrine:migrations:diff` do. Other differences between mapping and migrations are not checked (#1398).
+ * `doctrine:migrations:diff` do. MappingMatchesMigrationsTest checks the other differences (#1398).
  */
 #[ResetDatabase]
 final class SchemaDiffDropsNoTableTest extends KernelTestCase

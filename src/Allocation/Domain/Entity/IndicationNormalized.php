@@ -17,6 +17,7 @@ use Symfony\Component\Clock\Clock;
 #[Audit\Audited]
 #[ORM\Entity(repositoryClass: IndicationNormalizedRepository::class)]
 #[ORM\HasLifecycleCallbacks()]
+#[ORM\Index(name: 'idx_indication_normalized_code', columns: ['code'])]
 class IndicationNormalized implements \Stringable
 {
     use Blamable;
