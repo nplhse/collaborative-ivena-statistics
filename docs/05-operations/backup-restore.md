@@ -121,7 +121,7 @@ How it behaves:
 - A component whose directory was **missing when the backup was made** is left unchanged (warning in the plan).
 - Messages that were waiting in the queues when the backup was made are restored with the database and are
   handled again once the worker runs.
-- The database user must own schema `public` (as for `restore-database.sh`).
+- The database user must own schema `public`.
 - **Media variants** are derived and not part of a backup; the restore replaces `var/media` with the backed-up
   originals.
 
@@ -143,31 +143,19 @@ php bin/console app:media:check --full
 
 `app:media:migrate-storage` removes each flat file once it is moved, because it was given the storage root itself.
 
-## Scripts (legacy)
-
-Not to be confused with `bin/ops/scheduled-backup.sh` and `bin/ops/pull-backups.sh`, which run the backup command
-on a schedule ([scheduled backups](#scheduled-backups)). The scripts below predate the backup command. `backup-database.sh` and `backup-files.sh` write backups without
-a manifest; `restore-database.sh` restores any custom-format dump, including `database.dump` of the new format.
-
-| Script | Purpose |
-|--------|---------|
-| `bin/ops/backup-database.sh` | `pg_dump` custom format (`.dump`), schema `public` only (skips PostGIS schemas `tiger`/`topology` and PostGIS tables in `public`) |
-| `bin/ops/backup-files.sh` | `tar.gz` of imports + media |
-| `bin/ops/restore-database.sh` | Reset schema `public` (CASCADE), then `pg_restore` (requires `RESTORE_CONFIRM=yes`; skips PostGIS extensions/tables in the dump TOC) |
-| `bin/ops/verify-restore.sh` | Capture/compare row counts for restore drills |
-
-### Make targets
+## Make targets
 
 ```bash
 make backup         # full backup with manifest (app:backup:create)
 make backup-verify  # verify the newest backup (app:backup:verify)
 make backup-restore # restore the newest backup, asks first (app:backup:restore)
-make backup-db      # legacy: database only
-make backup-files   # legacy: imports + media only
-make restore-db BACKUP_FILE=var/backups/ivena-stats-db-....dump RESTORE_CONFIRM=yes
-make verify-restore-baseline   # save metrics snapshot
-make verify-restore            # compare after restore
 ```
+
+`bin/ops/scheduled-backup.sh` and `bin/ops/pull-backups.sh` run the backup command on a schedule
+([scheduled backups](#scheduled-backups)). The older scripts `backup-database.sh`, `backup-files.sh`,
+`restore-database.sh` and `verify-restore.sh` were removed in v0.4-beta (#1449): the backup command covers them, and
+the manifest holds the row count of every table that `verify-restore.sh` compared. Their backups have no manifest;
+restore them with the scripts of a v0.3 release.
 
 ## Local development (Docker PostgreSQL)
 
@@ -186,69 +174,6 @@ php bin/console cache:clear
 Change some data between backup and restore (for example delete an import) to see it come back. To try the way
 back, run the restore with `--keep-previous` and remove the `*.pre-restore-*` directories afterwards.
 
-#### Legacy drill (scripts)
-
-Use `verify-restore.sh` to prove a round-trip of the legacy scripts without hand-written SQL.
-Symfony provides `dbal:run-sql` (not `doctrine:query:sql`) if you need ad-hoc queries.
-
-1. Start the database:
-
-   ```bash
-   docker compose up -d database
-   ```
-
-2. Ensure meaningful data exists (skip if your DB is already populated):
-
-   ```bash
-   make reset
-   ```
-
-3. Save a baseline snapshot:
-
-   ```bash
-   make verify-restore-baseline
-   ```
-
-4. Create a database backup:
-
-   ```bash
-   make backup-db
-   ls -lh var/backups/ivena-stats-db-*.dump
-   ```
-
-5. Destroy data (pick one):
-
-   ```bash
-   make purge          # empty DB + runtime files
-   # or only DB:
-   symfony composer setup-database
-   ```
-
-6. Confirm data is gone:
-
-   ```bash
-   ./bin/ops/verify-restore.sh show
-   ```
-
-   Counts should be `0` or much lower than the baseline.
-
-7. Restore from the dump:
-
-   ```bash
-   make restore-db BACKUP_FILE=var/backups/ivena-stats-db-YYYYMMDD-HHMMSS.dump RESTORE_CONFIRM=yes
-   php bin/console cache:clear
-   ```
-
-8. Verify metrics match the baseline:
-
-   ```bash
-   make verify-restore
-   ```
-
-   Exit code `0` means all counts and migration version match.
-
-9. Optional app smoke test: login, `/explore/allocation`, statistics dashboard.
-
 ### Quick backup only
 
 1. Start the database:
@@ -257,16 +182,10 @@ Symfony provides `dbal:run-sql` (not `doctrine:query:sql`) if you need ad-hoc qu
    docker compose up -d database
    ```
 
-2. Create a backup (uses `docker compose exec` when the `database` service is running):
+2. Create a backup of database and files (uses the Docker database when the `database` service is running):
 
    ```bash
-   make backup-db
-   ```
-
-3. Optional file backup:
-
-   ```bash
-   make backup-files
+   make backup
    ```
 
 ### Ad-hoc SQL (optional)
@@ -276,7 +195,7 @@ php bin/console dbal:run-sql "SELECT COUNT(*) FROM allocation"
 docker compose exec database psql -U app -d app -c 'SELECT COUNT(*) FROM "user";'
 ```
 
-If `pg_dump` / `pg_restore` is installed on the host and Docker is not running, the backup scripts fall back to `DATABASE_URL` from the environment or `.env.local`.
+If Docker is not running, the backup targets use `pg_dump` / `pg_restore` of the host (`BACKUP_PG_TOOLS=local`) with `DATABASE_URL`.
 
 ## Production (Uberspace)
 
@@ -321,7 +240,7 @@ The policy (#1568):
 2. Only after both succeed does it delete older backups, so that only the newest `--keep` backups stay (default 1:
    the new one).
 3. It deletes only directories named like a finished backup (`ivena-stats-full-<UTC time>`). `.partial`
-   directories and files of the legacy scripts stay.
+   directories and other files stay.
 4. Any failure ends it with a non-zero exit code, so cron mails the output.
 
 ```bash
@@ -454,43 +373,14 @@ this host). Check `pull.log` from time to time, or after a failed run, which `la
    list, statistics dashboard. With `--keep-previous`, then remove the `*.pre-restore-*` directories the command
    listed.
 
-Restore `.env.local` separately if needed ([3. Secrets](#3-secrets-envlocal)).
+Restore `.env.local` separately if needed ([Secrets](#secrets-envlocal)).
 
-The manual steps below are for legacy backups and for a restore without the command.
+Restore the database only with the command: it checks the dump and the row counts against the manifest. The
+manual steps below restore single file components, for example after a lost directory.
 
-### 1. Database
+### Import and media files
 
-1. Stop the Messenger worker to avoid writes during restore:
-
-   ```bash
-   systemctl --user stop messenger
-   ```
-
-2. Restore from the latest good `.dump`:
-
-   ```bash
-   cd <deploy_path>/current
-   set -a && source ../shared/.env.local && set +a
-   RESTORE_CONFIRM=yes BACKUP_FILE=~/backups/ivena-stats-db-YYYYMMDD-HHMMSS.dump ./bin/ops/restore-database.sh
-   ```
-
-3. Clear cache and restart the worker:
-
-   ```bash
-   php bin/console cache:clear --env=prod
-   systemctl --user start messenger
-   ```
-
-4. Smoke test: `curl -sS https://<host>/health | jq` (expect HTTP 200, `checks.database: ok`), then login, import list, statistics dashboard.
-
-`restore-database.sh` drops and recreates schema `public` (`DROP SCHEMA public CASCADE`), then restores from the dump without `--clean`. The `SCHEMA - public` TOC entry is skipped because the script already created that schema. PostGIS extensions and tables (`spatial_ref_sys`, …) listed in the dump TOC are skipped so restores work on plain Postgres (e.g. local Docker) even when the dump came from a host with PostGIS. Schema drift after restore is unlikely if the dump matches the deployed code version; if not, run `php bin/console doctrine:migrations:status`.
-
-For a backup of the new format run `app:backup:verify` on it first, then use its `database.dump` as `BACKUP_FILE`. Afterwards compare the row counts
-with `table_rows` in its `manifest.json`.
-
-### 2. Import and media files
-
-Backups of the new format hold one archive per component, with paths relative to the component directory.
+A backup holds one archive per component, with paths relative to the component directory.
 Check the archive against the manifest first (`sha256sum`), then extract it into the shared directory:
 
 ```bash
@@ -501,27 +391,11 @@ tar -xzf files/media.tar.gz -C <deploy_path>/shared/var/media
 ```
 
 Do the same for `imports` (`shared/var/imports`), `geo` (`shared/var/geo/hospital-isochrones`) and `reference`
-(`shared/var/reference`). Legacy file archives of `bin/ops/backup-files.sh` hold the two directories by their last path component only:
-`imports/` and `media/`. Extract them into an empty directory and copy each one to its place:
-
-```bash
-mkdir -p ~/restore-files && tar -xzf ~/backups/ivena-stats-files-YYYYMMDD-HHMMSS.tar.gz -C ~/restore-files
-rsync -a ~/restore-files/imports/ <deploy_path>/shared/var/imports/
-rsync -a ~/restore-files/media/ <deploy_path>/shared/var/media/   # archive made with v0.3 or later
-```
-
-An archive made before v0.3 holds the media of `public/uploads/media` as flat files in `media/`. On v0.3 or later,
-copy them to `<deploy_path>/shared/public/uploads/media/` instead and move them into the media storage:
-
-```bash
-rsync -a ~/restore-files/media/ <deploy_path>/shared/public/uploads/media/
-php bin/console app:media:migrate-storage --legacy-dir=<deploy_path>/shared/public/uploads/media
-php bin/console app:media:rewrite-content-urls --apply
-```
+(`shared/var/reference`).
 
 Verify permissions on `shared/var/imports` and `shared/var/media` (writable by the web user). A media archive of the backup command from before v0.3 needs the extra step in [Backups from before v0.3](#backups-from-before-v03).
 
-### 3. Secrets (`.env.local`)
+### Secrets (`.env.local`)
 
 Only if the secrets file was lost or corrupted:
 

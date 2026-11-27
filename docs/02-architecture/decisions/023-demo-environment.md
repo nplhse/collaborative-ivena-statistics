@@ -267,7 +267,8 @@ does not know the host. Deployer and the demo stay as they are, apart from three
 - `DEMO_MAIL=off` discards mail, because a server has no Mailpit and synchronous mail delivery would
   otherwise fail.
 - `bin/ops/demo-reset.sh`, run nightly by cron, restores a snapshot (database, demo imports and
-  media) and, on its first run after a deploy, rebuilds the data and takes a new snapshot. It keeps
+  media) and, on its first run after a deploy, rebuilds the data and takes a new snapshot. Since
+  v0.4-beta the snapshot is a backup of `app:backup:create` and is restored with `app:backup:restore` (#1449). It keeps
   the disk usage of the account flat.
 - Access protection is HTTP Basic Auth in front of the application, set up on the server; the demo
   accounts and their passwords are known and must not be reachable without it.

@@ -9,9 +9,10 @@ Usage:
   ~/www/current/bin/ops/demo-reset.sh
 
 The first run after a deploy (the release differs from the one of the snapshot) rebuilds the demo
-data with `make demo-install` and takes a new snapshot: database dump, var/demo/imports and
-var/demo/media. Every other run restores that snapshot. Both stop the Messenger worker,
-empty the demo log and clear the cache pools.
+data with `make demo-install` and takes a new snapshot with `app:backup:create`: database and the
+demo's file components (imports, media, geodata, reference packages). Every other run restores
+that snapshot with `app:backup:restore`. Both stop the Messenger worker, empty the demo log and
+clear the cache pools.
 
 Environment:
   DEMO_PRESET         Fixture preset for a rebuild (default: realistic)
@@ -60,8 +61,9 @@ console() {
     php bin/console --no-interaction "$@"
 }
 
-# What visitors add during the day; the demo's geodata under var/demo/geo stays as it is.
-FILE_DIRS=(var/demo/imports var/demo/media)
+# The snapshot is a backup of the backup command (ADR 038), kept in its own directory below the snapshot directory.
+BACKUP_DIR="$SNAPSHOT_DIR/backup"
+export BACKUP_DIR
 
 systemctl --user stop "$SERVICE"
 trap 'systemctl --user start "$SERVICE"' EXIT
@@ -72,15 +74,17 @@ if [[ "${DEMO_REBUILD:-}" == "yes" || ! -f "$SNAPSHOT_DIR/release" || "$(cat "$S
     rm -f "$SNAPSHOT_DIR/release"
     make --no-print-directory demo-install DEMO_PRESET="$PRESET" DEMO_CONFIRM=yes
 
-    ops_log "Taking a new snapshot in $SNAPSHOT_DIR"
-    BACKUP_DIR="$SNAPSHOT_DIR" BACKUP_FILE="$SNAPSHOT_DIR/database.dump" "$ROOT/bin/ops/backup-database.sh"
-    tar -czf "$SNAPSHOT_DIR/files.tar.gz" "${FILE_DIRS[@]}"
+    ops_log "Taking a new snapshot in $BACKUP_DIR"
+    rm -rf "$BACKUP_DIR"
+    console app:backup:create --target-dir="$BACKUP_DIR"
     echo "$RELEASE" > "$SNAPSHOT_DIR/release"
 else
     ops_log "Restoring the demo snapshot of release $RELEASE"
-    RESTORE_CONFIRM=yes BACKUP_FILE="$SNAPSHOT_DIR/database.dump" "$ROOT/bin/ops/restore-database.sh"
-    rm -rf "${FILE_DIRS[@]}"
-    tar -xzf "$SNAPSHOT_DIR/files.tar.gz"
+    # The restore refuses while the queues hold work. What visitors left in them belongs to the data that is
+    # thrown away now, so it goes with it; "failed" does not block the restore and is replaced with the database.
+    console dbal:run-sql "DELETE FROM messenger_messages WHERE queue_name <> 'failed'"
+    # Without an argument the restore takes the newest backup in BACKUP_DIR, the snapshot.
+    console app:backup:restore --confirm-destructive
 fi
 
 if [[ -f var/log/demo.log ]]; then

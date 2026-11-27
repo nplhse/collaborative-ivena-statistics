@@ -328,13 +328,15 @@ curl -sI http://<host>/ | head -1
 
 ### Nightly reset
 
-`bin/ops/demo-reset.sh` stops the worker, puts the demo back to its snapshot (database,
-`var/demo/imports`, `var/demo/media`), empties `var/log/demo.log`, clears the cache pools
-and starts the worker again. On its first run after a deploy (another release than the snapshot's)
-it rebuilds the data with `make demo-install` and takes a new snapshot instead, so new migrations
+`bin/ops/demo-reset.sh` stops the worker, puts the demo back to its snapshot with
+`app:backup:restore` (database and the demo's file components `var/demo/imports`, `var/demo/media`,
+`var/demo/geo/hospital-isochrones` and `var/reference`), empties `var/log/demo.log`, clears the cache
+pools and starts the worker again. Messages visitors left in the queues are deleted before the
+restore, which otherwise refuses to run while work is waiting. On its first run after a deploy (another release than the snapshot's)
+it rebuilds the data with `make demo-install` and takes a new snapshot with `app:backup:create` instead, so new migrations
 and fixture changes arrive in the data by the next morning; run it right after the deploy to have
-them at once. `DEMO_REBUILD=yes` forces a rebuild. The snapshot lives in `~/demo-snapshot`
-(`DEMO_SNAPSHOT_DIR`); the dates of the data stay those of the last rebuild. The script refuses any
+them at once. `DEMO_REBUILD=yes` forces a rebuild. The snapshot lives in `~/demo-snapshot/backup`
+(`DEMO_SNAPSHOT_DIR`; older snapshots with `database.dump` and `files.tar.gz` can be deleted); the dates of the data stay those of the last rebuild. The script refuses any
 database whose name does not end in `_demo`.
 
 ## Troubleshooting

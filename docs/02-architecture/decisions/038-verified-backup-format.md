@@ -116,8 +116,8 @@ staged:
   is checked against its list. Targets are resolved to their real directory, so a Deployer `shared/` link stays
   in place and the shared directory is replaced. A component whose directory was missing in the backup is left
   alone: an empty restore could otherwise remove files of a differently configured path.
-- **Database: dropped first by default.** Schema `public` is dropped and recreated (one transaction, as
-  `restore-database.sh` does), the dump is restored in one transaction without PostGIS objects, and every table
+- **Database: dropped first by default.** Schema `public` is dropped and recreated (one transaction, as the former
+  `restore-database.sh` did), the dump is restored in one transaction without PostGIS objects, and every table
   count must match the manifest. The database needs no space for a second copy, which matters because it is
   large. The price: a failure after the drop leaves an empty (or, after a count mismatch, a differing) database;
   the error says so, and the operator restores again. Everything that can fail without the database (verify,
@@ -168,7 +168,7 @@ backups made before this format.
   with `--keep-previous`), and a database user that owns schema `public`.
 - Without `--keep-previous`, a restore that fails after the drop leaves no current database; creating a backup
   before a restore is the operator's way back.
-- Backups made with the old scripts have no manifest; they are restored with `bin/ops/restore-database.sh` and
-  `tar` as documented in [backup-restore.md](../../05-operations/backup-restore.md).
+- Backups made with the old scripts have no manifest. The scripts were removed in v0.4-beta (#1449); such a backup
+  is restored with the scripts of a v0.3 release.
 - The server needs `pg_dump` and `pg_restore` of the server's major version or newer, and `tar`.
 - Checksums detect damage, not tampering: whoever can replace a backup can replace its manifest too.
