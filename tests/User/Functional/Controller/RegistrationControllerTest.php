@@ -16,6 +16,9 @@ use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use App\User\Infrastructure\Registration\RegistrationIdentityGuard;
 use App\User\Infrastructure\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Event\PreFlushEventArgs;
+use Doctrine\ORM\Events;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\MailerAssertionsTrait;
@@ -346,6 +349,48 @@ final class RegistrationControllerTest extends WebTestCase
         self::assertResponseRedirects('/register/check-email');
         self::assertCount(0, $this->mailsTo($existingEmail));
         UserFactory::assert()->count(1, ['email' => $existingEmail]);
+    }
+
+    public function testRegistrationHandlesUniqueConstraintRaceOnTheEmailLikeATakenAddress(): void
+    {
+        $client = self::createClient();
+        $client->disableReboot();
+        $client->getContainer()->get('cache.rate_limiter')->clear();
+
+        $suffix = bin2hex(random_bytes(4));
+        $email = sprintf('race-email-%s@example.test', $suffix);
+        $racingUsername = sprintf('racing-user-%s', $suffix);
+        $attemptUsername = sprintf('attempt-user-%s', $suffix);
+
+        // Another registration stores the same address between the lookup and the flush.
+        $entityManager = $client->getContainer()->get(EntityManagerInterface::class);
+        $entityManager->getEventManager()->addEventListener(Events::preFlush, new class($racingUsername, $email) {
+            private bool $done = false;
+
+            public function __construct(private readonly string $username, private readonly string $email)
+            {
+            }
+
+            public function preFlush(PreFlushEventArgs $args): void
+            {
+                if ($this->done) {
+                    return;
+                }
+
+                $this->done = true;
+                $args->getObjectManager()->getConnection()->executeStatement(
+                    'INSERT INTO "user" (id, username, email, roles, password, is_verified, created_at) VALUES (nextval(\'user_id_seq\'), :username, :email, :roles, :password, false, \'2026-11-27 10:00:00\')',
+                    ['username' => $this->username, 'email' => $this->email, 'roles' => '[]', 'password' => 'x'],
+                );
+            }
+        });
+
+        $this->submitRegistration($client, $attemptUsername, $email);
+
+        self::assertResponseRedirects('/register/check-email');
+        self::assertCount(1, $this->mailsTo($email));
+        self::assertStringContainsString($racingUsername, (string) $this->mailsTo($email)[0]->getHtmlBody());
+        UserFactory::assert()->notExists(['username' => $attemptUsername]);
     }
 
     public function testRegistrationHandlesUniqueConstraintRaceOnTheUsername(): void

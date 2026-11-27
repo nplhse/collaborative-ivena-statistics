@@ -35,10 +35,8 @@ final readonly class ExistingAccountRegistrationNotifier
 
     public function notify(User $user): void
     {
-        $email = $user->getEmail();
-        if (null === $email || '' === $email) {
-            return;
-        }
+        // Every stored account has an email (non-null column); an account without one would be a bug.
+        $email = $user->getEmail() ?? throw new \LogicException('An existing account has no email address.');
 
         if (!$this->noticeLimiter->create('user-'.(string) $user->getId())->consume()->isAccepted()) {
             $this->logger->info('security.registration.existing_email_notice_limited', [
