@@ -74,22 +74,26 @@ final class SentryLogScrubberTest extends TestCase
         self::assertNull($this->scrubber->scrubLog($log));
     }
 
-    public function testFailedLoginsKeepTheHashButLoseIpAndUserAgent(): void
+    public function testFailedSignInsAreNotSent(): void
     {
-        $log = $this->createLog('security.login.failure', [
-            'username_hash' => 'abc123',
-            'ip' => '192.0.2.7',
-            'user_agent' => 'Mozilla/5.0',
-            'exception' => 'BadCredentialsException',
-        ]);
+        foreach (['security.login.failure', 'security.login_link.rate_limited'] as $message) {
+            $log = $this->createLog($message, ['username_hash' => 'abc123', 'ip' => '192.0.2.7', 'user_agent' => 'Mozilla/5.0']);
+
+            self::assertNull($this->scrubber->scrubLog($log), $message);
+        }
+    }
+
+    public function testIpAndUserAgentAreFilteredInOtherLogs(): void
+    {
+        $log = $this->createLog('upload.failed', ['ip' => '192.0.2.7', 'user_agent' => 'Mozilla/5.0', 'import_id' => 7]);
 
         $scrubbed = $this->scrubber->scrubLog($log);
         self::assertInstanceOf(Log::class, $scrubbed);
 
         $attributes = $scrubbed->attributes()->toSimpleArray();
-        self::assertSame('abc123', $attributes['username_hash']);
         self::assertSame('[Filtered]', $attributes['ip']);
         self::assertSame('[Filtered]', $attributes['user_agent']);
+        self::assertSame(7, $attributes['import_id']);
     }
 
     public function testDatabaseValuesAreRemovedFromBodyAndAttributes(): void

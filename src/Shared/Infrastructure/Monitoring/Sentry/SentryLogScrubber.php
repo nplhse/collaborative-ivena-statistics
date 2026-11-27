@@ -64,6 +64,11 @@ final readonly class SentryLogScrubber
             return false;
         }
 
+        // Failed sign-ins stay out of Sentry (maintainer decision on #1577): the application watches them itself.
+        if (str_starts_with($message, 'security.login.') || str_starts_with($message, 'security.login_link.')) {
+            return false;
+        }
+
         if (!str_starts_with($message, 'import.')) {
             return true;
         }

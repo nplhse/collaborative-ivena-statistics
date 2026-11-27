@@ -285,9 +285,9 @@ Request bodies and email addresses are not sent to Sentry. Log attributes that c
   parameters is dropped, only the template stays), breadcrumb messages, the body of a log and every string in extra
   data, contexts and log attributes, so also the `message` key of logs that pass on `$e->getMessage()`.
 - **Exact keys:** `ip`, `client_ip`, `user_agent` and `raw_value` are always filtered. They match only as whole keys,
-  as `ip` would otherwise also hit `recipient_id` or `description`. Failed logins (`security.login.failure`) keep the
-  hashed identifier, so a run against one account stays visible until #1487 replaces the single entries by aggregated
-  counts in the application.
+  as `ip` would otherwise also hit `recipient_id` or `description`.
+- **Failed sign-ins are not sent** (`security.login.*`, `security.login_link.*`): the application watches them itself
+  (#1487). They stay in the `security` log channel (stderr as JSON in production).
 - **Users:** the numeric user id only, never a username, name, email address or IP address. Error reports always carry it; performance transactions only with the performance consent of the cookie preferences, which is only offered while Sentry is used. Operators who use Sentry should name it as a processor in their privacy policy.
 
 ## Local smoke test
