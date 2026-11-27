@@ -15,6 +15,7 @@ use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
+use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Application\TimeSeries\TimeSeriesGrain;
 use App\Statistics\ClosureAnalytics\Application\ClosureDurationLoadCalculator;
 use App\Statistics\ClosureAnalytics\Application\ClosureDurationLoadService;
@@ -23,6 +24,7 @@ use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureTemporalQuery;
 use App\Tests\Statistics\Support\RebuildsClosureAnalysis;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Psr\Clock\ClockInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -105,6 +107,73 @@ final class ClosureDurationLoadQueryTest extends KernelTestCase
         }
         self::assertSame(1, $reasons['no_bed_capacity']);
         self::assertSame(1, $reasons['technical_fault']);
+    }
+
+    /**
+     * One closure from 2026-02-28 22:00 to 2026-03-01 04:00 and one from 2026-03-31 20:00 to 2026-04-01 02:00.
+     * Month March keeps 4 h of the first and 4 h of the second; Q1 keeps the first whole (6 h) and 4 h of the second.
+     *
+     * @param array{0: StatisticsFilterPeriod, 1: ?int, 2: ?int} $period          period, month, quarter
+     * @param list<int>                                          $expectedSeconds
+     */
+    #[DataProvider('providePeriodBoundaryClipping')]
+    public function testClipsIntervalsAtTheBoundsOfAMonthOrQuarter(array $period, array $expectedSeconds): void
+    {
+        self::bootKernel();
+        $user = UserFactory::createOne(['username' => 'duration-load-period']);
+        $state = StateFactory::createOne();
+        $dispatch = DispatchAreaFactory::createOne(['state' => $state]);
+        $hospital = HospitalFactory::createOne(['state' => $state, 'dispatchArea' => $dispatch]);
+        $speciality = SpecialityFactory::createOne();
+        $department = DepartmentFactory::createOne();
+        $import = ImportFactory::createOne(['hospital' => $hospital, 'createdBy' => $user]);
+        $connection = self::getContainer()->get(Connection::class);
+        $this->insertInterval($connection, $hospital->getId(), $import->getId(), $speciality->getId(), $department->getId(), '2026-02-28 22:00:00', '2026-03-01 04:00:00', 'into-march');
+        $this->insertInterval($connection, $hospital->getId(), $import->getId(), $speciality->getId(), $department->getId(), '2026-03-31 20:00:00', '2026-04-01 02:00:00', 'out-of-march');
+
+        [$filterPeriod, $month, $quarter] = $period;
+        $bounds = StatisticsPeriodResolver::resolve(new StatisticsFilter(StatisticsFilterScope::Hospital, $hospital->getId(), null, $filterPeriod, 2026, $month, $quarter));
+        $snapshot = self::getContainer()->get(ClosureTemporalQuery::class)->fetchDurationLoad($this->criteria([$hospital->getId()], $bounds->from, $bounds->toExclusive));
+
+        $seconds = array_map(static fn ($interval): int => $interval->end->getTimestamp() - $interval->start->getTimestamp(), $snapshot->intervals);
+        sort($seconds);
+        self::assertSame($expectedSeconds, $seconds);
+    }
+
+    /**
+     * @return iterable<string, array{array{0: StatisticsFilterPeriod, 1: ?int, 2: ?int}, list<int>}>
+     */
+    public static function providePeriodBoundaryClipping(): iterable
+    {
+        yield 'month March' => [[StatisticsFilterPeriod::Month, 3, null], [14_400, 14_400]];
+        yield 'first quarter' => [[StatisticsFilterPeriod::Quarter, null, 1], [14_400, 21_600]];
+        yield 'month April' => [[StatisticsFilterPeriod::Month, 4, null], [7_200]];
+    }
+
+    public function testAPeriodWithoutClosuresGivesAnEmptyLoadInsteadOfZeroShares(): void
+    {
+        self::bootKernel();
+        $user = UserFactory::createOne(['username' => 'duration-load-empty']);
+        $state = StateFactory::createOne();
+        $dispatch = DispatchAreaFactory::createOne(['state' => $state]);
+        $hospital = HospitalFactory::createOne(['state' => $state, 'dispatchArea' => $dispatch]);
+        $speciality = SpecialityFactory::createOne();
+        $department = DepartmentFactory::createOne();
+        $import = ImportFactory::createOne(['hospital' => $hospital, 'createdBy' => $user]);
+        $this->insertInterval(self::getContainer()->get(Connection::class), $hospital->getId(), $import->getId(), $speciality->getId(), $department->getId(), '2026-01-10 08:00:00', '2026-01-10 12:00:00', 'january-only');
+
+        $load = $this->serviceAt('2026-06-01 12:00:00')->build(
+            $this->criteria([$hospital->getId()], new \DateTimeImmutable('2026-02-01 00:00:00'), new \DateTimeImmutable('2026-03-01 00:00:00')),
+        );
+
+        self::assertSame(0, $load->eventCount);
+        self::assertNull($load->medianSeconds);
+        self::assertNull($load->meanSeconds);
+        self::assertNull($load->maximumSeconds);
+        self::assertFalse($load->pausesComputable);
+        self::assertSame(0, $load->singleDepartmentSeconds + $load->multipleDepartmentsSeconds);
+        self::assertSame([], $load->specialities);
+        self::assertSame([], $load->reasons);
     }
 
     private function serviceAt(string $berlinWallClock): ClosureDurationLoadService

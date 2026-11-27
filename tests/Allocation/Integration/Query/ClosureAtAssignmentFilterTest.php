@@ -92,6 +92,62 @@ final class ClosureAtAssignmentFilterTest extends KernelTestCase
         self::assertSame(ClosureAtAssignment::CLOSED, $state('c1'));
     }
 
+    /**
+     * Hospital D, partial closure import with export period [2026-05-01, 2026-06-01), department D1:
+     * - SK2 (inpatient) 2026-05-05 08:00–12:00, SK3 (outpatient) 2026-05-06 08:00–12:00.
+     * Hospital E, cancelled closure import over the same period with an SK1 closure 2026-05-05 08:00–12:00.
+     *
+     * Each care level closes only its own SK: d1 and d4 closed; d2, d3, d5 open. The cancelled import
+     * counts for nothing, so e1 is unknown.
+     */
+    public function testInpatientAndOutpatientClosuresOfAPartialImportCloseOnlyTheirOwnSk(): void
+    {
+        $user = UserFactory::createOne();
+        $state = StateFactory::createOne();
+        $dispatchArea = DispatchAreaFactory::createOne(['state' => $state]);
+        $speciality = SpecialityFactory::createOne();
+        $d1 = DepartmentFactory::createOne(['name' => 'D1']);
+        IndicationRawFactory::createOne();
+        AssignmentFactory::createOne();
+        $hospitalD = HospitalFactory::createOne(['state' => $state, 'dispatchArea' => $dispatchArea]);
+        $hospitalE = HospitalFactory::createOne(['state' => $state, 'dispatchArea' => $dispatchArea]);
+
+        $partialD = $this->closureImport($hospitalD, $user, ImportStatus::PARTIAL, '2026-05-01', '2026-06-01');
+        $cancelledE = $this->closureImport($hospitalE, $user, ImportStatus::CANCELLED, '2026-05-01', '2026-06-01');
+        $this->interval($partialD, $hospitalD, $speciality, $d1, '2026-05-05 08:00', '2026-05-05 12:00', 'inpatient');
+        $this->interval($partialD, $hospitalD, $speciality, $d1, '2026-05-06 08:00', '2026-05-06 12:00', 'outpatient');
+        $this->interval($cancelledE, $hospitalE, $speciality, $d1, '2026-05-05 08:00', '2026-05-05 12:00', 'emergency');
+
+        $shared = [
+            'import' => ImportFactory::createOne(['hospital' => $hospitalD, 'createdBy' => $user, 'type' => ImportType::ALLOCATION, 'status' => ImportStatus::COMPLETED]),
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'speciality' => $speciality,
+        ];
+        $this->allocation('d1', $shared, $hospitalD, $d1, AllocationUrgency::INPATIENT, '2026-05-05 09:00');
+        $this->allocation('d2', $shared, $hospitalD, $d1, AllocationUrgency::EMERGENCY, '2026-05-05 09:00');
+        $this->allocation('d3', $shared, $hospitalD, $d1, AllocationUrgency::OUTPATIENT, '2026-05-05 09:00');
+        $this->allocation('d4', $shared, $hospitalD, $d1, AllocationUrgency::OUTPATIENT, '2026-05-06 09:00');
+        $this->allocation('d5', $shared, $hospitalD, $d1, AllocationUrgency::INPATIENT, '2026-05-06 09:00');
+        $this->allocation('e1', $shared, $hospitalE, $d1, AllocationUrgency::EMERGENCY, '2026-05-05 09:00');
+
+        $resolver = self::getContainer()->get(ClosureAtAssignmentResolver::class);
+        $repository = self::getContainer()->get('doctrine')->getRepository(Allocation::class);
+        $states = [];
+        foreach ($this->ids as $name => $id) {
+            $states[$name] = $resolver->forAllocation($repository->find($id))->value;
+        }
+
+        self::assertSame([
+            'd1' => ClosureAtAssignment::CLOSED->value,
+            'd2' => ClosureAtAssignment::OPEN->value,
+            'd3' => ClosureAtAssignment::OPEN->value,
+            'd4' => ClosureAtAssignment::CLOSED->value,
+            'd5' => ClosureAtAssignment::OPEN->value,
+            'e1' => ClosureAtAssignment::UNKNOWN->value,
+        ], $states);
+    }
+
     private function seed(): void
     {
         $user = UserFactory::createOne();
