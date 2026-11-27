@@ -107,8 +107,8 @@
             <directory>plugins/ed-visit/src</directory>
         </include>
 
+        <!-- Fixture loaders are not run by PHPUnit; see docs/03-development/testing.md#code-coverage -->
         <exclude>
-            <directory>src/Admin</directory>
             <directory>src/DataFixtures</directory>
         </exclude>
 

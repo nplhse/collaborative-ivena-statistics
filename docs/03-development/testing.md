@@ -131,6 +131,10 @@ make lint-trans-de  # lint DE catalogue only
 - Test bootstrap: `tests/bootstrap.php`
 - PHPStan: `phpstan.dist.neon`, project rules in `tests/PHPStan/Rules/`
 
+## Code coverage
+
+Coverage measures `src/` and `plugins/ed-visit/src`, including `src/Admin` with its EasyAdmin CRUD controllers (#1100). The only exclusion is `src/DataFixtures`: fixture loaders are run by `make fixtures`, not by PHPUnit, so they would only add uncovered lines. It is excluded in two places, `phpunit.dist.xml` (`<source><exclude>`) and `codecov.yml` (`ignore`); keep both in sync when the list changes.
+
 ## CI reference
 
 - **Unit job** (parallel, no database, PCOV): `make test-unit COVERAGE=1 JUNIT=1`, clover artifact `coverage-unit`
