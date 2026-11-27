@@ -32,7 +32,7 @@ final class ImportFactory extends PersistentObjectFactory
         return [
             'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTimeThisDecade()),
             'createdBy' => LazyValue::new(static fn (): object => UserFactory::random()),
-            'fileExtension' => self::faker()->randomElement(['.csv']),
+            'fileExtension' => 'csv',
             'fileMimeType' => self::faker()->randomElement(['text/csv', 'text/plain']),
             'filePath' => 'dummy/path',
             'fileSize' => self::faker()->numberBetween(1, 100000),

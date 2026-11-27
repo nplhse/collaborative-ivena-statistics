@@ -64,7 +64,8 @@ final readonly class ImportSourceFileDownloadService
 
     private function buildDownloadFilename(Import $import, string $storedPath): string
     {
-        $extension = strtolower(trim((string) $import->getFileExtension()));
+        // Stored without a leading dot, like real uploads; synthetic imports stored ".csv" before #1591.
+        $extension = strtolower(ltrim(trim((string) $import->getFileExtension()), '.'));
         if ('' === $extension) {
             $extension = strtolower(pathinfo($storedPath, PATHINFO_EXTENSION));
         }
