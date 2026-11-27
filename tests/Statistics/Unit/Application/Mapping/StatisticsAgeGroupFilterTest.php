@@ -60,23 +60,6 @@ final class StatisticsAgeGroupFilterTest extends TestCase
         );
     }
 
-    public function testLegacyKeysMapToTheCurrentBuckets(): void
-    {
-        self::assertSame('0_17', StatisticsAgeGroupFilter::normalizeKey('0_18'));
-        self::assertSame('18_29', StatisticsAgeGroupFilter::normalizeKey('19_29'));
-        self::assertSame('30_39', StatisticsAgeGroupFilter::normalizeKey('30_39'));
-        self::assertSame(StatisticsAgeGroupFilter::UNDER_18, StatisticsAgeGroupFilter::normalizeKey(StatisticsAgeGroupFilter::UNDER_18));
-
-        self::assertSame(
-            StatisticsAgeGroupFilter::sqlCondition('p.age', '0_17'),
-            StatisticsAgeGroupFilter::sqlCondition('p.age', '0_18'),
-        );
-        self::assertSame(
-            StatisticsAgeGroupFilter::sqlCondition('p.age', '18_29'),
-            StatisticsAgeGroupFilter::sqlCondition('p.age', '19_29'),
-        );
-    }
-
     public function testSqlConditionReturnsNullForUnknownBucket(): void
     {
         self::assertNull(StatisticsAgeGroupFilter::sqlCondition('p.age', 'unknown'));

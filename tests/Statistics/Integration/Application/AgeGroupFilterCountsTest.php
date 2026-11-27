@@ -44,7 +44,8 @@ use Zenstruck\Foundry\Test\Factories;
  * Expected by hand: all cases = 3, children & adolescents (< 18) = 1 (age 17),
  * adults (>= 18) = 1 (age 18). The case without age only counts without an age group.
  * The age buckets put 18-year-olds with adults (#1040): 0–17 = 1 (age 17), 18–29 = 1 (age 18).
- * The pre-#1040 keys 0_18 and 19_29 are read as 0_17 and 18_29, so they give the same counts.
+ * The pre-#1040 keys 0_18 and 19_29 are no longer mapped (#1125) and behave like any unknown key: the drawer
+ * filter sets no age condition (all 3 cases), the Explorer filter compares the bucket and matches none (0).
  */
 #[ResetDatabase]
 final class AgeGroupFilterCountsTest extends KernelTestCase
@@ -61,8 +62,6 @@ final class AgeGroupFilterCountsTest extends KernelTestCase
         yield 'adults' => [StatisticsAgeGroupFilter::ADULTS, 1];
         yield '0-17' => ['0_17', 1];
         yield '18-29' => ['18_29', 1];
-        yield 'legacy 0-18 read as 0-17' => ['0_18', 1];
-        yield 'legacy 19-29 read as 18-29' => ['19_29', 1];
     }
 
     #[DataProvider('ageGroupProvider')]
@@ -99,6 +98,48 @@ final class AgeGroupFilterCountsTest extends KernelTestCase
         ));
 
         self::assertSame($expectedCount, $result->grandTotal);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function pre1040KeyProvider(): iterable
+    {
+        yield '0_18' => ['0_18'];
+        yield '19_29' => ['19_29'];
+    }
+
+    #[DataProvider('pre1040KeyProvider')]
+    public function testPre1040KeysAreUnknownToTheDrawerFilter(string $ageGroup): void
+    {
+        [$user, $hospitalId] = $this->createFixture();
+
+        $report = self::getContainer()->get(TopDiagnosesReport::class);
+        $context = new StatisticsContext(
+            $user,
+            new StatisticsFilter(StatisticsFilterScope::Hospital, $hospitalId, null, StatisticsFilterPeriod::AllTime),
+            drawerFilter: new StatisticsDrawerFilter(ageGroup: $ageGroup),
+        );
+
+        $rows = $report->build($context, 25)->payload['rows'];
+
+        self::assertCount(1, $rows);
+        self::assertSame('3', $rows[0][2]);
+    }
+
+    #[DataProvider('pre1040KeyProvider')]
+    public function testPre1040KeysMatchNoExplorerBucket(string $ageGroup): void
+    {
+        [, $hospitalId] = $this->createFixture();
+
+        $result = self::getContainer()->get(GenericAllocationAnalysisQuery::class)->execute(new AnalysisQuery(
+            primaryDimensionKey: 'month',
+            scopeCriteria: new StatisticsScopeCriteria([$hospitalId]),
+            periodBounds: new StatisticsPeriodBounds(null),
+            filters: [new AnalysisFilter('age_group', AnalysisFilterOperator::Equals, $ageGroup)],
+        ));
+
+        self::assertSame(0, $result->grandTotal);
     }
 
     public function testExplorerAgeGroupBucketsCountEighteenYearOldsAsAdults(): void
