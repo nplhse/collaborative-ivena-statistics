@@ -6,7 +6,6 @@ namespace App\Content\Infrastructure\Media;
 
 use App\Content\Application\Contract\MediaFileLookupInterface;
 use App\Content\Application\Media\DeliverableMediaFile;
-use App\Content\Application\Media\MediaPublicUrlResolver;
 use App\Content\Domain\Entity\Media;
 use App\Content\Domain\Enum\MediaVisibility;
 use App\Content\Infrastructure\Repository\MediaRepository;
@@ -25,7 +24,6 @@ final readonly class MediaFileLookup implements MediaFileLookupInterface
     public function __construct(
         private MediaRepository $mediaRepository,
         private LocalMediaFileLocator $fileLocator,
-        private MediaPublicUrlResolver $publicUrlResolver,
         private LoggerInterface $logger,
     ) {
     }
@@ -38,29 +36,7 @@ final readonly class MediaFileLookup implements MediaFileLookupInterface
             return null;
         }
 
-        return $this->deliverable($media, $this->fileLocator->resolveAbsolutePathFromStorageKey($storageKey), true);
-    }
-
-    #[\Override]
-    public function findMovedUrl(string $legacyFilename): ?string
-    {
-        $media = $this->mediaRepository->findOneByLegacyFilename($legacyFilename);
-        if (!$media instanceof Media || null === $media->getStorageKey() || !$this->isDeliverable($media)) {
-            return null;
-        }
-
-        return $this->publicUrlResolver->resolve($media);
-    }
-
-    #[\Override]
-    public function findLegacyFile(string $legacyFilename): ?DeliverableMediaFile
-    {
-        $media = $this->mediaRepository->findOneByLegacyFilename($legacyFilename);
-        if (!$media instanceof Media || null !== $media->getStorageKey() || !$this->isDeliverable($media)) {
-            return null;
-        }
-
-        return $this->deliverable($media, $this->fileLocator->resolveLegacyPath($legacyFilename), false);
+        return $this->deliverable($media, $this->fileLocator->resolveAbsolutePathFromStorageKey($storageKey));
     }
 
     private function isDeliverable(Media $media): bool
@@ -68,7 +44,7 @@ final readonly class MediaFileLookup implements MediaFileLookupInterface
         return MediaVisibility::Public === $media->getVisibility();
     }
 
-    private function deliverable(Media $media, ?string $path, bool $immutable): ?DeliverableMediaFile
+    private function deliverable(Media $media, ?string $path): ?DeliverableMediaFile
     {
         if (null === $path || !is_file($path)) {
             $this->logger->warning('The file of media item {id} is missing.', ['id' => $media->getId(), 'file' => $media->getStoredName()]);
@@ -80,7 +56,6 @@ final readonly class MediaFileLookup implements MediaFileLookupInterface
             $path,
             $media->getMimeType() ?? 'application/octet-stream',
             $media->getOriginalFilename() ?? basename($path),
-            $immutable,
         );
     }
 }

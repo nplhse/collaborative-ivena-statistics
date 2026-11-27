@@ -24,11 +24,11 @@ final class StoragePathClassifierTest extends TestCase
         yield 'import files' => [StorageLocation::Shared, 'var/imports/2026/a.csv', StorageCategory::Imports, 'var_imports'];
         yield 'import rejects' => [StorageLocation::Project, 'var/import_rejects/1.csv', StorageCategory::Imports, 'import_rejects'];
         yield 'media storage' => [StorageLocation::Shared, 'var/media/originals/2026/11/a.jpg', StorageCategory::Media, 'media_uploads'];
-        yield 'old media directory' => [StorageLocation::Shared, 'public/uploads/media/a.jpg', StorageCategory::Media, 'media_uploads'];
+        yield 'old media directory is no longer media' => [StorageLocation::Shared, 'public/uploads/media/a.jpg', StorageCategory::Other, 'shared_other'];
         yield 'demo media storage' => [StorageLocation::Project, 'var/demo/media/originals/2026/11/a.jpg', StorageCategory::Media, 'media_uploads'];
         yield 'geodata' => [StorageLocation::Shared, 'var/geo/hospital-isochrones/1.json', StorageCategory::Other, 'geodata'];
         yield 'demo files' => [StorageLocation::Project, 'var/demo/imports/2026/a.csv', StorageCategory::Other, 'var_other'];
-        yield 'demo media' => [StorageLocation::Project, 'public/uploads/demo/media/a.jpg', StorageCategory::Media, 'media_uploads'];
+        yield 'old demo media directory is no longer media' => [StorageLocation::Project, 'public/uploads/demo/media/a.jpg', StorageCategory::Application, 'source'];
         yield 'other var' => [StorageLocation::Project, 'var/sessions/x', StorageCategory::Temporary, 'var_other'];
         yield 'var itself' => [StorageLocation::Project, 'var', StorageCategory::Temporary, 'var_other'];
         yield 'prefix is not a parent' => [StorageLocation::Project, 'var/imports-old/a.csv', StorageCategory::Temporary, 'var_other'];

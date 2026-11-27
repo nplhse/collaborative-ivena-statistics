@@ -14,10 +14,4 @@ interface MediaFileLookupInterface
 {
     /** File of a stored media item, by its storage key. */
     public function findStoredFile(string $storageKey): ?DeliverableMediaFile;
-
-    /** New URL of a media item that was moved from the old upload directory, by its old file name. */
-    public function findMovedUrl(string $legacyFilename): ?string;
-
-    /** File of a media item not yet moved, in the old upload directory, by its file name. */
-    public function findLegacyFile(string $legacyFilename): ?DeliverableMediaFile;
 }

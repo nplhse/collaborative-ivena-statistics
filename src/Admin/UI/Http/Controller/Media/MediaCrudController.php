@@ -53,7 +53,7 @@ final class MediaCrudController extends AbstractCrudController
             ->setEntityLabelInSingular(new TranslatableMessage('label.media', domain: 'content'))
             ->setEntityLabelInPlural(new TranslatableMessage('label.media_library', domain: 'content'))
             ->setDefaultSort(['createdAt' => 'DESC'])
-            ->setSearchFields(['originalFilename', 'title', 'altText', 'storageKey', 'filename', 'legacyFilename'])
+            ->setSearchFields(['originalFilename', 'title', 'altText', 'storageKey'])
             ->overrideTemplate('crud/detail', '@Admin/media/detail.html.twig')
             ->addFormTheme('@Admin/form/media_file_theme.html.twig');
     }

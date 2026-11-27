@@ -10,10 +10,8 @@ use App\Content\Application\Media\MediaMaintenanceException;
 use App\Content\Domain\Entity\Media;
 use App\Content\Infrastructure\Factory\MediaFactory;
 use App\Content\Infrastructure\Health\MediaHealthCheck;
-use App\Content\Infrastructure\Media\LocalMediaFileLocator;
 use App\Content\Infrastructure\Media\MediaIntegrityChecker;
 use App\Content\Infrastructure\Media\MediaStorage;
-use App\Content\Infrastructure\Media\MediaStorageMigrator;
 use App\Content\Infrastructure\Repository\MediaIntegrityCheckRepository;
 use App\Shared\Application\Health\HealthCheckStatus;
 use Doctrine\DBAL\Connection;
@@ -84,18 +82,6 @@ final class MediaIntegrityCheckerTest extends KernelTestCase
         self::assertFileExists($ownVariant, 'variants of an existing media item stay');
         self::assertFileExists($this->path($intact));
         self::assertFileExists($this->path($sameSizeOtherContent), 'damaged files are only reported');
-    }
-
-    public function testAMediaItemNotYetMovedIsMissingWhenItsOldFileIsGone(): void
-    {
-        MediaFactory::new()->legacy('still-there.png')->create();
-        MediaFactory::new()->legacy('gone-before-the-move.png')->create();
-        unlink(self::getContainer()->getParameter('app.media_legacy_dir').'/gone-before-the-move.png');
-
-        $report = $this->checker()->check(false, false);
-
-        self::assertSame(['uploads/media/gone-before-the-move.png'], $report->missing);
-        self::assertTrue($report->hasProblems());
     }
 
     public function testVerifiedFilesGetTheirVerificationTime(): void
@@ -182,7 +168,7 @@ final class MediaIntegrityCheckerTest extends KernelTestCase
 
     public function testRefusesWhileABackupHoldsTheFiles(): void
     {
-        $lock = self::getContainer()->get(LockFactory::class)->createLock(MediaStorageMigrator::LOCK, null);
+        $lock = self::getContainer()->get(LockFactory::class)->createLock(MediaIntegrityChecker::LOCK, null);
         self::assertTrue($lock->acquire());
 
         try {
@@ -199,7 +185,6 @@ final class MediaIntegrityCheckerTest extends KernelTestCase
 
         return new MediaIntegrityChecker(
             $this->storage(),
-            $container->get(LocalMediaFileLocator::class),
             $container->get(Connection::class),
             $container->get(MediaIntegrityCheckRepository::class),
             $container->get(LockFactory::class),

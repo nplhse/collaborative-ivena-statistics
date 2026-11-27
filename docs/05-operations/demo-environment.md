@@ -39,7 +39,8 @@ make demo-uninstall DEMO_CONFIRM=yes
 ```
 
 This drops `app_demo` and deletes everything the demo keeps on the disk: `var/demo` (imports, media,
-geodata), the old upload directory `public/uploads/demo`, `var/cache/demo` and `var/log/demo.log`.
+geodata), `var/cache/demo` and `var/log/demo.log`. An old upload directory `public/uploads/demo` of releases before
+v0.4-beta is no longer used; delete it by hand if it is still there.
 Use it when the demo is no longer needed on this machine; its files are kept apart from the development
 environment (ADR 023), so nothing else cleans them up. Without `DEMO_CONFIRM=yes` the target stops
 before it changes anything. The development database and `var/media` stay untouched.

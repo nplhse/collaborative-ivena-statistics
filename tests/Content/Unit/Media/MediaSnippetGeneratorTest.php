@@ -15,19 +15,19 @@ final class MediaSnippetGeneratorTest extends TestCase
 {
     public function testImageSnippetContainsPublicUrlAndAlt(): void
     {
-        $media = $this->imageMedia('photo.webp', 'A photo');
+        $media = $this->imageMedia('0193a8f2-7c1e-7000-8000-000000000001.webp', 'A photo');
 
         $html = $this->generator()->generateHtml($media);
 
         self::assertSame(
-            new MediaImageFigureHtmlBuilder()->build('/uploads/media/photo.webp', 'A photo'),
+            new MediaImageFigureHtmlBuilder()->build('/media/2026/11/0193a8f2-7c1e-7000-8000-000000000001.webp', 'A photo'),
             $html,
         );
     }
 
     public function testImageFigureSnippetSupportsCustomLayout(): void
     {
-        $media = $this->imageMedia('photo.webp', 'A photo');
+        $media = $this->imageMedia('0193a8f2-7c1e-7000-8000-000000000001.webp', 'A photo');
 
         $html = $this->generator()->generateImageFigureHtml($media, 'md', 'right');
 
@@ -38,11 +38,11 @@ final class MediaSnippetGeneratorTest extends TestCase
 
     public function testPdfSnippetContainsNoopener(): void
     {
-        $media = $this->pdfMedia('doc.pdf', 'Annual report');
+        $media = $this->pdfMedia('0193a8f2-7c1e-7000-8000-000000000002.pdf', 'Annual report');
 
         $html = $this->generator()->generateHtml($media);
 
-        self::assertStringContainsString('href="/uploads/media/doc.pdf"', $html);
+        self::assertStringContainsString('href="/media/2026/11/0193a8f2-7c1e-7000-8000-000000000002.pdf"', $html);
         self::assertStringContainsString('rel="noopener"', $html);
         self::assertStringContainsString('target="_blank"', $html);
         self::assertStringContainsString('Annual report', $html);
@@ -53,20 +53,20 @@ final class MediaSnippetGeneratorTest extends TestCase
         return new MediaSnippetGenerator(new MediaPublicUrlResolver(), new MediaImageFigureHtmlBuilder());
     }
 
-    private function imageMedia(string $filename, string $alt): Media
+    private function imageMedia(string $name, string $alt): Media
     {
         $media = new Media();
-        $media->setFilename($filename);
+        $media->attachStoredFile('originals/2026/11/'.$name, 1, str_repeat('a', 64), new \DateTimeImmutable('2026-11-21'));
         $media->setType(MediaType::IMAGE);
         $media->setAltText($alt);
 
         return $media;
     }
 
-    private function pdfMedia(string $filename, string $title): Media
+    private function pdfMedia(string $name, string $title): Media
     {
         $media = new Media();
-        $media->setFilename($filename);
+        $media->attachStoredFile('originals/2026/11/'.$name, 1, str_repeat('a', 64), new \DateTimeImmutable('2026-11-21'));
         $media->setType(MediaType::PDF);
         $media->setTitle($title);
 

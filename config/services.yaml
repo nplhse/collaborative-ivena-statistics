@@ -15,11 +15,10 @@ parameters:
     app.imports_max_size: '15M'
     app.imports_base_dir: '%kernel.project_dir%/var/imports'
     app.media_max_size: '10M'
-    # Media storage (ADR 039); the old upload directory is read until the move of every file (removed in v0.4).
+    # Media storage (ADR 039).
     app.media_storage_dir: '%kernel.project_dir%/var/media'
     # Archives of data extract exports (ADR 045), kept for the download period, served only through the controller.
     app.research.exports_dir: '%kernel.project_dir%/var/research/exports'
-    app.media_legacy_dir: '%kernel.project_dir%/public/uploads/media'
     # Maintenance mode (#1680, ADR 046): on while this file exists; var/maintenance is shared between releases.
     app.maintenance_flag_file: '%kernel.project_dir%/var/maintenance/enabled'
     # Integrity check (ADR 039): bytes hashed per daily run, and the age before an orphaned file is deleted.
@@ -175,7 +174,7 @@ services:
         arguments:
             - !php/const Monolog\Logger::WARNING
 
-# Demo environment (ADR 023): own storage under var/demo and public/uploads/demo.
+# Demo environment (ADR 023): own storage under var/demo.
 when@demo:
     parameters:
         app.demo_mode: true
@@ -184,7 +183,6 @@ when@demo:
         app.rejects_base_dir: '%kernel.project_dir%/var/demo/imports/rejects'
         app.media_storage_dir: '%kernel.project_dir%/var/demo/media'
         app.research.exports_dir: '%kernel.project_dir%/var/demo/research/exports'
-        app.media_legacy_dir: '%kernel.project_dir%/public/uploads/demo/media'
         app.hospital_isochrones_dir: '%kernel.project_dir%/var/demo/geo/hospital-isochrones'
         app.prepared_locations_dir: '%kernel.project_dir%/var/demo/geo/prepared-locations'
         app.maintenance_flag_file: '%kernel.project_dir%/var/demo/maintenance/enabled'
@@ -194,7 +192,6 @@ when@test:
         # Test files stay out of the development storage. One storage per ParaTest worker, like its test database:
         # integrity check tests empty the storage root, which must not remove files another worker is writing.
         app.media_storage_dir: '%kernel.cache_dir%/media%env(default::TEST_TOKEN)%'
-        app.media_legacy_dir: '%kernel.cache_dir%/legacy-media%env(default::TEST_TOKEN)%'
         app.research.exports_dir: '%kernel.cache_dir%/research-exports%env(default::TEST_TOKEN)%'
         app.maintenance_flag_file: '%kernel.cache_dir%/maintenance%env(default::TEST_TOKEN)%/enabled'
 

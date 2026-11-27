@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Content\Integration\Page;
 
+use App\Content\Application\Media\MediaPublicUrlResolver;
 use App\Content\Application\Page\PageContentMediaResolver;
 use App\Content\Infrastructure\Factory\MediaFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -20,7 +21,6 @@ final class PageContentMediaResolverTest extends KernelTestCase
         self::bootKernel();
 
         $media = MediaFactory::createOne([
-            'filename' => 'resolved.png',
             'altText' => 'From media',
             'width' => 640,
             'height' => 480,
@@ -38,7 +38,8 @@ final class PageContentMediaResolverTest extends KernelTestCase
             ],
         ]);
 
-        self::assertSame('/uploads/media/resolved.png', $resolved[0]['data']['src']);
+        self::assertMatchesRegularExpression('#^/media/\d{4}/\d{2}/[0-9a-f-]{36}\.png$#', $resolved[0]['data']['src']);
+        self::assertSame(new MediaPublicUrlResolver()->resolve($media), $resolved[0]['data']['src']);
         self::assertSame('From media', $resolved[0]['data']['alt']);
         self::assertSame(640, $resolved[0]['data']['width']);
         self::assertSame(480, $resolved[0]['data']['height']);
@@ -48,9 +49,7 @@ final class PageContentMediaResolverTest extends KernelTestCase
     {
         self::bootKernel();
 
-        $media = MediaFactory::new()->asPdf()->create([
-            'filename' => 'report.pdf',
-        ]);
+        $media = MediaFactory::new()->asPdf()->create();
 
         $sut = self::getContainer()->get(PageContentMediaResolver::class);
 
@@ -66,7 +65,7 @@ final class PageContentMediaResolverTest extends KernelTestCase
             ],
         ]);
 
-        self::assertSame('/uploads/media/report.pdf', $resolved[0]['data']['buttonUrl']);
+        self::assertMatchesRegularExpression('#^/media/\d{4}/\d{2}/[0-9a-f-]{36}\.pdf$#', $resolved[0]['data']['buttonUrl']);
         self::assertTrue($resolved[0]['data']['openInNewTab']);
     }
 

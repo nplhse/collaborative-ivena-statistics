@@ -7,14 +7,11 @@ namespace App\Content\Infrastructure\Factory;
 use App\Content\Domain\Entity\Media;
 use App\Content\Domain\Enum\MediaType;
 use App\Content\Infrastructure\Media\MediaStorage;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Filesystem\Path;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
- * Media items with a real file (ADR 039): by default a sample file in the media storage. With a `filename` the item
- * is one not yet moved from the old upload directory, and the sample file is written there ({@see legacy()}).
+ * Media items with a real file (ADR 039): a sample file in the media storage.
  *
  * @extends PersistentObjectFactory<Media>
  */
@@ -26,8 +23,6 @@ final class MediaFactory extends PersistentObjectFactory
     /** @psalm-suppress PossiblyUnusedMethod Foundry creates the factory as a service */
     public function __construct(
         private readonly MediaStorage $storage,
-        #[Autowire(param: 'app.media_legacy_dir')]
-        private readonly string $legacyDir,
     ) {
         parent::__construct();
     }
@@ -76,34 +71,13 @@ final class MediaFactory extends PersistentObjectFactory
         ]);
     }
 
-    /**
-     * A media item still in the old upload directory, as before the move to the storage.
-     *
-     * @psalm-suppress PossiblyUnusedMethod Used in tests via Foundry state API
-     */
-    public function legacy(?string $filename = null): self
-    {
-        return $this->with(['filename' => $filename ?? 'sample-'.bin2hex(random_bytes(4)).'.png']);
-    }
-
     private function ensureFileExists(Media $media): void
     {
-        $bytes = MediaType::PDF === $media->getType() ? self::SAMPLE_PDF_BYTES : $this->samplePngBytes();
-        $filename = $media->getFilename();
-
-        if (null !== $filename && '' !== $filename) {
-            $target = Path::join($this->legacyDir, $filename);
-            if (!is_file($target)) {
-                new Filesystem()->dumpFile($target, $bytes);
-            }
-            $media->setSize($media->getSize() ?? \strlen($bytes));
-
-            return;
-        }
-
         if (null !== $media->getStorageKey()) {
             return;
         }
+
+        $bytes = MediaType::PDF === $media->getType() ? self::SAMPLE_PDF_BYTES : $this->samplePngBytes();
 
         $source = new Filesystem()->tempnam(sys_get_temp_dir(), 'media-fixture-');
         try {

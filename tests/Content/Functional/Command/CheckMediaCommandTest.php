@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Tests\Content\Functional\Command;
 
 use App\Content\Infrastructure\Factory\MediaFactory;
+use App\Content\Infrastructure\Media\MediaIntegrityChecker;
 use App\Content\Infrastructure\Media\MediaStorage;
-use App\Content\Infrastructure\Media\MediaStorageMigrator;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Command\Command;
@@ -111,7 +111,7 @@ final class CheckMediaCommandTest extends KernelTestCase
 
     public function testFailsWhileABackupHoldsTheFiles(): void
     {
-        $lock = self::getContainer()->get(LockFactory::class)->createLock(MediaStorageMigrator::LOCK, null);
+        $lock = self::getContainer()->get(LockFactory::class)->createLock(MediaIntegrityChecker::LOCK, null);
         self::assertTrue($lock->acquire());
 
         try {

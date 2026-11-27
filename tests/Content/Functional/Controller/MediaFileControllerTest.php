@@ -18,7 +18,7 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 /**
- * Delivery of media files through /media and the old URLs /uploads/media (ADR 039).
+ * Delivery of media files through /media (ADR 039).
  */
 #[ResetDatabase]
 final class MediaFileControllerTest extends WebTestCase
@@ -130,37 +130,13 @@ final class MediaFileControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(404);
     }
 
-    public function testOldUrlOfAMediaItemNotYetMovedServesTheOldFile(): void
+    /** The old upload URLs are gone with the transition (#1450), also for the original name of a stored file. */
+    public function testOldUploadUrlIsNotFound(): void
     {
         $client = self::createClient();
-        MediaFactory::new()->legacy('not-moved.png')->create();
+        MediaFactory::createOne(['originalFilename' => 'photo.png']);
 
-        $client->request(Request::METHOD_GET, '/uploads/media/not-moved.png');
-
-        self::assertResponseIsSuccessful();
-        self::assertResponseHeaderSame('Content-Type', 'image/png');
-        $cacheControl = (string) $client->getResponse()->headers->get('Cache-Control');
-        self::assertStringContainsString('max-age=3600', $cacheControl);
-        self::assertStringNotContainsString('immutable', $cacheControl);
-    }
-
-    public function testOldUrlOfAMovedMediaItemRedirectsPermanently(): void
-    {
-        $client = self::createClient();
-        $media = MediaFactory::new()->legacy('moved.png')->create();
-        $media->attachStoredFile('originals/2026/11/0193a8f2-7c1e-7000-8000-000000000001.png', 68, str_repeat('a', 64), new \DateTimeImmutable('2026-11-21'));
-        self::getContainer()->get('doctrine.orm.entity_manager')->flush();
-
-        $client->request(Request::METHOD_GET, '/uploads/media/moved.png');
-
-        self::assertResponseRedirects('/media/2026/11/0193a8f2-7c1e-7000-8000-000000000001.png', 301);
-    }
-
-    public function testOldUrlWithoutMediaItemIsNotFound(): void
-    {
-        $client = self::createClient();
-
-        $client->request(Request::METHOD_GET, '/uploads/media/unknown.png');
+        $client->request(Request::METHOD_GET, '/uploads/media/photo.png');
 
         self::assertResponseStatusCodeSame(404);
     }

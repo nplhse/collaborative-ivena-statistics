@@ -23,14 +23,12 @@ final class StoragePathClassifier
         ['var/cache', StorageCategory::Temporary, 'var_cache'],
         ['var/log', StorageCategory::Temporary, 'var_log'],
         ['var/imports', StorageCategory::Imports, 'var_imports'],
-        // Media storage (ADR 039); the old upload directory stays Media until it is removed in v0.4.
+        // Media storage (ADR 039).
         ['var/media', StorageCategory::Media, 'media_uploads'],
         ['var/import_rejects', StorageCategory::Imports, 'import_rejects'],
-        ['public/uploads/media', StorageCategory::Media, 'media_uploads'],
         ['var/geo', StorageCategory::Other, 'geodata'],
         ['var/demo/media', StorageCategory::Media, 'media_uploads'],
         ['var/demo', StorageCategory::Other, 'var_other'],
-        ['public/uploads/demo', StorageCategory::Media, 'media_uploads'],
         ['var', StorageCategory::Temporary, 'var_other'],
         ['vendor', StorageCategory::Application, 'vendor'],
         ['node_modules', StorageCategory::Application, 'node_modules'],

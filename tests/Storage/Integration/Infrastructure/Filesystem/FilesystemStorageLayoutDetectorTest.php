@@ -66,11 +66,11 @@ final class FilesystemStorageLayoutDetectorTest extends TestCase
         self::assertSame($this->fixture->path.'/shared', $layout->sharedDirectory);
         self::assertEquals([
             new SharedLink('.env.local', '.env.local'),
-            new SharedLink('public/uploads/media', 'public/uploads/media'),
             new SharedLink('var/imports', 'var/imports'),
+            new SharedLink('var/media', 'var/media'),
         ], $layout->sharedLinks);
-        self::assertSame(['.env.local', 'public/uploads/media', 'var/imports'], $layout->sharedReleasePaths());
-        self::assertSame(['.env.local', 'public/uploads/media', 'var/imports'], $layout->linkedSharedPaths());
+        self::assertSame(['.env.local', 'var/imports', 'var/media'], $layout->sharedReleasePaths());
+        self::assertSame(['.env.local', 'var/imports', 'var/media'], $layout->linkedSharedPaths());
     }
 
     public function testOrdersReleasesByNameWithoutLog(): void
@@ -96,7 +96,7 @@ final class FilesystemStorageLayoutDetectorTest extends TestCase
 
         $layout = new FilesystemStorageLayoutDetector($this->fixture->path.'/releases/11')->detect();
 
-        self::assertSame(['.env.local', 'public/uploads/media', 'var/imports'], $layout->sharedReleasePaths());
+        self::assertSame(['.env.local', 'var/imports', 'var/media'], $layout->sharedReleasePaths());
     }
 
     public function testCurrentPointingElsewhereIsStandalone(): void
@@ -125,12 +125,12 @@ final class FilesystemStorageLayoutDetectorTest extends TestCase
     {
         $this->fixture->file('shared/.env.local', 10);
         $this->fixture->directory('shared/var/imports');
-        $this->fixture->directory('shared/public/uploads/media');
+        $this->fixture->directory('shared/var/media');
         $this->fixture->directory('releases/9');
         $this->fixture->directory('releases/10');
         $this->fixture->directory('releases/11/var');
         $this->fixture->link('releases/11/var/imports', '../../../shared/var/imports');
-        $this->fixture->link('releases/11/public/uploads/media', '../../../../shared/public/uploads/media');
+        $this->fixture->link('releases/11/var/media', '../../../shared/var/media');
         $this->fixture->link('releases/11/.env.local', '../../shared/.env.local');
         $this->fixture->link('current', 'releases/11');
     }

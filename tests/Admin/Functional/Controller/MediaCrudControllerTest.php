@@ -7,6 +7,7 @@ namespace App\Tests\Admin\Functional\Controller;
 use App\Content\Domain\Entity\Media;
 use App\Content\Domain\Enum\MediaType;
 use App\Content\Infrastructure\Factory\MediaFactory;
+use App\Content\Infrastructure\Media\MediaStorage;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -28,7 +29,6 @@ final class MediaCrudControllerTest extends WebTestCase
             ->create(['username' => 'media-admin-'.bin2hex(random_bytes(4))]);
 
         MediaFactory::createOne([
-            'filename' => 'list-test.png',
             'originalFilename' => 'list-test.png',
             'title' => 'List test image',
             'type' => MediaType::IMAGE,
@@ -56,7 +56,6 @@ final class MediaCrudControllerTest extends WebTestCase
             ->create(['username' => 'media-detail-'.bin2hex(random_bytes(4))]);
 
         $media = MediaFactory::createOne([
-            'filename' => 'detail-test.png',
             'originalFilename' => 'detail-test.png',
         ]);
 
@@ -104,14 +103,14 @@ final class MediaCrudControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(403);
     }
 
-    public function testDeleteRemovesDatabaseRecordAndLegacyFile(): void
+    public function testDeleteRemovesDatabaseRecordAndStoredFile(): void
     {
         self::createClient();
 
         UserFactory::new()->asAdmin()->create();
-        $media = MediaFactory::new()->legacy('delete-me.png')->create();
+        $media = MediaFactory::createOne();
         $id = $media->getId();
-        $path = $this->legacyMediaDirectory().'/delete-me.png';
+        $path = self::getContainer()->get(MediaStorage::class)->absolutePath((string) $media->getStorageKey());
 
         self::assertFileExists($path);
 
@@ -123,17 +122,5 @@ final class MediaCrudControllerTest extends WebTestCase
 
         self::assertNull($em->find(Media::class, $id));
         self::assertFileDoesNotExist($path);
-    }
-
-    /** Old upload directory of the test environment (ADR 039), created when missing. */
-    private function legacyMediaDirectory(): string
-    {
-        $directory = self::getContainer()->getParameter('app.media_legacy_dir');
-        self::assertIsString($directory);
-        if (!is_dir($directory)) {
-            mkdir($directory, 0o777, true);
-        }
-
-        return $directory;
     }
 }

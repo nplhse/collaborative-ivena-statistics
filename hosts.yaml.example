@@ -30,13 +30,11 @@ hosts:
     shared_dirs:
       - var/log
       - var/demo
-      - public/uploads/demo
     writable_dirs:
       - var
       - var/cache
       - var/log
       - var/sessions
       - var/demo
-      - public/uploads/demo
     messenger_systemd_service: "messenger.service"
     messenger_restart_on_deploy: "true"

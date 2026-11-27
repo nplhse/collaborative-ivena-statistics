@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Content\Functional\Command;
 
+use App\Content\Application\Media\MediaPublicUrlResolver;
 use App\Content\Infrastructure\Factory\MediaFactory;
 use App\Content\Infrastructure\Factory\PageFactory;
 use App\Content\UI\Console\Command\AnalyzePageImagesCommand;
@@ -42,7 +43,6 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
     public function testApplyWithBackfillDimensionsPersistsMediaMetadata(): void
     {
         $media = MediaFactory::createOne([
-            'filename' => 'command-backfill.png',
             'width' => null,
             'height' => null,
         ]);
@@ -55,7 +55,7 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
                     'enabled' => true,
                     'data' => [
                         'mediaId' => $media->getId(),
-                        'src' => '/uploads/media/command-backfill.png',
+                        'src' => new MediaPublicUrlResolver()->resolve($media),
                         'alt' => 'Backfill',
                         'size' => 'auto',
                         'float' => 'none',
@@ -186,7 +186,6 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
     public function testMigrateSizeDryRunReportsPendingChanges(): void
     {
         $media = MediaFactory::createOne([
-            'filename' => 'command-migrate.png',
             'width' => 605,
             'height' => 400,
         ]);
@@ -199,7 +198,7 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
                     'enabled' => true,
                     'data' => [
                         'mediaId' => $media->getId(),
-                        'src' => '/uploads/media/command-migrate.png',
+                        'src' => new MediaPublicUrlResolver()->resolve($media),
                         'alt' => 'Migrate',
                         'size' => 'lg',
                         'float' => 'none',
@@ -227,7 +226,6 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
     private function seedPageWithAutoImage(): void
     {
         $media = MediaFactory::createOne([
-            'filename' => 'command-auto.png',
             'width' => 320,
             'height' => 200,
         ]);
@@ -240,7 +238,7 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
                     'enabled' => true,
                     'data' => [
                         'mediaId' => $media->getId(),
-                        'src' => '/uploads/media/command-auto.png',
+                        'src' => new MediaPublicUrlResolver()->resolve($media),
                         'alt' => 'Auto',
                         'size' => 'auto',
                         'float' => 'none',

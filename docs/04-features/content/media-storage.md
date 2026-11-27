@@ -15,7 +15,7 @@ live below the storage root `app.media_storage_dir` (`var/media`; demo: `var/dem
 | `variants/<YYYY>/<MM>/<uuid>/` | derived files such as thumbnails (prepared, none yet); not backed up |
 | `.tmp/` | files being written; not backed up |
 
-`media.storage_key` holds the path below the root, `checksum_sha256` and `size` describe the file, `verified_at` is the
+`media.storage_key` (required) holds the path below the root, `checksum_sha256` and `size` describe the file, `verified_at` is the
 last full hash check. The name and extension come from a UUIDv7 and the MIME type detected from the content, not from the
 uploaded name, which stays in `original_filename`. Only `MediaStorage` (Content, Infrastructure) touches these files:
 it writes through `.tmp/` and one `rename`, so a key never points at a partly written file. Replacing the file of a
@@ -30,30 +30,28 @@ them.
 | URL | Answer |
 |---|---|
 | `/media/<YYYY>/<MM>/<uuid>.<ext>` | the file of a public media item, `Cache-Control: public, max-age=31536000, immutable`, `ETag`, inline with the original name |
-| `/uploads/media/<filename>` (until v0.4) | `301` to the new URL once the media item has moved; the file from the old directory before that |
 
-Both routes are stateless (no session, no cookie, no usage tracking) and answer `404` for anything that is not a public
-media item with an existing file. `MediaPublicUrlResolver` builds the URL of a media item and reads a storage key or an
-old file name back from a URL found in content; the snippets of the media library and the page image analysis
-(`app:content:analyze-page-images`) use it for both URL forms.
+The route is stateless (no session, no cookie, no usage tracking) and answers `404` for anything that is not a public
+media item with an existing file. `MediaPublicUrlResolver` builds the URL of a media item and reads a storage key back
+from a URL found in content; the snippets of the media library and the page image analysis
+(`app:content:analyze-page-images`) use it. The old URLs `/uploads/media/<filename>` of releases before v0.3 answer
+`404` since v0.4-beta (#1450); the page image analysis treats them like any other URL that is not a media URL.
 
-Stateless also applies when the browser sends a session cookie, as it does for every signed-in user. Both paths have
-their own firewall `media` (`stateless: true`, `security: false`) before `main`, so no authenticator reads the token;
+Stateless also applies when the browser sends a session cookie, as it does for every signed-in user. `/media/` has
+its own firewall `media` (`stateless: true`, `security: false`) before `main`, so no authenticator reads the token;
 the remember-me authenticator would otherwise read it from the session whenever its cookie is sent (#1595). A request
 listener that reads the user, the token or the session also skips requests with the `_stateless` attribute, as the
 audit session reference and the two-factor obligation do (#1570). Otherwise Symfony throws in debug mode, and in
 production the file loses its public caching. Restricted media (#580) will need access control on these paths again.
 
-## Moving files from `public/uploads/media` (v0.3)
+## Transition from `public/uploads/media` (v0.3, removed in v0.4-beta)
 
-| Command | What it does |
-|---|---|
-| `app:media:migrate-storage [--dry-run] [--legacy-dir=<dir>]` | Copies every media item that still has a `filename` into the storage, checks the copy by SHA-256, then sets its key and keeps the old name in `legacy_filename`. Missing files and files without media item are listed; "Every media item is in the media storage." appears only when no media item is left outside it. A relative `--legacy-dir` is relative to the working directory. Exit code 1 only if a copy failed. Deployer runs it on every deploy. |
-| `app:media:rewrite-content-urls [--apply]` | Replaces `/uploads/media/<filename>` of moved media items in post content and in page content and drafts. Previews without `--apply`; leaves `updated_at` and the audit log alone. |
-
-The old directory is never changed by these commands. When `--legacy-dir` is the storage root itself (flat files of a
-backup from before v0.3, see [restore](../../05-operations/backup-restore.md#backups-from-before-v03)), each moved
-source is removed instead.
+v0.3 moved the files from `public/uploads/media` into the storage (`app:media:migrate-storage`) and rewrote the old
+URLs in content (`app:media:rewrite-content-urls`). v0.3 is a mandatory upgrade stop, so v0.4-beta removed both
+commands, the old route, the columns `media.filename` and `media.legacy_filename` and every code path that read the
+old directory (#1450). The migration that drops the columns stops while a media item has no storage key; such an
+installation, or a backup from before v0.3, goes through a v0.3 release first
+([restore](../../05-operations/backup-restore.md#backups-from-before-v03)).
 
 ## Integrity check
 
@@ -61,7 +59,7 @@ source is removed instead.
 
 | Finding | Detection | Action |
 |---|---|---|
-| missing | a media item without its file; until v0.4 also a media item not yet moved whose file is not in the old directory (listed as `uploads/media/<filename>`) | reported: admin dashboard and `/health` (`media`, degraded), notification `admin.media_integrity_problem` |
+| missing | a media item without its file | reported: admin dashboard and `/health` (`media`, degraded), notification `admin.media_integrity_problem` |
 | damaged | size, or SHA-256 of a hashed file, differs from the media item | reported like missing; the file stays |
 | orphan | a file below `originals/` or a directory below `variants/` that no media item refers to | deleted when older than 24 hours (`app.media_check_grace_hours`) |
 | leftover | a file in `.tmp/` | deleted when older than 24 hours |

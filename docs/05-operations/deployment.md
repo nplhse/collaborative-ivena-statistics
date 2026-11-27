@@ -31,18 +31,11 @@ Uploaded images and PDFs of the CMS and the blog live in the media storage `var/
 `/media/<YYYY>/<MM>/<uuid>.<ext>` with long-lived caching. Upload is admin-only with a MIME allowlist. Nothing below
 `public/` holds media any more, so there is no directory listing or script rule to maintain.
 
-**Moving the old files (v0.3).** Releases before v0.3 kept media in `shared/public/uploads/media`. Every deploy runs
-`app:media:migrate-storage` before the switch to the new release (task `media:migrate-storage`): it copies each file
-not yet moved into the storage, verifies it by SHA-256 and stores its key. It does nothing once every file has moved.
-The old directory stays untouched, so `vendor/bin/dep rollback` keeps working, and old URLs `/uploads/media/<file>`
-redirect to the new ones. After the release is accepted, replace the old URLs in posts and pages once:
-
-```bash
-vendor/bin/dep media:rewrite-content-urls coishub.uber.space
-```
-
-Afterwards a rollback to a release before v0.3 shows broken images in the rewritten content. The redirect, the old
-directory and `shared/public/uploads/media` are removed in v0.4.
+**Old upload directory.** Releases before v0.3 kept media in `shared/public/uploads/media`; v0.3 moved them into the
+storage on deploy. Since v0.4-beta nothing reads the old directory any more, the URLs `/uploads/media/<file>` answer
+`404`, and the Deployer tasks `media:migrate-storage` and `media:rewrite-content-urls` are gone (#1450). Before the
+first deploy of v0.4 the installation must run v0.3 with every file moved; the database migration stops otherwise.
+Once v0.4 runs, `shared/public/uploads/media` (on the demo host `shared/public/uploads/demo`) can be deleted.
 
 **Integrity check.** The scheduler runs `app:media:check` daily at 05:10 (Europe/Berlin): missing or damaged files
 show up in the admin dashboard and `/health` (check `media`) and are sent to administrators; files no media item refers
@@ -201,11 +194,10 @@ Typical order (Symfony recipe plus project tasks):
 3. **`maintenance:on`** — `app:maintenance on` of the new release: from now on only administrators can use the application ([maintenance mode](#maintenance-mode))
 4. **`messenger:stop`** — `systemctl --user stop messenger.service`, so no worker or scheduler runs during the migrations. With the PHP extension `pcntl` the worker finishes its current message first (up to `TimeoutStopSec`); without it the message is interrupted and delivered again. If the deploy fails after this step, the worker is started again on the previous release
 5. Database migrations
-6. **`media:migrate-storage`** — moves media files that are still in the old upload directory into `shared/var/media` ([media files](#media-files-shared-across-releases))
-7. Symlink switch to the new release (`current`)
-8. **`messenger:restart`** — `systemctl --user restart messenger.service`
-9. **`maintenance:off-after-deploy`** — `app:maintenance off`, unless the deploy runs with `-o keep_maintenance=true`. A failed deploy leaves the maintenance mode on
-10. Cleanup: releases beyond `keep_releases` (2) are deleted. Files that must survive a release change belong in `shared/`.
+6. Symlink switch to the new release (`current`)
+7. **`messenger:restart`** — `systemctl --user restart messenger.service`
+8. **`maintenance:off-after-deploy`** — `app:maintenance off`, unless the deploy runs with `-o keep_maintenance=true`. A failed deploy leaves the maintenance mode on
+9. Cleanup: releases beyond `keep_releases` (2) are deleted. Files that must survive a release change belong in `shared/`.
 
 **First deploy:** If the systemd unit does not exist yet, `messenger:restart` fails. Either create the unit first (see [messenger-workers.md](messenger-workers.md)) or set `messenger_restart_on_deploy: false` in `hosts.yaml` until the worker is ready.
 

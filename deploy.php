@@ -51,8 +51,7 @@ add('shared_dirs', [
     // Reference catalog packages (ADR 020): an export must survive the next deploy.
     'var/reference',
     'var/geo/hospital-isochrones',
-    // Media storage (ADR 039). shared/public/uploads/media of older releases stays until v0.4: the previous release
-    // still serves it, and media:migrate-storage copies from it.
+    // Media storage (ADR 039).
     'var/media',
     // Archives of data extract exports (ADR 045): downloadable for seven days, across deploys.
     'var/research/exports',
@@ -179,22 +178,6 @@ after('deploy:publish', 'maintenance:off-after-deploy');
 after('deploy:failed', 'messenger:restart-after-failure');
 after('deploy:failed', 'maintenance:report-after-failure');
 after('deploy:failed', 'deploy:unlock');
-
-desc('Move media files from the old upload directory into the media storage (ADR 039)');
-task('media:migrate-storage', function () {
-    run('cd {{release_or_current_path}} && {{bin/console}} app:media:migrate-storage --legacy-dir={{deploy_path}}/shared/public/uploads/media {{console_options}}');
-});
-
-// Before the switch, so the new release starts with every file in the storage. It copies and leaves the old
-// directory alone, so `dep rollback` keeps working; a failure stops the deploy before the switch.
-after('database:migrate', 'media:migrate-storage');
-
-// Not part of every deploy: once old URLs in content point to /media, the previous release cannot show those
-// images any more. Run it after the release is accepted (upgrade guide, v0.2.x → v0.3).
-desc('Replace old /uploads/media URLs in posts and pages with the URLs of the moved media (ADR 039)');
-task('media:rewrite-content-urls', function () {
-    run('cd {{current_path}} && {{bin/console}} app:media:rewrite-content-urls --apply {{console_options}}');
-});
 
 set('content_analyze_page_images_options', '--backfill-dimensions --migrate-size');
 

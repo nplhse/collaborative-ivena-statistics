@@ -289,8 +289,9 @@ need), and staging in the production account (shared quota and database server).
   the next `asset-map:compile` (as after `make install-dev`).
 - `bin/check-deprecations` (CI lint) also compiles the demo container, so demo configuration
   cannot silently break.
-- Storage monitoring counts the demo files under `var/demo` as Other and the demo uploads under
-  `public/uploads/demo` as Media, without demo-specific contributors (#920).
+- Storage monitoring counts the demo files under `var/demo` as Other and the demo media storage `var/demo/media` as
+  Media, without demo-specific contributors (#920; the old upload directory `public/uploads/demo` is no longer
+  counted as Media since v0.4-beta, #1450).
 - Every new external integration has to decide how it behaves in `demo` (off by default).
 - The demo needs a Messenger worker (`messenger:consume async_priority_low`) for generation runs; without
   one a run stays in the stage `projecting`, and `app:generate:run:show` marks it stale after 30 minutes.
