@@ -402,7 +402,7 @@ final readonly class ScenarioGenerator
             ->setStatus(ImportStatus::COMPLETED)
             ->setType($type)
             ->setFilePath($path)
-            ->setFileExtension('.csv')
+            ->setFileExtension('csv')
             ->setFileMimeType('text/csv')
             ->setFileSize(1)
             ->setRowCount($rowCount)

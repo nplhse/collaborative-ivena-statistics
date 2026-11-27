@@ -221,7 +221,7 @@ final readonly class HospitalMonthGenerator
             ->setStatus(ImportStatus::COMPLETED)
             ->setType($type)
             ->setFilePath($marker->path())
-            ->setFileExtension('.csv')
+            ->setFileExtension('csv')
             ->setFileMimeType('text/csv')
             ->setFileSize(1)
             ->setRowCount($rowCount)

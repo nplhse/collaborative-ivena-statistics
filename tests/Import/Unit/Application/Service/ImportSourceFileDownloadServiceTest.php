@@ -57,6 +57,20 @@ final class ImportSourceFileDownloadServiceTest extends TestCase
         self::assertSame(realpath($absolutePath), $response->getFile()->getPathname());
     }
 
+    /** #1591: synthetic imports stored the extension as ".csv"; the name must not end in "..csv". */
+    public function testCreateDownloadResponseIgnoresALeadingDotOfTheStoredExtension(): void
+    {
+        $relativePath = 'var/imports/synthetic.csv';
+        new Filesystem()->dumpFile(Path::join($this->projectDir, $relativePath), "a;b;c\n");
+
+        $import = $this->createImport($relativePath, 'IVENA allocations 2026-10', '.csv', 'text/csv');
+
+        $response = $this->service->createDownloadResponse($import);
+
+        self::assertStringContainsString('IVENA allocations 2026-10.csv', (string) $response->headers->get('Content-Disposition'));
+        self::assertStringNotContainsString('..csv', (string) $response->headers->get('Content-Disposition'));
+    }
+
     public function testCreateDownloadResponseThrowsWhenPathOutsideImportsBase(): void
     {
         $import = $this->createImport('/etc/passwd', 'Escape', 'csv', 'text/csv');
