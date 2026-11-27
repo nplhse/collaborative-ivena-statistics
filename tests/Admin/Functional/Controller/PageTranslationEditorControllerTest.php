@@ -141,6 +141,39 @@ final class PageTranslationEditorControllerTest extends WebTestCase
         self::assertSame('tabler:user', $this->reloadTranslation($translation)->getContent()[0]['data']['items'][0]['icon'] ?? null);
     }
 
+    public function testUnknownCustomHighlightIconIsReportedAtTheBlock(): void
+    {
+        $client = $this->createAdminClient();
+        $translation = $this->createTranslation([
+            ['type' => 'highlight', 'enabled' => true, 'data' => ['variant' => 'info', 'iconMode' => 'custom', 'icon' => 'tabler:user', 'html' => '<p>Note</p>']],
+        ]);
+
+        $crawler = $this->openEditor($client, $translation);
+        $form = $crawler->selectButton('Save changes')->form();
+        $form['PageTranslation[content][0][data][icon]'] = 'tabler:does-not-exist-anywhere';
+        $client->submit($form);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertSelectorTextContains('body', 'Block 1: The icon “tabler:does-not-exist-anywhere” does not exist.');
+        self::assertSame('tabler:user', $this->reloadTranslation($translation)->getContent()[0]['data']['icon'] ?? null);
+    }
+
+    public function testKnownCustomHighlightIconIsSaved(): void
+    {
+        $client = $this->createAdminClient();
+        $translation = $this->createTranslation([
+            ['type' => 'highlight', 'enabled' => true, 'data' => ['variant' => 'info', 'iconMode' => 'custom', 'icon' => 'tabler:user', 'html' => '<p>Note</p>']],
+        ]);
+
+        $crawler = $this->openEditor($client, $translation);
+        $form = $crawler->selectButton('Save changes')->form();
+        $form['PageTranslation[content][0][data][icon]'] = 'tabler:info-circle';
+        $client->submit($form);
+
+        self::assertResponseRedirects();
+        self::assertSame('tabler:info-circle', $this->reloadTranslation($translation)->getContent()[0]['data']['icon'] ?? null);
+    }
+
     public function testNewBlockPrototypeIsEnabledRichText(): void
     {
         $client = $this->createAdminClient();
