@@ -12,7 +12,7 @@ use App\User\Infrastructure\Security\AccountLock\AccountLock;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\NullLogger;
+use Psr\Log\AbstractLogger;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\RateLimiter\Storage\InMemoryStorage;
@@ -27,30 +27,15 @@ final class AccountLockTest extends TestCase
 
     private int $flushes = 0;
 
+    /** @var list<string> */
+    private array $logged = [];
+
     private AccountLock $accountLock;
 
     protected function setUp(): void
     {
         $this->clock = new MockClock('2026-11-27 10:00:00', 'UTC');
-
-        $publisher = $this->createStub(NotificationPublisherInterface::class);
-        $publisher->method('publish')->willReturnCallback(function (NotificationRequest $request): void {
-            $this->published[] = $request;
-        });
-
-        $entityManager = $this->createStub(EntityManagerInterface::class);
-        $entityManager->method('flush')->willReturnCallback(function (): void {
-            ++$this->flushes;
-        });
-
-        $this->accountLock = new AccountLock(
-            new RateLimiterFactory(['id' => 'login_account_failure', 'policy' => 'sliding_window', 'limit' => 20, 'interval' => '1 hour'], new InMemoryStorage()),
-            $entityManager,
-            new AuditContext(),
-            $publisher,
-            $this->clock,
-            new NullLogger(),
-        );
+        $this->accountLock = $this->accountLock(enforced: true);
     }
 
     public function testNineteenWrongPasswordsDoNotLockTheAccount(): void
@@ -140,6 +125,70 @@ final class AccountLockTest extends TestCase
 
         $this->failPasswords($user, 19);
         self::assertFalse($this->accountLock->isLocked($user));
+    }
+
+    public function testWhenNotEnforcedTheThresholdIsOnlyLogged(): void
+    {
+        $accountLock = $this->accountLock(enforced: false);
+        $user = $this->user(7);
+
+        for ($i = 0; $i < 40; ++$i) {
+            $accountLock->recordFailedPassword($user);
+        }
+
+        self::assertFalse($accountLock->isLocked($user));
+        self::assertNull($user->getLoginLockedUntil());
+        self::assertSame([], $this->published);
+        self::assertSame(0, $this->flushes);
+        // Counting starts again after each threshold, so 40 wrong passwords reach it twice.
+        self::assertSame(['security.login.account_lock_threshold_reached', 'security.login.account_lock_threshold_reached'], $this->logged);
+    }
+
+    public function testWhenNotEnforcedAnEarlierLockIsIgnored(): void
+    {
+        $user = $this->user(7);
+        $user->lockLoginUntil(new \DateTimeImmutable('2026-11-27 12:00:00', new \DateTimeZone('UTC')));
+
+        self::assertTrue($this->accountLock->isLocked($user));
+        self::assertFalse($this->accountLock(enforced: false)->isLocked($user));
+    }
+
+    private function accountLock(bool $enforced): AccountLock
+    {
+        $publisher = $this->createStub(NotificationPublisherInterface::class);
+        $publisher->method('publish')->willReturnCallback(function (NotificationRequest $request): void {
+            $this->published[] = $request;
+        });
+
+        $entityManager = $this->createStub(EntityManagerInterface::class);
+        $entityManager->method('flush')->willReturnCallback(function (): void {
+            ++$this->flushes;
+        });
+
+        $logger = new class(function (string $message): void {
+            $this->logged[] = $message;
+        }) extends AbstractLogger {
+            /** @param \Closure(string): void $record */
+            public function __construct(private readonly \Closure $record)
+            {
+            }
+
+            #[\Override]
+            public function log($level, string|\Stringable $message, array $context = []): void
+            {
+                ($this->record)((string) $message);
+            }
+        };
+
+        return new AccountLock(
+            new RateLimiterFactory(['id' => 'login_account_failure', 'policy' => 'sliding_window', 'limit' => 20, 'interval' => '1 hour'], new InMemoryStorage()),
+            $entityManager,
+            new AuditContext(),
+            $publisher,
+            $this->clock,
+            $logger,
+            $enforced,
+        );
     }
 
     private function failPasswords(User $user, int $times): void

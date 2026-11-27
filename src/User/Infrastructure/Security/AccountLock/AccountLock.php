@@ -22,6 +22,10 @@ use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
  * for an existing account takes a token of `login_account_failure`; the one that uses up the last token (the 20th within
  * an hour) locks the account for LOCK_DURATION. The lock ends on its own, with a password reset by the owner or when an administrator lifts it. The
  * owner is told once per lock (`security.account_locked`, email mandatory, also in the app).
+ *
+ * The lock is enforced only with APP_ACCOUNT_LOCK_ENABLED=true. Off (the default for now), the threshold is still
+ * counted and logged as `security.login.account_lock_threshold_reached`, so the frequency of such attacks can be
+ * seen before sign-ins are refused.
  */
 final readonly class AccountLock
 {
@@ -41,12 +45,15 @@ final readonly class AccountLock
         private ClockInterface $clock,
         #[Autowire(service: 'monolog.logger.security')]
         private LoggerInterface $logger,
+        #[Autowire(env: 'bool:APP_ACCOUNT_LOCK_ENABLED')]
+        private bool $enforced,
     ) {
     }
 
+    /** Always false while the lock is not enforced, also for accounts locked before it was switched off. */
     public function isLocked(User $user): bool
     {
-        return $user->isLoginLockedAt($this->clock->now());
+        return $this->enforced && $user->isLoginLockedAt($this->clock->now());
     }
 
     /** Counts a wrong password; locks the account when the limit is exceeded. Does nothing while it is locked. */
@@ -59,6 +66,14 @@ final readonly class AccountLock
 
         $limit = $this->failureLimiter->create($this->limiterKey($id))->consume();
         if ($limit->isAccepted() && $limit->getRemainingTokens() > 0) {
+            return;
+        }
+
+        if (!$this->enforced) {
+            // Off (default): count how often the threshold is reached, without locking or telling the owner.
+            $this->failureLimiter->create($this->limiterKey($id))->reset();
+            $this->logger->warning('security.login.account_lock_threshold_reached', ['user_id' => $id]);
+
             return;
         }
 

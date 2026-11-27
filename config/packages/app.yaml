@@ -2,6 +2,8 @@ parameters:
     app.default.title: 'Collaborative IVENA statistics'
     env(APP_CONTENT_DEFAULT_LOCALE): 'en'
     env(APP_UBERSPACE_CREDIT): 'true'
+    # Account lock after failed sign-ins (#1762): off records only that the threshold was reached.
+    env(APP_ACCOUNT_LOCK_ENABLED): 'false'
 
 app:
     title: '%env(default:app.default.title:APP_TITLE)%'
