@@ -679,7 +679,7 @@
       </trans-unit>
       <trans-unit id="Z4taMVn" resname="Using hidden overlay characters is not allowed.">
         <source>Using hidden overlay characters is not allowed.</source>
-        <target>Verstecke Overlay-Zeichen sind nicht erlaubt.</target>
+        <target>Versteckte Overlay-Zeichen sind nicht erlaubt.</target>
       </trans-unit>
       <trans-unit id="7hhZedg" resname="Using invisible characters is not allowed.">
         <source>Using invisible characters is not allowed.</source>
