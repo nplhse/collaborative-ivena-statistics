@@ -53,7 +53,15 @@ When the work is merged, remove the worktree together with its test databases:
 bin/worktree-cleanup ../my-topic
 ```
 
-It drops `app_test_my_topic` and the worker databases (`TEST_TOKEN` 1 to `PROCESSES`, default 4), then runs `git worktree remove`; the branch is kept. It refuses the main checkout, a worktree without its own suffix, a branch whose `doctrine.yaml` ignores the suffix, and a worktree with uncommitted changes. A worktree removed with plain `git worktree remove` leaves its test databases behind; drop them by hand.
+It drops `app_test_my_topic` and the worker databases (`TEST_TOKEN` 1 to `PROCESSES`, default 4), then runs `git worktree remove`; the branch is kept. It refuses the main checkout, a worktree without its own suffix, a branch whose `doctrine.yaml` ignores the suffix, and a worktree with uncommitted changes. A worktree removed with plain `git worktree remove` (or by a tool) leaves its test databases behind. List them, with their size, and drop them (#1213):
+
+```bash
+bin/worktree-cleanup --orphans                           # dry run: lists what belongs to no existing worktree
+bin/worktree-cleanup --orphans --force                   # drops those of removed worktrees (app_test_<suffix>…)
+bin/worktree-cleanup --orphans --force --include-tokens  # also those of old manual TEST_TOKEN runs (app_test<topic>)
+```
+
+It connects to the maintenance database `postgres` of the test connection's server. It never drops the shared test databases (`app_test`, `app_test<number>`) or a database that starts with `app_test` plus the `TEST_DATABASE_SUFFIX` of an existing worktree, including that worktree's manual `TEST_TOKEN` runs. A database in use (tests running) is reported and skipped.
 
 ### Reset local runtime data
 

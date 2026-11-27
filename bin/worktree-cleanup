@@ -2,20 +2,130 @@
 # Drop the test databases of a git worktree, then remove the worktree (the branch is kept).
 #
 # Usage: bin/worktree-cleanup <worktree-path>
+#        bin/worktree-cleanup --orphans [--force] [--include-tokens]
 #
 # Counterpart of bin/worktree-init. Drops the databases of TEST_DATABASE_SUFFIX from the worktree's
 # .env.test.local: the serial one and one per ParaTest worker (TEST_TOKEN 1..PROCESSES, default 4).
 # Refuses the main checkout, a worktree without its own suffix, a branch whose config ignores the
 # suffix and a worktree with uncommitted changes.
-# See docs/03-development/development-workflow.md.
+#
+# --orphans lists the test databases that belong to no existing worktree (dry run). They are left
+# behind by a worktree removed with plain `git worktree remove`. --force drops those of removed
+# worktrees (<db>_test_<suffix>…); --include-tokens also drops those of old manual TEST_TOKEN runs
+# (<db>_test<topic>). The shared ones (<db>_test, <db>_test<number>) and every database that starts
+# with the suffix of an existing worktree are never dropped. See docs/03-development/development-workflow.md.
 set -euo pipefail
 
 usage() {
-    sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'
+    sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'
+}
+
+# Runs SQL on the PostgreSQL server of the test connection, connected to its maintenance database
+# "postgres", so no test database has to exist and none is in use by this script.
+#   test_server list            -> "<name><TAB><size>" of every <db>_test* database, then "base<TAB><db>_test"
+#   test_server drop <name>...  -> drops the given databases
+test_server() {
+    (cd "$root" && env -u TEST_DATABASE_SUFFIX -u TEST_TOKEN APP_ENV=test php -d display_errors=stderr -r '
+        require "vendor/autoload.php";
+        (new Symfony\Component\Dotenv\Dotenv())->bootEnv(".env");
+        $params = (new Doctrine\DBAL\Tools\DsnParser(["postgresql" => "pdo_pgsql", "postgres" => "pdo_pgsql"]))->parse($_SERVER["DATABASE_URL"]);
+        $base = $params["dbname"]."_test";
+        $params["dbname"] = "postgres";
+        unset($params["serverVersion"], $params["charset"]);
+        $db = Doctrine\DBAL\DriverManager::getConnection($params);
+        if ("list" === $argv[1]) {
+            $rows = $db->fetchAllNumeric("SELECT datname, pg_size_pretty(pg_database_size(datname)) FROM pg_database WHERE starts_with(datname, ?) ORDER BY datname", [$base]);
+            foreach ($rows as [$name, $size]) { echo $name, "\t", $size, "\n"; }
+            echo "base\t", $base, "\n";
+            exit(0);
+        }
+        $status = 0;
+        foreach (array_slice($argv, 2) as $name) {
+            if (!preg_match("/^[A-Za-z0-9_]+$/", $name) || !str_starts_with($name, $base)) { fwrite(STDERR, "  skipped  $name (unexpected name)\n"); $status = 1; continue; }
+            try { $db->executeStatement("DROP DATABASE IF EXISTS \"$name\""); echo "  dropped  $name\n"; }
+            catch (Throwable $e) { fwrite(STDERR, "  failed   $name: ".$e->getMessage()."\n"); $status = 1; }
+        }
+        exit($status);
+    ' -- "$@")
+}
+
+sweep_orphans() {
+    local force=false tokens=false arg
+    for arg in "$@"; do
+        case "$arg" in
+            --force) force=true ;;
+            --include-tokens) tokens=true ;;
+            *) echo "Unknown option: $arg" >&2; usage >&2; exit 2 ;;
+        esac
+    done
+
+    root=$(git rev-parse --show-toplevel)
+    if [ ! -d "$root/vendor" ]; then
+        echo "No vendor/ in $root; run it from a checkout with dependencies." >&2
+        exit 1
+    fi
+
+    # Suffixes of the existing worktrees, main checkout included.
+    local suffixes=() path suffix
+    while IFS= read -r path; do
+        [ -f "$path/.env.test.local" ] || continue
+        suffix=$(sed -n 's/^TEST_DATABASE_SUFFIX=//p' "$path/.env.test.local" | tail -n 1)
+        [ -n "$suffix" ] && suffixes+=("$suffix")
+    done < <(git -C "$root" worktree list --porcelain | sed -n 's/^worktree //p')
+
+    local listing base name size kept=0 worktree_orphans=() token_orphans=() s belongs
+    listing=$(test_server list)
+    base=$(printf '%s\n' "$listing" | sed -n 's/^base\t//p')
+
+    echo "Test databases on the server of the test connection ($base*)"
+    while IFS=$'\t' read -r name size; do
+        [ "$name" = "base" ] && continue
+        rest=${name#"$base"}
+        # Shared: <db>_test and the ParaTest workers <db>_test1 … N.
+        if [ -z "$rest" ] || [[ "$rest" =~ ^[0-9]+$ ]]; then
+            kept=$((kept + 1)); continue
+        fi
+        belongs=false
+        for s in ${suffixes[@]+"${suffixes[@]}"}; do
+            # The worktree's own databases, its ParaTest workers and its manual TEST_TOKEN runs.
+            if [[ "$rest" == "$s"* ]]; then belongs=true; break; fi
+        done
+        if $belongs; then
+            kept=$((kept + 1)); continue
+        fi
+        if [[ "$rest" == _* ]]; then
+            worktree_orphans+=("$name"); printf '  %-8s %-45s %s\n' worktree "$name" "$size"
+        else
+            token_orphans+=("$name"); printf '  %-8s %-45s %s\n' token "$name" "$size"
+        fi
+    done <<< "$listing"
+    echo "  kept     $kept shared or of an existing worktree"
+    echo
+
+    local drop=()
+    if $force; then
+        drop+=(${worktree_orphans[@]+"${worktree_orphans[@]}"})
+        $tokens && drop+=(${token_orphans[@]+"${token_orphans[@]}"})
+    fi
+    if [ "${#drop[@]}" -eq 0 ]; then
+        echo "Nothing dropped (${#worktree_orphans[@]} of removed worktrees, ${#token_orphans[@]} of TEST_TOKEN runs)."
+        $force || echo "Drop them with --force (worktrees) and --force --include-tokens (also TEST_TOKEN runs)."
+        return 0
+    fi
+
+    echo "Dropping"
+    test_server drop "${drop[@]}"
+    echo
+    echo "Done."
 }
 
 case "${1:-}" in
     -h|--help) usage; exit 0 ;;
+    --orphans)
+        shift
+        sweep_orphans "$@"
+        exit 0
+        ;;
 esac
 if [ "$#" -ne 1 ]; then
     usage >&2
