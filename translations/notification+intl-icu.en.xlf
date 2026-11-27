@@ -653,6 +653,18 @@
         <source>security.two_factor_reset.label</source>
         <target>Two-factor authentication reset</target>
       </trans-unit>
+      <trans-unit id="NtfAccountLockedTitle" resname="security.account_locked.title">
+        <source>security.account_locked.title</source>
+        <target>Sign-in to your account was locked</target>
+      </trans-unit>
+      <trans-unit id="NtfAccountLockedMessage" resname="security.account_locked.message">
+        <source>security.account_locked.message</source>
+        <target>There were many failed sign-ins to your account. Sign-in with password or login link is locked for {hours} hours. If that was not you, reset your password: this also lifts the lock.</target>
+      </trans-unit>
+      <trans-unit id="NtfAccountLockedLabel" resname="security.account_locked.label">
+        <source>security.account_locked.label</source>
+        <target>Account locked</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

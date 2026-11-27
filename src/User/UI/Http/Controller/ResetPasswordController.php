@@ -9,6 +9,7 @@ use App\Shared\Application\RateLimit\ClientRateLimit;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\Shared\Infrastructure\Mail\TransactionalMailer;
 use App\User\Domain\Entity\User;
+use App\User\Infrastructure\Security\AccountLock\AccountLock;
 use App\User\UI\Form\ResetPasswordFormType;
 use App\User\UI\Form\ResetPasswordRequestFormType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -37,6 +38,7 @@ final class ResetPasswordController extends AbstractController
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly AuditContext $auditContext,
         private readonly LocaleResolver $localeResolver,
+        private readonly AccountLock $accountLock,
     ) {
     }
 
@@ -126,7 +128,9 @@ final class ResetPasswordController extends AbstractController
 
             $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
             $user->setCredentialsExpired(false);
-            $this->auditContext->beginIntent('user.password_reset_completed', []);
+            // A reset by the owner also lifts an account lock after failed sign-ins (#1762).
+            $loginLockLifted = $this->accountLock->clear($user);
+            $this->auditContext->beginIntent('user.password_reset_completed', ['login_lock_lifted' => $loginLockLifted]);
             try {
                 $this->entityManager->flush();
             } finally {

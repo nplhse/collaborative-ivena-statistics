@@ -37,6 +37,7 @@ Personal notifications for users: a persistent in-app inbox, toasts for active s
 | `hospital_assignment.ownership_transferred` | Account | in-app, email | the previous owner | an approved request transfers the ownership of their hospital; says whether they keep full access |
 | `participation.activated` | Account | in-app, toast, email (mandatory: the welcome mail) | the activated user | an administrator activates participation |
 | `security.two_factor_reset` | Account | in-app, email (mandatory) | the user | an administrator or an operator resets two-factor authentication (#1357) |
+| `security.account_locked` | Account | in-app, email (mandatory) | the user | sign-ins to their account are locked after 20 wrong passwords within an hour (#1762) |
 | `research.request_submitted` | Data extract requests | none (opt-in: in-app, email, toast) | Board members (role-scoped, not the applicant, not excluded) | a request is submitted for the formal check ([details](../research/README.md#notifications)) |
 | `research.board_vote` | Data extract requests | in-app, email | eligible Board members (role-scoped) | `kind`: `opened` (a round opens), `revision` (to members whose approval was carried over), `reminder` (48 hours before the end, to those who have not voted) |
 | `research.board_status` | Data extract requests | in-app, email | Board members (role-scoped) | `kind`: `vetoed` (not to the member who vetoed), `withdrawn` |

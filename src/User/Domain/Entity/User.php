@@ -103,6 +103,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $totpEnabledAt = null;
 
+    /** Password and login link sign-ins are refused until then after too many failed passwords (#1762, `AccountLock`). */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $loginLockedUntil = null;
+
     /**
      * Password hashes of the unused backup codes; a used code is removed.
      *
@@ -368,6 +372,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFact
         $this->totpSecret = null;
         $this->backupCodeHashes = [];
         $this->totpEnabledAt = null;
+    }
+
+    public function getLoginLockedUntil(): ?\DateTimeImmutable
+    {
+        return $this->loginLockedUntil;
+    }
+
+    public function isLoginLockedAt(\DateTimeImmutable $now): bool
+    {
+        return $this->loginLockedUntil instanceof \DateTimeImmutable && $this->loginLockedUntil > $now;
+    }
+
+    public function lockLoginUntil(\DateTimeImmutable $until): void
+    {
+        $this->loginLockedUntil = $until;
+    }
+
+    public function clearLoginLock(): void
+    {
+        $this->loginLockedUntil = null;
     }
 
     /**
