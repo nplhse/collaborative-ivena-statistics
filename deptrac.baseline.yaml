@@ -97,7 +97,6 @@ deptrac:
     App\Allocation\UI\Console\Command\AuditIndicationReviewCommand:
       - App\Allocation\Infrastructure\Query\IndicationRawReviewHealthCheckQuery
       - App\Allocation\Infrastructure\Query\IndicationRawReviewHealthCheckResult
-      - App\Allocation\Infrastructure\Query\IndicationRawReviewHealthCheckSeverity
     App\Allocation\UI\Console\Command\BackfillAllocationIndicationNormalizedCommand:
       - App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface
     App\Allocation\UI\Form\IndicationRawReviewType:

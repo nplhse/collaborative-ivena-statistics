@@ -39,6 +39,7 @@ use App\Allocation\Domain\Entity\Speciality;
 use App\Allocation\Domain\Entity\SpecialityAlias;
 use App\Allocation\Domain\Entity\State;
 use App\Allocation\Domain\IndicationKey;
+use App\Allocation\Domain\ReferenceNameKey;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;

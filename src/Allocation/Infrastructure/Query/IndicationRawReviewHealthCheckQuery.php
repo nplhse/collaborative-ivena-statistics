@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Allocation\Infrastructure\Query;
 
+use App\Allocation\Domain\Enum\IndicationRawReviewHealthCheckSeverity;
 use App\Allocation\Domain\Enum\IndicationRawReviewStatus;
 use Doctrine\DBAL\Connection;
 

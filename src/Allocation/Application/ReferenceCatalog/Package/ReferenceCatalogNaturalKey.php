@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Allocation\Application\ReferenceCatalog\Package;
 
 use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogType;
-use App\Allocation\Application\ReferenceCatalog\ReferenceNameKey;
 use App\Allocation\Domain\IndicationKey;
+use App\Allocation\Domain\ReferenceNameKey;
 
 /**
  * Natural key of a catalog row, the same for a package entry and a database row (ADR 020).

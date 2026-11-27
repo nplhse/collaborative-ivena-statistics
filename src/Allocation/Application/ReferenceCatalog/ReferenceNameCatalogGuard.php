@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Allocation\Application\ReferenceCatalog;
 
+use App\Allocation\Domain\ReferenceNameKey;
+
 final class ReferenceNameCatalogGuard
 {
     /**

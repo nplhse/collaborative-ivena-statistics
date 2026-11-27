@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Allocation\Infrastructure\Query;
 
+use App\Allocation\Domain\Enum\IndicationRawReviewHealthCheckSeverity;
+
 final readonly class IndicationRawReviewHealthCheckResult
 {
     public function __construct(

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Allocation\Application\DTO;
 
-use App\Allocation\Infrastructure\Query\IndicationRawReviewHealthCheckSeverity;
+use App\Allocation\Domain\Enum\IndicationRawReviewHealthCheckSeverity;
 
 final readonly class CatalogQualityWarning
 {

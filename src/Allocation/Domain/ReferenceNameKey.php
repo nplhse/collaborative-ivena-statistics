@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Allocation\Application\ReferenceCatalog;
+namespace App\Allocation\Domain;
 
 final class ReferenceNameKey
 {
