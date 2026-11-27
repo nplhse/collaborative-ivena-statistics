@@ -373,7 +373,9 @@ final class RegistrationControllerTest extends WebTestCase
 
             public function preFlush(PreFlushEventArgs $args): void
             {
-                if ($this->done) {
+                // Only the flush that stores the new account; earlier requests flush the cookie consent.
+                $inserts = $args->getObjectManager()->getUnitOfWork()->getScheduledEntityInsertions();
+                if ($this->done || [] === array_filter($inserts, static fn (object $entity): bool => $entity instanceof User)) {
                     return;
                 }
 
