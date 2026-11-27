@@ -1,0 +1,56 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Fail when a German translation addresses the reader informally ("du", "dich", "dein…", "euch", …).
+ *
+ * The German UI addresses users formally with "Sie" (docs/03-development/translations.md). The check
+ * reads every <target> of translations/*.de.xlf and plugins/{plugin}/translations/*.de.xlf. Informal
+ * imperatives without a pronoun ("Wähle …") are not detected; reviews still have to catch them.
+ *
+ * Usage: make lint-trans-address
+ */
+
+$root = dirname(__DIR__);
+$files = array_merge(
+    glob($root.'/translations/*.de.xlf') ?: [],
+    glob($root.'/plugins/*/translations/*.de.xlf') ?: [],
+);
+sort($files);
+
+$informal = '/\b(du|dich|dir|dein|deine|deinem|deinen|deiner|deines|euch|euer|eure|eurem|euren|eurer|eures)\b/iu';
+$errors = [];
+
+foreach ($files as $file) {
+    $dom = new DOMDocument();
+    if (!$dom->load($file)) {
+        fwrite(STDERR, "Failed to parse {$file}\n");
+        exit(1);
+    }
+
+    $relative = substr($file, strlen($root) + 1);
+    foreach ($dom->getElementsByTagName('target') as $target) {
+        $text = $target->textContent;
+        if (1 !== preg_match($informal, $text, $match)) {
+            continue;
+        }
+
+        $unit = $target->parentNode;
+        $resname = $unit instanceof DOMElement ? $unit->getAttribute('resname') : '';
+        $errors[] = sprintf('%s:%d %s: "%s" in %s', $relative, $target->getLineNo(), $resname, $match[1], trim(preg_replace('/\s+/u', ' ', $text) ?? $text));
+    }
+}
+
+if ([] !== $errors) {
+    fwrite(STDERR, "German address check failed:\n");
+    foreach ($errors as $error) {
+        fwrite(STDERR, '  - '.$error."\n");
+    }
+    fwrite(STDERR, "\nAddress users formally with \"Sie\"; see docs/03-development/translations.md.\n");
+    exit(1);
+}
+
+fwrite(STDOUT, sprintf("German translations use the formal address (%d files checked).\n", count($files)));
+exit(0);

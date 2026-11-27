@@ -172,6 +172,12 @@ When a prefix could belong to two domains, choose the domain of the **controller
 6. German texts name the people who administer the platform with the gender colon: "Administrator:in",
    "ein:e Administrator:in", "Administrator:innen". Do not write "die Administration" for them; that word is
    only the name of the area (for example the notification category). Other roles are not gendered yet.
+7. German texts address the reader formally with "Sie", "Ihr", "Ihnen", in the public pages as well as in
+   the admin area: "Wählen Sie eine Rangliste", "Ihr Profil", "Bitte versuchen Sie es erneut." Never use "du",
+   "dich", "dein…" or informal imperatives such as "Wähle" or "Prüfe". Short instructions may use the
+   infinitive instead ("Bitte erneut versuchen."). `make lint-trans-address` (part of `make lint`) fails on
+   informal pronouns in `*.de.xlf`; informal imperatives without a pronoun are not detected, so check them
+   in review.
 
 ## Usage examples
 

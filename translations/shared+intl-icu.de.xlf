@@ -475,7 +475,7 @@
       </trans-unit>
       <trans-unit id="emptyFltDescDe" resname="empty.filtered.description">
         <source>empty.filtered.description</source>
-        <target>Passe die Suche an oder entferne einige Filter.</target>
+        <target>Passen Sie die Suche an oder entfernen Sie einige Filter.</target>
       </trans-unit>
       <trans-unit id="emptyFltCtaDe" resname="empty.filtered.cta">
         <source>empty.filtered.cta</source>

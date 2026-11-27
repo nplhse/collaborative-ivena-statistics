@@ -1183,7 +1183,7 @@
       </trans-unit>
       <trans-unit id="emptyAlcDeDe" resname="empty.allocation.initial.description">
         <source>empty.allocation.initial.description</source>
-        <target>Importiere den ersten IVENA-Datensatz, um Zuweisungen auszuwerten.</target>
+        <target>Importieren Sie den ersten IVENA-Datensatz, um Zuweisungen auszuwerten.</target>
       </trans-unit>
       <trans-unit id="emptyAlcCtaDe" resname="empty.allocation.initial.cta">
         <source>empty.allocation.initial.cta</source>
@@ -1215,7 +1215,7 @@
       </trans-unit>
       <trans-unit id="emptyCovDeDe" resname="empty.hospital.coverage.description">
         <source>empty.hospital.coverage.description</source>
-        <target>Importiere den ersten IVENA-Datensatz dieser Klinik, um die Abdeckung zu sehen.</target>
+        <target>Importieren Sie den ersten IVENA-Datensatz dieser Klinik, um die Abdeckung zu sehen.</target>
       </trans-unit>
       <trans-unit id="emptyCovCtaDe" resname="empty.hospital.coverage.cta">
         <source>empty.hospital.coverage.cta</source>
@@ -1243,7 +1243,7 @@
       </trans-unit>
       <trans-unit id="emptyGrnDeDe" resname="empty.access_grants.description">
         <source>empty.access_grants.description</source>
-        <target>Ordne eine Person zu, um ihr Zugang zu dieser Klinik zu geben.</target>
+        <target>Ordnen Sie eine Person zu, um ihr Zugang zu dieser Klinik zu geben.</target>
       </trans-unit>
       <trans-unit id="CatDeptAlTitleDe" resname="catalog.department.aliases.title">
         <source>catalog.department.aliases.title</source>
@@ -1351,7 +1351,7 @@
       </trans-unit>
       <trans-unit id="myHospCardSharedDe" resname="my_hospitals.card.shared">
         <source>my_hospitals.card.shared</source>
-        <target>Für dich freigegeben</target>
+        <target>Für Sie freigegeben</target>
       </trans-unit>
       <trans-unit id="myHospCardAllocDe" resname="my_hospitals.card.allocations">
         <source>my_hospitals.card.allocations</source>
@@ -1383,7 +1383,7 @@
       </trans-unit>
       <trans-unit id="myHospCardOwnDe" resname="my_hospitals.card.own_uploads">
         <source>my_hospitals.card.own_uploads</source>
-        <target>Deine Uploads</target>
+        <target>Ihre Uploads</target>
       </trans-unit>
       <trans-unit id="myHospCardNoDataDe" resname="my_hospitals.card.no_data">
         <source>my_hospitals.card.no_data</source>
@@ -1391,7 +1391,7 @@
       </trans-unit>
       <trans-unit id="myHospCardNoDataProbDe" resname="my_hospitals.card.no_data_problems">
         <source>my_hospitals.card.no_data_problems</source>
-        <target>Noch keine Zuweisungen: Die bisherigen Importe wurden nicht abgeschlossen. Prüfe die Importe.</target>
+        <target>Noch keine Zuweisungen: Die bisherigen Importe wurden nicht abgeschlossen. Prüfen Sie die Importe.</target>
       </trans-unit>
       <trans-unit id="myHospCardNoDataPendDe" resname="my_hospitals.card.no_data_pending">
         <source>my_hospitals.card.no_data_pending</source>

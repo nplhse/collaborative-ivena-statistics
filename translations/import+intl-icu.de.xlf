@@ -11,11 +11,11 @@
       </trans-unit>
       <trans-unit id="FlsImpRlDe" resname="flash.import.rate_limited">
         <source>flash.import.rate_limited</source>
-        <target>Zu viele Importversuche. Bitte versuche es später erneut.</target>
+        <target>Zu viele Importversuche. Bitte versuchen Sie es später erneut.</target>
       </trans-unit>
       <trans-unit id="FlsImpNoUpDe" resname="flash.import.no_upload_permission">
         <source>flash.import.no_upload_permission</source>
-        <target>Du kannst noch keinen Import starten: Dafür brauchst du für mindestens ein Krankenhaus die Berechtigung zum Importieren. Bitte den Inhaber des Krankenhauses oder eine:n Administrator:in um Zugriff.</target>
+        <target>Sie können noch keinen Import starten: Dafür brauchen Sie für mindestens ein Krankenhaus die Berechtigung zum Importieren. Bitten Sie den Inhaber des Krankenhauses oder eine:n Administrator:in um Zugriff.</target>
       </trans-unit>
       <trans-unit id="FlsImpRunDe" resname="flash.import.delete_running_blocked">
         <source>flash.import.delete_running_blocked</source>
@@ -351,7 +351,7 @@
       </trans-unit>
       <trans-unit id="emptyImpDeDe" resname="empty.import.initial.description">
         <source>empty.import.initial.description</source>
-        <target>Importiere den ersten IVENA-Datensatz, um Zuweisungen auszuwerten.</target>
+        <target>Importieren Sie den ersten IVENA-Datensatz, um Zuweisungen auszuwerten.</target>
       </trans-unit>
       <trans-unit id="emptyImpCtaDe" resname="empty.import.initial.cta">
         <source>empty.import.initial.cta</source>
@@ -419,7 +419,7 @@
       </trans-unit>
       <trans-unit id="impOptionsDemoDe" resname="label.import.options.demoWarning">
         <source>label.import.options.demoWarning</source>
-        <target>Dies ist die Demo, deren Banner alle Daten als synthetisch ausweist. Ein Import mit Zielklinik-Überschreibung enthält echte Betriebsdaten und ist auf seiner Importseite gekennzeichnet. Zeige ihn nur, wenn das Publikum diese Daten sehen darf.</target>
+        <target>Dies ist die Demo, deren Banner alle Daten als synthetisch ausweist. Ein Import mit Zielklinik-Überschreibung enthält echte Betriebsdaten und ist auf seiner Importseite gekennzeichnet. Zeigen Sie ihn nur, wenn das Publikum diese Daten sehen darf.</target>
       </trans-unit>
       <trans-unit id="impSumAllocDe" resname="import.summary.allocations_imported">
         <source>import.summary.allocations_imported</source>
