@@ -253,15 +253,15 @@ final class EncounterAccessGrantControllerTest extends WebTestCase
         self::assertSelectorNotExists('[data-test="nav-encounter"]');
     }
 
-    public function testOldEncounterPageLeadsToTools(): void
+    /** The pre-#1128 encounter page redirected to the Tools until v0.3 (#1160). */
+    public function testOldEncounterPageIsGone(): void
     {
         $client = self::createClient();
         $client->loginUser($this->user());
 
         $client->request(Request::METHOD_GET, '/encounter');
 
-        self::assertResponseStatusCodeSame(Response::HTTP_PERMANENTLY_REDIRECT);
-        self::assertResponseRedirects('/tools');
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 
     /**
