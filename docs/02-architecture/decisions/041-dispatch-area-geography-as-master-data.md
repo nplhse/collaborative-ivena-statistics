@@ -43,6 +43,9 @@ Existing assignments and geometries are taken over offline, keyed by AGS, by a t
 the migrations and before the symlink switch. It verifies all 29 existing shapes against reference data in its transfer
 file. If the check fails, the deployment stops and the previous release stays active.
 
+The takeover ran once with v0.3. Its transfer file, command, Deployer task and completion marker table were removed in
+v0.4-beta (#1519); v0.3 with its takeover is a required stop before an upgrade to v0.4.
+
 ## Alternatives considered
 
 - **Ship all of Germany's boundaries in the repository:** adds data most installations never use and ties updates to

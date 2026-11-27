@@ -202,11 +202,10 @@ Typical order (Symfony recipe plus project tasks):
 4. **`messenger:stop`** — `systemctl --user stop messenger.service`, so no worker or scheduler runs during the migrations. With the PHP extension `pcntl` the worker finishes its current message first (up to `TimeoutStopSec`); without it the message is interrupted and delivered again. If the deploy fails after this step, the worker is started again on the previous release
 5. Database migrations
 6. **`media:migrate-storage`** — moves media files that are still in the old upload directory into `shared/var/media` ([media files](#media-files-shared-across-releases))
-7. **`geo:import-legacy-districts`** (temporary, v0.3) — takes the legacy district geography over into the database and verifies it. A failed check stops the deploy before the switch; a completed takeover is skipped ([ADR 041](../02-architecture/decisions/041-dispatch-area-geography-as-master-data.md))
-8. Symlink switch to the new release (`current`)
-9. **`messenger:restart`** — `systemctl --user restart messenger.service`
-10. **`maintenance:off-after-deploy`** — `app:maintenance off`, unless the deploy runs with `-o keep_maintenance=true`. A failed deploy leaves the maintenance mode on
-11. Cleanup: releases beyond `keep_releases` (2) are deleted. Files that must survive a release change belong in `shared/`.
+7. Symlink switch to the new release (`current`)
+8. **`messenger:restart`** — `systemctl --user restart messenger.service`
+9. **`maintenance:off-after-deploy`** — `app:maintenance off`, unless the deploy runs with `-o keep_maintenance=true`. A failed deploy leaves the maintenance mode on
+10. Cleanup: releases beyond `keep_releases` (2) are deleted. Files that must survive a release change belong in `shared/`.
 
 **First deploy:** If the systemd unit does not exist yet, `messenger:restart` fails. Either create the unit first (see [messenger-workers.md](messenger-workers.md)) or set `messenger_restart_on_deploy: false` in `hosts.yaml` until the worker is ready.
 
