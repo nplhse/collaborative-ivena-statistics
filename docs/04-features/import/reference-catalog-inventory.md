@@ -231,7 +231,7 @@ The synthetic indication provider holds the official codes with their official w
 | `src/Import/Application/Mapping/Closure*Catalog.php` | IVENA labels of closure care level, reason, facility kind | Technical default | Stays in code |
 | `src/Import/Application/Mapping/DispatchAreaNameNormalizer.php` | Generic prefixes and suffixes of dispatch area names | Technical default | Stays in code |
 | `resources/geo/demo-districts.geojson` | Coarse demo shapes of the Hessian districts for fixtures | Public (BKG, `dl-de/by-2-0`, changed) | Stays |
-| `resources/geo/legacy-districts-1406.geojson` | One-time takeover of the former map geometry | Public (BKG, `dl-de/by-2-0`) | Removed with #1519 |
+| `resources/geo/legacy-districts-1406.geojson` | One-time takeover of the former map geometry | Public (BKG, `dl-de/by-2-0`) | Removed in v0.4-beta (#1519) |
 | `src/Allocation/Infrastructure/Faker/Provider/*` | Synthetic names, areas, indications | Synthetic | Extended (ADR 020) |
 
 Documentation (`reference-catalog.md`, `reference-catalog-yaml.md`, `docs/03-development/fixtures.md`) recommends committing exports to `fixtures/reference/catalog.yaml`; it is rewritten at the end of #740.

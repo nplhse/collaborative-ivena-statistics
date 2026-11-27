@@ -189,15 +189,6 @@ task('media:migrate-storage', function () {
 // directory alone, so `dep rollback` keeps working; a failure stops the deploy before the switch.
 after('database:migrate', 'media:migrate-storage');
 
-desc('Take over the legacy district geography and verify it (#1406, ADR 041; removed by #1519)');
-task('geo:import-legacy-districts', function () {
-    run('cd {{release_or_current_path}} && {{bin/console}} app:geo:import-legacy-districts {{console_options}} && {{bin/console}} app:geo:import-legacy-districts --verify {{console_options}}');
-});
-
-// Before the switch: if the verification fails, the deploy stops and the previous release keeps its maps. The new
-// tables are additive, so the previous release is not affected and the task can run again.
-after('media:migrate-storage', 'geo:import-legacy-districts');
-
 // Not part of every deploy: once old URLs in content point to /media, the previous release cannot show those
 // images any more. Run it after the release is accepted (upgrade guide, v0.2.x → v0.3).
 desc('Replace old /uploads/media URLs in posts and pages with the URLs of the moved media (ADR 039)');
