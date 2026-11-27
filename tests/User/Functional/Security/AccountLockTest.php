@@ -62,7 +62,7 @@ final class AccountLockTest extends WebTestCase
     public function testPasswordResetLiftsTheLock(): void
     {
         $user = UserFactory::new(['username' => 'locked', 'email' => 'locked@example.test', 'isVerified' => true])->create();
-        $user->lockLoginUntil(new \DateTimeImmutable('+4 hours'));
+        $user->lockLoginUntil(new \DateTimeImmutable('+3 hours'));
         $this->entityManager()->flush();
 
         $token = self::getContainer()->get(ResetPasswordHelperInterface::class)->generateResetToken($user)->getToken();

@@ -25,9 +25,9 @@ use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
  */
 final readonly class AccountLock
 {
-    public const string LOCK_DURATION = '+4 hours';
+    public const string LOCK_DURATION = '+3 hours';
 
-    public const int LOCK_DURATION_HOURS = 4;
+    public const int LOCK_DURATION_HOURS = 3;
 
     public const string INTENT_LOCKED = 'user.login.account_locked';
 

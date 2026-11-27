@@ -64,14 +64,14 @@ final class AccountLockTest extends TestCase
         self::assertSame([], $this->published);
     }
 
-    public function testTheTwentiethWrongPasswordLocksForFourHours(): void
+    public function testTheTwentiethWrongPasswordLocksForThreeHours(): void
     {
         $user = $this->user(7);
 
         $this->failPasswords($user, 20);
 
         self::assertTrue($this->accountLock->isLocked($user));
-        self::assertEquals(new \DateTimeImmutable('2026-11-27 14:00:00', new \DateTimeZone('UTC')), $user->getLoginLockedUntil());
+        self::assertEquals(new \DateTimeImmutable('2026-11-27 13:00:00', new \DateTimeZone('UTC')), $user->getLoginLockedUntil());
         self::assertSame(1, $this->flushes);
     }
 
@@ -85,19 +85,19 @@ final class AccountLockTest extends TestCase
         self::assertCount(1, $this->published);
         self::assertSame('security.account_locked', $this->published[0]->type);
         self::assertSame([7], $this->published[0]->recipientUserIds);
-        self::assertSame(['hours' => 4], $this->published[0]->parameters);
-        self::assertEquals(new \DateTimeImmutable('2026-11-27 14:00:00', new \DateTimeZone('UTC')), $user->getLoginLockedUntil());
+        self::assertSame(['hours' => 3], $this->published[0]->parameters);
+        self::assertEquals(new \DateTimeImmutable('2026-11-27 13:00:00', new \DateTimeZone('UTC')), $user->getLoginLockedUntil());
     }
 
-    public function testTheLockEndsAfterFourHoursAndCountingStartsAgain(): void
+    public function testTheLockEndsAfterThreeHoursAndCountingStartsAgain(): void
     {
         $user = $this->user(7);
         $this->failPasswords($user, 20);
 
-        $this->clock->modify('2026-11-27 13:59:59 UTC');
+        $this->clock->modify('2026-11-27 12:59:59 UTC');
         self::assertTrue($this->accountLock->isLocked($user));
 
-        $this->clock->modify('2026-11-27 14:00:00 UTC');
+        $this->clock->modify('2026-11-27 13:00:00 UTC');
         self::assertFalse($this->accountLock->isLocked($user));
 
         // Earlier failures were forgotten when the account was locked: one more does not lock it again.

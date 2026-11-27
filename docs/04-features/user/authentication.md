@@ -189,14 +189,14 @@ A successful password login resets this limiter, so two-factor codes have their 
 
 `login_throttling` does not stop many IPs from guessing one account. `AccountLock` (#1762) therefore counts wrong
 passwords per account across all IPs in `login_account_failure` (sliding window, 20 per hour). The 20th locks the
-account for four hours (`AccountLock::LOCK_DURATION`, column `user.login_locked_until`):
+account for three hours (`AccountLock::LOCK_DURATION`, column `user.login_locked_until`):
 
 - `AccountLockListener` refuses sign-ins with the password form and the login link while the account is locked, before
   the password is checked, with the same "Invalid credentials." as a wrong password, so the form does not reveal the
   account or the lock. Password confirmation of a signed-in user and two-factor codes are not affected.
 - Only a wrong password for an enabled, verified account counts. Unknown identifiers, CSRF errors, throttling and
   refusals for disabled or unverified accounts do not, and failures during a lock neither extend it nor count.
-- The lock ends on its own after four hours, or when the owner resets the password (`ResetPasswordController`, audit
+- The lock ends on its own after three hours, or when the owner resets the password (`ResetPasswordController`, audit
   intent `user.password_reset_completed` with `login_lock_lifted`). Lifting a lock from the admin area follows with
   #1487.
 - Locking writes the audit intent `user.login.account_locked`, logs `security.login.account_locked` (user id only) and
