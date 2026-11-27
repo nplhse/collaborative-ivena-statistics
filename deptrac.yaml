@@ -518,6 +518,10 @@ deptrac:
             - Analytics_Domain
             - Analytics_Infrastructure
             - Analytics_UI
+            - Notification_Application
+            - Notification_Domain
+            - Notification_Infrastructure
+            - Notification_UI
             - Onboarding_Application
             - Onboarding_Domain
             - Onboarding_Infrastructure
@@ -574,6 +578,10 @@ deptrac:
             - Analytics_Domain
             - Analytics_Infrastructure
             - Analytics_UI
+            - Notification_Application
+            - Notification_Domain
+            - Notification_Infrastructure
+            - Notification_UI
             - Onboarding_Application
             - Onboarding_Domain
             - Onboarding_Infrastructure
@@ -630,6 +638,10 @@ deptrac:
             - Analytics_Domain
             - Analytics_Infrastructure
             - Analytics_UI
+            - Notification_Application
+            - Notification_Domain
+            - Notification_Infrastructure
+            - Notification_UI
             - Onboarding_Application
             - Onboarding_Domain
             - Onboarding_Infrastructure
@@ -697,6 +709,7 @@ deptrac:
             - Allocation_Domain
             - Analytics_Application
             - Analytics_Domain
+            - Import_Application
             - Import_Domain
             - Shared_Application
             - Shared_Domain
@@ -977,6 +990,7 @@ deptrac:
             - Shared_UI
             - Statistics_Application
             - Statistics_PageApiApplication
+            - User_Domain
         Import_Domain:
             - Allocation_Application
             - Allocation_Domain
@@ -1016,6 +1030,7 @@ deptrac:
             - Shared_Domain
             - Shared_Infrastructure
             - Shared_UI
+            - User_Domain
         Install_Application:
             - Shared_Application
             - Shared_Domain
@@ -1156,8 +1171,11 @@ deptrac:
             - User_Infrastructure
             - User_UI
         Onboarding_Application:
+            - Allocation_Domain
             - Analytics_Application
             - Analytics_Domain
+            - Import_Application
+            - Import_Domain
             - Onboarding_Domain
             - Shared_Application
             - Shared_Domain
