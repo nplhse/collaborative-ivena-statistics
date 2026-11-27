@@ -14,9 +14,8 @@ Part of the Tools section (`/tools`, [ADR 031](../../02-architecture/decisions/0
 `IndicationReviewToolProvider`. Breadcrumbs start at Tools; the Explore indication list, the catalogue
 normalization card and the mapping-quality warnings link to the worklist.
 
-Until v0.4-beta the pre-#1128 URLs under `/explore/indication/raw/review…` and their route names
-(`app_explore_indication_raw_review*`) answer with a permanent redirect (308, query string kept) to the
-matching tool route (`LegacyIndicationReviewRedirectController`, removal in #1160).
+The pre-#1128 URLs under `/explore/indication/raw/review…` redirected to the tool routes until v0.3; since
+v0.4-beta they answer 404 (#1160).
 
 ### Worklist segments
 

@@ -36,8 +36,8 @@ several contexts (Allocation, Encounter, later MTS management), and `Shared` mus
   edit sections do. The registry runs on every page that shows the navigation, so providers decide from
   roles and voters without database queries.
 - Routes of tools are named `app_tools_*` and live under `/tools/…`, so the navigation marks the entry
-  as active by route prefix like the other sections. A moved route keeps its old name and path as a
-  redirect until v0.4-beta (#1160).
+  as active by route prefix like the other sections. A moved route kept its old name and path as a
+  redirect until v0.3; the redirects were removed in v0.4-beta (#1160).
 - Pages of a tool stay in the context that implements them; only routes, breadcrumbs and navigation
   change. Domain pages keep contextual links to the canonical tool routes.
 - Routine entity management, imports, exports and admin configuration are not tools.
@@ -76,7 +76,7 @@ exception: it was the only page behind its own "Export" entry of the header, is 
 become too full. It is now the tool "Export allocations" ("Zuweisungen exportieren") in the new category
 `ToolCategory::DataExport` ("Export data", "Daten exportieren"), visible to users who may export
 (`ExportVoter::EXPORT`). Its routes moved from `/hospitals/export/allocations*` to `/tools/allocation-export*`
-(`app_tools_allocation_export*`); the old names and paths redirect permanently (308) until v0.4-beta (#1160).
+(`app_tools_allocation_export*`); the old names and paths redirected permanently (308) until v0.3 and were removed in v0.4-beta (#1160).
 `AllocationExportToolProvider` asks `ExportVoter`, which reads the user's hospitals with the export permission;
 the former header entry ran the same check on every page, so the cost is unchanged. In-page CSV downloads of
 statistics and analyses stay where they are.

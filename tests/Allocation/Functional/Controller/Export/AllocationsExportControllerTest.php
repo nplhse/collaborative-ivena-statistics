@@ -227,23 +227,6 @@ final class AllocationsExportControllerTest extends WebTestCase
         self::assertSelectorNotExists('[data-tool-key="allocation_export"]');
     }
 
-    /**
-     * The pre-#1633 URLs redirect permanently (308) with their query string, so old forms keep method and body.
-     */
-    public function testOldUrlsRedirectToTheTool(): void
-    {
-        [$client] = $this->createOwnerClient();
-
-        $client->request(Request::METHOD_GET, '/hospitals/export/allocations?from=2026-01-01');
-        self::assertResponseRedirects('/tools/allocation-export?from=2026-01-01', Response::HTTP_PERMANENTLY_REDIRECT);
-
-        $client->request(Request::METHOD_POST, '/hospitals/export/allocations/estimate');
-        self::assertResponseRedirects('/tools/allocation-export/estimate', Response::HTTP_PERMANENTLY_REDIRECT);
-
-        $client->request(Request::METHOD_POST, '/hospitals/export/allocations/download');
-        self::assertResponseRedirects('/tools/allocation-export/download', Response::HTTP_PERMANENTLY_REDIRECT);
-    }
-
     public function testOwnerExportDownloadIsSuccessful(): void
     {
         [$client, $owner] = $this->createOwnerClient();
