@@ -54,13 +54,6 @@ final class ExplorerAssistantQueryFactoryTest extends TestCase
         self::assertNull($query->filters->cpr);
     }
 
-    public function testMapsPre1040AgeGroupKeysToTheCurrentBuckets(): void
-    {
-        $query = $this->factory->fromRequest(Request::create('/', 'GET', ['age_group' => '0_18']));
-
-        self::assertSame('0_17', $query->filters->ageGroup);
-    }
-
     public function testUnknownValuesMarkTheQueryMalformedAndFallBackToDefaults(): void
     {
         $query = $this->factory->fromRequest(Request::create('/', 'GET', [

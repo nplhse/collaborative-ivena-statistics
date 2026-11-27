@@ -31,26 +31,6 @@ final class StatisticsAgeGroupFilter
         self::OVER_80 => 'statistics.distribution.age.over_80',
     ];
 
-    /**
-     * Explorer bucket keys used before #1040, when 18-year-olds counted as minors.
-     *
-     * Deprecated: old links and stored filters are still mapped to the current buckets; the mapping is removed in v0.4-beta.
-     *
-     * @var array<string, string>
-     */
-    public const array LEGACY_KEYS = [
-        '0_18' => '0_17',
-        '19_29' => '18_29',
-    ];
-
-    /**
-     * Maps a pre-#1040 bucket key to the current one; other keys are returned unchanged.
-     */
-    public static function normalizeKey(string $key): string
-    {
-        return self::LEGACY_KEYS[$key] ?? $key;
-    }
-
     public static function isAggregate(string $key): bool
     {
         return \in_array($key, self::AGGREGATE_KEYS, true);
@@ -63,7 +43,7 @@ final class StatisticsAgeGroupFilter
 
     public static function sqlCondition(string $ageColumn, string $key): ?string
     {
-        return match (self::normalizeKey($key)) {
+        return match ($key) {
             self::UNDER_18 => sprintf('%s IS NOT NULL AND %s < 18', $ageColumn, $ageColumn),
             self::ADULTS => sprintf('%s IS NOT NULL AND %s >= 18', $ageColumn, $ageColumn),
             self::OVER_80 => sprintf('%s >= 80', $ageColumn),

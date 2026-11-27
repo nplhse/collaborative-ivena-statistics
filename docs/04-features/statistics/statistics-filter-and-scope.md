@@ -125,10 +125,10 @@ The adult threshold is 18 (#181): a patient aged 18 counts as an adult. The age 
 Explorer `age_group` dimension, the filter and Benchmarking, Insights, Overview and Case Flow all use
 `StatisticsAgeGroupBucketSql` (`0_17`, `18_29`, `30_39`, …), so 18-year-olds are in `18_29` everywhere (#1040).
 
-**Pre-#1040 keys (deprecated).** Until #1040 the Explorer used `0_18` and `19_29`. Links that still
-carry them are read as `0_17` and `18_29` (`StatisticsAgeGroupFilter::normalizeKey()`, applied to the
-URL, the Explorer assistant and stored Explorer filters); migration `Version20261113144614` rewrote
-saved views. The mapping is removed in v0.4-beta.
+**Pre-#1040 keys.** Until #1040 the Explorer used `0_18` and `19_29`; migration `Version20261113144614`
+rewrote saved views. Since v0.4-beta (#1125) these keys are no longer mapped and behave like any
+unknown age-group value: the filter drawer sets no age condition (all ages), and an Explorer filter
+compares the bucket key and matches no case.
 
 **Missing age.** Cases without a recorded age cannot be assigned to an age group, so every
 age-group value excludes them, from numerator and denominator alike. They only count when no age
