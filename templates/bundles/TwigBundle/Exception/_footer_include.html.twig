@@ -1,3 +1,4 @@
 {# Footer strings live in the messages domain (same as @Shared/_includes/footer.html.twig). #}
 {% trans_default_domain 'messages' %}
-{{ include('@Shared/_includes/footer.html.twig') }}
+{# Without database access (#1684): only the stored copy of the footer links. #}
+{{ include('@Shared/_includes/footer.html.twig', {navigation_snapshot_only: true}) }}

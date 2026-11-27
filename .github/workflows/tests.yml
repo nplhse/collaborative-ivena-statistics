@@ -70,6 +70,10 @@ jobs:
             - name: Check the prod CSP header
               run: php bin/check-prod-csp
 
+            # This job has no database: health check and error page must still answer, with 503 (#1684, #1685).
+            - name: Check the prod kernel without a database
+              run: php bin/check-prod-without-database
+
     unit:
         name: Unit tests
         needs: changes

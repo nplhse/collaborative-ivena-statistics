@@ -12,8 +12,8 @@ declare(strict_types=1);
  * It handles GET /data-prep/latest.json twice, with SENTRY_CSP_REPORT_URI empty and set, and checks the header only.
  * That job has no database, so the request must not need one: the route is stateless (no cookie consent check, no
  * session) and answers from configuration. Since Symfony 8.1.12 an error response is rendered with the HTML error
- * page under the CLI SAPI too (CVE-2026-133762), and its footer reads the database, so a route that fails would end
- * in an uncaught exception instead of a 500. Nelmio adds the header to every response.
+ * page under the CLI SAPI too (CVE-2026-133762); bin/check-prod-without-database checks that page without a database
+ * (#1684). Nelmio adds the header to every response.
  *
  * Locally: APP_ENV=prod APP_DEBUG=0 php bin/check-prod-csp
  */

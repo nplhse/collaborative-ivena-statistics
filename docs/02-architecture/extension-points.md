@@ -710,6 +710,10 @@ Lets a context add groups and entries to the named menus of `Menu` (`primary`, `
 - Merging and visibility are in `NavigationContributions`, the order in `NavigationOrder`; the builder
   uses both and says in `NavigationMenu::$activeRule` which rule chose the active entry
   (`NavigationActiveRule`).
+- The HTTP error pages read no database (#1684), so they cannot build a menu. Normal pages keep a copy of
+  the rendered primary and footer menus in `cache.app` (`NavigationSnapshotExtension`, per language, built
+  as for a visitor who is not signed in, renewed at most once an hour); the error pages show that copy, or no
+  links when there is none (after `cache:clear`). A change to a menu reaches the error pages within an hour.
 
 **Debugging:** **Admin → System → Navigation tree** (`/admin/operations/navigation`, `ROLE_ADMIN`, #1237)
 shows every group and entry of every menu with its provider, label source, route data, permission and

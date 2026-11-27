@@ -1,0 +1,82 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+/*
+ * Checks what the prod kernel answers while the database is unreachable (#1684, #1685).
+ *
+ * CI runs it in the job "Prod kernel smoke", which has no database. The script points DATABASE_URL at a closed port
+ * anyway, so it gives the same result locally. Every request gets its own kernel, as in production.
+ *
+ * - GET /health answers its own 503 JSON with the database unreachable: it is stateless, so the cookie consent is
+ *   not read before it.
+ * - A page answers the HTML error page with 503 (DatabaseUnavailableExceptionListener) instead of ending in an uncaught
+ *   exception: the error page reads no database, its navigation comes only from the stored copy
+ *   (NavigationSnapshotExtension), which this fresh cache does not have.
+ * - The same with the consent cookie, so the consent lookup fails first.
+ *
+ * Locally: APP_ENV=prod APP_DEBUG=0 php bin/check-prod-without-database
+ */
+
+use App\Kernel;
+use Symfony\Component\Dotenv\Dotenv;
+use Symfony\Component\HttpFoundation\Request;
+
+require dirname(__DIR__).'/vendor/autoload.php';
+
+$_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = 'prod';
+$_SERVER['APP_DEBUG'] = $_ENV['APP_DEBUG'] = '0';
+new Dotenv()->bootEnv(dirname(__DIR__).'/.env');
+
+$unreachable = 'postgresql://unreachable:unreachable@127.0.0.1:1/app?serverVersion=18&charset=utf8';
+$_SERVER['DATABASE_URL'] = $_ENV['DATABASE_URL'] = $unreachable;
+putenv('DATABASE_URL='.$unreachable);
+
+$failures = [];
+
+/**
+ * @param array<string, string> $cookies
+ */
+$handle = static function (string $path, array $cookies = []): array {
+    $kernel = new Kernel('prod', false);
+    try {
+        $response = $kernel->handle(Request::create('https://localhost'.$path, cookies: $cookies));
+
+        return [$response->getStatusCode(), (string) $response->getContent(), null];
+    } catch (Throwable $exception) {
+        return [0, '', $exception::class.': '.$exception->getMessage()];
+    } finally {
+        $kernel->shutdown();
+    }
+};
+
+[$status, $content, $error] = $handle('/health');
+$payload = json_decode($content, true);
+if (null !== $error || 503 !== $status || !is_array($payload) || 'unreachable' !== ($payload['checks']['database'] ?? null)) {
+    $failures[] = sprintf('GET /health: expected 503 JSON with the database unreachable, got %d %s%s', $status, substr($content, 0, 200), $error ?? '');
+} else {
+    fwrite(STDOUT, "GET /health: 503, database unreachable\n");
+}
+
+foreach (['/' => [], '/ with consent cookie' => ['consent_subject_id' => 'check-without-database']] as $case => $cookies) {
+    [$status, $content, $error] = $handle('/', $cookies);
+    if (null !== $error) {
+        $failures[] = sprintf('GET %s: uncaught %s', $case, $error);
+        continue;
+    }
+
+    if (503 !== $status || !str_contains($content, 'empty-header">503') || !str_contains($content, 'footer-meta-version')) {
+        $failures[] = sprintf('GET %s: expected the HTML error page with 503 and its footer, got %d', $case, $status);
+        continue;
+    }
+
+    fwrite(STDOUT, sprintf("GET %s: 503 error page\n", $case));
+}
+
+if ([] !== $failures) {
+    fwrite(STDERR, implode("\n", $failures)."\n");
+    exit(1);
+}
+
+fwrite(STDOUT, "Prod kernel without database OK\n");
