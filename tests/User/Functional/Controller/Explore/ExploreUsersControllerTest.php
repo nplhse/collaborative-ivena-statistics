@@ -738,19 +738,6 @@ final class ExploreUsersControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
     }
 
-    /** TRANSITION REDIRECT (#1353) — remove in v0.4-beta together with the user's public UUID. */
-    public function testOldUuidProfileUrlsRedirectToTheUsername(): void
-    {
-        $client = $this->createClientAsParticipant();
-        $user = UserFactory::createOne(['username' => 'grace', 'roles' => [UserRole::USER, UserRole::PARTICIPANT]]);
-
-        $client->request(Request::METHOD_GET, '/explore/user/'.$user->getPublicIdString());
-        self::assertResponseRedirects('/explore/user/grace', 301);
-
-        $client->request(Request::METHOD_GET, '/explore/user/'.$user->getPublicIdString().'/activity');
-        self::assertResponseRedirects('/explore/user/grace/activity', 301);
-    }
-
     public function testUnknownOrDisabledProfilesAreNotFound(): void
     {
         $client = $this->createClientAsParticipant();
@@ -766,7 +753,6 @@ final class ExploreUsersControllerTest extends WebTestCase
             '/explore/user/00000000-0000-4000-8000-000000000001',
             '/explore/user/gone',
             '/explore/user/GONE',
-            '/explore/user/'.$disabled->getPublicIdString(),
             '/explore/user/gone/activity',
         ] as $url) {
             $client->request(Request::METHOD_GET, $url);
@@ -777,9 +763,9 @@ final class ExploreUsersControllerTest extends WebTestCase
     public function testOtherProfilesStayForbiddenForNonParticipantsWhateverTheSpelling(): void
     {
         $client = $this->createClientAsRoleUser();
-        $other = UserFactory::createOne(['username' => 'Hedy', 'roles' => [UserRole::USER, UserRole::PARTICIPANT]]);
+        UserFactory::createOne(['username' => 'Hedy', 'roles' => [UserRole::USER, UserRole::PARTICIPANT]]);
 
-        foreach (['/explore/user/Hedy', '/explore/user/hedy', '/explore/user/'.$other->getPublicIdString()] as $url) {
+        foreach (['/explore/user/Hedy', '/explore/user/hedy'] as $url) {
             $client->request(Request::METHOD_GET, $url);
             self::assertResponseStatusCodeSame(403, $url);
         }

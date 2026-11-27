@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace App\Tests\Shared\Functional\Command;
 
+use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
+use App\Allocation\Infrastructure\Factory\HospitalFactory;
+use App\Allocation\Infrastructure\Factory\MciCaseFactory;
+use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Shared\Application\PublicId\PublicIdBackfillExitCode;
 use App\Shared\UI\Console\Command\BackfillPublicIdsCommand;
-use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -18,30 +22,34 @@ final class BackfillPublicIdsCommandTest extends KernelTestCase
 {
     use Factories;
 
-    public function testDryRunThenBackfillUserPublicId(): void
+    public function testDryRunThenBackfillMciCasePublicId(): void
     {
         self::bootKernel();
-        UserFactory::createOne();
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        HospitalFactory::createOne();
+        ImportFactory::createOne();
+        MciCaseFactory::createOne();
 
         /** @var Connection $connection */
         $connection = self::getContainer()->get(Connection::class);
-        $connection->executeStatement('UPDATE "user" SET public_id = NULL');
+        $connection->executeStatement('UPDATE mci_case SET public_id = NULL');
 
         $tester = $this->createCommandTester();
 
         self::assertSame(
             PublicIdBackfillExitCode::SUCCESS,
-            $tester->execute(['--dry-run' => true, '--table' => ['user']]),
+            $tester->execute(['--dry-run' => true, '--table' => ['mci_case']]),
         );
         self::assertStringContainsString('Dry run finished', $tester->getDisplay());
-        self::assertNull($connection->fetchOne('SELECT public_id FROM "user" LIMIT 1'));
+        self::assertNull($connection->fetchOne('SELECT public_id FROM mci_case LIMIT 1'));
 
         self::assertSame(
             PublicIdBackfillExitCode::SUCCESS,
-            $tester->execute(['--table' => ['user']]),
+            $tester->execute(['--table' => ['mci_case']]),
         );
         self::assertStringContainsString('Backfill finished in', $tester->getDisplay());
-        self::assertNotNull($connection->fetchOne('SELECT public_id FROM "user" LIMIT 1'));
+        self::assertNotNull($connection->fetchOne('SELECT public_id FROM mci_case LIMIT 1'));
     }
 
     public function testInvalidTableReturnsCriticalExitCode(): void

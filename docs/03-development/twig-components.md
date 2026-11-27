@@ -473,7 +473,7 @@ Stacked lists (Tabler `avatar-list avatar-list-stacked`, for example the access 
 
 ### User links (`users.link`)
 
-For a `User` entity, prefer the macro `users.link()` in `@Shared/_macros/users.html.twig` over a hand-written avatar and name (#1240). It prints the name through `user_display_name()`, adds `title="@username"` when the visible name differs from the username, and links to the profile `/explore/user/{username}` (#1353). Build profile links from the username, never from the user's public ID: the profile lookup ignores the case and redirects to the canonical spelling, and the old UUID URLs only redirect until v0.4-beta.
+For a `User` entity, prefer the macro `users.link()` in `@Shared/_macros/users.html.twig` over a hand-written avatar and name (#1240). It prints the name through `user_display_name()`, adds `title="@username"` when the visible name differs from the username, and links to the profile `/explore/user/{username}` (#1353). Build profile links from the username: the profile lookup ignores the case and redirects to the canonical spelling. Users have no public ID since v0.4-beta; the old UUID profile URLs answer 404 (#1424).
 
 | Option | Default | Notes |
 |--------|---------|-------|
