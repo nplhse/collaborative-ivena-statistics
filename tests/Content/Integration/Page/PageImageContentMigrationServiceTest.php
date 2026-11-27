@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Content\Integration\Page;
 
+use App\Content\Application\Media\MediaPublicUrlResolver;
 use App\Content\Application\Page\PageImageContentMigrationService;
 use App\Content\Infrastructure\Factory\MediaFactory;
 use App\Content\Infrastructure\Factory\PageFactory;
@@ -220,7 +221,6 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
     public function testMigrateSizesSkipsNonImageBlocks(): void
     {
         $media = MediaFactory::createOne([
-            'filename' => 'migrate-with-headline.png',
             'width' => 605,
             'height' => 400,
         ]);
@@ -238,7 +238,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
                     'enabled' => true,
                     'data' => [
                         'mediaId' => $media->getId(),
-                        'src' => '/uploads/media/migrate-with-headline.png',
+                        'src' => new MediaPublicUrlResolver()->resolve($media),
                         'alt' => 'Image',
                         'size' => 'lg',
                         'float' => 'none',
@@ -257,7 +257,6 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
     public function testMigrateSizesSkipsNonLargeImageBlocksOnCandidatePage(): void
     {
         $media = MediaFactory::createOne([
-            'filename' => 'migrate-candidate-mix.png',
             'width' => 605,
             'height' => 400,
         ]);
@@ -270,7 +269,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
                     'enabled' => true,
                     'data' => [
                         'mediaId' => $media->getId(),
-                        'src' => '/uploads/media/migrate-candidate-mix.png',
+                        'src' => new MediaPublicUrlResolver()->resolve($media),
                         'alt' => 'Large candidate',
                         'size' => 'lg',
                         'float' => 'none',
@@ -281,7 +280,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
                     'enabled' => true,
                     'data' => [
                         'mediaId' => $media->getId(),
-                        'src' => '/uploads/media/migrate-candidate-mix.png',
+                        'src' => new MediaPublicUrlResolver()->resolve($media),
                         'alt' => 'Medium sibling',
                         'size' => 'md',
                         'float' => 'none',
@@ -358,7 +357,6 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
     public function testSkipsFloatedLargeImagesDuringSizeMigration(): void
     {
         $media = MediaFactory::createOne([
-            'filename' => 'floated.png',
             'width' => 400,
             'height' => 300,
         ]);
@@ -371,7 +369,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
                     'enabled' => true,
                     'data' => [
                         'mediaId' => $media->getId(),
-                        'src' => '/uploads/media/floated.png',
+                        'src' => new MediaPublicUrlResolver()->resolve($media),
                         'alt' => 'Floated',
                         'size' => 'lg',
                         'float' => 'left',
@@ -390,7 +388,6 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
     private function createPageWithLargeImageBlock(): \App\Content\Domain\Entity\Page
     {
         $media = MediaFactory::createOne([
-            'filename' => 'migrate-me.png',
             'width' => 605,
             'height' => 400,
         ]);
@@ -403,7 +400,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
                     'enabled' => true,
                     'data' => [
                         'mediaId' => $media->getId(),
-                        'src' => '/uploads/media/migrate-me.png',
+                        'src' => new MediaPublicUrlResolver()->resolve($media),
                         'alt' => 'Migrate me',
                         'size' => 'lg',
                         'float' => 'none',

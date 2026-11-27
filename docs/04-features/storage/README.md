@@ -39,7 +39,7 @@ Every item has a category (what) and a location (where):
 |---|---|
 | Database | PostgreSQL database |
 | Imports | `var/imports`, `var/import_rejects` |
-| Media | `var/media` and `var/demo/media` ([media storage](../content/media-storage.md)); until v0.4 also the old upload directories `public/uploads/media` and `public/uploads/demo` |
+| Media | `var/media` and `var/demo/media` ([media storage](../content/media-storage.md)) |
 | Application | source, `vendor/`, `public/build` / `public/assets`, `node_modules/`, `.git/` |
 | Temporary | `var/cache`, `var/log`, other `var/` content |
 | Other | geodata (`var/geo`), demo files (`var/demo`), `.env.local`, `.dep`, unused shared paths, unclassified files |

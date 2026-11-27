@@ -162,7 +162,7 @@ demo-install: ## Create the demo DB app_demo with synthetic data (DEMO_PRESET=la
 	@$(DEMO_CONSOLE) doctrine:database:drop --if-exists --force
 	@$(DEMO_CONSOLE) doctrine:database:create
 	@$(DEMO_CONSOLE) doctrine:migrations:migrate --no-interaction
-	@rm -rf var/demo/imports var/demo/media public/uploads/demo/media
+	@rm -rf var/demo/imports var/demo/media
 	@mkdir -p var/demo/imports/rejects var/demo/media
 	@$(FIXTURES_XDEBUG) FIXTURES_PROFILE=$(DEMO_PRESET) $(DEMO_CONSOLE) doctrine:fixtures:load --group=dev --no-interaction
 	@$(FIXTURES_XDEBUG) $(DEMO_CONSOLE) app:statistics:rebuild-closure-volume-projection
@@ -184,8 +184,8 @@ demo-uninstall: ## Remove the demo: drop app_demo and delete var/demo, its cache
 	fi
 	@rm -rf var/cache/demo
 	@$(DEMO_CONSOLE) doctrine:database:drop --if-exists --force
-	@rm -rf var/cache/demo var/demo public/uploads/demo var/log/demo.log
-	@echo "Demo removed: database app_demo, var/demo, public/uploads/demo, cache and log."
+	@rm -rf var/cache/demo var/demo var/log/demo.log
+	@echo "Demo removed: database app_demo, var/demo, cache and log."
 
 demo-start: ## Serve the demo on http://127.0.0.1:8001 (DEMO_PORT=; built-in PHP server, Ctrl+C stops)
 	@rm -rf var/cache/demo
@@ -395,7 +395,7 @@ test-warmup: ## Compile the extra test containers (kernels without bundles, demo
 ## —— Cleanup 🚮 ————————————————————————————————————————————————————————————————
 purge-runtime: ## Remove compiled assets, uploads, imports, cache, and logs
 	@rm -rf public/assets/*
-	@rm -rf var/media public/uploads/media
+	@rm -rf var/media
 	@rm -rf var/imports/*
 	@mkdir -p var/imports var/imports/rejects
 	@rm -rf var/cache/* var/logs/*

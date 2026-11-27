@@ -411,7 +411,7 @@
       </trans-unit>
       <trans-unit id="HlpPgIulDe" resname="help.page.image_url_legacy">
         <source>help.page.image_url_legacy</source>
-        <target>Optional, wenn ein Bibliotheksbild ausgewählt ist. Relative Pfade wie /uploads/media/… werden unterstützt.</target>
+        <target>Optional, wenn ein Bibliotheksbild ausgewählt ist. Relative Pfade wie /media/… werden unterstützt.</target>
       </trans-unit>
       <trans-unit id="HlpPgIwpDe" resname="help.page.image_width_percent">
         <source>help.page.image_width_percent</source>

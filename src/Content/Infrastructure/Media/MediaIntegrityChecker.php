@@ -37,6 +37,12 @@ use Symfony\Component\Lock\LockFactory;
 #[AsAlias(MediaIntegrityCheckerInterface::class)]
 final readonly class MediaIntegrityChecker implements MediaIntegrityCheckerInterface
 {
+    /**
+     * Lock shared with backup and restore (ADR 038; the Storage context uses the same name): files must not be checked
+     * or deleted while a backup reads them or a restore writes them.
+     */
+    public const string LOCK = 'backup-maintenance';
+
     /** Orphans above this share of all files, and above {@see MIN_BLOCKING_ORPHANS}, block every deletion of the run. */
     public const float MAX_ORPHAN_SHARE = 0.2;
 
@@ -50,7 +56,6 @@ final readonly class MediaIntegrityChecker implements MediaIntegrityCheckerInter
     /** @psalm-suppress PossiblyUnusedMethod Symfony autowires this service */
     public function __construct(
         private MediaStorage $storage,
-        private LocalMediaFileLocator $fileLocator,
         private Connection $connection,
         private MediaIntegrityCheckRepository $checks,
         private LockFactory $lockFactory,
@@ -67,7 +72,7 @@ final readonly class MediaIntegrityChecker implements MediaIntegrityCheckerInter
     #[\Override]
     public function check(bool $full, bool $dryRun): MediaIntegrityReport
     {
-        $lock = $this->lockFactory->createLock(MediaStorageMigrator::LOCK, null);
+        $lock = $this->lockFactory->createLock(self::LOCK, null);
         if (!$lock->acquire()) {
             throw new MediaMaintenanceException('A backup, restore or media task is running. The integrity check runs again later.');
         }
@@ -109,9 +114,6 @@ final readonly class MediaIntegrityChecker implements MediaIntegrityCheckerInter
 
             $present[$key] = $row;
         }
-
-        // Media items not yet moved (until v0.4) are missing when their file is not in the old directory either.
-        $missing = [...$missing, ...$this->notMovedWithoutFile()];
 
         [$hashed, $hashDamaged] = $this->hash($present, $full, $dryRun, $now);
         $damaged = [...$damaged, ...$hashDamaged];
@@ -192,24 +194,6 @@ final readonly class MediaIntegrityChecker implements MediaIntegrityCheckerInter
         }
 
         return $media;
-    }
-
-    /**
-     * Media items still in the old upload directory whose file is not there, as `uploads/media/<filename>`.
-     *
-     * @return list<string>
-     */
-    private function notMovedWithoutFile(): array
-    {
-        $missing = [];
-        foreach ($this->connection->fetchFirstColumn("SELECT filename FROM media WHERE storage_key IS NULL AND filename IS NOT NULL AND filename <> '' ORDER BY id") as $filename) {
-            $path = $this->fileLocator->resolveLegacyPath((string) $filename);
-            if (null === $path || !is_file($path)) {
-                $missing[] = 'uploads/media/'.$filename;
-            }
-        }
-
-        return $missing;
     }
 
     /**

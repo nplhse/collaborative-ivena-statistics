@@ -87,7 +87,7 @@ final class FilesystemStorageScannerTest extends TestCase
         );
 
         $leftover = $this->item($scan, StorageLocation::PreviousRelease, '10', 'media_uploads');
-        self::assertSame($this->fixture->allocatedSum('releases/10/public/uploads/media', 'releases/10/public/uploads/media/old.jpg'), $leftover->bytes);
+        self::assertSame($this->fixture->allocatedSum('releases/10/var/media', 'releases/10/var/media/old.jpg'), $leftover->bytes);
         self::assertSame([MeasurementItemFlag::LeftoverInRelease], $leftover->flags);
         self::assertSame(StorageCategory::Media, $leftover->category);
 
@@ -155,7 +155,7 @@ final class FilesystemStorageScannerTest extends TestCase
     private function deployment(): void
     {
         $this->fixture->file('shared/var/imports/a.csv', 5000);
-        $this->fixture->file('shared/public/uploads/media/img.jpg', 3000);
+        $this->fixture->file('shared/var/media/img.jpg', 3000);
         $this->fixture->file('shared/.env.local', 10);
         $this->fixture->file('shared/old-stuff/file', 2000);
 
@@ -164,12 +164,12 @@ final class FilesystemStorageScannerTest extends TestCase
         $this->fixture->file('releases/11/var/cache/c', 4000);
         $this->fixture->file('releases/11/var/log/l', 500);
         $this->fixture->link('releases/11/var/imports', '../../../shared/var/imports');
-        $this->fixture->link('releases/11/public/uploads/media', '../../../../shared/public/uploads/media');
+        $this->fixture->link('releases/11/var/media', '../../../shared/var/media');
         $this->fixture->link('releases/11/.env.local', '../../shared/.env.local');
 
         $this->fixture->file('releases/10/src/Kernel.php', 100);
         $this->fixture->hardlink('releases/10/vendor/pkg/lib.php', 'releases/11/vendor/pkg/lib.php');
-        $this->fixture->file('releases/10/public/uploads/media/old.jpg', 6000);
+        $this->fixture->file('releases/10/var/media/old.jpg', 6000);
         $this->fixture->file('releases/10/var/cache/x', 800);
 
         $this->fixture->file('.dep/releases_log', 200);

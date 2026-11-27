@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace App\Tests\Content\Integration\Page;
 
+use App\Content\Application\Media\MediaPublicUrlResolver;
+use App\Content\Domain\Entity\Media;
 use App\Content\Infrastructure\Factory\MediaFactory;
 use App\Content\Infrastructure\Factory\PageFactory;
-use Symfony\Component\Filesystem\Path;
+use App\Content\Infrastructure\Media\MediaStorage;
+use Symfony\Component\Filesystem\Filesystem;
 
 final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnalyzerTestCase
 {
     public function testRecommendsMigratingSmallFullWidthImageToAuto(): void
     {
         $media = MediaFactory::createOne([
-            'filename' => 'small-image.png',
             'width' => 605,
             'height' => 400,
         ]);
@@ -26,7 +28,7 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
                     'enabled' => true,
                     'data' => [
                         'mediaId' => $media->getId(),
-                        'src' => '/uploads/media/small-image.png',
+                        'src' => $this->url($media),
                         'alt' => 'Small',
                         'size' => 'lg',
                         'float' => 'none',
@@ -46,7 +48,6 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
     public function testAutoSizeImageNeedsNoChange(): void
     {
         $media = MediaFactory::createOne([
-            'filename' => 'auto-image.png',
             'width' => 605,
             'height' => 400,
         ]);
@@ -59,7 +60,7 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
                     'enabled' => true,
                     'data' => [
                         'mediaId' => $media->getId(),
-                        'src' => '/uploads/media/auto-image.png',
+                        'src' => $this->url($media),
                         'alt' => 'Auto',
                         'size' => 'auto',
                         'float' => 'none',
@@ -77,16 +78,11 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
     public function testMissingLocalFileIsReported(): void
     {
         $media = MediaFactory::createOne([
-            'filename' => 'missing-on-disk.png',
             'width' => 400,
             'height' => 300,
         ]);
 
-        $legacyDir = $this->legacyMediaDirectory();
-        $path = Path::join($legacyDir, 'missing-on-disk.png');
-        if (is_file($path)) {
-            unlink($path);
-        }
+        unlink($this->storedPath($media));
 
         $page = PageFactory::createOne([
             'slug' => 'analyzer-missing-file',
@@ -96,7 +92,7 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
                     'enabled' => true,
                     'data' => [
                         'mediaId' => $media->getId(),
-                        'src' => '/uploads/media/missing-on-disk.png',
+                        'src' => $this->url($media),
                         'alt' => 'Missing',
                         'size' => 'lg',
                         'float' => 'none',
@@ -130,7 +126,6 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
     public function testReportsDimensionsUnknownWhenDatabaseMetadataMissing(): void
     {
         $media = MediaFactory::createOne([
-            'filename' => 'dims-unknown.png',
             'width' => null,
             'height' => null,
         ]);
@@ -143,7 +138,7 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
                     'enabled' => true,
                     'data' => [
                         'mediaId' => $media->getId(),
-                        'src' => '/uploads/media/dims-unknown.png',
+                        'src' => $this->url($media),
                         'alt' => 'Unknown dims',
                         'size' => 'auto',
                         'float' => 'none',
@@ -210,7 +205,6 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
     public function testResolvesMediaByStringMediaId(): void
     {
         $media = MediaFactory::createOne([
-            'filename' => 'string-media-id.png',
             'width' => 320,
             'height' => 200,
         ]);
@@ -223,7 +217,7 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
                     'enabled' => true,
                     'data' => [
                         'mediaId' => (string) $media->getId(),
-                        'src' => '/uploads/media/string-media-id.png',
+                        'src' => $this->url($media),
                         'alt' => 'String id',
                         'size' => 'sm',
                         'float' => 'none',
@@ -242,7 +236,6 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
     public function testResolvesLegacyWidthPresetToSize(): void
     {
         $media = MediaFactory::createOne([
-            'filename' => 'legacy-preset.png',
             'width' => 400,
             'height' => 300,
         ]);
@@ -255,7 +248,7 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
                     'enabled' => true,
                     'data' => [
                         'mediaId' => $media->getId(),
-                        'src' => '/uploads/media/legacy-preset.png',
+                        'src' => $this->url($media),
                         'alt' => 'Preset',
                         'widthPreset' => 'md',
                         'float' => 'none',
@@ -273,12 +266,10 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
     public function testResolvesSmallAndLargeLegacyWidthPresets(): void
     {
         $small = MediaFactory::createOne([
-            'filename' => 'preset-sm.png',
             'width' => 200,
             'height' => 100,
         ]);
         $large = MediaFactory::createOne([
-            'filename' => 'preset-lg.png',
             'width' => 900,
             'height' => 600,
         ]);
@@ -291,7 +282,7 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
                     'enabled' => true,
                     'data' => [
                         'mediaId' => $small->getId(),
-                        'src' => '/uploads/media/preset-sm.png',
+                        'src' => $this->url($small),
                         'alt' => 'Small preset',
                         'widthPreset' => 'sm',
                         'float' => 'none',
@@ -302,7 +293,7 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
                     'enabled' => true,
                     'data' => [
                         'mediaId' => $large->getId(),
-                        'src' => '/uploads/media/preset-lg.png',
+                        'src' => $this->url($large),
                         'alt' => 'Large preset',
                         'widthPreset' => 'lg',
                         'float' => 'none',
@@ -323,7 +314,6 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
     public function testLargeFullWidthImageRecommendsReviewLayout(): void
     {
         $media = MediaFactory::createOne([
-            'filename' => 'wide-image.png',
             'width' => 1200,
             'height' => 800,
         ]);
@@ -336,7 +326,7 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
                     'enabled' => true,
                     'data' => [
                         'mediaId' => $media->getId(),
-                        'src' => '/uploads/media/wide-image.png',
+                        'src' => $this->url($media),
                         'alt' => 'Wide',
                         'size' => 'lg',
                         'float' => 'none',
@@ -351,10 +341,9 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
         self::assertSame('Review layout', $findings[0]->recommendation);
     }
 
-    public function testResolvesMediaBySrcFilenameWhenMediaIdMissing(): void
+    public function testResolvesMediaBySrcStorageKeyWhenMediaIdMissing(): void
     {
         $media = MediaFactory::createOne([
-            'filename' => 'src-lookup.png',
             'width' => 200,
             'height' => 100,
         ]);
@@ -366,7 +355,7 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
                     'type' => 'image',
                     'enabled' => true,
                     'data' => [
-                        'src' => '/uploads/media/src-lookup.png',
+                        'src' => $this->url($media),
                         'alt' => 'Lookup',
                         'size' => 'auto',
                         'float' => 'none',
@@ -383,12 +372,10 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
 
     public function testResolvesSrcOnlyImageWhenNoMediaRecordExists(): void
     {
-        $legacyDir = $this->legacyMediaDirectory();
-        $filename = 'orphan-src-only.png';
-        $path = Path::join($legacyDir, $filename);
-        if (!is_file($path)) {
-            file_put_contents($path, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', true));
-        }
+        $source = new Filesystem()->tempnam(sys_get_temp_dir(), 'orphan-src-only-');
+        file_put_contents($source, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', true));
+        $storageKey = self::getContainer()->get(MediaStorage::class)->store($source, 'png')->storageKey;
+        unlink($source);
 
         $page = PageFactory::createOne([
             'slug' => 'analyzer-orphan-src',
@@ -397,7 +384,7 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
                     'type' => 'image',
                     'enabled' => true,
                     'data' => [
-                        'src' => '/uploads/media/'.$filename,
+                        'src' => '/media/'.substr($storageKey, \strlen('originals/')),
                         'alt' => 'Orphan',
                         'size' => 'auto',
                         'float' => 'none',
@@ -410,7 +397,7 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
 
         self::assertCount(1, $findings);
         self::assertNull($findings[0]->mediaId);
-        self::assertSame($filename, $findings[0]->filename);
+        self::assertSame($storageKey, $findings[0]->filename);
         self::assertSame('ok', $findings[0]->status);
         self::assertSame(1, $findings[0]->imageWidth);
     }
@@ -418,14 +405,11 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
     public function testUnreadableLocalFileReportsDimensionsUnknown(): void
     {
         $media = MediaFactory::createOne([
-            'filename' => 'unreadable-dims.png',
             'width' => null,
             'height' => null,
         ]);
 
-        $legacyDir = $this->legacyMediaDirectory();
-        $path = Path::join($legacyDir, 'unreadable-dims.png');
-        file_put_contents($path, 'not-an-image');
+        file_put_contents($this->storedPath($media), 'not-an-image');
 
         $page = PageFactory::createOne([
             'slug' => 'analyzer-unreadable-file',
@@ -435,7 +419,7 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
                     'enabled' => true,
                     'data' => [
                         'mediaId' => $media->getId(),
-                        'src' => '/uploads/media/unreadable-dims.png',
+                        'src' => $this->url($media),
                         'alt' => 'Unreadable',
                         'size' => 'auto',
                         'float' => 'none',
@@ -454,7 +438,6 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
     private function createImagePage(string $slug): void
     {
         $media = MediaFactory::createOne([
-            'filename' => $slug.'.png',
             'width' => 100,
             'height' => 100,
         ]);
@@ -467,7 +450,7 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
                     'enabled' => true,
                     'data' => [
                         'mediaId' => $media->getId(),
-                        'src' => '/uploads/media/'.$slug.'.png',
+                        'src' => $this->url($media),
                         'alt' => 'Image',
                         'size' => 'auto',
                         'float' => 'none',
@@ -477,15 +460,13 @@ final class PageImageContentAnalyzerImageBlockTest extends PageImageContentAnaly
         ]);
     }
 
-    /** Old upload directory of the test environment (ADR 039), created when missing. */
-    private function legacyMediaDirectory(): string
+    private function url(Media $media): string
     {
-        $directory = self::getContainer()->getParameter('app.media_legacy_dir');
-        self::assertIsString($directory);
-        if (!is_dir($directory)) {
-            mkdir($directory, 0o777, true);
-        }
+        return new MediaPublicUrlResolver()->resolve($media);
+    }
 
-        return $directory;
+    private function storedPath(Media $media): string
+    {
+        return self::getContainer()->get(MediaStorage::class)->absolutePath((string) $media->getStorageKey());
     }
 }

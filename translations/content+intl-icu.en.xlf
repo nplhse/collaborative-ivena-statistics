@@ -1015,7 +1015,7 @@
       </trans-unit>
       <trans-unit id="media021" resname="help.page.image_url_legacy">
         <source>help.page.image_url_legacy</source>
-        <target>Optional if a library image is selected. Relative paths such as /uploads/media/… are supported.</target>
+        <target>Optional if a library image is selected. Relative paths such as /media/… are supported.</target>
       </trans-unit>
       <trans-unit id="media022" resname="label.cta_link_type">
         <source>label.cta_link_type</source>

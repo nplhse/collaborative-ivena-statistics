@@ -8,7 +8,7 @@ Operational guide for PostgreSQL, import files, and media files.
 |-------|----------------------|------------------------------|
 | PostgreSQL database | from `DATABASE_URL` | from `shared/.env.local` → `DATABASE_URL` |
 | Import uploads | `var/imports/` | `<deploy_path>/shared/var/imports/` ([paths on the server](deployment.md#paths-on-the-server)) |
-| Media files | `var/media/` ([media storage](../04-features/content/media-storage.md)) | `<deploy_path>/shared/var/media/`; before v0.3 `shared/public/uploads/media/`, kept until v0.4 and not backed up any more |
+| Media files | `var/media/` ([media storage](../04-features/content/media-storage.md)) | `<deploy_path>/shared/var/media/`; before v0.3 `shared/public/uploads/media/`, not read or backed up since v0.4-beta |
 | Hospital isochrones | `var/geo/hospital-isochrones/` | `<deploy_path>/shared/var/geo/hospital-isochrones/` |
 | Reference catalog packages | `var/reference/` | `<deploy_path>/shared/var/reference/` — private; keep copies in the private data repository, not in these backups only ([ADR 020](../02-architecture/decisions/020-portable-reference-catalog.md)) |
 | Encounter curation packages | `var/encounter/` | copied in by hand for an import; not a backup of the catalog or the plausibility table, which are in the database dump ([curation package](../04-features/encounter/curation-package.md)) |
@@ -131,17 +131,11 @@ worker, and check the application (see [Restore runbook](#restore-runbook)).
 ### Backups from before v0.3
 
 A backup made before the media storage (ADR 039) holds the media as flat files (`files/media.tar.gz` without
-`originals/`) and a database without storage keys. After restoring it into v0.3, run the migrations as the restore
-asks, then move the flat files into the storage layout:
-
-```bash
-php bin/console doctrine:migrations:migrate
-php bin/console app:media:migrate-storage --legacy-dir=var/media     # on the server: --legacy-dir=<deploy_path>/shared/var/media
-php bin/console app:media:rewrite-content-urls --apply
-php bin/console app:media:check --full
-```
-
-`app:media:migrate-storage` removes each flat file once it is moved, because it was given the storage root itself.
+`originals/`) and a database without storage keys. Releases from v0.4-beta on can no longer move such files
+(#1450): restore the backup with a **v0.3 release first**, then follow its guide (this section of
+`docs/05-operations/backup-restore.md` in v0.3: migrations, `app:media:migrate-storage --legacy-dir=<storage root>`,
+`app:media:rewrite-content-urls --apply`, `app:media:check --full`). Once every media item is in the storage, upgrade
+to the current release. Its migrations stop with a message while a media item has no storage key.
 
 ## Make targets
 
@@ -204,7 +198,7 @@ Deployer keeps persistent data outside release directories ([deployment.md](depl
 - `shared/.env.local`
 - `shared/var/imports`
 - `shared/var/reference` (reference catalog packages, ADR 020)
-- `shared/var/media` (media storage, ADR 039; `shared/public/uploads/media` of releases before v0.3 stays until v0.4)
+- `shared/var/media` (media storage, ADR 039; `shared/public/uploads/media` of releases before v0.3 is no longer read since v0.4-beta)
 
 ### Manual backup commands
 

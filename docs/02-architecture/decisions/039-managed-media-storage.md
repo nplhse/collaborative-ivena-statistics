@@ -178,6 +178,17 @@ from Content (job `media_integrity_check`).
 The legacy route, the columns `filename` and `legacy_filename`, the old directory on the server and its entry in the
 storage monitoring. Content no longer needs them once the rewrite has run.
 
+**Removed in v0.4-beta (#1450).** v0.3 is a mandatory upgrade stop, so every installation has moved its files before
+it reaches v0.4. Removed are the route `/uploads/media/{filename}` (it answers 404 now), the parameter
+`app.media_legacy_dir` and every code path that read the old directory or the old file names, the commands
+`app:media:migrate-storage` (including `--legacy-dir`) and `app:media:rewrite-content-urls` with their Deployer tasks
+and ports (`MediaStorageMigratorInterface`, `MediaUrlRewriterInterface`), and the storage monitoring rules for
+`public/uploads/media` and `public/uploads/demo`. A migration drops `media.filename` and `media.legacy_filename` with
+their indexes and makes `storage_key` required; it stops while a row has no storage key. The lock name
+`backup-maintenance` moved from the removed migrator to `MediaIntegrityChecker::LOCK`. A backup from before v0.3
+(flat files, no `storage_key`) is restored with a v0.3 release first, then upgraded. The sections above describe the
+v0.3 transition as it was decided.
+
 ## Alternatives considered
 
 - **Keep VichUploader with a date directory namer.** Less code, but Vich computes the path from the object at runtime

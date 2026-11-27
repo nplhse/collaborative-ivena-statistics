@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Content\Integration\Page;
 
+use App\Content\Application\Media\MediaPublicUrlResolver;
 use App\Content\Infrastructure\Factory\MediaFactory;
 use App\Content\Infrastructure\Factory\PageFactory;
 
@@ -18,7 +19,7 @@ final class PageImageContentAnalyzerHtmlSnippetTest extends PageImageContentAnal
                     'type' => 'richtext',
                     'enabled' => true,
                     'data' => [
-                        'html' => '<figure class="page-content-image page-content-image--size-lg"><img src="/uploads/media/snippet.png" alt="Snippet"></figure>',
+                        'html' => '<figure class="page-content-image page-content-image--size-lg"><img src="/media/2026/11/0193a8f2-7c1e-7000-8000-000000000001.png" alt="Snippet"></figure>',
                     ],
                 ],
             ],
@@ -33,7 +34,7 @@ final class PageImageContentAnalyzerHtmlSnippetTest extends PageImageContentAnal
 
     public function testDetectsHighlightBlockWithFloatedSnippet(): void
     {
-        $media = MediaFactory::createOne(['filename' => 'highlight-float.png']);
+        $media = MediaFactory::createOne();
 
         $page = PageFactory::createOne([
             'slug' => 'analyzer-highlight',
@@ -43,8 +44,8 @@ final class PageImageContentAnalyzerHtmlSnippetTest extends PageImageContentAnal
                     'enabled' => true,
                     'data' => [
                         'html' => sprintf(
-                            '<figure class="page-content-image page-content-image--size-md page-content-image--float-right"><img src="/uploads/media/%s" alt="Highlight"></figure>',
-                            $media->getFilename(),
+                            '<figure class="page-content-image page-content-image--size-md page-content-image--float-right"><img src="%s" alt="Highlight"></figure>',
+                            new MediaPublicUrlResolver()->resolve($media),
                         ),
                     ],
                 ],
@@ -72,7 +73,7 @@ final class PageImageContentAnalyzerHtmlSnippetTest extends PageImageContentAnal
                         'items' => [
                             [
                                 'title' => 'FAQ',
-                                'html' => '<figure class="page-content-image page-content-image--size-lg"><img src="/uploads/media/accordion.png" alt="Accordion"></figure>',
+                                'html' => '<figure class="page-content-image page-content-image--size-lg"><img src="/media/2026/11/0193a8f2-7c1e-7000-8000-000000000002.png" alt="Accordion"></figure>',
                             ],
                         ],
                     ],
@@ -88,7 +89,7 @@ final class PageImageContentAnalyzerHtmlSnippetTest extends PageImageContentAnal
 
     public function testDetectsInlineImageWithoutFigureClasses(): void
     {
-        $media = MediaFactory::createOne(['filename' => 'inline-only.png']);
+        $media = MediaFactory::createOne();
 
         $page = PageFactory::createOne([
             'slug' => 'analyzer-inline-img',
@@ -98,8 +99,8 @@ final class PageImageContentAnalyzerHtmlSnippetTest extends PageImageContentAnal
                     'enabled' => true,
                     'data' => [
                         'html' => sprintf(
-                            '<p>Text <img src="/uploads/media/%s" alt="Inline"></p>',
-                            $media->getFilename(),
+                            '<p>Text <img src="%s" alt="Inline"></p>',
+                            new MediaPublicUrlResolver()->resolve($media),
                         ),
                     ],
                 ],
@@ -115,7 +116,7 @@ final class PageImageContentAnalyzerHtmlSnippetTest extends PageImageContentAnal
 
     public function testUnknownSnippetSizeRecommendsReviewLayout(): void
     {
-        $media = MediaFactory::createOne(['filename' => 'xl-snippet.png']);
+        $media = MediaFactory::createOne();
 
         $page = PageFactory::createOne([
             'slug' => 'analyzer-unknown-snippet-size',
@@ -125,8 +126,8 @@ final class PageImageContentAnalyzerHtmlSnippetTest extends PageImageContentAnal
                     'enabled' => true,
                     'data' => [
                         'html' => sprintf(
-                            '<figure class="page-content-image page-content-image--size-xl"><img src="/uploads/media/%s" alt="XL"></figure>',
-                            $media->getFilename(),
+                            '<figure class="page-content-image page-content-image--size-xl"><img src="%s" alt="XL"></figure>',
+                            new MediaPublicUrlResolver()->resolve($media),
                         ),
                     ],
                 ],
@@ -170,7 +171,7 @@ final class PageImageContentAnalyzerHtmlSnippetTest extends PageImageContentAnal
                     'type' => 'richtext',
                     'enabled' => true,
                     'data' => [
-                        'html' => '<figure class="page-content-image page-content-image--size-sm page-content-image--float-left"><img src="/uploads/media/float-left.png" alt="Left"></figure>',
+                        'html' => '<figure class="page-content-image page-content-image--size-sm page-content-image--float-left"><img src="/media/2026/11/0193a8f2-7c1e-7000-8000-000000000003.png" alt="Left"></figure>',
                     ],
                 ],
             ],
@@ -195,7 +196,7 @@ final class PageImageContentAnalyzerHtmlSnippetTest extends PageImageContentAnal
                             ['title' => 'No html'],
                             [
                                 'title' => 'With snippet',
-                                'html' => '<figure class="page-content-image page-content-image--size-md"><img src="/uploads/media/acc-valid.png" alt="Valid"></figure>',
+                                'html' => '<figure class="page-content-image page-content-image--size-md"><img src="/media/2026/11/0193a8f2-7c1e-7000-8000-000000000004.png" alt="Valid"></figure>',
                             ],
                         ],
                     ],

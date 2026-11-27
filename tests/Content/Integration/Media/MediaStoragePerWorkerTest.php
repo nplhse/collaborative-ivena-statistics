@@ -21,6 +21,5 @@ final class MediaStoragePerWorkerTest extends KernelTestCase
         $root = self::getContainer()->get(MediaStorage::class)->root();
 
         self::assertStringEndsWith('/media'.(false === $token ? '' : $token), $root);
-        self::assertStringEndsWith('legacy-media'.(false === $token ? '' : $token), (string) self::getContainer()->getParameter('app.media_legacy_dir'));
     }
 }

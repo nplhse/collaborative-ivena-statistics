@@ -6,6 +6,7 @@ namespace App\Tests\Content\Integration\Media;
 
 use App\Content\Application\Media\MediaDimensionsBackfillService;
 use App\Content\Infrastructure\Factory\MediaFactory;
+use App\Content\Infrastructure\Media\MediaStorage;
 use App\Content\Infrastructure\Repository\MediaRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -21,7 +22,6 @@ final class MediaDimensionsBackfillServiceTest extends KernelTestCase
         self::bootKernel();
 
         $media = MediaFactory::createOne([
-            'filename' => 'backfill-dry-run.png',
             'width' => null,
             'height' => null,
         ]);
@@ -38,7 +38,6 @@ final class MediaDimensionsBackfillServiceTest extends KernelTestCase
         self::bootKernel();
 
         $media = MediaFactory::createOne([
-            'filename' => 'backfill-apply.png',
             'width' => null,
             'height' => null,
         ]);
@@ -57,7 +56,6 @@ final class MediaDimensionsBackfillServiceTest extends KernelTestCase
         self::bootKernel();
 
         MediaFactory::createOne([
-            'filename' => 'already-sized.png',
             'width' => 120,
             'height' => 80,
         ]);
@@ -73,16 +71,11 @@ final class MediaDimensionsBackfillServiceTest extends KernelTestCase
         self::bootKernel();
 
         $media = MediaFactory::createOne([
-            'filename' => 'backfill-missing-file.png',
             'width' => null,
             'height' => null,
         ]);
 
-        $legacyDir = $this->legacyMediaDirectory();
-        $path = $legacyDir.'/backfill-missing-file.png';
-        if (is_file($path)) {
-            unlink($path);
-        }
+        unlink($this->storedPath($media));
 
         $result = $this->backfillService()->backfill(true);
 
@@ -94,17 +87,12 @@ final class MediaDimensionsBackfillServiceTest extends KernelTestCase
     {
         self::bootKernel();
 
-        MediaFactory::createOne([
-            'filename' => 'backfill-unknown-dims.png',
+        $media = MediaFactory::createOne([
             'width' => null,
             'height' => null,
         ]);
 
-        $legacyDir = $this->legacyMediaDirectory();
-        file_put_contents(
-            $legacyDir.'/backfill-unknown-dims.png',
-            'not-an-image',
-        );
+        file_put_contents($this->storedPath($media), 'not-an-image');
 
         $result = $this->backfillService()->backfill(true);
 
@@ -125,15 +113,8 @@ final class MediaDimensionsBackfillServiceTest extends KernelTestCase
         return self::getContainer()->get(MediaDimensionsBackfillService::class);
     }
 
-    /** Old upload directory of the test environment (ADR 039), created when missing. */
-    private function legacyMediaDirectory(): string
+    private function storedPath(\App\Content\Domain\Entity\Media $media): string
     {
-        $directory = self::getContainer()->getParameter('app.media_legacy_dir');
-        self::assertIsString($directory);
-        if (!is_dir($directory)) {
-            mkdir($directory, 0o777, true);
-        }
-
-        return $directory;
+        return self::getContainer()->get(MediaStorage::class)->absolutePath((string) $media->getStorageKey());
     }
 }

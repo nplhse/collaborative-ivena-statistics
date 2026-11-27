@@ -43,8 +43,8 @@ phpstan.neon
 /.twig-cs-fixer.cache
 ###< vincentlanglet/twig-cs-fixer ###
 
-# Uploaded media files (keep directory structure)
-# Old media upload directory (ADR 039): read until every file has moved to var/media, removed in v0.4.
+# Old media upload directory of releases before v0.4 (ADR 039): no longer read; ignored so that a leftover copy in an
+# older checkout is not committed.
 /public/uploads/media/
 
 # macOS
@@ -70,5 +70,5 @@ security-audit/
 /.deptrac.cache
 ###< deptrac/deptrac ###
 
-# Demo environment uploads (ADR 023)
+# Old demo media upload directory of releases before v0.4 (ADR 023, ADR 039): no longer read, ignored like the one above.
 /public/uploads/demo/

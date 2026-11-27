@@ -50,7 +50,6 @@ final class MediaUploadTest extends WebTestCase
         $media = $this->upload($client, $this->png(), 'Team photo.png');
 
         self::assertMatchesRegularExpression('#^originals/2026/11/[0-9a-f-]{36}\.png$#', (string) $media->getStorageKey());
-        self::assertNull($media->getFilename());
         self::assertSame('Team photo.png', $media->getOriginalFilename());
         self::assertSame('image/png', $media->getMimeType());
         self::assertSame(MediaType::IMAGE, $media->getType());

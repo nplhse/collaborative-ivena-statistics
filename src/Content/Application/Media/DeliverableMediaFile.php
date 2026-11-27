@@ -13,7 +13,6 @@ final readonly class DeliverableMediaFile
         public string $absolutePath,
         public string $mimeType,
         public string $downloadName,
-        public bool $immutable,
     ) {
     }
 }
