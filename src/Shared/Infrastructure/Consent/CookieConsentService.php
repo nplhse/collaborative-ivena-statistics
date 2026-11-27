@@ -35,10 +35,12 @@ final readonly class CookieConsentService
 
     public function resolveForRequest(Request $request, ?User $user): CookieConsent
     {
-        $subjectId = $this->resolveSubjectId($request);
+        $subjectId = $this->subjectIdFromCookie($request);
+        // Without the cookie the subject is new: a lookup could never find a row, so none is made (#1685).
+        $consent = null === $subjectId ? null : $this->repository->findOneBySubjectId($subjectId);
+        $subjectId ??= bin2hex(random_bytes(16));
         $request->attributes->set('cookie_consent_subject_id', $subjectId);
 
-        $consent = $this->repository->findOneBySubjectId($subjectId);
         if ($consent instanceof CookieConsent) {
             return $consent;
         }
@@ -128,13 +130,10 @@ final readonly class CookieConsentService
         ];
     }
 
-    private function resolveSubjectId(Request $request): string
+    private function subjectIdFromCookie(Request $request): ?string
     {
         $cookieValue = $request->cookies->get($this->subjectCookieName());
-        if (\is_string($cookieValue) && '' !== trim($cookieValue)) {
-            return trim($cookieValue);
-        }
 
-        return bin2hex(random_bytes(16));
+        return \is_string($cookieValue) && '' !== trim($cookieValue) ? trim($cookieValue) : null;
     }
 }

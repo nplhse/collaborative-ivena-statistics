@@ -33,6 +33,11 @@ Preferences live in `cookie_consent.preferences` JSON: `{ essential, analytics }
 
 Banner is shown when `decidedAt` is null (`cookie_consent.decided` in Twig). Login also requires a decided consent.
 
+The decision is read on every page request (`CookieConsentRequestSubscriber`, not for background requests, stateless
+routes and paths under `/_`). Only a request with the `consent_subject_id` cookie looks it up in `cookie_consent`;
+without the cookie the visitor is new, so `CookieConsentService` starts an unsaved, undecided consent without a query
+(#1685). The health check is stateless and reads no consent at all, so it still answers while the database is down.
+
 ### Consent version and the performance option
 
 `cookie_consent.consent_version` records the consent texts a decision was made under; every decision is stored with

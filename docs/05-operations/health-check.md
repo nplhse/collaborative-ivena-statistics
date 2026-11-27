@@ -1,6 +1,8 @@
 # Health check
 
-`GET /health` is a public endpoint (no login) that returns slim JSON for uptime monitoring.
+`GET /health` is a public endpoint (no login) that returns slim JSON for uptime monitoring. The route is stateless
+(#1685): it uses no session and sets no cookie, and no cookie consent or analytics is read before it, so with the
+database down it still answers `unhealthy` with 503.
 
 Related: [observability-sentry.md](observability-sentry.md), [deployment.md](deployment.md), [troubleshooting.md](troubleshooting.md)
 
