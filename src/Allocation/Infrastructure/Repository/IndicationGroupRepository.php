@@ -51,27 +51,6 @@ final class IndicationGroupRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return list<array{id: int, label: string}>
-     */
-    public function getDatalist(): array
-    {
-        /** @var list<array{id: int, name: string, category: ?string}> $rows */
-        $rows = $this->createQueryBuilder('g')
-            ->select('g.id', 'g.name', 'g.category')
-            ->orderBy('g.name', \SortDirection::Ascending)
-            ->getQuery()
-            ->getArrayResult();
-
-        return array_map(
-            static fn (array $row): array => [
-                'id' => $row['id'],
-                'label' => $row['name'],
-            ],
-            $rows,
-        );
-    }
-
-    /**
      * @return list<int>
      */
     public function getIndicationIds(int $groupId): array

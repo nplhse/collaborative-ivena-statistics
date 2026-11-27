@@ -27,10 +27,4 @@ final readonly class DoctrineImportTimeline implements ImportTimelineInterface
     {
         return $this->importRepository->countImportsByMonthInRange($from, $toExclusive);
     }
-
-    #[\Override]
-    public function countByYearInRange(\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive): array
-    {
-        return $this->importRepository->countImportsByYearInRange($from, $toExclusive);
-    }
 }
