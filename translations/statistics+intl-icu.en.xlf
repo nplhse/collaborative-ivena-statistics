@@ -1513,6 +1513,10 @@
         <source>stats.overview.pretitle</source>
         <target>Statistics</target>
       </trans-unit>
+      <trans-unit id="statsOvTitleEn" resname="stats.overview.title">
+        <source>stats.overview.title</source>
+        <target>Overview</target>
+      </trans-unit>
       <trans-unit id="statsOvSbLoad01" resname="stats.overview.self_benchmark.loading">
         <source>stats.overview.self_benchmark.loading</source>
         <target>Loading key metrics…</target>
