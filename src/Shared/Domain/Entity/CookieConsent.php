@@ -14,6 +14,7 @@ use Symfony\Component\Clock\Clock;
 #[ORM\Entity(repositoryClass: CookieConsentRepository::class)]
 #[ORM\Table(name: 'cookie_consent')]
 #[ORM\UniqueConstraint(name: 'uniq_cookie_consent_subject', fields: ['subjectId'])]
+#[ORM\Index(name: 'idx_cookie_consent_user', columns: ['user_id'])]
 class CookieConsent
 {
     #[ORM\Id]

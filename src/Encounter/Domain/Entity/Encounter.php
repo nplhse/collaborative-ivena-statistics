@@ -28,6 +28,7 @@ use Symfony\Component\Clock\Clock;
 #[ORM\UniqueConstraint(name: 'uniq_encounter_allocation', fields: ['allocation'])]
 #[ORM\Index(name: 'idx_encounter_case_key', fields: ['hospital', 'keyGeneration', 'caseKey'])]
 #[ORM\Index(name: 'idx_encounter_hospital_anchor', fields: ['hospital', 'anchorAt'])]
+#[ORM\Index(name: 'idx_encounter_allocation_assigned_by', columns: ['allocation_assigned_by_id'])]
 class Encounter
 {
     private const string HEX_HMAC_PATTERN = '/^[0-9a-f]{64}$/';

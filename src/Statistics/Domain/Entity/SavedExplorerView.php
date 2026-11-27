@@ -15,6 +15,8 @@ use Symfony\Component\Clock\Clock;
 #[ORM\Table(name: 'saved_explorer_view')]
 #[ORM\UniqueConstraint(name: 'uniq_saved_explorer_view_slug', columns: ['slug'])]
 #[ORM\HasLifecycleCallbacks]
+#[ORM\Index(name: 'idx_saved_explorer_view_created_by', columns: ['created_by_id'])]
+#[ORM\Index(name: 'idx_saved_explorer_view_updated_by', columns: ['updated_by_id'])]
 class SavedExplorerView
 {
     use Blamable;

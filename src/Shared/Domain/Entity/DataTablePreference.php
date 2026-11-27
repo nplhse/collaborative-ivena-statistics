@@ -13,6 +13,7 @@ use Symfony\Component\Clock\Clock;
 #[ORM\Entity(repositoryClass: DataTablePreferenceRepository::class)]
 #[ORM\Table(name: 'data_table_preference')]
 #[ORM\UniqueConstraint(name: 'uniq_data_table_preference_user_key', columns: ['user_id', 'table_key'])]
+#[ORM\Index(name: 'idx_data_table_preference_user', columns: ['user_id'])]
 class DataTablePreference
 {
     #[ORM\Id]

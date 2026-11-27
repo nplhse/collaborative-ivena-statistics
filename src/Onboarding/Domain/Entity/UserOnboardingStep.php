@@ -13,6 +13,7 @@ use Symfony\Component\Clock\Clock;
 #[ORM\Entity(repositoryClass: UserOnboardingStepRepository::class)]
 #[ORM\Table(name: 'user_onboarding_step')]
 #[ORM\UniqueConstraint(name: 'uniq_user_onboarding_step', columns: ['user_id', 'step_key'])]
+#[ORM\Index(name: 'idx_user_onboarding_step_user', columns: ['user_id'])]
 class UserOnboardingStep
 {
     #[ORM\Id]

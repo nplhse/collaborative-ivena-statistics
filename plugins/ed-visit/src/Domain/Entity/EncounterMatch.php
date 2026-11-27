@@ -31,13 +31,16 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * Audited: manual decisions go through the entity under the review's audit intents
  * (`encounter.match.decided`, `encounter.match.swapped`); the matcher's rows are written without the ORM.
+ *
+ * The partial index conditions are written in the form PostgreSQL stores them (pg_get_expr), so the schema diff
+ * stays empty (#1398).
  */
 #[ORM\Entity]
 #[Audit\Audited]
 #[ORM\Table(name: 'encounter_match')]
 #[ORM\UniqueConstraint(name: 'uniq_encounter_match_pair', fields: ['allocation', 'encounter'])]
-#[ORM\UniqueConstraint(name: 'uniq_encounter_match_effective_allocation', fields: ['allocation'], options: ['where' => "(status IN ('auto_accepted', 'confirmed'))"])]
-#[ORM\UniqueConstraint(name: 'uniq_encounter_match_effective_encounter', fields: ['encounter'], options: ['where' => "(status IN ('auto_accepted', 'confirmed'))"])]
+#[ORM\UniqueConstraint(name: 'uniq_encounter_match_effective_allocation', fields: ['allocation'], options: ['where' => "((status)::text = ANY (ARRAY[('auto_accepted'::character varying)::text, ('confirmed'::character varying)::text]))"])]
+#[ORM\UniqueConstraint(name: 'uniq_encounter_match_effective_encounter', fields: ['encounter'], options: ['where' => "((status)::text = ANY (ARRAY[('auto_accepted'::character varying)::text, ('confirmed'::character varying)::text]))"])]
 #[ORM\Index(name: 'idx_encounter_match_encounter', fields: ['encounter'])]
 #[ORM\Index(name: 'idx_encounter_match_hospital_status', fields: ['hospital', 'status'])]
 class EncounterMatch

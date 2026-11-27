@@ -17,6 +17,8 @@ use Symfony\Component\Clock\Clock;
 #[ORM\Table(name: 'hospital_access_grant')]
 #[ORM\UniqueConstraint(name: 'uniq_hospital_access_grant_hospital_user', fields: ['hospital', 'user'])]
 #[ORM\HasLifecycleCallbacks]
+#[ORM\Index(name: 'idx_hospital_access_grant_hospital', columns: ['hospital_id'])]
+#[ORM\Index(name: 'idx_hospital_access_grant_user', columns: ['user_id'])]
 class HospitalAccessGrant
 {
     use Blamable;

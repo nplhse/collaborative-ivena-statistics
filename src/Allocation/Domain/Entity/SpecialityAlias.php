@@ -13,6 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 #[ORM\Table(name: 'speciality_alias')]
 #[ORM\UniqueConstraint(name: 'uniq_speciality_alias_normalized_name', columns: ['normalized_name'])]
+#[ORM\Index(name: 'idx_speciality_alias_speciality', columns: ['speciality_id'])]
 class SpecialityAlias
 {
     #[ORM\Id]

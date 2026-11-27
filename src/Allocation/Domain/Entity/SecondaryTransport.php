@@ -15,6 +15,8 @@ use Symfony\Component\Clock\Clock;
 #[Audit\Audited]
 #[ORM\Entity(repositoryClass: SecondaryTransportRepository::class)]
 #[ORM\HasLifecycleCallbacks()]
+#[ORM\Index(name: 'idx_secondary_transport_created_by', columns: ['created_by_id'])]
+#[ORM\Index(name: 'idx_secondary_transport_updated_by', columns: ['updated_by_id'])]
 class SecondaryTransport implements \Stringable
 {
     use Blamable;
