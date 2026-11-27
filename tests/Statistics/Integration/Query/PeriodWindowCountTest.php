@@ -32,11 +32,11 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 /**
- * #1017: `last_12_months` and `all_time` select different populations.
+ * #1017: `last_12_months` and the whole history (`all`, #1035; `all_time` until v0.3) select different populations.
  *
  * Now = 2026-11-11, so the rolling window starts 2025-12-01 00:00 (no upper bound).
  * Allocations: 2019-03-10 and 2025-11-30 23:59 (before the window), 2025-12-01 00:00 and 2026-11-10 (inside).
- * Expected: last_12_months = 2, all_time = 4.
+ * Expected: last_12_months = 2, all = 4.
  */
 #[ResetDatabase]
 final class PeriodWindowCountTest extends KernelTestCase
@@ -58,6 +58,27 @@ final class PeriodWindowCountTest extends KernelTestCase
 
         self::assertSame(2, $this->countAllocations(StatisticsFilterPeriod::Last12Months, $hospitalId));
         self::assertSame(4, $this->countAllocations(StatisticsFilterPeriod::AllTime, $hospitalId));
+    }
+
+    /**
+     * #1035: the URL value `all` is the whole history (until v0.3 it was the rolling 12 months).
+     */
+    public function testUrlValueAllSelectsTheWholeHistory(): void
+    {
+        self::bootKernel();
+        self::mockTime(new \DateTimeImmutable('2026-11-11 21:40:00'));
+
+        $hospitalId = $this->seedAllocations([
+            '2019-03-10 10:00:00',
+            '2025-11-30 23:59:00',
+            '2025-12-01 00:00:00',
+            '2026-11-10 08:00:00',
+        ]);
+
+        self::assertSame(StatisticsFilterPeriod::AllTime, StatisticsFilterPeriod::from('all'));
+        self::assertSame(4, $this->countAllocations(StatisticsFilterPeriod::from('all'), $hospitalId));
+        self::assertSame(2, $this->countAllocations(StatisticsFilterPeriod::from('last_12_months'), $hospitalId));
+        self::assertNull(StatisticsFilterPeriod::tryFrom('all_time'));
     }
 
     private function countAllocations(StatisticsFilterPeriod $period, int $hospitalId): int

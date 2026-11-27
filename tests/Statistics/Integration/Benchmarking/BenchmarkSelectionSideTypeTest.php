@@ -88,7 +88,7 @@ final class BenchmarkSelectionSideTypeTest extends KernelTestCase
         $form = $this->formFactory->create(BenchmarkSelectionSideType::class, new BenchmarkSelectionSideFormData(
             'public',
             null,
-            'all_time',
+            'all',
         ), [
             'side' => StatisticsFilterSide::Primary,
             'locale' => 'en',
@@ -211,7 +211,7 @@ final class BenchmarkSelectionSideTypeTest extends KernelTestCase
 
         $form->submit([
             'scopeGroup' => 'public',
-            'period' => 'all_time',
+            'period' => 'all',
             'scopeDetail' => (string) $stateId,
             'periodYear' => '2025',
             'periodQuarter' => '2',
@@ -273,7 +273,7 @@ final class BenchmarkSelectionSideTypeTest extends KernelTestCase
 
         $form->submit([
             'scopeGroup' => 'public',
-            'period' => 'all_time',
+            'period' => 'all',
         ]);
 
         self::assertTrue($form->isSubmitted());

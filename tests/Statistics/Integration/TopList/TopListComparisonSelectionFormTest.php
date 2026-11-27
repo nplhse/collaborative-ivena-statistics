@@ -74,7 +74,7 @@ final class TopListComparisonSelectionFormTest extends WebTestCase
                 StatisticsQueryKeys::PERIOD => 'last_12_months',
                 StatisticsQueryKeys::COMPARE => '1',
                 StatisticsQueryKeys::COMPARISON_SCOPE => 'public',
-                StatisticsQueryKeys::COMPARISON_PERIOD => 'all_time',
+                StatisticsQueryKeys::COMPARISON_PERIOD => 'all',
                 StatisticsQueryKeys::PAGE => 2,
             ],
             'locale' => 'en',
@@ -101,7 +101,7 @@ final class TopListComparisonSelectionFormTest extends WebTestCase
         self::assertStringContainsString(StatisticsQueryKeys::PERIOD.'=year', $location);
         self::assertStringContainsString(StatisticsQueryKeys::YEAR.'=', $location);
         self::assertStringContainsString(StatisticsQueryKeys::COMPARISON_SCOPE.'=public', $location);
-        self::assertStringContainsString(StatisticsQueryKeys::COMPARISON_PERIOD.'=all_time', $location);
+        self::assertMatchesRegularExpression('/[?&]'.StatisticsQueryKeys::COMPARISON_PERIOD.'=all(&|$)/', $location);
         self::assertStringNotContainsString('page=', $location);
     }
 
@@ -129,7 +129,7 @@ final class TopListComparisonSelectionFormTest extends WebTestCase
             ->submitForm([
                 $formName => [
                     'scopeGroup' => 'state',
-                    'period' => 'all_time',
+                    'period' => 'all',
                     'scopeDetail' => '999999',
                 ],
             ])
@@ -165,7 +165,7 @@ final class TopListComparisonSelectionFormTest extends WebTestCase
             ->submitForm([
                 $formName => [
                     'scopeGroup' => 'public',
-                    'period' => 'all_time',
+                    'period' => 'all',
                     'scopeDetail' => $stateId,
                     'periodYear' => '2025',
                     'periodQuarter' => '2',

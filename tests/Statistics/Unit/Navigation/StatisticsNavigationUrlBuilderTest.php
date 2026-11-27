@@ -63,7 +63,7 @@ final class StatisticsNavigationUrlBuilderTest extends TestCase
             ->willReturn('/statistics/analysis/explorer/allocations-over-time');
 
         $builder = new StatisticsNavigationUrlBuilder($router);
-        $request = Request::create('/statistics/?scope=public&period=all_time');
+        $request = Request::create('/statistics/?scope=public&period=all');
         $target = new StatisticWidgetNavigationTarget(
             'stats.nav.example',
             'app_stats_analysis_explorer_view',

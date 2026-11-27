@@ -163,7 +163,7 @@ final class ReferenceComparisonVisibilityTest extends WebTestCase
                 'dataSource' => 'allocations',
                 'query' => [
                     'scope' => ['group' => 'public', 'detail' => null],
-                    'period' => ['type' => 'all_time', 'year' => null, 'quarter' => null, 'month' => null],
+                    'period' => ['type' => 'all', 'year' => null, 'quarter' => null, 'month' => null],
                     'hospitalPopulation' => 'participating',
                     'metrics' => ['allocation_count'],
                     'visualMetric' => 'allocation_count',
@@ -260,7 +260,7 @@ final class ReferenceComparisonVisibilityTest extends WebTestCase
     private function exportCsv(User $viewer): array
     {
         $this->client->loginUser($viewer);
-        $this->client->request(Request::METHOD_GET, '/statistics/analysis/explorer?scope=public&period=all_time');
+        $this->client->request(Request::METHOD_GET, '/statistics/analysis/explorer?scope=public&period=all');
         self::assertResponseIsSuccessful();
 
         $requestStack = $this->client->getContainer()->get('request_stack');

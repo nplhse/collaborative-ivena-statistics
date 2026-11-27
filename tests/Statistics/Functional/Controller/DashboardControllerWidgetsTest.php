@@ -121,7 +121,7 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
     public function testOverviewDataQualityIndicatorUsesProgressivePrefetch(): void
     {
         $client = $this->createClientAsRoleUser();
-        $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all_time');
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all');
 
         $this->assertResponseIsSuccessful();
 
@@ -140,7 +140,7 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
     public function testOverviewRendersPortalNavigationLinks(): void
     {
         $client = $this->createClientAsRoleUser();
-        $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all_time');
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('[data-testid="stats-cross-nav-overview-benchmarking"]');
@@ -169,7 +169,7 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
     public function testOverviewResourcesAndClinicalFeaturesLinkToComparisonExplorerViews(): void
     {
         $client = $this->createClientAsRoleUser();
-        $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all_time');
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all');
 
         $this->assertResponseIsSuccessful();
 

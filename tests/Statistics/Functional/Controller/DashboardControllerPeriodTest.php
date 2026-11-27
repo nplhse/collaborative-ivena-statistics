@@ -41,7 +41,7 @@ final class DashboardControllerPeriodTest extends DashboardControllerTestCase
         $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
-            '/statistics/?scope=public&period=all_time',
+            '/statistics/?scope=public&period=all',
         );
 
         $this->assertResponseIsSuccessful();
@@ -107,7 +107,7 @@ final class DashboardControllerPeriodTest extends DashboardControllerTestCase
         $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
-            '/statistics/?scope=public&period=all_time',
+            '/statistics/?scope=public&period=all',
         );
 
         $this->assertResponseIsSuccessful();

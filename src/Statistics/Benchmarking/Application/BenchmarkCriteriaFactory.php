@@ -80,7 +80,7 @@ final readonly class BenchmarkCriteriaFactory
 
         return match ($filter->period) {
             StatisticsFilterPeriod::Last12Months => $this->translator->trans('stats.filter.period.last_12_months', [], 'statistics'),
-            StatisticsFilterPeriod::AllTime => $this->translator->trans('stats.filter.period.all_time', [], 'statistics'),
+            StatisticsFilterPeriod::AllTime => $this->translator->trans('stats.filter.period.all', [], 'statistics'),
             StatisticsFilterPeriod::Year => (string) ($filter->referenceYear ?? (int) $now->format('Y')),
             StatisticsFilterPeriod::Quarter => $this->translator->trans(
                 'stats.dashboard.heading.quarter',

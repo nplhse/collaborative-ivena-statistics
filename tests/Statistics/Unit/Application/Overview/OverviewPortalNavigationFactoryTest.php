@@ -39,7 +39,7 @@ final class OverviewPortalNavigationFactoryTest extends TestCase
 
     public function testResourcesOverTimeTargetPointsToClinicalResourcesComparisonView(): void
     {
-        $request = Request::create('/statistics/?scope=public&period=all_time&dimension=resources');
+        $request = Request::create('/statistics/?scope=public&period=all&dimension=resources');
         $url = $this->urlBuilder->buildFromTarget($request, $this->factory->resourcesOverTimeTarget());
 
         self::assertStringContainsString('/statistics/analysis/explorer/overview-clinical-resources', $url);
@@ -49,7 +49,7 @@ final class OverviewPortalNavigationFactoryTest extends TestCase
 
     public function testClinicalFeaturesOverTimeTargetPointsToClinicalFeaturesComparisonView(): void
     {
-        $request = Request::create('/statistics/?scope=public&period=all_time&dimension=features');
+        $request = Request::create('/statistics/?scope=public&period=all&dimension=features');
         $url = $this->urlBuilder->buildFromTarget($request, $this->factory->clinicalFeaturesOverTimeTarget());
 
         self::assertStringContainsString('/statistics/analysis/explorer/overview-clinical-features', $url);
@@ -59,7 +59,7 @@ final class OverviewPortalNavigationFactoryTest extends TestCase
 
     public function testBuildProvidesExplorerTargetsForOverviewCharts(): void
     {
-        $request = Request::create('/statistics/?scope=public&period=all_time&report=legacy');
+        $request = Request::create('/statistics/?scope=public&period=all&report=legacy');
         $navigation = $this->factory->build();
 
         self::assertCount(1, $navigation->timeSeries);
@@ -70,7 +70,7 @@ final class OverviewPortalNavigationFactoryTest extends TestCase
 
         $timeSeriesUrl = $this->urlBuilder->buildFromTarget($request, $navigation->timeSeries[0]);
         self::assertStringContainsString('/statistics/analysis/explorer/allocations-over-time', $timeSeriesUrl);
-        self::assertStringContainsString('period=all_time', $timeSeriesUrl);
+        self::assertStringContainsString('period=all', $timeSeriesUrl);
         self::assertStringNotContainsString('report=legacy', $timeSeriesUrl);
 
         $heatmapHourUrl = $this->urlBuilder->buildFromTarget($request, $navigation->heatmapHour[0]);

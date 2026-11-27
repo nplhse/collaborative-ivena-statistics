@@ -237,11 +237,11 @@ final class ExplorerConfigMapperTest extends KernelTestCase
         ];
 
         self::assertSame(StatisticsFilterPeriod::Last12Months, $mapper->viewConfigFromState($state('last_12_months'), null)->statisticsFilter->period);
-        self::assertSame(StatisticsFilterPeriod::AllTime, $mapper->viewConfigFromState($state('all_time'), null)->statisticsFilter->period);
+        self::assertSame(StatisticsFilterPeriod::AllTime, $mapper->viewConfigFromState($state('all'), null)->statisticsFilter->period);
         self::assertSame(StatisticsFilterPeriod::Last12Months, $mapper->viewConfigFromState($state(null), null)->statisticsFilter->period);
 
-        $roundTrip = $mapper->toStateArray($mapper->viewConfigFromState($state('all_time'), null));
-        self::assertSame('all_time', $roundTrip['query']['period']['type']);
+        $roundTrip = $mapper->toStateArray($mapper->viewConfigFromState($state('all'), null));
+        self::assertSame('all', $roundTrip['query']['period']['type']);
     }
 
     public function testLegacyFlatStateIsUpgraded(): void

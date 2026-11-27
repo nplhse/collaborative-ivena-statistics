@@ -103,7 +103,7 @@ final class StatisticsSidebarTest extends WebTestCase
             'year' => '2025',
             'month' => '4',
             'comparison_scope' => 'public',
-            'comparison_period' => 'all_time',
+            'comparison_period' => 'all',
             'age_group' => '0_17',
         ]);
 
@@ -123,7 +123,7 @@ final class StatisticsSidebarTest extends WebTestCase
             'scope' => 'public',
             'period' => 'last_12_months',
             'closure_reasons' => ['capacity'],
-            'comparison_period' => 'all_time',
+            'comparison_period' => 'all',
             'page' => '3',
         ]);
 

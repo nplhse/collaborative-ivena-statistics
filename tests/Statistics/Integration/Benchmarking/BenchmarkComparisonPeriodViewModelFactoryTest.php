@@ -29,7 +29,7 @@ final class BenchmarkComparisonPeriodViewModelFactoryTest extends KernelTestCase
             new Request(query: [
                 'scope' => 'public',
                 'comparison_scope' => 'public',
-                'comparison_period' => 'all_time',
+                'comparison_period' => 'all',
             ]),
             'app_stats_benchmarking',
             new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::AllTime),

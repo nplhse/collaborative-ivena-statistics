@@ -27,7 +27,7 @@ final class BenchmarkSelectionQueryBuilderTest extends TestCase
     {
         $data = new BenchmarkSelectionFormData(
             new BenchmarkSelectionSideFormData('state', '3', 'last_12_months'),
-            new BenchmarkSelectionSideFormData('hospital_cohort', 'urban_acute', 'all_time'),
+            new BenchmarkSelectionSideFormData('hospital_cohort', 'urban_acute', 'all'),
         );
 
         $query = $this->builder->build($data, ['gender' => 'male']);
@@ -38,7 +38,7 @@ final class BenchmarkSelectionQueryBuilderTest extends TestCase
         self::assertSame('last_12_months', $query[StatisticsQueryKeys::PERIOD]);
         self::assertSame('hospital_cohort:urban_acute', $query[StatisticsQueryKeys::COMPARISON_SCOPE]);
         self::assertSame('urban_acute', $query[StatisticsQueryKeys::COMPARISON_COHORT]);
-        self::assertSame('all_time', $query[StatisticsQueryKeys::COMPARISON_PERIOD]);
+        self::assertSame('all', $query[StatisticsQueryKeys::COMPARISON_PERIOD]);
     }
 
     #[Test]
@@ -139,7 +139,7 @@ final class BenchmarkSelectionQueryBuilderTest extends TestCase
     {
         $data = new BenchmarkSelectionFormData(
             new BenchmarkSelectionSideFormData('public', null, 'year', 2021),
-            new BenchmarkSelectionSideFormData('hospital_cohort', 'urban_acute', 'all_time'),
+            new BenchmarkSelectionSideFormData('hospital_cohort', 'urban_acute', 'all'),
         );
 
         $query = $this->builder->swapSides($data, [
@@ -154,7 +154,7 @@ final class BenchmarkSelectionQueryBuilderTest extends TestCase
         self::assertSame(25, $query['limit']);
         self::assertSame('hospital_cohort:urban_acute', $query[StatisticsQueryKeys::SCOPE]);
         self::assertSame('urban_acute', $query[StatisticsQueryKeys::COHORT]);
-        self::assertSame('all_time', $query[StatisticsQueryKeys::PERIOD]);
+        self::assertSame('all', $query[StatisticsQueryKeys::PERIOD]);
         self::assertSame(StatisticsFilterScope::Public->value, $query[StatisticsQueryKeys::COMPARISON_SCOPE]);
         self::assertSame('year', $query[StatisticsQueryKeys::COMPARISON_PERIOD]);
         self::assertSame(2021, $query[StatisticsQueryKeys::COMPARISON_YEAR]);

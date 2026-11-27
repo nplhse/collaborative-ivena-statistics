@@ -40,7 +40,7 @@ final class BenchmarkingControllerTest extends WebTestCase
         self::assertResponseRedirects();
         $location = (string) $client->getResponse()->headers->get('Location');
         self::assertStringContainsString('comparison_scope=public', $location);
-        self::assertStringContainsString('comparison_period=all_time', $location);
+        self::assertStringContainsString('comparison_period=all', $location);
         self::assertStringContainsString('scope=public', $location);
         self::assertStringContainsString('period=last_12_months', $location);
     }
@@ -70,7 +70,7 @@ final class BenchmarkingControllerTest extends WebTestCase
         $location = (string) $client->getResponse()->headers->get('Location');
         self::assertStringContainsString('scope=my_hospitals', $location);
         self::assertStringContainsString('comparison_scope=hospital_cohort', $location);
-        self::assertStringContainsString('comparison_period=all_time', $location);
+        self::assertStringContainsString('comparison_period=all', $location);
         self::assertStringContainsString('period=last_12_months', $location);
     }
 
@@ -176,7 +176,7 @@ final class BenchmarkingControllerTest extends WebTestCase
             'scope' => 'public',
             'period' => 'last_12_months',
             'comparison_scope' => 'public',
-            'comparison_period' => 'all_time',
+            'comparison_period' => 'all',
         ]);
 
         self::assertResponseIsSuccessful();

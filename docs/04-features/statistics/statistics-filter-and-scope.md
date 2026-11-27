@@ -27,20 +27,20 @@ Hospital and dispatch area are orthogonal: destination hospital ≠ origin dispa
 
 ## Periods
 
-`StatisticsFilterPeriod`: `last_12_months`, `all_time`, `year`, `quarter`, `month`.
+`StatisticsFilterPeriod`: `last_12_months`, `all`, `year`, `quarter`, `month`.
 
 - `last_12_months`: rolling window from the first day of the month eleven months before the current one (`StatisticsPeriod::overviewPeriodStart()`), no upper bound. Example: on 2026-11-11 it starts at 2025-12-01 00:00.
-- `all_time`: whole history, no lower and no upper bound.
+- `all`: whole history, no lower and no upper bound (`all_time` until v0.3, see below).
 
-### Identifier `all` (transition, #1017)
+### Identifiers `all` and `all_time` (#1017, #1035)
 
-Up to v0.3 the identifier `all` meant the rolling 12-month window, which contradicted its name. It was renamed to `last_12_months`; labels and numbers did not change.
+Up to v0.3 the identifier `all` meant the rolling 12-month window, which contradicted its name, and the whole history was `all_time`.
 
-- **v0.3 (transition):** `LegacyAllPeriodRedirectSubscriber` redirects GET requests to statistics controllers with `period=all` or `comparison_period=all` to the same URL with `last_12_months` (302), so old bookmarks and e-mail links show the same numbers. `all` is not an enum value; inside the application it is never produced, and an unknown value falls back to the default (`last_12_months`).
-- **Saved explorer views** that stored `all` were rewritten to `last_12_months` by migration `Version20261111214028`.
-- **v0.4-beta:** the redirect is removed and `all` becomes the identifier for the whole history (the value of `StatisticsFilterPeriod::AllTime`).
+- **v0.3:** `all` was renamed to `last_12_months` (#1017); old `period=all` links were redirected to `last_12_months`, and migration `Version20261111214028` rewrote saved explorer views.
+- **v0.4-beta:** `all` is the whole history (the value of `StatisticsFilterPeriod::AllTime`, #1035). Old links with `period=all` therefore show the whole history instead of the last 12 months. Saved explorer views that stored `all_time` were rewritten to `all` by migration `Version20261127070034`.
+- **Transition until v1.0:** `LegacyAllTimePeriodRedirectSubscriber` redirects GET requests to statistics pages (controllers of the Statistics context and pages under `/statistics/`) with `period=all_time` or `comparison_period=all_time` to the same URL with `all` (301), so old bookmarks, e-mail links and links in CMS content show the same numbers. `all_time` is not an enum value; inside the application it is never produced.
 
-Period is only the query window (`[from, toExclusive)` via `StatisticsPeriodResolver`). Time-series charts use a separate bucket size from `TimeSeriesGrainResolver` (`year`/`quarter`/`last_12_months`/`all_time` → month, `month` → day) and `TimeSeriesAxisFiller`:
+Period is only the query window (`[from, toExclusive)` via `StatisticsPeriodResolver`). Time-series charts use a separate bucket size from `TimeSeriesGrainResolver` (`year`/`quarter`/`last_12_months`/`all` → month, `month` → day) and `TimeSeriesAxisFiller`:
 
 - Monthly series omit the in-progress calendar month, even if it already has rows.
 - Daily series (month period) include today and leave later days off the axis; past days without cases stay `0`.
@@ -60,9 +60,9 @@ Admins can still select `my_hospitals` explicitly via `?scope=my_hospitals`.
 
 ## Default period (no `period` query parameter)
 
-`StatisticsFilterInputFactory` defaults to `last_12_months` (rolling 12 months from `StatisticsPeriod::overviewPeriodStart()`). Explicit `?period=all_time` remains the full-history window. Invalid period strings fall back to `last_12_months` in `StatisticsFilterFactory::parsePeriod()`.
+`StatisticsFilterInputFactory` defaults to `last_12_months` (rolling 12 months from `StatisticsPeriod::overviewPeriodStart()`). Explicit `?period=all` is the full-history window. Invalid period strings fall back to `last_12_months` in `StatisticsFilterFactory::parsePeriod()`.
 
-Overview (`GET /statistics/`) is the exception: `OverviewDefaultPeriodResolver` uses `last_12_months` only when at least 7 months in that window have data; otherwise it keeps `all_time`. When the resolver chooses `last_12_months` and the URL has no `period`, `DashboardController` redirects to `?period=last_12_months`.
+Overview (`GET /statistics/`) is the exception: `OverviewDefaultPeriodResolver` uses `last_12_months` only when at least 7 months in that window have data; otherwise it keeps `all`. When the resolver chooses `last_12_months` and the URL has no `period`, `DashboardController` redirects to `?period=last_12_months`.
 
 ## Resolution and fallbacks
 
@@ -99,7 +99,7 @@ compares the scope with itself in the previous period of the same length.
 | `last_12_months` | rolling window until now | the 12 months before, same span (start one year earlier) |
 | `year` / `quarter` / `month`, complete | the whole period | the whole previous year / quarter / month |
 | `year` / `quarter` / `month`, running | from the start until now | the same span from the start of the previous period, e.g. 1–13 November against 1–13 October; never past the start of the primary period |
-| `all_time` | the whole history | none: the tiles show only the value, the insights card stays hidden |
+| `all` | the whole history | none: the tiles show only the value, the insights card stays hidden |
 
 Cases per day divide by the days of each side, so a running period is not diluted by the days still to come.
 The insights card needs at least 100 allocations in the period **and** in the comparison period; the general

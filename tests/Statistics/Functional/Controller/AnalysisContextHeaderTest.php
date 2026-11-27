@@ -96,11 +96,11 @@ final class AnalysisContextHeaderTest extends DashboardControllerTestCase
         $form = $crawler->filter('[data-testid="stats-analysis-context-form"]')->form();
         $periodField = $form->get('period');
         self::assertInstanceOf(ChoiceFormField::class, $periodField);
-        $periodField->select('all_time');
+        $periodField->select('all');
         $client->submit($form);
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('[data-testid="stats-analysis-context-period"] option[value="all_time"][selected]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-period"] option[value="all"][selected]');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-context-period-summary"]', 'All time');
         $this->assertSelectorExists('[data-testid="stats-analysis-context-form"] input[name="scope"][value="public"]');
     }
@@ -157,15 +157,15 @@ final class AnalysisContextHeaderTest extends DashboardControllerTestCase
         $form = $crawler->filter('[data-testid="stats-analysis-context-form"]')->form();
         $periodField = $form->get('period');
         self::assertInstanceOf(ChoiceFormField::class, $periodField);
-        $periodField->select('all_time');
+        $periodField->select('all');
         $crawler = $client->submit($form);
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-reports-index"]');
-        $this->assertSelectorExists('[data-testid="stats-analysis-context-period"] option[value="all_time"][selected]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-period"] option[value="all"][selected]');
         $href = $crawler->filter('[data-testid="stats-reports-card-monthly"]')->attr('href');
         $this->assertStringContainsString('/statistics/reports/monthly', (string) $href);
-        $this->assertStringContainsString('period=all_time', (string) $href);
+        $this->assertStringContainsString('period=all', (string) $href);
         $this->assertStringContainsString('scope=public', (string) $href);
     }
 
@@ -181,15 +181,15 @@ final class AnalysisContextHeaderTest extends DashboardControllerTestCase
         $form = $crawler->filter('[data-testid="stats-analysis-context-form"]')->form();
         $periodField = $form->get('period');
         self::assertInstanceOf(ChoiceFormField::class, $periodField);
-        $periodField->select('all_time');
+        $periodField->select('all');
         $crawler = $client->submit($form);
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-top-lists-index"]');
-        $this->assertSelectorExists('[data-testid="stats-analysis-context-period"] option[value="all_time"][selected]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-period"] option[value="all"][selected]');
         $href = $crawler->filter('[data-testid="stats-top-lists-card-top_diagnoses"]')->attr('href');
         $this->assertStringContainsString('/statistics/top-lists/top_diagnoses', (string) $href);
-        $this->assertStringContainsString('period=all_time', (string) $href);
+        $this->assertStringContainsString('period=all', (string) $href);
         $this->assertStringContainsString('scope=public', (string) $href);
     }
 

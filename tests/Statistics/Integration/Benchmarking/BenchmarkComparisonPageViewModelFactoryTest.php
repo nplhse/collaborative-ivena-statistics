@@ -23,7 +23,7 @@ final class BenchmarkComparisonPageViewModelFactoryTest extends KernelTestCase
                 'scope' => 'public',
                 'period' => 'last_12_months',
                 'comparison_scope' => 'public',
-                'comparison_period' => 'all_time',
+                'comparison_period' => 'all',
             ]),
             'app_stats_benchmarking',
             null,

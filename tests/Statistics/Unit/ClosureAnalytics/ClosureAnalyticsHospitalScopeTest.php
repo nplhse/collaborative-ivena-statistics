@@ -97,7 +97,7 @@ final class ClosureAnalyticsHospitalScopeTest extends TestCase
         self::assertSame('month', $public['period'] ?? null);
         self::assertArrayNotHasKey('closureHospitals', $public ?? []);
 
-        $state = $redirector->canonicalRedirectQuery(['scope' => 'state:3', 'period' => 'all_time'], $user);
+        $state = $redirector->canonicalRedirectQuery(['scope' => 'state:3', 'period' => 'all'], $user);
         self::assertSame('my_hospitals', $state['scope'] ?? null);
         self::assertArrayNotHasKey('state', $state ?? []);
 
@@ -127,18 +127,18 @@ final class ClosureAnalyticsHospitalScopeTest extends TestCase
         self::assertArrayNotHasKey('hospital', $onlyForeign ?? []);
 
         self::assertNull($redirector->canonicalRedirectQuery($onlyForeign ?? [], $user));
-        self::assertNull($redirector->canonicalRedirectQuery(['scope' => 'my_hospitals', 'period' => 'all_time'], $user));
+        self::assertNull($redirector->canonicalRedirectQuery(['scope' => 'my_hospitals', 'period' => 'all'], $user));
         self::assertNull($redirector->canonicalRedirectQuery(['scope' => 'hospital', 'hospital' => '4'], $user));
     }
 
     public function testSingleAssignedHospitalIsSelectedAutomatically(): void
     {
         $redirector = new ClosureAnalyticsScopeRedirector($this->scope([4], false));
-        $canonical = $redirector->canonicalRedirectQuery(['scope' => 'public', 'period' => 'all_time'], $this->participant());
+        $canonical = $redirector->canonicalRedirectQuery(['scope' => 'public', 'period' => 'all'], $this->participant());
 
         self::assertSame('hospital', $canonical['scope'] ?? null);
         self::assertSame('4', $canonical['hospital'] ?? null);
-        self::assertSame('all_time', $canonical['period'] ?? null);
+        self::assertSame('all', $canonical['period'] ?? null);
         self::assertNull($redirector->canonicalRedirectQuery($canonical ?? [], $this->participant()));
     }
 

@@ -237,7 +237,7 @@ final class AnalysisExplorerAssistantControllerTest extends WebTestCase
         $this->submitButton($client, 'Allocations');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-assistant-period"] option[value="all_time"][selected]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-assistant-period"] option[value="all"][selected]');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-assistant-scope"] option[value="public"][selected]');
     }
 

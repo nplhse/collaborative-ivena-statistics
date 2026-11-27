@@ -234,7 +234,7 @@ final class EncounterAnalyticsControllerTest extends WebTestCase
         $crawler = $this->page($this->hospitalA, ['period' => 'year', 'year' => '2026']);
         self::assertSame('/tools/encounter-review/'.$id.'/overview', $crawler->filter('[data-testid="encounter-overview-review-link"]')->attr('href'), 'A year does not fit into one review page (at most 92 days).');
 
-        $crawler = $this->page($this->hospitalA, ['period' => 'all_time']);
+        $crawler = $this->page($this->hospitalA, ['period' => 'all']);
         self::assertSame('/tools/encounter-review/'.$id.'/validation', $crawler->filter('[data-testid="encounter-overview-validation-link"]')->attr('href'), 'An open-ended period has no end day to pass on.');
 
         $this->client->loginUser($this->admin());

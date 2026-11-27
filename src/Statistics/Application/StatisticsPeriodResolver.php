@@ -15,7 +15,7 @@ use Symfony\Component\Clock\Clock;
  * period=last_12_months matches the overview: rolling 12 months from {@see StatisticsPeriod::overviewPeriodStart()},
  * with no explicit upper bound (only createdAt >= from).
  *
- * period=all_time: no created_at lower bound in queries; callers use earliest row when a start label is needed.
+ * period=all: no created_at lower bound in queries; callers use earliest row when a start label is needed.
  */
 final class StatisticsPeriodResolver
 {

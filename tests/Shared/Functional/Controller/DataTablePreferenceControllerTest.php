@@ -30,7 +30,7 @@ final class DataTablePreferenceControllerTest extends WebTestCase
         $key = ClosureEventTableColumns::PREFERENCE_KEY;
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics/details?scope=public&period=all_time',
+            '/statistics/closure-analytics/details?scope=public&period=all',
         );
         $token = (string) $crawler->filter('input[name="_token"]')->attr('value');
         $returnUrl = '/statistics/closure-analytics/details?scope=public&period=year&year=2026&sortBy=actualMinutes&orderBy=asc&closureReasons%5B0%5D=technical_fault&columns=hospital&columnOrder=hospital%2CstartsAt&limit=100&page=2';
@@ -66,7 +66,7 @@ final class DataTablePreferenceControllerTest extends WebTestCase
 
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics/details?scope=public&period=all_time',
+            '/statistics/closure-analytics/details?scope=public&period=all',
         );
         $token = (string) $crawler->filter('input[name="_token"]')->attr('value');
         $client->request(Request::METHOD_POST, '/account/data-table-preferences', [
@@ -91,7 +91,7 @@ final class DataTablePreferenceControllerTest extends WebTestCase
 
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics/details?scope=public&period=all_time',
+            '/statistics/closure-analytics/details?scope=public&period=all',
         );
         $token = (string) $crawler->filter('input[name="_token"]')->attr('value');
         $client->request(Request::METHOD_POST, '/account/data-table-preferences', [
@@ -119,7 +119,7 @@ final class DataTablePreferenceControllerTest extends WebTestCase
 
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics/details?scope=public&period=all_time',
+            '/statistics/closure-analytics/details?scope=public&period=all',
         );
         $token = (string) $crawler->filter('input[name="_token"]')->attr('value');
         $client->request(Request::METHOD_POST, '/account/data-table-preferences', [
@@ -146,10 +146,10 @@ final class DataTablePreferenceControllerTest extends WebTestCase
         $key = ClosureUnitTableColumns::PREFERENCE_KEY;
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics/details?scope=public&period=all_time',
+            '/statistics/closure-analytics/details?scope=public&period=all',
         );
         $token = $this->csrfToken($client, 'data_table_preference_'.$key);
-        $returnUrl = '/statistics/closure-analytics?scope=public&period=all_time&unitsSort=hospital&unitsOrder=asc&unitsColumns=hospital&unitsColumnOrder=hospital%2Cname&unitsLimit=100&unitsPage=2';
+        $returnUrl = '/statistics/closure-analytics?scope=public&period=all&unitsSort=hospital&unitsOrder=asc&unitsColumns=hospital&unitsColumnOrder=hospital%2Cname&unitsLimit=100&unitsPage=2';
 
         $client->request(Request::METHOD_POST, '/account/data-table-preferences', [
             '_token' => $token,
@@ -196,7 +196,7 @@ final class DataTablePreferenceControllerTest extends WebTestCase
         $client->request(Request::METHOD_POST, '/account/data-table-preferences', [
             '_token' => $token,
             'tableKey' => $key,
-            'returnUrl' => '/statistics/closure-analytics?scope=public&period=all_time',
+            'returnUrl' => '/statistics/closure-analytics?scope=public&period=all',
             'action' => 'save',
             'visibleColumns' => ['name', 'hospital'],
             'columnOrder' => ['hospital', 'name'],

@@ -50,7 +50,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $this->loginAsClosureBetaUser($client);
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('[data-testid="stats-closure-heading"]', 'Closure analytics');
@@ -77,10 +77,10 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $client = self::createClient();
         $this->loginAsRoleUser($client);
 
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all');
         $this->assertResponseStatusCodeSame(403);
 
-        $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="sidebar-statistics"]');
         $this->assertSelectorNotExists('[data-testid="sidebar-group-closures"]');
@@ -90,7 +90,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $this->loginAsClosureBetaUser($client);
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=dispatch_area:99&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=dispatch_area:99&period=all');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-closure-no-hospital-access"]');
@@ -128,7 +128,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $this->loginAsClosureBetaUser($client);
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/details?scope=public&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/details?scope=public&period=all');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('turbo-frame#stats-closure-details');
@@ -145,7 +145,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $client->request(
             Request::METHOD_GET,
             sprintf(
-                '/statistics/closure-analytics/profiles?scope=hospital&hospital=%d&period=all_time&profilesPage=2&profilesLimit=25&profileQ=Functional&profilesSort=hospital&profilesOrder=asc',
+                '/statistics/closure-analytics/profiles?scope=hospital&hospital=%d&period=all&profilesPage=2&profilesLimit=25&profileQ=Functional&profilesSort=hospital&profilesOrder=asc',
                 $hospitalId,
             ),
         );
@@ -161,7 +161,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $client = self::createClient();
         $user = $this->loginAsClosureBetaUser($client);
         [$hospitalId] = $this->seedGroupedClosures($user);
-        $scope = sprintf('scope=hospital&hospital=%d&period=all_time', $hospitalId);
+        $scope = sprintf('scope=hospital&hospital=%d&period=all', $hospitalId);
 
         foreach (['events', 'intervals'] as $view) {
             $crawler = $client->request(Request::METHOD_GET, '/statistics/closure-analytics/details?'.$scope.'&tableView='.$view);
@@ -194,7 +194,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $client->enableProfiler();
         $client->request(
             Request::METHOD_GET,
-            sprintf('/statistics/closure-analytics/profiles?scope=hospital&hospital=%d&period=all_time', $hospitalId),
+            sprintf('/statistics/closure-analytics/profiles?scope=hospital&hospital=%d&period=all', $hospitalId),
         );
         $this->assertResponseIsSuccessful();
 
@@ -285,7 +285,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
             ],
         );
 
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/details?scope=public&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/details?scope=public&period=all');
         $this->assertResponseIsSuccessful();
         $headers = $client->getCrawler()->filter('[data-testid="stats-closure-intervals"] th')->each(
             static fn ($node): string => trim($node->text()),
@@ -295,7 +295,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics/details?scope=public&period=all_time&columns=hospital&columnOrder=hospital%2CstartsAt%2Cevent%2CactualMinutes&limit=100',
+            '/statistics/closure-analytics/details?scope=public&period=all&columns=hospital&columnOrder=hospital%2CstartsAt%2Cevent%2CactualMinutes&limit=100',
         );
         $this->assertResponseIsSuccessful();
         $overrideHeaders = $client->getCrawler()->filter('[data-testid="stats-closure-intervals"] th')->each(
@@ -308,7 +308,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
             'roles' => [UserRole::USER, UserRole::PARTICIPANT],
         ]);
         $client->loginUser($secondUser);
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/details?scope=public&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/details?scope=public&period=all');
         $this->assertResponseIsSuccessful();
         $secondHeaders = $client->getCrawler()->filter('[data-testid="stats-closure-intervals"] th')->each(
             static fn ($node): string => trim($node->text()),
@@ -329,7 +329,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $user = $this->loginAsClosureBetaUser($client);
         [$hospitalId, $intervalId, $departmentId, $specialityId] = $this->seedGroupedClosures($user);
 
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('[data-testid="stats-closure-kpis"]', 'Actual closure time');
         $this->assertSelectorCount(3, '[data-testid="stats-closure-kpis"] .card');
@@ -344,14 +344,14 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $this->assertSelectorNotExists('[data-testid="stats-closure-duration-load"]');
         $this->assertSelectorExists('[data-testid="stats-closure-tab-duration"]');
 
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/volume-burden?scope=public&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/volume-burden?scope=public&period=all');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('turbo-frame#stats-closure-volume-burden');
         $this->assertSelectorTextContains('[data-testid="stats-closure-kpi-deviation"]', 'Deviation of observed and expected assignments');
         $this->assertSelectorTextContains('[data-testid="stats-closure-kpi-share"]', 'Share of expected hospital volume');
         $this->assertSelectorNotExists('[data-testid="stats-closure-volume-burden-placeholder"]');
 
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/duration?scope=public&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/duration?scope=public&period=all');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-closure-tab-duration"].active');
         $this->assertSelectorTextContains('[data-testid="stats-closure-tab-duration"]', 'Duration and time burden');
@@ -373,7 +373,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $this->assertSelectorTextNotContains('[data-testid="stats-closure-duration-pauses"]', 'Not computable');
         $this->assertSelectorTextContains('[data-testid="stats-closure-duration-pauses"]', 'Per 24 h without a closure');
         $this->assertSelectorTextContains('[data-testid="stats-closure-duration-pauses"]', 'Per 24 h with at least one closure');
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('.col-xl-8 [data-closure-analytics-charts-target="timeSeriesChart"]');
         $this->assertSelectorExists('.col-xl-8 [data-closure-analytics-charts-target="heatmapChart"]');
@@ -444,7 +444,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         self::assertSame(['Name'], $unitHeaders);
 
         $hospitalScopeQuery = sprintf(
-            'scope=hospital&hospital=%d&period=all_time',
+            'scope=hospital&hospital=%d&period=all',
             $hospitalId,
         );
         $client->request(
@@ -513,7 +513,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics?scope=my_hospitals&period=all_time',
+            '/statistics/closure-analytics?scope=my_hospitals&period=all',
         );
         $this->assertResponseIsSuccessful();
         $myHospitalsUnitValue = $hospitalId.':Functional unit';
@@ -535,7 +535,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         );
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics?scope=public&period=all_time&'.$filterQuery,
+            '/statistics/closure-analytics?scope=public&period=all&'.$filterQuery,
         );
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists(sprintf('[data-testid="closure-filter-departments"] option[value="%d"][selected]', $departmentId));
@@ -555,7 +555,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $resetUrl = $client->getCrawler()->filter('[data-testid="statistics-filters-clear"]')->attr('href');
         self::assertNotNull($resetUrl);
         self::assertStringNotContainsString('scope=public', $resetUrl);
-        self::assertStringContainsString('period=all_time', $resetUrl);
+        self::assertStringContainsString('period=all', $resetUrl);
         self::assertStringNotContainsString('closureDepartments', $resetUrl);
         self::assertStringNotContainsString('closureSpecialities', $resetUrl);
         self::assertStringNotContainsString('closureCareLevels', $resetUrl);
@@ -575,7 +575,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics/timeline?scope=public&period=all_time&'.$filterQuery,
+            '/statistics/closure-analytics/timeline?scope=public&period=all&'.$filterQuery,
         );
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-closure-tab-timeline"].active');
@@ -590,7 +590,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics/duration?scope=public&period=all_time&'.$filterQuery,
+            '/statistics/closure-analytics/duration?scope=public&period=all&'.$filterQuery,
         );
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-closure-tab-duration"].active');
@@ -600,7 +600,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics/events?scope=public&period=all_time&'.$filterQuery,
+            '/statistics/closure-analytics/events?scope=public&period=all&'.$filterQuery,
         );
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-closure-tab-events"].active');
@@ -614,7 +614,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics?scope=public&period=all_time&'.$filterQuery.'&closureFrom=2026-03-01&closureTo=2026-03-15&closureEventTypes[]=source_group',
+            '/statistics/closure-analytics?scope=public&period=all&'.$filterQuery.'&closureFrom=2026-03-01&closureTo=2026-03-15&closureEventTypes[]=source_group',
         );
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="closure-filter-from"][value="2026-03-01"]');
@@ -632,7 +632,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics?scope=public&period=all_time&'.$filterQuery.'&closureHospitals[]='.$hospitalId,
+            '/statistics/closure-analytics?scope=public&period=all&'.$filterQuery.'&closureHospitals[]='.$hospitalId,
         );
         $this->assertResponseIsSuccessful();
         parse_str((string) parse_url((string) $client->getRequest()->getUri(), PHP_URL_QUERY), $narrowedHospitalQuery);
@@ -684,7 +684,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics/details?scope=public&period=all_time&'.$filterQuery,
+            '/statistics/closure-analytics/details?scope=public&period=all&'.$filterQuery,
         );
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('[data-testid="stats-closure-intervals"]', 'Source group');
@@ -720,12 +720,12 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         self::assertStringContainsString('closureDepartments', $sortUrl);
         self::assertStringContainsString('closureReasons', $sortUrl);
         self::assertStringNotContainsString('scope=public', $sortUrl);
-        self::assertStringContainsString('period=all_time', $sortUrl);
+        self::assertStringContainsString('period=all', $sortUrl);
         $this->assertSelectorNotExists('[data-testid="stats-closure-breakdowns"]');
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics/details?scope=public&period=all_time&columns=hospital%2CclosureCount%2CsummedMinutes%2Creasons%2CclosureUnits&sortBy=actualMinutes&orderBy=asc&limit=50&'.$filterQuery,
+            '/statistics/closure-analytics/details?scope=public&period=all&columns=hospital%2CclosureCount%2CsummedMinutes%2Creasons%2CclosureUnits&sortBy=actualMinutes&orderBy=asc&limit=50&'.$filterQuery,
         );
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-closure-intervals"] th[aria-sort="ascending"]');
@@ -734,7 +734,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $this->assertSelectorTextContains('[data-testid="closure-event-facet-closureUnits"]', 'Functional unit');
         $this->assertSelectorTextContains('[data-testid="stats-closure-intervals"]', '50 records');
 
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/timeline/frame?scope=public&period=all_time&timeline_grain=year');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/timeline/frame?scope=public&period=all&timeline_grain=year');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('turbo-frame#stats-closure-timeline', '2026');
         $this->assertSelectorExists('.closure-timeline-scroll--years');
@@ -762,7 +762,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
 
         foreach (['quarter', 'month', 'week', 'day', 'event'] as $grain) {
             $client->request(Request::METHOD_GET, sprintf(
-                '/statistics/closure-analytics/timeline/frame?scope=public&period=all_time&timeline_grain=%s&timeline_from=2026-05-01',
+                '/statistics/closure-analytics/timeline/frame?scope=public&period=all&timeline_grain=%s&timeline_from=2026-05-01',
                 $grain,
             ));
             $this->assertResponseIsSuccessful();
@@ -783,7 +783,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics/timeline/frame?scope=public&period=all_time&timeline_grain=week&timeline_from=2026-04-27',
+            '/statistics/closure-analytics/timeline/frame?scope=public&period=all&timeline_grain=week&timeline_from=2026-04-27',
         );
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="closure-timeline-period-departments"]');
@@ -806,7 +806,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics/timeline/frame?scope=public&period=all_time&timeline_grain=month&timeline_from=2026-05-01',
+            '/statistics/closure-analytics/timeline/frame?scope=public&period=all&timeline_grain=month&timeline_from=2026-05-01',
         );
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains(
@@ -818,7 +818,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics/timeline/frame?scope=public&period=all_time&timeline_grain=quarter&timeline_from=2026-04-01',
+            '/statistics/closure-analytics/timeline/frame?scope=public&period=all&timeline_grain=quarter&timeline_from=2026-04-01',
         );
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains(
@@ -842,7 +842,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics/timeline/frame?scope=public&period=all_time&timeline_grain=day&timeline_from=2026-05-01&'.$filterQuery,
+            '/statistics/closure-analytics/timeline/frame?scope=public&period=all&timeline_grain=day&timeline_from=2026-05-01&'.$filterQuery,
         );
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('.closure-timeline-department__label', 'Functional Closure Department A');
@@ -871,7 +871,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         self::assertStringContainsString('timeline_from=2026-04-27', $breadcrumbUrls[3]);
 
         $client->request(Request::METHOD_GET, sprintf(
-            '/statistics/closure-analytics/events/%s?scope=public&period=all_time&%s',
+            '/statistics/closure-analytics/events/%s?scope=public&period=all&%s',
             (string) $this->closureEventId($hospitalId, 'functional-group'),
             $filterQuery,
         ));
@@ -918,7 +918,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         self::assertStringContainsString('createdUntil=2026-05-01', $allocationsUrl);
 
         $client->request(Request::METHOD_GET, sprintf(
-            '/statistics/closure-analytics/events/%s?scope=public&period=all_time&tab=course&%s',
+            '/statistics/closure-analytics/events/%s?scope=public&period=all&tab=course&%s',
             (string) $this->closureEventId($hospitalId, 'functional-group'),
             $filterQuery,
         ));
@@ -940,7 +940,7 @@ SQL,
             ['hospital_id' => $hospitalId, 'department_id' => $departmentId],
         );
         $client->request(Request::METHOD_GET, sprintf(
-            '/statistics/closure-analytics/intervals/%d?scope=public&period=all_time',
+            '/statistics/closure-analytics/intervals/%d?scope=public&period=all',
             $intervalId,
         ));
         $this->assertResponseIsSuccessful();
@@ -964,7 +964,7 @@ SQL,
         $user = $this->loginAsClosureBetaUser($client);
         $this->seedGroupedClosures($user);
 
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/duration?scope=public&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/duration?scope=public&period=all');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('[data-testid="stats-closure-duration-pauses"]', 'Median gap without a closure');
@@ -1152,7 +1152,7 @@ SQL,
         $eventKey = rawurlencode((string) $this->closureEventId((int) $hospital->getId(), 'same-day-group'));
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics/events/'.$eventKey.'?scope=public&period=all_time',
+            '/statistics/closure-analytics/events/'.$eventKey.'?scope=public&period=all',
         );
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="closure-timeline-context"]');
@@ -1212,7 +1212,7 @@ SQL,
         $eventKey = rawurlencode((string) $this->closureEventId($hospitalId, 'functional-group'));
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics/events/'.$eventKey.'?scope=public&period=all_time&tab=course&phase=during',
+            '/statistics/closure-analytics/events/'.$eventKey.'?scope=public&period=all&tab=course&phase=during',
         );
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="closure-event-phase-during"].btn-primary');
@@ -1225,7 +1225,7 @@ SQL,
 
         $client->request(
             Request::METHOD_GET,
-            sprintf('/statistics/closure-analytics/intervals/%d?scope=public&period=all_time', $intervalId),
+            sprintf('/statistics/closure-analytics/intervals/%d?scope=public&period=all', $intervalId),
         );
         $this->assertResponseIsSuccessful();
         $this->assertSelectorCount(1, '[data-testid="closure-overlapping-allocation-row"]');
@@ -1234,7 +1234,7 @@ SQL,
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics/events/'.$this->closureEventId($hospitalId, 'previous-month-group').'?scope=public&period=all_time&tab=course&phase=during',
+            '/statistics/closure-analytics/events/'.$this->closureEventId($hospitalId, 'previous-month-group').'?scope=public&period=all&tab=course&phase=during',
         );
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('[data-testid="closure-event-assignment-link"]');
@@ -1274,7 +1274,7 @@ SQL,
         $client->request(
             Request::METHOD_GET,
             sprintf(
-                '/statistics/closure-analytics/events/%d?scope=public&period=all_time&tab=course&phase=during&volumeSeries=speciality',
+                '/statistics/closure-analytics/events/%d?scope=public&period=all&tab=course&phase=during&volumeSeries=speciality',
                 $eventId,
             ),
         );
@@ -1318,7 +1318,7 @@ SQL,
         $client->request(
             Request::METHOD_GET,
             sprintf(
-                '/statistics/closure-analytics/events/%d?scope=public&period=all_time&tab=course&phase=during',
+                '/statistics/closure-analytics/events/%d?scope=public&period=all&tab=course&phase=during',
                 $eventId,
             ),
         );
@@ -1333,7 +1333,7 @@ SQL,
         $client->request(
             Request::METHOD_GET,
             sprintf(
-                '/statistics/closure-analytics/events/%d?scope=public&period=all_time&tab=course&phase=during&population=speciality',
+                '/statistics/closure-analytics/events/%d?scope=public&period=all&tab=course&phase=during&population=speciality',
                 $eventId,
             ),
         );
@@ -1352,20 +1352,20 @@ SQL,
         self::getContainer()->get(ClosureVolumeProjectionRebuildInterface::class)->rebuild();
         $eventId = $this->closureEventId($hospitalId, 'functional-group');
 
-        $client->request(Request::METHOD_GET, sprintf('/statistics/closure-analytics/events/%d?scope=public&period=all_time&tab=course', $eventId));
+        $client->request(Request::METHOD_GET, sprintf('/statistics/closure-analytics/events/%d?scope=public&period=all&tab=course', $eventId));
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="closure-event-provisional"]');
         $this->assertSelectorExists('[data-testid="stats-closure-volume-metric-relevance"]');
 
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/events?scope=public&period=all_time&closureResultStates[]=provisional');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/events?scope=public&period=all&closureResultStates[]=provisional');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="closure-filter-result-states"] option[value="provisional"][selected]');
 
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/details?scope=public&period=all_time&closureResultStates[]=provisional');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/details?scope=public&period=all&closureResultStates[]=provisional');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="closure-event-provisional"]');
 
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/details?scope=public&period=all_time&closureResultStates[]=final');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/details?scope=public&period=all&closureResultStates[]=final');
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('[data-testid="closure-event-provisional"]');
     }
@@ -1381,7 +1381,7 @@ SQL,
         $client->request(
             Request::METHOD_GET,
             sprintf(
-                '/statistics/closure-analytics/events/%d?scope=public&period=all_time&tab=course',
+                '/statistics/closure-analytics/events/%d?scope=public&period=all&tab=course',
                 $eventId,
             ),
         );
@@ -1395,7 +1395,7 @@ SQL,
         $client->request(
             Request::METHOD_GET,
             sprintf(
-                '/statistics/closure-analytics/events/%d?scope=public&period=all_time&tab=course&volumeSeries=speciality',
+                '/statistics/closure-analytics/events/%d?scope=public&period=all&tab=course&volumeSeries=speciality',
                 $eventId,
             ),
         );
@@ -1426,7 +1426,7 @@ SQL,
         }
         ImportFactory::createOne(['hospital' => $hospital, 'createdBy' => $user, 'type' => ImportType::CLOSURE, 'status' => ImportStatus::COMPLETED]);
 
-        $client->request(Request::METHOD_GET, sprintf('/statistics/closure-analytics?scope=hospital&hospital=%d&period=all_time', $hospital->getId()));
+        $client->request(Request::METHOD_GET, sprintf('/statistics/closure-analytics?scope=hospital&hospital=%d&period=all', $hospital->getId()));
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-closure-data-coverage"]');
@@ -1436,7 +1436,7 @@ SQL,
         $this->assertSelectorExists('[data-testid="stats-closure-data-coverage-closures-without-period"]');
         $this->assertSelectorNotExists('[data-testid="stats-closure-data-coverage-closures-gaps"]');
 
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all_time');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('[data-testid="stats-closure-data-coverage"]', 'Two accessible hospitals: no single hospital to describe.');

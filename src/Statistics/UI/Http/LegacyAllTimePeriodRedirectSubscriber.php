@@ -13,25 +13,26 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * TRANSITION REDIRECT (#1017) — remove in v0.4-beta.
+ * TRANSITION REDIRECT (#1035) — remove in v1.0.
  *
- * Until v0.3 the statistics pages used `period=all` (and `comparison_period=all`) for the rolling
- * 12-month window. That window is now `last_12_months`. Old bookmarks, e-mail links and shared URLs
- * are redirected here (302, not cached) so they keep showing the same numbers.
+ * Until v0.3 the whole history was `period=all_time` (and `comparison_period=all_time`). Since v0.4-beta it is
+ * `period=all` ({@see StatisticsFilterPeriod::AllTime}). Old bookmarks, e-mail links and links in CMS content
+ * are redirected here (301) so they keep showing the same numbers.
  *
- * Removing it in v0.4-beta: delete this class and its test, then give
- * {@see StatisticsFilterPeriod::AllTime} the value `all`, so `period=all` means the whole history.
+ * Removing it in v1.0: delete this class and its tests; `all_time` is then an unknown period like any other.
  *
- * Runs after routing (priority 32) so only statistics controllers are affected; other contexts
- * (e.g. the admin dashboard) use their own `period` values.
+ * Runs after routing so only statistics pages are affected: controllers of the Statistics context and pages
+ * under `/statistics/` that plugins add. Other contexts (e.g. the admin dashboard) use their own `period` values.
  *
  * @psalm-suppress UnusedClass
  */
-final readonly class LegacyAllPeriodRedirectSubscriber
+final readonly class LegacyAllTimePeriodRedirectSubscriber
 {
-    public const string LEGACY_ALL = 'all';
+    public const string LEGACY_ALL_TIME = 'all_time';
 
     private const string STATISTICS_CONTROLLER_PREFIX = 'App\\Statistics\\';
+
+    private const string STATISTICS_PATH_PREFIX = '/statistics/';
 
     /** @var list<string> */
     private const array PERIOD_KEYS = [
@@ -51,16 +52,15 @@ final readonly class LegacyAllPeriodRedirectSubscriber
             return;
         }
 
-        $controller = $request->attributes->get('_controller');
-        if (!\is_string($controller) || !str_starts_with($controller, self::STATISTICS_CONTROLLER_PREFIX)) {
+        if (!$this->isStatisticsPage($request)) {
             return;
         }
 
         $query = $request->query->all();
         $changed = false;
         foreach (self::PERIOD_KEYS as $key) {
-            if (self::LEGACY_ALL === ($query[$key] ?? null)) {
-                $query[$key] = StatisticsFilterPeriod::Last12Months->value;
+            if (self::LEGACY_ALL_TIME === ($query[$key] ?? null)) {
+                $query[$key] = StatisticsFilterPeriod::AllTime->value;
                 $changed = true;
             }
         }
@@ -71,7 +71,17 @@ final readonly class LegacyAllPeriodRedirectSubscriber
 
         $event->setResponse(new RedirectResponse(
             $request->getBaseUrl().$request->getPathInfo().'?'.http_build_query($query),
-            RedirectResponse::HTTP_FOUND,
+            RedirectResponse::HTTP_MOVED_PERMANENTLY,
         ));
+    }
+
+    private function isStatisticsPage(Request $request): bool
+    {
+        $controller = $request->attributes->get('_controller');
+        if (\is_string($controller) && str_starts_with($controller, self::STATISTICS_CONTROLLER_PREFIX)) {
+            return true;
+        }
+
+        return str_starts_with($request->getPathInfo(), self::STATISTICS_PATH_PREFIX);
     }
 }

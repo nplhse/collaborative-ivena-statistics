@@ -357,7 +357,7 @@ final class ShowHospitalControllerTest extends WebTestCase
                 && (string) $hospitalId === (string) ($query['hospital'] ?? '')
                 && 'last_12_months' === ($query['period'] ?? null)
                 && 'hospital_cohort' === ($query['comparison_scope'] ?? null)
-                && 'all_time' === ($query['comparison_period'] ?? null)
+                && 'all' === ($query['comparison_period'] ?? null)
             ) {
                 return true;
             }

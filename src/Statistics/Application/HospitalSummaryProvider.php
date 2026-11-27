@@ -9,6 +9,7 @@ use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Statistics\AnalysisExplorer\Application\ExplorerLegacyAnalyticsViewMapper;
 use App\Statistics\Application\DTO\HospitalSummaryData;
 use App\Statistics\Application\DTO\StatisticsContext;
+use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticWidget;
 use App\Statistics\Application\DTO\StatisticWidgetNavigationTarget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
@@ -123,7 +124,7 @@ final readonly class HospitalSummaryProvider
                             'app_stats_analysis_explorer_view',
                             [
                                 'view' => $this->legacyViewMapper->slugForLegacyViewKey('urgency_by_month'),
-                                'period' => 'all_time',
+                                'period' => StatisticsFilterPeriod::AllTime->value,
                             ],
                             self::ANALYTICS_REMOVE_KEYS,
                         ),

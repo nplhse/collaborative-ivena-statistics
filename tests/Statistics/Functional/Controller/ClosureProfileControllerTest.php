@@ -46,7 +46,7 @@ final class ClosureProfileControllerTest extends WebTestCase
         self::assertNotNull($links->groupKey);
         self::assertCount(2, $links->specialities);
 
-        $query = '?scope=hospital&hospital='.$seed['hospitalId'].'&period=all_time';
+        $query = '?scope=hospital&hospital='.$seed['hospitalId'].'&period=all';
         $client->request(Request::METHOD_GET, '/statistics/closure-analytics'.$query);
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('[data-testid="closure-profile-groups"]');
@@ -159,7 +159,7 @@ final class ClosureProfileControllerTest extends WebTestCase
         $client = self::createClient();
         $owner = $this->login($client);
         $rated = $this->seedRatedGroupProfile($owner);
-        $query = '?scope=hospital&hospital='.$rated['hospitalId'].'&period=all_time';
+        $query = '?scope=hospital&hospital='.$rated['hospitalId'].'&period=all';
 
         $client->request(
             Request::METHOD_GET,
@@ -209,7 +209,7 @@ final class ClosureProfileControllerTest extends WebTestCase
         $owner = $this->login($client);
         $seed = $this->seed($owner, 'Redundant Group Hospital', 'redundant-profile-group', 'Redundant Group Hospital unit');
         $eventId = $this->closureEventId($seed['hospitalId'], 'redundant-profile-group');
-        $query = '?scope=hospital&hospital='.$seed['hospitalId'].'&period=all_time';
+        $query = '?scope=hospital&hospital='.$seed['hospitalId'].'&period=all';
 
         $client->request(Request::METHOD_GET, '/statistics/closure-analytics/profiles'.$query);
         $this->assertResponseIsSuccessful();

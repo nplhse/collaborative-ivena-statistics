@@ -46,7 +46,7 @@ final class ClosureAnalyticsFilterRequestResolverTest extends TestCase
     {
         $request = new Request([
             'scope' => 'public',
-            'period' => 'all_time',
+            'period' => 'all',
             'closureDepartments' => '4',
             'closureSpecialities' => '5',
             'closureCareLevels' => 'inpatient',
@@ -71,7 +71,7 @@ final class ClosureAnalyticsFilterRequestResolverTest extends TestCase
         self::assertSame([18], $filter->hospitalIds);
         self::assertTrue($filter->hospitalIdsSubmitted);
         self::assertSame(
-            ['scope' => 'public', 'period' => 'all_time'],
+            ['scope' => 'public', 'period' => 'all'],
             ClosureAnalyticsFilterRequestResolver::withoutFilters($request->query->all()),
         );
     }

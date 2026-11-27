@@ -139,7 +139,7 @@ final class AnalysisExplorerExportControllerTest extends WebTestCase
             'period' => ['type' => 'year', 'year' => 2024, 'quarter' => null, 'month' => null],
         ]));
         $allTimeCsv = $this->exportCsv($client, $this->analysisState([
-            'period' => ['type' => 'all_time', 'year' => null, 'quarter' => null, 'month' => null],
+            'period' => ['type' => 'all', 'year' => null, 'quarter' => null, 'month' => null],
         ]));
 
         self::assertSame(3, $this->csvFooterTotal($yearCsv));
