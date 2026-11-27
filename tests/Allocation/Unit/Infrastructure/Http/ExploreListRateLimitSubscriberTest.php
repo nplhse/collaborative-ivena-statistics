@@ -81,6 +81,23 @@ final class ExploreListRateLimitSubscriberTest extends TestCase
         self::assertNull($event->getResponse());
     }
 
+    /** #1675: the limiter key holds hashes of user and IP, never the raw client IP. */
+    public function testLimiterKeyHoldsNoRawIpAddress(): void
+    {
+        $tokenStorage = $this->createStub(TokenStorageInterface::class);
+        $tokenStorage->method('getToken')->willReturn(null);
+
+        $storage = new InMemoryStorage();
+        $subscriber = new ExploreListRateLimitSubscriber($this->createFactory(storage: $storage), $tokenStorage);
+        $request = Request::create('/explore/allocation', Request::METHOD_GET, server: ['REMOTE_ADDR' => '203.0.113.7']);
+
+        $subscriber->onKernelRequest($this->createRequestEvent($request));
+
+        $keys = implode("\n", array_keys((array) new \ReflectionProperty(InMemoryStorage::class, 'buckets')->getValue($storage)));
+        self::assertStringNotContainsString('203.0.113.7', $keys);
+        self::assertStringContainsString(sprintf('explore_list_%s_%s', sha1('anon'), sha1('203.0.113.7')), $keys);
+    }
+
     #[DataProvider('limitedExplorePathsProvider')]
     public function testAllowsMultipleExplorePathsWhenLimitAccepted(string $path): void
     {
@@ -95,7 +112,7 @@ final class ExploreListRateLimitSubscriberTest extends TestCase
         self::assertNull($event->getResponse());
     }
 
-    private function createFactory(int $limit = 3): RateLimiterFactory
+    private function createFactory(int $limit = 3, InMemoryStorage $storage = new InMemoryStorage()): RateLimiterFactory
     {
         return new RateLimiterFactory(
             [
@@ -104,7 +121,7 @@ final class ExploreListRateLimitSubscriberTest extends TestCase
                 'limit' => $limit,
                 'interval' => '1 hour',
             ],
-            new InMemoryStorage(),
+            $storage,
         );
     }
 
