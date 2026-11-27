@@ -14,10 +14,10 @@ use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 /**
  * Replaces schema public with a dump (ADR 038, "Restore").
  *
- * clear() drops schema public and creates an empty one, as bin/ops/restore-database.sh does. stash() renames it
+ * clear() drops schema public and creates an empty one. stash() renames it
  * (`pre_restore_<time>`) instead and creates an empty one, so a rollback is possible; both run in one
  * transaction. pg_restore then restores the dump's entries without PostGIS objects and without the entry that
- * creates schema public, as bin/ops/restore-database.sh does. A rollback drops the new schema and renames the old
+ * creates schema public. A rollback drops the new schema and renames the old
  * one back; after success the old schema is dropped.
  *
  * @psalm-suppress UnusedClass Wired via #[AsAlias] for DatabaseRestorerInterface.

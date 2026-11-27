@@ -1,7 +1,7 @@
 .DEFAULT_GOAL = help
 .PHONY: help install install-dev install-guard setup-dev setup-prod prod upgrade-dev upgrade-prod \
         upgrade warmup update-security-advisories start build up down logs db-readonly-role compile consume asset \
-        backup-db backup-files backup backup-verify backup-restore restore-db verify-restore-baseline verify-restore env-check \
+        backup backup-verify backup-restore env-check \
         fixtures trans trans-de trans-all trans-de-all lint analyse check fix ci ci-full cs \
         static-analysis audit security check-phpunit-suite-dirs composer-validate check-conflicts \
         lint-yaml lint-container check-deprecations lint-xliff lint-trans lint-trans-de \
@@ -210,23 +210,6 @@ backup-verify: ## Verify the newest backup in BACKUP_DIR, or BACKUP=<directory> 
 
 backup-restore: ## Restore the newest backup in BACKUP_DIR, or BACKUP=<directory>; asks first (app:backup:restore; Docker database when it runs)
 	@BACKUP_PG_TOOLS=$${BACKUP_PG_TOOLS:-$$($(DOCKER) compose ps --status running --services 2>/dev/null | grep -qx database && echo docker || echo local)} $(CONSOLE) app:backup:restore $(BACKUP)
-
-backup-db: ## Legacy: PostgreSQL dump only (bin/ops script, no manifest)
-	@./bin/ops/backup-database.sh
-
-backup-files: ## Legacy: archive var/imports and var/media only (bin/ops script, no manifest)
-	@./bin/ops/backup-files.sh
-
-restore-db: ## Restore DB from BACKUP_FILE=var/backups/....dump RESTORE_CONFIRM=yes
-	@if [ -z "$(BACKUP_FILE)" ]; then echo "Set BACKUP_FILE=var/backups/ivena-stats-db-....dump" >&2; exit 1; fi
-	@if [ "$(RESTORE_CONFIRM)" != "yes" ]; then echo "Set RESTORE_CONFIRM=yes to confirm destructive restore." >&2; exit 1; fi
-	@RESTORE_CONFIRM=yes BACKUP_FILE="$(BACKUP_FILE)" ./bin/ops/restore-database.sh
-
-verify-restore-baseline: ## Save DB metrics snapshot for restore drill
-	@./bin/ops/verify-restore.sh baseline
-
-verify-restore: ## Compare current DB metrics with saved baseline (exit 1 on mismatch)
-	@./bin/ops/verify-restore.sh verify
 
 env-check: ## Validate environment variables (dev profile; use --check-profile=beta on server)
 	@$(CONSOLE) app:env:check --skip-database
