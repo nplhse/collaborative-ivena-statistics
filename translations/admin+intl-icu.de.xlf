@@ -2775,7 +2775,7 @@
       </trans-unit>
       <trans-unit id="navInsp06de" resname="navigation.inspector.form.user_placeholder">
         <source>navigation.inspector.form.user_placeholder</source>
-        <target>Benutzername (leer: du)</target>
+        <target>Benutzername (leer: Sie selbst)</target>
       </trans-unit>
       <trans-unit id="navInsp07de" resname="navigation.inspector.form.route">
         <source>navigation.inspector.form.route</source>
@@ -2799,7 +2799,7 @@
       </trans-unit>
       <trans-unit id="navInsp12de" resname="navigation.inspector.evaluated_for_current">
         <source>navigation.inspector.evaluated_for_current</source>
-        <target>Berechtigungen werden für dich ausgewertet.</target>
+        <target>Berechtigungen werden für Sie ausgewertet.</target>
       </trans-unit>
       <trans-unit id="navInsp13de" resname="navigation.inspector.evaluated_for_user">
         <source>navigation.inspector.evaluated_for_user</source>
@@ -3479,7 +3479,7 @@
       </trans-unit>
       <trans-unit id="geo14061744d845a0" resname="flash.admin.district.fetch.invalid_token">
         <source>flash.admin.district.fetch.invalid_token</source>
-        <target>Die Anfrage ist abgelaufen. Bitte versuche es erneut.</target>
+        <target>Die Anfrage ist abgelaufen. Bitte versuchen Sie es erneut.</target>
       </trans-unit>
       <trans-unit id="geo14061e183e4aff" resname="admin.dispatch_area.field.districts">
         <source>admin.dispatch_area.field.districts</source>

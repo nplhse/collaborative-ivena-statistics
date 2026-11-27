@@ -1375,7 +1375,7 @@
       </trans-unit>
       <trans-unit id="statsAex36h" resname="stats.analysis_explorer.empty_state.no_data_help">
         <source>stats.analysis_explorer.empty_state.no_data_help</source>
-        <target>Ändere Zeitraum oder Umfang. Ein weiterer Import füllt keinen Zeitraum, in dem schlicht keine Zuweisungen liegen.</target>
+        <target>Ändern Sie Zeitraum oder Umfang. Ein weiterer Import füllt keinen Zeitraum, in dem schlicht keine Zuweisungen liegen.</target>
       </trans-unit>
       <trans-unit id="statsAexNs" resname="stats.analysis_explorer.empty_state.no_source">
         <source>stats.analysis_explorer.empty_state.no_source</source>
@@ -1383,7 +1383,7 @@
       </trans-unit>
       <trans-unit id="statsAexNsh" resname="stats.analysis_explorer.empty_state.no_source_help">
         <source>stats.analysis_explorer.empty_state.no_source_help</source>
-        <target>Importiere den ersten IVENA-Datensatz, um diese Auswertung zu starten.</target>
+        <target>Importieren Sie den ersten IVENA-Datensatz, um diese Auswertung zu starten.</target>
       </trans-unit>
       <trans-unit id="statsAexFlt" resname="stats.analysis_explorer.empty_state.filtered">
         <source>stats.analysis_explorer.empty_state.filtered</source>
@@ -5099,7 +5099,7 @@
       </trans-unit>
       <trans-unit id="statsTlIdxDe02" resname="stats.top_lists.index.intro">
         <source>stats.top_lists.index.intro</source>
-        <target>Wähle eine Rangliste, um Anzahlen und Anteile der Zuweisungen für deinen aktuellen Statistik-Vergleich und Zeitraum zu sehen.</target>
+        <target>Wählen Sie eine Rangliste, um Anzahlen und Anteile der Zuweisungen für Ihren aktuellen Statistik-Vergleich und Zeitraum zu sehen.</target>
       </trans-unit>
       <trans-unit id="statsTlIdxDe03" resname="stats.top_lists.index.open">
         <source>stats.top_lists.index.open</source>
@@ -5119,7 +5119,7 @@
       </trans-unit>
       <trans-unit id="A6663c0816" resname="stats.reports.index.intro">
         <source>stats.reports.index.intro</source>
-        <target>Wähle einen vordefinierten Bericht, um eine kompakte Zusammenfassung für deinen aktuellen Statistik-Vergleich zu sehen.</target>
+        <target>Wählen Sie einen vordefinierten Bericht, um eine kompakte Zusammenfassung für Ihren aktuellen Statistik-Vergleich zu sehen.</target>
       </trans-unit>
       <trans-unit id="Aa574b48a3" resname="stats.reports.index.open">
         <source>stats.reports.index.open</source>
@@ -7123,7 +7123,7 @@
       </trans-unit>
       <trans-unit id="statsAexAs62" resname="stats.analysis_explorer.assistant.step_lead.source">
         <source>stats.analysis_explorer.assistant.step_lead.source</source>
-        <target>Lege fest, ob die Analyse Zuweisungen oder Krankenhäuser verwendet.</target>
+        <target>Legen Sie fest, ob die Analyse Zuweisungen oder Krankenhäuser verwendet.</target>
       </trans-unit>
       <trans-unit id="statsAexAs63" resname="stats.analysis_explorer.assistant.summary.edit">
         <source>stats.analysis_explorer.assistant.summary.edit</source>
@@ -7428,7 +7428,7 @@
       <trans-unit id="statsClosureVolumeGapLabelDe" resname="stats.closure.volume.gap_label"><source>stats.closure.volume.gap_label</source><target>{hours} h ausgeblendet</target></trans-unit>
       <trans-unit id="statsClosureVolumeGapShortLabelDe" resname="stats.closure.volume.gap_short_label"><source>stats.closure.volume.gap_short_label</source><target>{hours} h</target></trans-unit>
       <trans-unit id="statsClosureVolumeGapHintDe" resname="stats.closure.volume.gap_hint"><source>stats.closure.volume.gap_hint</source><target>Die Diagramme zeigen {outside} Stunden vor dem Beginn, die ersten und letzten {inside} Stunden der Schließung und {outside} Stunden nach dem Ende. Die {hours} Stunden dazwischen sind ausgeblendet und grau markiert. Die Kennzahlen oben und die Tabelle unten zählen die ganze Schließung.</target></trans-unit>
-      <trans-unit id="statsClosureChartHelpSummaryDe" resname="stats.closure.chart_help.summary"><source>stats.closure.chart_help.summary</source><target>So liest du das Diagramm</target></trans-unit>
+      <trans-unit id="statsClosureChartHelpSummaryDe" resname="stats.closure.chart_help.summary"><source>stats.closure.chart_help.summary</source><target>So lesen Sie das Diagramm</target></trans-unit>
       <trans-unit id="statsClosureVolumeHelpPointDe" resname="stats.closure.volume.help.point"><source>stats.closure.volume.help.point</source><target>Jeder Punkt ist eine Uhrstunde. Beginnt oder endet die Schließung mitten in einer Stunde, ist der Punkt kürzer und der Erwartungswert entsprechend kleiner.</target></trans-unit>
       <trans-unit id="statsClosureVolumeHelpObservedDe" resname="stats.closure.volume.help.observed"><source>stats.closure.volume.help.observed</source><target>Beobachtet: Zuweisungen, die in dieser Stunde tatsächlich eingegangen sind, gezählt wie oben beschrieben.</target></trans-unit>
       <trans-unit id="statsClosureVolumeHelpExpectedDe" resname="stats.closure.volume.help.expected"><source>stats.closure.volume.help.expected</source><target>Erwartet: übliche Zuweisungen am selben Wochentag zur selben Uhrzeit, berechnet aus {before} Wochen vor dem Beginn und {after} Wochen nach dem Ende. Die Schließung selbst zählt nie zur Referenz. Unter {slots} vergleichbaren Stunden bleibt der Wert leer.</target></trans-unit>
@@ -7549,7 +7549,7 @@
       <trans-unit id="statsClosureProfile33" resname="stats.closure.profile.course.combined"><source>stats.closure.profile.course.combined</source><target>Zusammen</target></trans-unit>
       <trans-unit id="statsClosureProfile34" resname="stats.closure.profile.course.suppressed"><source>stats.closure.profile.course.suppressed</source><target>Unter vier beitragenden Ereignissen gibt es keine Durchschnittslinie, nur die Fallzahl.</target></trans-unit>
       <trans-unit id="statsClosureProfile65" resname="stats.closure.profile.course.empty.title"><source>stats.closure.profile.course.empty.title</source><target>Noch kein typischer Verlauf</target></trans-unit>
-      <trans-unit id="statsClosureProfile66" resname="stats.closure.profile.course.empty.description"><source>stats.closure.profile.course.empty.description</source><target>Erwartete Raten setzen voraus, dass vor jedem Ereignisbeginn genug Zuweisungen in den acht Wochen davor liegen – unabhängig davon, wie viele Ereignisse insgesamt im Zeitraum sind. Fehlt diese Referenz, erscheint kein Verlauf. Importiere weiter zurückliegende Schließungsdaten, erweitere den Zeitraum, wähle eine andere Versorgungsstufe oder lockere die Filter.</target></trans-unit>
+      <trans-unit id="statsClosureProfile66" resname="stats.closure.profile.course.empty.description"><source>stats.closure.profile.course.empty.description</source><target>Erwartete Raten setzen voraus, dass vor jedem Ereignisbeginn genug Zuweisungen in den acht Wochen davor liegen – unabhängig davon, wie viele Ereignisse insgesamt im Zeitraum sind. Fehlt diese Referenz, erscheint kein Verlauf. Importieren Sie weiter zurückliegende Schließungsdaten, erweitern Sie den Zeitraum, wählen Sie eine andere Versorgungsstufe oder lockern Sie die Filter.</target></trans-unit>
       <trans-unit id="statsClosureProfile67" resname="stats.closure.profile.course.empty.filters"><source>stats.closure.profile.course.empty.filters</source><target>Filter anpassen</target></trans-unit>
       <trans-unit id="statsClosureProfile35" resname="stats.closure.profile.course.quality"><source>stats.closure.profile.course.quality</source><target>Anteil verlässlicher Stunden</target></trans-unit>
       <trans-unit id="statsClosureProfile36" resname="stats.closure.profile.course.bounds"><source>stats.closure.profile.course.bounds</source><target>Die äußeren Ereignisgrenzen sind nicht die durchgehende Schließung aller Bestandteile.</target></trans-unit>

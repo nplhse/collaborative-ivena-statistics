@@ -559,7 +559,7 @@
       </trans-unit>
       <trans-unit id="usrLblSelfDe" resname="label.user.self_profile">
         <source>label.user.self_profile</source>
-        <target>Dein Profil</target>
+        <target>Ihr Profil</target>
       </trans-unit>
       <trans-unit id="usrLblMyProfileDe" resname="label.user.my_profile">
         <source>label.user.my_profile</source>
