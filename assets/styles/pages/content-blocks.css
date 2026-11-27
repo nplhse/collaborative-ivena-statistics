@@ -6,6 +6,11 @@
     margin-top: 1.5rem;
 }
 
+/* A headline belongs to the block below it: its "Spacing after" setting sets the gap (#1710). */
+.page-content-blocks > .page-content-block--headline + .page-content-block {
+    margin-top: 0;
+}
+
 .page-content-blocks::after {
     content: '';
     display: block;
