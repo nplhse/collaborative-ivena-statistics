@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Allocation\Domain\Entity;
 
-use App\Allocation\Application\ReferenceCatalog\ReferenceNameKey;
+use App\Allocation\Domain\ReferenceNameKey;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;

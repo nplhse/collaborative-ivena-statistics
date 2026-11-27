@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Allocation\UI\Console\Command;
 
+use App\Allocation\Domain\Enum\IndicationRawReviewHealthCheckSeverity;
 use App\Allocation\Infrastructure\Query\IndicationRawReviewHealthCheckQuery;
 use App\Allocation\Infrastructure\Query\IndicationRawReviewHealthCheckResult;
-use App\Allocation\Infrastructure\Query\IndicationRawReviewHealthCheckSeverity;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;

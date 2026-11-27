@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Allocation\Infrastructure\Query;
+namespace App\Allocation\Domain\Enum;
 
 enum IndicationRawReviewHealthCheckSeverity: string
 {

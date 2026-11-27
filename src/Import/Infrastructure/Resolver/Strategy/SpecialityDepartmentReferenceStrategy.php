@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Import\Infrastructure\Resolver\Strategy;
 
-use App\Allocation\Application\ReferenceCatalog\ReferenceNameKey;
 use App\Allocation\Domain\Entity\Department;
 use App\Allocation\Domain\Entity\DepartmentAlias;
 use App\Allocation\Domain\Entity\Speciality;
 use App\Allocation\Domain\Entity\SpecialityAlias;
+use App\Allocation\Domain\ReferenceNameKey;
 use App\Allocation\Infrastructure\Repository\DepartmentRepository;
 use App\Allocation\Infrastructure\Repository\SpecialityRepository;
 use App\Import\Application\Exception\ReferenceNotFoundException;

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Allocation\Application\Explore\Catalog;
 
 use App\Allocation\Application\DTO\CatalogQualityWarning;
+use App\Allocation\Domain\Enum\IndicationRawReviewHealthCheckSeverity;
 use App\Allocation\Infrastructure\Query\IndicationRawReviewHealthCheckQuery;
-use App\Allocation\Infrastructure\Query\IndicationRawReviewHealthCheckSeverity;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**

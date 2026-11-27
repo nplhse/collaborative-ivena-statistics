@@ -16,7 +16,7 @@ use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogType;
 use App\Allocation\Application\ReferenceCatalog\ReferenceNameAliasSpec;
 use App\Allocation\Application\ReferenceCatalog\ReferenceNameCatalogGuard;
 use App\Allocation\Application\ReferenceCatalog\ReferenceNameEntry;
-use App\Allocation\Application\ReferenceCatalog\ReferenceNameKey;
+use App\Allocation\Domain\ReferenceNameKey;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\DataFixtures\Generator\Application\Catalog;
 
-use App\Allocation\Application\ReferenceCatalog\ReferenceNameKey;
 use App\Allocation\Domain\Entity\IndicationNormalized;
 use App\Allocation\Domain\Entity\IndicationRaw;
+use App\Allocation\Domain\ReferenceNameKey;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\Service\ResetInterface;

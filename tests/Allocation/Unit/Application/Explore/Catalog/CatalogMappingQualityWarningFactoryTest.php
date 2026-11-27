@@ -6,9 +6,9 @@ namespace App\Tests\Allocation\Unit\Application\Explore\Catalog;
 
 use App\Allocation\Application\DTO\CatalogQualityWarning;
 use App\Allocation\Application\Explore\Catalog\CatalogMappingQualityWarningFactory;
+use App\Allocation\Domain\Enum\IndicationRawReviewHealthCheckSeverity;
 use App\Allocation\Infrastructure\Query\IndicationRawReviewHealthCheckQuery;
 use App\Allocation\Infrastructure\Query\IndicationRawReviewHealthCheckResult;
-use App\Allocation\Infrastructure\Query\IndicationRawReviewHealthCheckSeverity;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
