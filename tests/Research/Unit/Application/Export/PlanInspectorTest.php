@@ -28,6 +28,33 @@ final class PlanInspectorTest extends TestCase
         self::assertSame([['column', ['column' => 'allocation.notes']]], $this->codes(PlanInspector::inspectPlan($plan, ['location', 'n', '_hospital_ids'], QueryKind::Aggregated)));
     }
 
+    public function testAScanBelowTheTopThatReturnsTheWholeRowIsNoReference(): void
+    {
+        // After a table rewrite Postgres lets the scan return the whole row (physical target list); the join above
+        // names the columns the query uses.
+        $plan = $this->aggregate(['h.location', 'count(*)', 'array_agg(DISTINCT a.hospital_id)']);
+        $plan['Plans'][0]['Plans'][0]['Output'] = ['a.id', 'a.hospital_id', 'a.case_id_hash', 'a.notes', 'a.public_id'];
+
+        self::assertSame([], PlanInspector::inspectPlan($plan, ['location', 'n', '_hospital_ids'], QueryKind::Aggregated));
+    }
+
+    public function testABlockedColumnPassedOnAboveAScanIsStillRefused(): void
+    {
+        // SELECT s.notes FROM (SELECT a.notes FROM allocation a LIMIT 10) s: the limit returns what the scan read.
+        $plan = [
+            'Node Type' => 'Subquery Scan',
+            'Alias' => 's',
+            'Output' => ['s.notes'],
+            'Plans' => [[
+                'Node Type' => 'Limit',
+                'Output' => ['a.notes'],
+                'Plans' => [['Node Type' => 'Seq Scan', 'Relation Name' => 'allocation', 'Schema' => 'public', 'Alias' => 'a', 'Output' => ['a.notes']]],
+            ]],
+        ];
+
+        self::assertContains(['column', ['column' => 'allocation.notes']], $this->codes(PlanInspector::inspectPlan($plan, ['notes', '_hospital_id'], QueryKind::SingleCases)));
+    }
+
     public function testATableOutsideTheAllowlistIsRefused(): void
     {
         $plan = ['Node Type' => 'Seq Scan', 'Relation Name' => 'user', 'Schema' => 'public', 'Alias' => 'u', 'Output' => ['u.username']];
