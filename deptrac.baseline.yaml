@@ -6,6 +6,8 @@ deptrac:
       - App\Allocation\Infrastructure\Repository\HospitalRepository
     App\Allocation\Application\Audit\ImportAssessmentAuditPurgeService:
       - App\Allocation\Infrastructure\Query\ImportAssessmentAuditPurgeQuery
+    App\Allocation\Application\Explore\Catalog\CatalogMappingQualityWarningFactory:
+      - App\Allocation\Infrastructure\Query\IndicationRawReviewHealthCheckQuery # #1102 application uses own query/repository (ADR 009)
     App\Allocation\Application\Explore\ExploreFilterOptionsProvider:
       - App\Allocation\Infrastructure\Repository\AssignmentRepository
       - App\Allocation\Infrastructure\Repository\DepartmentRepository
@@ -23,6 +25,12 @@ deptrac:
       - App\Allocation\UI\Form\Model\OwnHospitalAllocationsExportFormData
     App\Allocation\Application\Export\OwnHospitalAllocationsExporter:
       - App\Allocation\Infrastructure\Query\OwnHospitalAllocationsExportQuery
+    App\Allocation\Application\Geo\DistrictBoundaryFetch:
+      - App\Allocation\Infrastructure\Repository\DistrictRepository # #1102 application uses own query/repository (ADR 009)
+    App\Allocation\Application\Hospital\AssignmentRequest\HospitalAssignmentRequestDecider:
+      - App\Allocation\Infrastructure\Repository\HospitalAccessGrantRepository # #1102 application uses own query/repository (ADR 009)
+    App\Allocation\Application\Hospital\AssignmentRequest\HospitalAssignmentRequestService:
+      - App\Allocation\Infrastructure\Repository\HospitalAssignmentRequestRepository # #1102 application uses own query/repository (ADR 009)
     App\Allocation\Application\Indication\IndicationMatchSuggestionService:
       - App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository
     App\Allocation\Application\Indication\IndicationRawReviewNavigator:
@@ -45,6 +53,8 @@ deptrac:
       - App\Allocation\Infrastructure\Repository\DepartmentRepository
     App\Allocation\Domain\Entity\DispatchArea:
       - App\Allocation\Infrastructure\Repository\DispatchAreaRepository
+    App\Allocation\Domain\Entity\District:
+      - App\Allocation\Infrastructure\Repository\DistrictRepository # #1102 entity repositoryClass (ADR 008)
     App\Allocation\Domain\Entity\Hospital:
       - App\Allocation\Infrastructure\Repository\HospitalRepository
     App\Allocation\Domain\Entity\HospitalAccessGrant:
@@ -77,6 +87,8 @@ deptrac:
       - App\Allocation\UI\Http\DTO\AreaListQueryParametersDTO
     App\Allocation\Infrastructure\Repository\HospitalRepository:
       - App\Allocation\UI\Http\DTO\HospitalQueryParametersDTO
+    App\Allocation\Infrastructure\Repository\IndicationGroupRepository:
+      - App\Allocation\UI\Http\DTO\SpecialityQueryParametersDTO # #1102 repository reads the list query DTO, like its sibling DTOs
     App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository:
       - App\Allocation\UI\Http\DTO\IndicationQueryParametersDTO
     App\Allocation\Infrastructure\Repository\IndicationRawRepository:
@@ -92,6 +104,8 @@ deptrac:
       - App\Allocation\UI\Http\DTO\SecondaryTransportQueryParametersDTO
     App\Allocation\Infrastructure\Repository\SpecialityRepository:
       - App\Allocation\UI\Http\DTO\SpecialityQueryParametersDTO
+    App\Allocation\Infrastructure\Repository\StateRepository:
+      - App\Allocation\UI\Http\DTO\SpecialityQueryParametersDTO # #1102 repository reads the list query DTO, like its sibling DTOs
     App\Allocation\Infrastructure\Security\Voter\HospitalVoter:
       - App\Import\Application\Service\ImportListAccess
     App\Allocation\UI\Console\Command\AuditIndicationReviewCommand:
@@ -99,6 +113,10 @@ deptrac:
       - App\Allocation\Infrastructure\Query\IndicationRawReviewHealthCheckResult
     App\Allocation\UI\Console\Command\BackfillAllocationIndicationNormalizedCommand:
       - App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface
+    App\Allocation\UI\Console\Command\CheckDispatchAreasCommand:
+      - App\Allocation\Infrastructure\Query\DispatchAreaShapeStatusQuery # #1102 UI uses own repository/query/voter (ADR 009)
+    App\Allocation\UI\Form\HospitalAssignmentRequestType:
+      - App\Allocation\Infrastructure\Repository\HospitalRepository # #1102 UI uses own repository/query/voter (ADR 009)
     App\Allocation\UI\Form\IndicationRawReviewType:
       - App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository
     App\Allocation\UI\Form\OwnHospitalAllocationsExportType:
@@ -109,6 +127,8 @@ deptrac:
       - App\Allocation\Infrastructure\Repository\OccasionRepository
       - App\Allocation\Infrastructure\Repository\SecondaryTransportRepository
       - App\Allocation\Infrastructure\Repository\SpecialityRepository
+    App\Allocation\UI\Form\Transformer\HospitalToPublicIdTransformer:
+      - App\Allocation\Infrastructure\Repository\HospitalRepository # #1102 UI uses own repository/query/voter (ADR 009)
     App\Allocation\UI\Form\Transformer\IndicationToIdTransformer:
       - App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository
     App\Allocation\UI\Http\Controller\Allocations\ListAllocationsController:
@@ -117,14 +137,24 @@ deptrac:
       - App\Allocation\Infrastructure\Security\Voter\AllocationVoter
     App\Allocation\UI\Http\Controller\Assignments\ListAssignmentController:
       - App\Allocation\Infrastructure\Repository\AssignmentRepository
+    App\Allocation\UI\Http\Controller\Assignments\ShowAssignmentController:
+      - App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery # #1102 UI uses own repository/query/voter (ADR 009)
     App\Allocation\UI\Http\Controller\DispatchAreas\ListDispatchAreasController:
       - App\Allocation\Infrastructure\Repository\DispatchAreaRepository
+    App\Allocation\UI\Http\Controller\DispatchAreas\ShowDispatchAreaController:
+      - App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery # #1102 UI uses own repository/query/voter (ADR 009)
     App\Allocation\UI\Http\Controller\Export\DownloadAllocationsExportController:
       - App\Allocation\Infrastructure\Security\Voter\ExportVoter
     App\Allocation\UI\Http\Controller\Export\EstimateAllocationsExportController:
       - App\Allocation\Infrastructure\Security\Voter\ExportVoter
     App\Allocation\UI\Http\Controller\Export\ShowAllocationsExportController:
       - App\Allocation\Infrastructure\Security\Voter\ExportVoter
+    App\Allocation\UI\Http\Controller\Hospitals\AssignmentRequest\ListHospitalAssignmentRequestsController:
+      - App\Allocation\Infrastructure\Repository\HospitalAssignmentRequestRepository # #1102 UI uses own repository/query/voter (ADR 009)
+    App\Allocation\UI\Http\Controller\Hospitals\AssignmentRequest\NewHospitalAssignmentRequestController:
+      - App\Allocation\Infrastructure\Repository\HospitalRepository # #1102 UI uses own repository/query/voter (ADR 009)
+    App\Allocation\UI\Http\Controller\Hospitals\AssignmentRequest\WithdrawHospitalAssignmentRequestController:
+      - App\Allocation\Infrastructure\Repository\HospitalAssignmentRequestRepository # #1102 UI uses own repository/query/voter (ADR 009)
     App\Allocation\UI\Http\Controller\Hospitals\DeleteHospitalAccessGrantController:
       - App\Allocation\Infrastructure\Security\Voter\HospitalVoter
     App\Allocation\UI\Http\Controller\Hospitals\EditHospitalAccessGrantController:
@@ -139,29 +169,61 @@ deptrac:
     App\Allocation\UI\Http\Controller\Hospitals\NewHospitalAccessGrantController:
       - App\Allocation\Infrastructure\Repository\HospitalAccessGrantRepository
       - App\Allocation\Infrastructure\Security\Voter\HospitalVoter
+    App\Allocation\UI\Http\Controller\Hospitals\ShowHospitalController:
+      - App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery # #1102 UI uses own repository/query/voter (ADR 009)
+      - App\Allocation\Infrastructure\Repository\HospitalAccessGrantRepository # #1102 UI uses own repository/query/voter (ADR 009)
+      - App\Allocation\Infrastructure\Repository\HospitalAssignmentRequestRepository # #1102 UI uses own repository/query/voter (ADR 009)
+      - App\Allocation\Infrastructure\Security\Voter\HospitalVoter # #1102 UI uses own repository/query/voter (ADR 009)
     App\Allocation\UI\Http\Controller\Indications\IndicationRawReviewWorklistController:
       - App\Allocation\Infrastructure\Query\IndicationRawOccurrenceQuery
       - App\Allocation\Infrastructure\Repository\IndicationRawRepository
       - App\Allocation\Infrastructure\Security\Voter\IndicationRawReviewVoter
     App\Allocation\UI\Http\Controller\Indications\ListIndicationController:
+      - App\Allocation\Infrastructure\Query\IndicationNormalizedListStatsQuery # #1102 UI uses own repository/query/voter (ADR 009)
+      - App\Allocation\Infrastructure\Query\IndicationRawOccurrenceQuery # #1102 UI uses own repository/query/voter (ADR 009)
       - App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository
       - App\Allocation\Infrastructure\Repository\IndicationRawRepository
+    App\Allocation\UI\Http\Controller\Indications\ListIndicationGroupController:
+      - App\Allocation\Infrastructure\Repository\IndicationGroupRepository # #1102 UI uses own repository/query/voter (ADR 009)
     App\Allocation\UI\Http\Controller\Indications\ReviewIndicationRawController:
       - App\Allocation\Infrastructure\Query\IndicationRawOccurrenceQuery
       - App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository
       - App\Allocation\Infrastructure\Security\Voter\IndicationRawReviewVoter
+    App\Allocation\UI\Http\Controller\Indications\ShowIndicationGroupController:
+      - App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery # #1102 UI uses own repository/query/voter (ADR 009)
+      - App\Allocation\Infrastructure\Repository\IndicationGroupRepository # #1102 UI uses own repository/query/voter (ADR 009)
+    App\Allocation\UI\Http\Controller\Indications\ShowIndicationNormalizedController:
+      - App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery # #1102 UI uses own repository/query/voter (ADR 009)
+      - App\Allocation\Infrastructure\Query\Catalog\CatalogIndicationNormalizationQuery # #1102 UI uses own repository/query/voter (ADR 009)
+      - App\Allocation\Infrastructure\Security\Voter\IndicationRawReviewVoter # #1102 UI uses own repository/query/voter (ADR 009)
     App\Allocation\UI\Http\Controller\Infections\ListInfectionController:
       - App\Allocation\Infrastructure\Repository\InfectionRepository
+    App\Allocation\UI\Http\Controller\Infections\ShowInfectionController:
+      - App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery # #1102 UI uses own repository/query/voter (ADR 009)
     App\Allocation\UI\Http\Controller\MciCases\ListMciCasesController:
+      - App\Allocation\Infrastructure\Repository\HospitalRepository # #1102 UI uses own repository/query/voter (ADR 009)
       - App\Allocation\Infrastructure\Repository\MciCaseRepository
+      - App\Import\Infrastructure\Repository\ImportRepository # #1102 reads a repository of another context (no rule for foreign infrastructure)
     App\Allocation\UI\Http\Controller\Occasions\ListOccasionsController:
       - App\Allocation\Infrastructure\Repository\OccasionRepository
+    App\Allocation\UI\Http\Controller\Occasions\ShowOccasionController:
+      - App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery # #1102 UI uses own repository/query/voter (ADR 009)
     App\Allocation\UI\Http\Controller\SecondaryTransports\ListSecondaryTransportsController:
       - App\Allocation\Infrastructure\Repository\SecondaryTransportRepository
+    App\Allocation\UI\Http\Controller\SecondaryTransports\ShowSecondaryTransportController:
+      - App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery # #1102 UI uses own repository/query/voter (ADR 009)
     App\Allocation\UI\Http\Controller\Specialities\ListDepartmentController:
       - App\Allocation\Infrastructure\Repository\DepartmentRepository
     App\Allocation\UI\Http\Controller\Specialities\ListSpecialitiesController:
       - App\Allocation\Infrastructure\Repository\SpecialityRepository
+    App\Allocation\UI\Http\Controller\Specialities\ShowDepartmentController:
+      - App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery # #1102 UI uses own repository/query/voter (ADR 009)
+    App\Allocation\UI\Http\Controller\Specialities\ShowSpecialityController:
+      - App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery # #1102 UI uses own repository/query/voter (ADR 009)
+    App\Allocation\UI\Http\Controller\States\ListStatesController:
+      - App\Allocation\Infrastructure\Repository\StateRepository # #1102 UI uses own repository/query/voter (ADR 009)
+    App\Allocation\UI\Http\Controller\States\ShowStateController:
+      - App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery # #1102 UI uses own repository/query/voter (ADR 009)
     App\Content\Application\Media\MediaDimensionsBackfillService:
       - App\Content\Infrastructure\Media\LocalMediaFileLocator
       - App\Content\Infrastructure\Media\MediaDimensionsExtractor
@@ -181,10 +243,15 @@ deptrac:
       - App\Content\Infrastructure\Repository\PageRepository
     App\Content\Application\Page\PageSidebarDataProvider:
       - App\Content\Infrastructure\Repository\PostRepository
+    App\Content\Application\Sitemap\XmlSitemapProvider:
+      - App\Content\Infrastructure\Repository\PageTranslationRepository # #1102 application uses own query/repository (ADR 009)
+      - App\Content\Infrastructure\Repository\PostRepository # #1102 application uses own query/repository (ADR 009)
     App\Content\Domain\Entity\Media:
       - App\Content\Infrastructure\Repository\MediaRepository
     App\Content\Domain\Entity\Page:
       - App\Content\Infrastructure\Repository\PageRepository
+    App\Content\Domain\Entity\PageTranslation:
+      - App\Content\Infrastructure\Repository\PageTranslationRepository # #1102 entity repositoryClass (ADR 008)
     App\Content\Domain\Entity\Post:
       - App\Content\Infrastructure\Repository\PostRepository
     App\Content\Domain\Entity\PostCategory:
@@ -200,6 +267,8 @@ deptrac:
       - App\Content\Infrastructure\Repository\PostTagRepository
     App\Content\UI\Http\Controller\DefaultController:
       - App\Content\Infrastructure\Repository\PostRepository
+    App\Content\UI\Http\Controller\PageController:
+      - App\Content\Infrastructure\Repository\PageTranslationRepository # #1102 UI uses own repository/query/voter (ADR 009)
     App\Engagement\Application\MonthlyReminderSender:
       - App\Engagement\Infrastructure\Repository\MonthlyReminderDispatchRepository
       - App\User\Domain\Entity\User
@@ -240,6 +309,8 @@ deptrac:
     App\Import\Application\Service\ImportBulkReprocessService:
       - App\Import\Infrastructure\Repository\ImportBatchRunRepository
       - App\Import\Infrastructure\Repository\ImportRepository
+    App\Import\Application\Service\ImportClosuresDispatcher:
+      - App\Import\Infrastructure\Repository\ImportRepository # #1102 application uses own query/repository (ADR 009)
     App\Import\Application\Service\ImportDeletionService:
       - App\Import\Infrastructure\Repository\ImportBatchRunItemRepository
     App\Import\Application\Service\ImportRelatedDataCleanupService:
@@ -276,6 +347,8 @@ deptrac:
       - App\Import\Infrastructure\Analysis\Export\RejectAnalysisExporterRegistry
     App\Import\UI\Console\NotifyUserResolver:
       - App\User\Infrastructure\Repository\UserRepository
+    App\Import\UI\Form\ImportCreateType:
+      - App\Import\Infrastructure\Security\Voter\ImportCreateVoter # #1102 UI uses own repository/query/voter (ADR 009)
     App\Import\UI\Http\Controller\BulkImportActionController:
       - App\Import\Infrastructure\Security\Voter\ImportVoter
     App\Import\UI\Http\Controller\DeleteImportController:
@@ -287,7 +360,12 @@ deptrac:
     App\Import\UI\Http\Controller\ListImportController:
       - App\Import\Infrastructure\Query\ImportBatchProgressQuery
       - App\Import\Infrastructure\Query\ListImportsQuery
+      - App\Import\Infrastructure\Security\Voter\ImportCreateVoter # #1102 UI uses own repository/query/voter (ADR 009)
       - App\Import\Infrastructure\Security\Voter\ImportVoter
+    App\Import\UI\Http\Controller\NewImportController:
+      - App\Import\Infrastructure\Security\Voter\ImportCreateVoter # #1102 UI uses own repository/query/voter (ADR 009)
+    App\Import\UI\Http\Controller\PendingImportUploadController:
+      - App\Import\Infrastructure\Security\Voter\ImportCreateVoter # #1102 UI uses own repository/query/voter (ADR 009)
     App\Import\UI\Http\Controller\ProcessingImportController:
       - App\Import\Infrastructure\Security\Voter\ImportVoter
     App\Import\UI\Http\Controller\ReprocessImportController:
@@ -311,8 +389,16 @@ deptrac:
     App\Onboarding\Application\OnboardingStepCatalog:
       - App\Allocation\Application\Allocations\AllocationListHospitalScopeResolver
       - App\Allocation\Application\Service\HospitalPermissionAccess
+      - App\Allocation\Infrastructure\Repository\HospitalAssignmentRequestRepository # #1102 reads a repository of another context (no rule for foreign infrastructure)
+    App\Onboarding\Application\WhatsNew\WhatsNewService:
+      - App\Onboarding\Infrastructure\Repository\UserWhatsNewDismissalRepository # #1102 application uses own query/repository (ADR 009)
+      - App\Onboarding\Infrastructure\Repository\WhatsNewReleaseRepository # #1102 application uses own query/repository (ADR 009)
     App\Onboarding\Domain\Entity\UserOnboardingStep:
       - App\Onboarding\Infrastructure\Repository\UserOnboardingStepRepository
+    App\Onboarding\Domain\Entity\UserWhatsNewDismissal:
+      - App\Onboarding\Infrastructure\Repository\UserWhatsNewDismissalRepository # #1102 entity repositoryClass (ADR 008)
+    App\Onboarding\Domain\Entity\WhatsNewRelease:
+      - App\Onboarding\Infrastructure\Repository\WhatsNewReleaseRepository # #1102 entity repositoryClass (ADR 008)
     App\Statistics\Application\ClinicalFeaturesProvider:
       - App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsResult
     App\Statistics\Application\ClinicalFeaturesQuery:
@@ -346,10 +432,15 @@ deptrac:
       - App\Statistics\Infrastructure\Query\IndicationDashboard\Dto\IndicationDashboardMetricsRow
     App\Statistics\Application\IndicationGroup\IndicationGroupMemberCompareService:
       - App\Statistics\Infrastructure\Query\IndicationGroup\IndicationGroupMemberMetricsQuery
+    App\Statistics\Application\Insights\InsightSearchService:
+      - App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder # #1102 builds statistics URLs (Application → UI, Statistics gap)
+    App\Statistics\Application\Insights\InsightValueDirectoryService:
+      - App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder # #1102 builds statistics URLs (Application → UI, Statistics gap)
     App\Statistics\Application\MessageHandler\RebuildAllocationStatsProjectionHandler:
       - App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewGroups
     App\Statistics\Application\Overview\OverviewChartsFactory:
       - App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsResult
+      - App\Statistics\Infrastructure\Query\Overview\Dto\OverviewSliceData # #1102 application uses own query/repository (ADR 009)
       - App\Statistics\Infrastructure\Query\Overview\OverviewQueryCriteria
       - App\Statistics\Infrastructure\Query\Overview\OverviewSliceQuery
     App\Statistics\Application\Overview\OverviewDefaultPeriodResolver:
@@ -362,6 +453,8 @@ deptrac:
       - App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder
     App\Statistics\Application\Overview\OverviewPopulationProfileFactory:
       - App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsResult
+    App\Statistics\Application\Overview\OverviewSelfBenchmarkFrameFactory:
+      - App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder # #1102 builds statistics URLs (Application → UI, Statistics gap)
     App\Statistics\Application\Overview\OverviewTopReportsFactory:
       - App\Statistics\Infrastructure\Query\Overview\OverviewQueryCriteria
       - App\Statistics\Infrastructure\Query\Overview\OverviewTopEntitiesBatchQuery
@@ -372,6 +465,13 @@ deptrac:
     App\Statistics\Application\StatisticsScopeResolver:
       - App\Statistics\Infrastructure\Query\Overview\GetDistinctHospitalIdsByCohortQuery
       - App\Statistics\Infrastructure\Query\Overview\GetDistinctHospitalIdsByStateQuery
+    App\Statistics\Application\StatisticsSourceDataProbe:
+      - App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery # #1102 application uses own query/repository (ADR 009)
+    App\Statistics\Application\SummarizedReport\Monthly\MonthlyReportBuilder:
+      - App\Kpi\Infrastructure\Repository\KpiDailyRepository # #1102 reads a repository of another context (no rule for foreign infrastructure)
+      - App\Statistics\Infrastructure\Query\Overview\GetOverviewDashboardMetricsQuery # #1102 application uses own query/repository (ADR 009)
+      - App\Statistics\Infrastructure\Query\Overview\OverviewQueryCriteria # #1102 application uses own query/repository (ADR 009)
+      - App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery # #1102 application uses own query/repository (ADR 009)
     App\Statistics\Application\TopDiagnosesQuery:
       - App\Statistics\Infrastructure\Query\ProjectionDiagnosisQuery
       - App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery

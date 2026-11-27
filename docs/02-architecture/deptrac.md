@@ -55,6 +55,10 @@ Known existing violations are recorded in [`deptrac.baseline.yaml`](../../deptra
 
 **Do not** add skip rules for new violations without documenting the reason. When fixing a baseline entry, remove it from `deptrac.baseline.yaml`.
 
+Entries added by hand carry the reason as a comment on the line, with the issue and the category from the table above,
+for example `- App\…\HospitalRepository # #1102 UI uses own repository/query/voter (ADR 009)`. Regenerating the
+baseline drops these comments, so add or remove single entries by hand instead.
+
 Regenerate baseline after intentional architecture changes:
 
 ```bash
