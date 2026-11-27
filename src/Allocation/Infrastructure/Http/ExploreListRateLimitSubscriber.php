@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Allocation\Infrastructure\Http;
 
+use App\Shared\Application\RateLimit\ClientRateLimit;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\Request;
@@ -47,10 +48,8 @@ final readonly class ExploreListRateLimitSubscriber
 
         $user = $this->tokenStorage->getToken()?->getUser();
         $userKey = $user instanceof UserInterface ? $user->getUserIdentifier() : 'anon';
-        $limiterKey = sprintf('explore_list_%s_%s', sha1($userKey), $request->getClientIp() ?? 'unknown');
-
-        $limit = $this->exploreListLimiter->create($limiterKey)->consume(1);
-        if ($limit->isAccepted()) {
+        // User and IP are hashed like in every other limiter key (#1675): the cache keeps no raw IP address.
+        if (ClientRateLimit::acceptUserAndIp($this->exploreListLimiter, 'explore_list', $userKey, $request)) {
             return;
         }
 
