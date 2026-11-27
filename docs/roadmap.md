@@ -14,6 +14,7 @@ each release contained is listed in the [changelog](../CHANGELOG.md).
 | Foundation Complete | v0.2-beta | September – October 2026 | Done |
 | Feature Complete | v0.3-beta | November 2026 | Done |
 | Hardening Complete | v0.4-beta | January 2027 | In progress |
+| Platform Ready | v0.5-beta | February 2027 | Planned |
 | Release candidate | v1.0.0-rc.1 | February 2027 | Planned |
 | Stable release | v1.0.0 | March 2027 | Planned |
 | After 1.0 | – | from 2027 | Backlog |
@@ -82,8 +83,18 @@ release made with Gitflow (ADR 024) through a `release/*` branch:
 No new features. IVENA becomes technically ready for the release candidate: no known critical
 issues affecting security, data integrity or core functionality remain. That means consistent
 numbers across all analysis surfaces, no plausible-looking statistics from incomplete data,
-an authorization and CSP review, regression tests for the critical workflows, user and
-operations documentation, and the Symfony 8.2 upgrade.
+an authorization and CSP review, regression tests for the critical workflows, and user and
+operations documentation.
+
+### Platform Ready (v0.5-beta)
+
+No new features either. IVENA 1.0 ships on a current, supported platform and with a short path
+to the next long-term support release of Symfony (8.4 LTS), so that later work goes into the
+product instead of catching up on upgrades. That means the Symfony 8.2 upgrade with selective
+adoption of its features, no open deprecations, CI on the current PHP and PostgreSQL versions,
+current admin and frontend packages, automated update checks and a documented platform support
+policy. The regression tests from v0.4-beta are the safety net for these upgrades; anything that
+changes user-visible behaviour moves to After 1.0.
 
 ### Release candidate (v1.0.0-rc.1)
 
