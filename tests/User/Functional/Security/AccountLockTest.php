@@ -55,7 +55,11 @@ final class AccountLockTest extends WebTestCase
         $this->client->request(Request::METHOD_GET, '/settings/account');
         self::assertResponseRedirects();
 
-        self::assertSame(1, $this->countRows("SELECT COUNT(*) FROM notification WHERE type = 'security.account_locked' AND recipient_id = ?", [$user->getId()]));
+        // An unknown username gets the same answer and counts for nobody.
+        $this->login('nobody', 'wrong-password', '192.0.2.6');
+        self::assertSelectorTextContains('.alert.alert-danger', 'Invalid credentials.');
+
+        self::assertSame(1, $this->countRows("SELECT COUNT(*) FROM notification WHERE type = 'security.account_locked'"));
         self::assertSame(1, $this->countRows("SELECT COUNT(*) FROM audit_log WHERE intent = 'user.login.account_locked'"));
     }
 
