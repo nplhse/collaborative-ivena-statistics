@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Statistics\UI\Http\Controller;
 
+use App\Statistics\Application\StatisticsQueryKeys;
 use App\Statistics\Application\TopList\TopListLimitPolicy;
 use App\Statistics\Application\TopList\TopListPageSizePolicy;
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 
 final readonly class TopListsRequestModelFactory
 {

@@ -8,8 +8,8 @@ use App\Allocation\Application\DTO\CatalogAction;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\Insights\InsightDimensionKey;
+use App\Statistics\Application\StatisticsQueryKeys;
 use App\Statistics\Application\TopList\TopListCatalogCrossReference;
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 

@@ -16,7 +16,7 @@ use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerQueryKeys;
 use App\Statistics\AnalysisExplorer\Domain\PresentationConfig;
 use App\Statistics\Application\DTO\StatisticsFilter;
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
+use App\Statistics\Application\StatisticsQueryKeys;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;

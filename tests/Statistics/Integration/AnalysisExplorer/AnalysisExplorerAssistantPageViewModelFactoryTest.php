@@ -16,8 +16,8 @@ use App\Statistics\AnalysisExplorer\UI\Http\Controller\AnalysisExplorerAssistant
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Statistics\Application\StatisticsQueryKeys;
 use App\Statistics\UI\Form\Data\StatisticsScopePeriodFormData;
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\Request;
 

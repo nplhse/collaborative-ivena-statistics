@@ -7,7 +7,7 @@ namespace App\Statistics\UI\Http\Controller;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterNotice;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
+use App\Statistics\Application\StatisticsQueryKeys;
 use Symfony\Component\HttpFoundation\Request;
 
 final class StatisticsPublicScopeRedirector

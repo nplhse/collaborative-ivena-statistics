@@ -7,7 +7,6 @@ namespace App\Statistics\Application;
 use App\Allocation\Application\Filter\OptionalRelationFilter;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Statistics\Application\DTO\StatisticsDrawerFilter;
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\Request;
 

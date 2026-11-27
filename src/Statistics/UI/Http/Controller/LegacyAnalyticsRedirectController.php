@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Statistics\UI\Http\Controller;
 
 use App\Statistics\AnalysisExplorer\Application\ExplorerLegacyAnalyticsViewMapper;
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
+use App\Statistics\Application\StatisticsQueryKeys;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;

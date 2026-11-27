@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\UI\Http\Controller;
 
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
+use App\Statistics\Application\StatisticsQueryKeys;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;

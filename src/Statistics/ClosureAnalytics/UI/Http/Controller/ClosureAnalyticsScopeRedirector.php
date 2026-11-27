@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Statistics\ClosureAnalytics\UI\Http\Controller;
 
 use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Statistics\Application\StatisticsQueryKeys;
 use App\Statistics\ClosureAnalytics\Application\ClosureAnalyticsHospitalScope;
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use App\User\Domain\Entity\User;
 
 /**

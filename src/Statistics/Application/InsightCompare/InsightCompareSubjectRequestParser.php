@@ -7,7 +7,7 @@ namespace App\Statistics\Application\InsightCompare;
 use App\Statistics\Application\IndicationDashboard\IndicationSubjectType;
 use App\Statistics\Application\InsightCompare\DTO\InsightCompareSubjectPair;
 use App\Statistics\Application\Insights\InsightDimensionKey;
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
+use App\Statistics\Application\StatisticsQueryKeys;
 use Symfony\Component\HttpFoundation\Request;
 
 final readonly class InsightCompareSubjectRequestParser

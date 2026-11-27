@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Statistics\UI\Http;
 
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
+use App\Statistics\Application\StatisticsQueryKeys;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;

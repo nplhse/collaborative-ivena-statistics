@@ -6,9 +6,9 @@ namespace App\Statistics\Benchmarking\Application;
 
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Statistics\Application\StatisticsQueryKeys;
 use App\Statistics\Benchmarking\UI\Form\Data\BenchmarkSelectionFormData;
 use App\Statistics\Benchmarking\UI\Form\Data\BenchmarkSelectionSideFormData;
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 
 final readonly class BenchmarkSelectionQueryBuilder
 {

@@ -19,13 +19,13 @@ use App\Statistics\Application\Insights\HospitalInsightSelector;
 use App\Statistics\Application\Insights\HospitalInsightTrend;
 use App\Statistics\Application\Overview\OverviewPeriodComparisonService;
 use App\Statistics\Application\StatisticsPeriodResolver;
+use App\Statistics\Application\StatisticsQueryKeys;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkMetricKey;
 use App\Statistics\ClosedDepartmentAssignments\Application\ClosedDepartmentShareMath;
 use App\Statistics\ClosedDepartmentAssignments\Infrastructure\Query\ClosedDepartmentMetricsQuery;
 use App\Statistics\Infrastructure\Query\Overview\GetOverviewDashboardMetricsQuery;
 use App\Statistics\Infrastructure\Query\Overview\OverviewQueryCriteria;
 use App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery;
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 

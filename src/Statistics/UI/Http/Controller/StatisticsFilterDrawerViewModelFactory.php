@@ -7,7 +7,7 @@ namespace App\Statistics\UI\Http\Controller;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Allocation\Infrastructure\Repository\InfectionRepository;
 use App\Statistics\AnalysisExplorer\Application\AnalysisFilterChoiceProvider;
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
+use App\Statistics\Application\StatisticsQueryKeys;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 

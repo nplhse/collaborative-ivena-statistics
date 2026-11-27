@@ -7,7 +7,7 @@ namespace App\Statistics\Benchmarking\Application;
 use App\Statistics\Application\Contract\HospitalAccessInterface;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
+use App\Statistics\Application\StatisticsQueryKeys;
 use App\User\Domain\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 

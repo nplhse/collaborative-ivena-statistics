@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Statistics\UI\Http\Controller;
 
+use App\Statistics\Application\StatisticsQueryKeys;
 use App\Statistics\Application\TopList\TopListDefinitionRegistry;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 

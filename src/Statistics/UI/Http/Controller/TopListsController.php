@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Statistics\UI\Http\Controller;
 
 use App\Statistics\Application\DTO\StatisticsFilter;
+use App\Statistics\Application\StatisticsQueryKeys;
 use App\Statistics\Application\TopList\TopListDefinitionInterface;
 use App\Statistics\Application\TopList\TopListDefinitionRegistry;
 use App\Statistics\Application\TopList\TopListResultLoader;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;

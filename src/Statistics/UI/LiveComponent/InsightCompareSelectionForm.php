@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Statistics\UI\LiveComponent;
 
 use App\Statistics\Application\Insights\InsightSearchService;
+use App\Statistics\Application\StatisticsQueryKeys;
 use App\Statistics\Benchmarking\Application\BenchmarkSelectionQueryBuilder;
 use App\Statistics\Benchmarking\UI\Form\Data\BenchmarkSelectionSideFormData;
 use App\Statistics\UI\Application\StatisticsFilterSide;
 use App\Statistics\UI\Form\TopListComparisonSelectionType;
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
