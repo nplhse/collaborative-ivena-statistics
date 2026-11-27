@@ -1087,7 +1087,7 @@
       </trans-unit>
       <trans-unit id="RA06" resname="email.registration_attempt.not_you">
         <source>email.registration_attempt.not_you</source>
-        <target>If it was not you, you can ignore this email. Your account was not changed and no new account was created. If you receive this email repeatedly, please contact an administrator.</target>
+        <target>If it was not you, you can ignore this email. Your account was not changed and no new account was created.</target>
       </trans-unit>
       <trans-unit id="RA07" resname="email.registration_attempt.cta">
         <source>email.registration_attempt.cta</source>

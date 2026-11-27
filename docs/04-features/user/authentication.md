@@ -121,8 +121,7 @@ the issue). Usernames are public in Explore, so a taken username is still shown 
 - **Address of an existing account** (compared lower-cased): no account is created and the visitor gets the same
   redirect to `/register/check-email`. `ExistingAccountRegistrationNotifier` mails the existing account instead
   (`@User/registration/registration_attempt_email.html.twig`): someone tried to register with this address, its
-  username, a link to the password reset and to the login, and the advice to contact an administrator if it
-  happens repeatedly. The password is hashed in both cases so the answer time
+  username, a link to the password reset and to the login, and the confirmation that nothing was changed. The password is hashed in both cases so the answer time
   stays similar; both mails go through `async_mail`.
 - **Flooding:** at most one such mail per account within 24 hours (`registration_attempt_notice`); further attempts
   get the same answer, no mail, and a `security.registration.existing_email_notice_limited` log entry. The

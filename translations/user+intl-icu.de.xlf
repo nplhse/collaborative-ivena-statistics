@@ -1087,7 +1087,7 @@
       </trans-unit>
       <trans-unit id="DeRA06" resname="email.registration_attempt.not_you">
         <source>email.registration_attempt.not_you</source>
-        <target>Falls Sie es nicht waren, können Sie diese E-Mail ignorieren. Ihr Konto wurde nicht geändert und es wurde kein neues Konto angelegt. Wenn Sie diese E-Mail wiederholt erhalten, wenden Sie sich bitte an eine:n Administrator:in.</target>
+        <target>Falls Sie es nicht waren, können Sie diese E-Mail ignorieren. Ihr Konto wurde nicht geändert und es wurde kein neues Konto angelegt.</target>
       </trans-unit>
       <trans-unit id="DeRA07" resname="email.registration_attempt.cta">
         <source>email.registration_attempt.cta</source>
