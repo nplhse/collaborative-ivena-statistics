@@ -8,9 +8,9 @@ use App\Shared\Application\Navigation\Menu\NavigationBuilder;
 use App\Shared\UI\Twig\NavigationSnapshotExtension;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Clock\ClockInterface;
-use Symfony\Component\ErrorHandler\BufferingLogger;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
+use Symfony\Component\ErrorHandler\BufferingLogger;
 use Twig\Environment;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 
