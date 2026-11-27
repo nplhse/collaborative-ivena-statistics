@@ -42,6 +42,7 @@ export default class extends Controller {
         geoUrl: { type: String, default: '' },
         casesLabel: { type: String, default: 'Allocations' },
         shareLabel: { type: String, default: 'Share' },
+        fewCasesLabel: { type: String, default: 'no or fewer than 10 allocations' },
         insideLabel: { type: String, default: 'Inside dispatch area' },
         outsideLabel: { type: String, default: 'Outside dispatch area' },
         frameSelector: {
@@ -211,6 +212,7 @@ export default class extends Controller {
                                 values,
                                 this.casesLabelValue,
                                 this.shareLabelValue,
+                                this.fewCasesLabelValue,
                             ),
                             { sticky: true },
                         );
@@ -617,7 +619,13 @@ export default class extends Controller {
             );
             layer.unbindTooltip();
             layer.bindTooltip(
-                choroplethTooltip(feature, values, this.casesLabelValue, this.shareLabelValue),
+                choroplethTooltip(
+                    feature,
+                    values,
+                    this.casesLabelValue,
+                    this.shareLabelValue,
+                    this.fewCasesLabelValue,
+                ),
                 { sticky: true },
             );
         });

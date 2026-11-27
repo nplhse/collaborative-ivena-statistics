@@ -50,6 +50,7 @@
      data-geo-map-payload-value="{{ payload|json_encode }}"
      data-geo-map-cases-label-value="{{ 'stats.isochrone_origin_map.cases'|trans({}, 'statistics') }}"
      data-geo-map-share-label-value="{{ 'stats.isochrone_origin_map.share'|trans({}, 'statistics') }}"
+     data-geo-map-few-cases-label-value="{{ 'stats.isochrone_origin_map.few_cases'|trans({min: constant('App\\Statistics\\CaseFlow\\Application\\CaseFlowPrivacyPolicy::MIN_CASES_PER_CELL')}, 'statistics') }}"
      data-geo-map-inside-label-value="{{ 'stats.case_flow.map.pin.inside'|trans({}, 'statistics') }}"
      data-geo-map-outside-label-value="{{ 'stats.case_flow.map.pin.outside'|trans({}, 'statistics') }}"
      data-geo-map-scroll-wheel-zoom-value="{{ showValueModes ? 'true' : 'false' }}"

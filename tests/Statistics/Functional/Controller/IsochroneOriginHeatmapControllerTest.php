@@ -22,7 +22,6 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Allocation\Infrastructure\Geo\HospitalIsochroneFileStore;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
-use App\Tests\Support\Geo\DispatchAreaShapes;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
@@ -34,7 +33,6 @@ use Zenstruck\Foundry\Test\Factories;
 #[ResetDatabase]
 final class IsochroneOriginHeatmapControllerTest extends WebTestCase
 {
-    use DispatchAreaShapes;
     use Factories;
     use InteractsWithAuthenticatedUser;
 
@@ -155,11 +153,9 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
             self::assertIsArray($payload);
             self::assertSame(['isochroneBands', 'hospitalPin'], $payload['compactEnabledLayers']);
             self::assertContains('originChoropleth', $payload['compactLayers']);
-            self::assertNotEmpty($payload['mapFeatures']);
-            $this->giveDispatchAreasShapes();
-            foreach ($payload['mapFeatures'] as $feature) {
-                $this->assertHasMapFeature($feature['geoKey']);
-            }
+            // Two allocations from one origin: below the threshold, so the map leaves the origin out (#1767).
+            self::assertSame([], $payload['mapFeatures']);
+            self::assertSame('no or fewer than 10 allocations', $crawler->filter('[data-testid="stats-isochrone-origin-map"]')->attr('data-geo-map-few-cases-label-value'));
             $bandCount = 0;
             foreach ($payload['bands'] as $band) {
                 $bandCount += (int) $band['count'];

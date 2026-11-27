@@ -70,6 +70,11 @@ final class CaseFlowPrivacySuppressor
     }
 
     /**
+     * Map cells for origins with at least MIN_CASES_PER_CELL cases. Smaller origins are left out, so the map shows
+     * them like an area without cases: naming them would let the "Other" bar of the origin distribution, or the
+     * share missing from 100 %, be traced back to a single origin (#1767). Shares stay against the total of all
+     * origin rows.
+     *
      * @param list<CaseFlowOriginRow> $rows
      *
      * @return list<CaseFlowMapFeature>
@@ -82,14 +87,17 @@ final class CaseFlowPrivacySuppressor
 
         $features = [];
         foreach ($rows as $row) {
-            $suppressed = $row->caseCount < CaseFlowPrivacyPolicy::MIN_CASES_PER_CELL;
+            if ($row->caseCount < CaseFlowPrivacyPolicy::MIN_CASES_PER_CELL) {
+                continue;
+            }
+
             $features[] = new CaseFlowMapFeature(
                 $row->dispatchAreaId,
                 $row->originName,
                 $geoKeyResolver($row->dispatchAreaId, $row->originName),
-                $suppressed ? 0 : $row->caseCount,
-                $suppressed ? 0.0 : round(((float) $row->caseCount / (float) $totalCases) * 100.0, 1),
-                $suppressed,
+                $row->caseCount,
+                round(((float) $row->caseCount / (float) $totalCases) * 100.0, 1),
+                false,
             );
         }
 
