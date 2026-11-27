@@ -41,6 +41,14 @@
         <source>messages.500.description</source>
         <target>Beim Laden dieser Seite ist ein Fehler aufgetreten. Das Team wurde benachrichtigt und wir werden versuchen, das Problem so schnell wie möglich zu beheben.</target>
       </trans-unit>
+      <trans-unit id="errors.msg503.title" resname="messages.503.title">
+        <source>messages.503.title</source>
+        <target>Vorübergehend nicht verfügbar</target>
+      </trans-unit>
+      <trans-unit id="errors.msg503.desc" resname="messages.503.description">
+        <source>messages.503.description</source>
+        <target>Der Dienst ist vorübergehend nicht erreichbar. Bitte versuchen Sie es in ein paar Minuten erneut.</target>
+      </trans-unit>
       <trans-unit id="errors.msg.default.title" resname="messages.default.title">
         <source>messages.default.title</source>
         <target>Fehler</target>

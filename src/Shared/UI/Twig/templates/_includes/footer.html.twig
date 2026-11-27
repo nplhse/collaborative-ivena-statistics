@@ -1,6 +1,12 @@
 <footer class="footer site-footer d-print-none mt-auto">
     <div class="container-xl">
-        <twig:Navigation:Footer />
+        {# Error pages show the stored copy of the public links and read no database (#1684, NavigationSnapshotExtension). #}
+        {% if navigation_snapshot_only ?? false %}
+            {{ navigation_snapshot('footer', app.request.locale) }}
+        {% else %}
+            <twig:Navigation:Footer />
+            {{ navigation_snapshot_refresh(app.request.locale) }}
+        {% endif %}
 
         <div class="row border-top py-3 text-center text-lg-start">
             <div class="col-12">

@@ -16,6 +16,9 @@
 {% elseif code == 500 %}
     {% set error_title = 'messages.500.title'|trans({}, 'errors') %}
     {% set error_description = 'messages.500.description'|trans({}, 'errors') %}
+{% elseif code == 503 %}
+    {% set error_title = 'messages.503.title'|trans({}, 'errors') %}
+    {% set error_description = 'messages.503.description'|trans({}, 'errors') %}
 {% else %}
     {% set error_title = 'messages.default.title'|trans({}, 'errors') %}
     {% set error_description = 'messages.default.description'|trans({}, 'errors') %}

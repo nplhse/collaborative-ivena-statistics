@@ -14,11 +14,55 @@
 </head>
 <body class="d-flex flex-column min-vh-100">
 <div class="page d-flex flex-column flex-grow-1">
-    <header class="navbar navbar-expand-md d-print-none">
+    {# No database access here (#1684): the main navigation is the stored copy of the public links, if there is one. The
+       rest mirrors the normal header (@Shared/_embeds/header.html.twig) without what reads the database: signed-in
+       users get no user menu or notifications. #}
+    {% set primary_snapshot = navigation_snapshot('primary', app.request.locale) %}
+    {% set show_sign_in = not is_granted('ROLE_USER') %}
+    {# flex-shrink-0: in the column layout of the error page the open mobile menu would otherwise overflow the header. #}
+    <header class="navbar navbar-expand-md d-print-none flex-shrink-0">
         <div class="container-xl">
-            <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3 mb-0">
-                <a href="{{ path('app_default') }}">{{ app_title }}</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3 min-w-0 flex-shrink-1 overflow-hidden mb-0">
+                <a class="text-truncate d-block" href="{{ path('app_default') }}">{{ app_title }}</a>
             </h1>
+            {% if show_sign_in %}
+                {# Language switch and the register / sign-in buttons, as on every page for visitors. #}
+                {{ include('@Shared/_includes/navbar_user.html.twig') }}
+            {% else %}
+                <div class="navbar-nav flex-row order-md-last ms-auto flex-shrink-0 align-items-center gap-1">
+                    <twig:LocaleSwitcher class="d-none d-md-flex" />
+                </div>
+            {% endif %}
+            <div class="collapse navbar-collapse" id="navbar-menu">
+                <div class="d-flex flex-column flex-md-row flex-fill align-items-stretch align-items-md-center">
+                    <ul class="navbar-nav" data-testid="error-navigation">
+                        {# HTML the application rendered itself (NavigationSnapshotExtension); the variable loses the safe flag. #}
+                        {{ primary_snapshot|raw }}
+                        {% if show_sign_in %}
+                            <li class="nav-item d-md-none">
+                                <a class="nav-link" href="{{ path('app_register') }}">
+                                    <span class="nav-link-title">
+                                        <twig:ux:icon name="tabler:user-plus" style="height: 1.5em;" />
+                                        {{ 'label.register'|trans({}, 'messages') }}
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="nav-item d-md-none">
+                                <a class="nav-link" href="{{ path('app_login') }}">
+                                    <span class="nav-link-title">
+                                        <twig:ux:icon name="tabler:login" style="height: 1.5em;" />
+                                        {{ 'label.login'|trans({}, 'messages') }}
+                                    </span>
+                                </a>
+                            </li>
+                        {% endif %}
+                        <twig:LocaleSwitcher variant="menu" class="d-md-none" />
+                    </ul>
+                </div>
+            </div>
         </div>
     </header>
 
