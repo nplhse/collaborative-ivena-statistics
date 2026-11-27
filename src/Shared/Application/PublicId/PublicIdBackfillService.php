@@ -6,6 +6,7 @@ namespace App\Shared\Application\PublicId;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\Uid\Uuid;
 
 final readonly class PublicIdBackfillService
@@ -31,6 +32,7 @@ final readonly class PublicIdBackfillService
     /** @psalm-suppress PossiblyUnusedMethod Symfony autowires this service */
     public function __construct(
         private Connection $connection,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -47,7 +49,7 @@ final readonly class PublicIdBackfillService
         $selectedTables = $this->resolveTables($tables);
         $updatedByTable = [];
         $remainingByTable = [];
-        $startedAt = microtime(true);
+        $startedAt = $this->seconds();
 
         foreach ($selectedTables as $table) {
             if ($dryRun) {
@@ -69,7 +71,7 @@ final readonly class PublicIdBackfillService
 
             if (
                 $maxRuntimeSeconds > 0
-                && (microtime(true) - $startedAt) >= $maxRuntimeSeconds
+                && ($this->seconds() - $startedAt) >= $maxRuntimeSeconds
                 && $remainingByTable[$table] > 0
             ) {
                 foreach (self::TABLE_ORDER as $remainingTable) {
@@ -124,7 +126,7 @@ final readonly class PublicIdBackfillService
         while (true) {
             $runControl?->throwIfStopRequested();
 
-            if ($maxRuntimeSeconds > 0 && (microtime(true) - $startedAt) >= $maxRuntimeSeconds) {
+            if ($maxRuntimeSeconds > 0 && ($this->seconds() - $startedAt) >= $maxRuntimeSeconds) {
                 break;
             }
 
@@ -196,5 +198,11 @@ final readonly class PublicIdBackfillService
         return (int) $this->connection->fetchOne(
             sprintf('SELECT COUNT(*) FROM %s WHERE public_id IS NULL', $table),
         );
+    }
+
+    /** Seconds of the clock, for the runtime limit (ADR 021: no wall clock, so tests can advance it). */
+    private function seconds(): float
+    {
+        return (float) $this->clock->now()->format('U.u');
     }
 }

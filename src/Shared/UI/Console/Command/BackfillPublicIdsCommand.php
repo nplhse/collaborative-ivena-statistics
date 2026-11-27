@@ -9,6 +9,7 @@ use App\Shared\Application\PublicId\PublicIdBackfillInterruptedException;
 use App\Shared\Application\PublicId\PublicIdBackfillRunControl;
 use App\Shared\Application\PublicId\PublicIdBackfillService;
 use App\Shared\UI\Console\Input\BackfillPublicIdsInput;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\MapInput;
 use Symfony\Component\Console\Command\SignalableCommandInterface;
@@ -24,6 +25,7 @@ final class BackfillPublicIdsCommand implements SignalableCommandInterface
 
     public function __construct(
         private readonly PublicIdBackfillService $backfillService,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -61,7 +63,7 @@ final class BackfillPublicIdsCommand implements SignalableCommandInterface
         }
 
         $this->runControl = new PublicIdBackfillRunControl();
-        $startedAt = microtime(true);
+        $startedAt = $this->clock->now();
 
         try {
             $result = $this->backfillService->run(
@@ -101,7 +103,7 @@ final class BackfillPublicIdsCommand implements SignalableCommandInterface
             return PublicIdBackfillExitCode::SUCCESS;
         }
 
-        $elapsed = microtime(true) - $startedAt;
+        $elapsed = (float) $this->clock->now()->format('U.u') - (float) $startedAt->format('U.u');
         if ($result->completed) {
             $io->success(sprintf('Backfill finished in %.2fs.', $elapsed));
 
