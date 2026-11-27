@@ -26,6 +26,22 @@ final class DashboardControllerScopeTest extends DashboardControllerTestCase
         $this->assertSelectorNotExists('[data-testid="stats-scope-primary"]');
     }
 
+    /** #1609: the browser title follows the locale instead of a hard-coded "Overview". */
+    public function testPageTitleIsTranslated(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=last_12_months');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains('title', 'Overview –');
+
+        $client->followRedirects(true);
+        $client->request(Request::METHOD_GET, '/locale/switch/de?_target_path=/statistics/?scope=public&period=last_12_months');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains('title', 'Übersicht –');
+    }
+
     public function testHospitalCohortWithTooFewHospitalsRedirectsToPublic(): void
     {
         $client = $this->createClientAsRoleUser();

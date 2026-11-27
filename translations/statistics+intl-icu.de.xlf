@@ -5025,6 +5025,10 @@
         <source>stats.overview.pretitle</source>
         <target>Statistik</target>
       </trans-unit>
+      <trans-unit id="statsOvTitleDe" resname="stats.overview.title">
+        <source>stats.overview.title</source>
+        <target>Übersicht</target>
+      </trans-unit>
       <trans-unit id="DstatsOvSbLoad01" resname="stats.overview.self_benchmark.loading">
         <source>stats.overview.self_benchmark.loading</source>
         <target>Kennzahlen werden geladen…</target>
