@@ -15,7 +15,7 @@ final class BackupCodeGeneratorTest extends TestCase
 
     public function testGeneratesTenDifferentCodesInTheDisplayFormat(): void
     {
-        $result = new BackupCodeGenerator(self::HASH_COST)->generate();
+        $result = new BackupCodeGenerator()->generate(self::HASH_COST);
 
         self::assertCount(10, $result['codes']);
         self::assertCount(10, array_unique($result['codes']));
@@ -25,7 +25,7 @@ final class BackupCodeGeneratorTest extends TestCase
 
     public function testEachHashVerifiesItsOwnCode(): void
     {
-        $result = new BackupCodeGenerator(self::HASH_COST)->generate();
+        $result = new BackupCodeGenerator()->generate(self::HASH_COST);
 
         self::assertTrue(password_verify(User::normalizeBackupCode($result['codes'][0]), $result['hashes'][0]));
         self::assertFalse(password_verify(User::normalizeBackupCode($result['codes'][1]), $result['hashes'][0]));
@@ -33,7 +33,7 @@ final class BackupCodeGeneratorTest extends TestCase
 
     public function testTheConfiguredCostIsUsed(): void
     {
-        $result = new BackupCodeGenerator(self::HASH_COST)->generate();
+        $result = new BackupCodeGenerator()->generate(self::HASH_COST);
 
         self::assertSame(self::HASH_COST, password_get_info($result['hashes'][0])['options']['cost']);
     }

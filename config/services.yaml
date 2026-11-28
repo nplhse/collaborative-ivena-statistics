@@ -132,10 +132,6 @@ services:
             $referenceWeeksAfter: '%app.closure_volume.reference_weeks_after%'
             $minimumReferenceSlots: '%app.closure_volume.minimum_reference_slots%'
 
-    App\User\Infrastructure\Security\TwoFactor\BackupCodeGenerator:
-        arguments:
-            $hashCost: '%app.two_factor.backup_code_hash_cost%'
-
     App\User\Infrastructure\Registration\RegistrationIdentityGuard:
         alias: App\User\Infrastructure\Registration\RegistrationIdentityChecker
 
