@@ -74,12 +74,9 @@ final readonly class OverviewBenchmarkSummaryFactory
         $mixViewModel = $this->indicationMixViewModelFactory->create($request, $report->indicationMix);
         $positive = [];
         foreach ($mixViewModel->overRepresented as $row) {
-            if (null === $row->bucket->ratio) {
-                continue;
-            }
             $positive[] = new OverviewBenchmarkDeviation(
                 $row->bucket->label,
-                $row->bucket->ratio,
+                $row->ratio,
                 'above',
                 $row->insightsUrl,
             );
@@ -87,12 +84,9 @@ final readonly class OverviewBenchmarkSummaryFactory
 
         $negative = [];
         foreach ($mixViewModel->underRepresented as $row) {
-            if (null === $row->bucket->ratio) {
-                continue;
-            }
             $negative[] = new OverviewBenchmarkDeviation(
                 $row->bucket->label,
-                $row->bucket->ratio,
+                $row->ratio,
                 'below',
                 $row->insightsUrl,
             );

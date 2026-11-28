@@ -10,6 +10,8 @@ final readonly class BenchmarkIndicationMixRowViewModel
 {
     public function __construct(
         public BenchmarkDistributionBucket $bucket,
+        /** The bucket's ratio; rows exist only for buckets that have one (#1252). */
+        public float $ratio,
         public ?string $insightsUrl,
     ) {
     }
