@@ -3425,10 +3425,6 @@
         <source>stats.closed_department.compare.delta.aria</source>
         <target>{delta} versus regular assignments</target>
       </trans-unit>
-      <trans-unit id="statsCda35" resname="stats.closed_department.compare.pp">
-        <source>stats.closed_department.compare.pp</source>
-        <target>PP</target>
-      </trans-unit>
       <trans-unit id="statsCda36" resname="stats.closed_department.compare.median_transport">
         <source>stats.closed_department.compare.median_transport</source>
         <target>Median transport time</target>
