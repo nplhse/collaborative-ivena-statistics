@@ -13,7 +13,8 @@ final readonly class BenchmarkDistributionBucket
         public int $comparisonCount,
         public float $primaryShare,
         public float $comparisonShare,
-        public float $ratio,
+        /** Null when the comparison share is 0: the ratio is undefined then (#1252). */
+        public ?float $ratio,
     ) {
     }
 }

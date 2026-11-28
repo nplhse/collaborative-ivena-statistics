@@ -13,8 +13,8 @@ final class BenchmarkMetricTest extends TestCase
 {
     public function testRatioIsUndefinedWhenTheComparisonValueIsZero(): void
     {
-        // 5 vs. 0 cases: the builder stores ratio 0.0, but 5 / 0 has no value.
-        $metric = new BenchmarkMetric(BenchmarkMetricKey::Total, 5.0, 0.0, 5.0, 0.0, 0.0, BenchmarkMetricFormat::Count);
+        // 5 vs. 0 cases: 5 / 0 has no value, the builder stores null (#1252).
+        $metric = new BenchmarkMetric(BenchmarkMetricKey::Total, 5.0, 0.0, 5.0, null, null, BenchmarkMetricFormat::Count);
 
         self::assertFalse($metric->hasRatio());
     }

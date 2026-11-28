@@ -85,8 +85,8 @@ final readonly class OverviewExecutiveKpiFactory
             $primaryValue,
             $comparisonValue,
             $absoluteDelta,
-            $comparisonValue > 0.0 ? ($absoluteDelta / $comparisonValue) * 100.0 : 0.0,
-            $comparisonValue > 0.0 ? $primaryValue / $comparisonValue : 0.0,
+            $comparisonValue > 0.0 ? ($absoluteDelta / $comparisonValue) * 100.0 : null,
+            $comparisonValue > 0.0 ? $primaryValue / $comparisonValue : null,
             BenchmarkMetricFormat::Decimal,
         );
     }

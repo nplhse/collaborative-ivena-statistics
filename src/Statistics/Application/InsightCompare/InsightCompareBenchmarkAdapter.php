@@ -72,7 +72,7 @@ final readonly class InsightCompareBenchmarkAdapter
                 $comparisonNumerator,
                 $primaryShare,
                 $comparisonShare,
-                $comparisonShare > 0.0 ? $primaryShare / $comparisonShare : 0.0,
+                $comparisonShare > 0.0 ? $primaryShare / $comparisonShare : null,
             );
         }
 

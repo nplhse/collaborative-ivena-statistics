@@ -45,6 +45,51 @@ final class BenchmarkMetricBuilderTest extends TestCase
         self::assertSame(1.5, $physician->ratio);
     }
 
+    public function testRatioAndRelativeDeltaAreUndefinedWhenTheComparisonValueIsZero(): void
+    {
+        // Physician: 120 of 200 = 60 % against 0 of 1000 = 0 %. Delta +60 percentage points; ratio and relative
+        // delta have no value (#1252) instead of 0.0.
+        $result = new BenchmarkAggregationResult(
+            new BenchmarkSideCounts(
+                200, 120, 40, 20, 10, 8, 6, 0, 0, 4, 80, 60, 60,
+                50, 40, 30, 100, 80, 0, 65.0, 45.0, 46.0,
+            ),
+            new BenchmarkSideCounts(
+                1000, 0, 100, 50, 40, 30, 20, 0, 0, 10, 300, 400, 300,
+                200, 180, 120, 520, 420, 0, 60.0, 40.0, 41.0,
+            ),
+            [],
+        );
+
+        $physician = $this->findMetric($this->builder->buildKpiMetrics($result), BenchmarkMetricKey::WithPhysician);
+
+        self::assertNotNull($physician);
+        self::assertSame(0.0, $physician->comparisonValue);
+        self::assertSame(60.0, $physician->absoluteDelta);
+        self::assertNull($physician->ratio);
+        self::assertNull($physician->relativeDelta);
+        self::assertFalse($physician->hasRatio());
+    }
+
+    public function testDistributionBucketRatioIsUndefinedWhenTheComparisonShareIsZero(): void
+    {
+        // Female: 30 of 90 known against 0 of 500: share 33.3 % against 0 %, no ratio (#1252).
+        $result = new BenchmarkAggregationResult(
+            BenchmarkSideCounts::empty(),
+            BenchmarkSideCounts::empty(),
+            [
+                new BenchmarkDistributionRow('gender', 'male', null, 60, 500),
+                new BenchmarkDistributionRow('gender', 'female', null, 30, 0),
+            ],
+        );
+
+        $buckets = $this->builder->buildGenderDistribution($result)->buckets;
+
+        self::assertSame('female', $buckets[1]->key);
+        self::assertSame(0.0, $buckets[1]->comparisonShare);
+        self::assertNull($buckets[1]->ratio);
+    }
+
     public function testBuildsIndicationMixWithMinimumCounts(): void
     {
         $result = new BenchmarkAggregationResult(

@@ -114,8 +114,9 @@ final readonly class BenchmarkMetricBuilder
 
         usort($buckets, static fn (BenchmarkDistributionBucket $a, BenchmarkDistributionBucket $b): int => $b->ratio <=> $a->ratio);
 
-        $over = \array_slice(array_values(array_filter($buckets, static fn (BenchmarkDistributionBucket $b): bool => $b->ratio >= self::INDICATION_OVER_RATIO)), 0, self::TOP_INDICATION_COUNT);
-        $under = \array_slice(array_values(array_filter($buckets, static fn (BenchmarkDistributionBucket $b): bool => $b->ratio <= self::INDICATION_UNDER_RATIO)), 0, self::TOP_INDICATION_COUNT);
+        // Every bucket here has a comparison share > 0, so a ratio; the null checks keep `null <= x` from counting (#1252).
+        $over = \array_slice(array_values(array_filter($buckets, static fn (BenchmarkDistributionBucket $b): bool => null !== $b->ratio && $b->ratio >= self::INDICATION_OVER_RATIO)), 0, self::TOP_INDICATION_COUNT);
+        $under = \array_slice(array_values(array_filter($buckets, static fn (BenchmarkDistributionBucket $b): bool => null !== $b->ratio && $b->ratio <= self::INDICATION_UNDER_RATIO)), 0, self::TOP_INDICATION_COUNT);
         usort($under, static fn (BenchmarkDistributionBucket $a, BenchmarkDistributionBucket $b): int => $a->ratio <=> $b->ratio);
 
         return new BenchmarkDistribution(BenchmarkMetricKey::IndicationMix, [...$over, ...$under]);
@@ -329,7 +330,7 @@ final readonly class BenchmarkMetricBuilder
                 $row->comparisonCount,
                 $primaryShare,
                 $comparisonShare,
-                $comparisonShare > 0.0 ? $primaryShare / $comparisonShare : 0.0,
+                $comparisonShare > 0.0 ? $primaryShare / $comparisonShare : null,
             );
         }
 
@@ -370,7 +371,7 @@ final readonly class BenchmarkMetricBuilder
                 $comparisonCount,
                 $primaryShare,
                 $comparisonShare,
-                $comparisonShare > 0.0 ? $primaryShare / $comparisonShare : 0.0,
+                $comparisonShare > 0.0 ? $primaryShare / $comparisonShare : null,
             );
         }
 
@@ -397,8 +398,8 @@ final readonly class BenchmarkMetricBuilder
             (float) $primary,
             (float) $comparison,
             (float) ($primary - $comparison),
-            $comparison > 0 ? ((float) ($primary - $comparison) / (float) $comparison) * 100.0 : 0.0,
-            $comparison > 0 ? (float) $primary / (float) $comparison : 0.0,
+            $comparison > 0 ? ((float) ($primary - $comparison) / (float) $comparison) * 100.0 : null,
+            $comparison > 0 ? (float) $primary / (float) $comparison : null,
             BenchmarkMetricFormat::Count,
             $primary,
             max(1, $primary),
@@ -422,8 +423,8 @@ final readonly class BenchmarkMetricBuilder
             $primaryRate,
             $comparisonRate,
             $primaryRate - $comparisonRate,
-            $comparisonRate > 0.0 ? (($primaryRate - $comparisonRate) / $comparisonRate) * 100.0 : 0.0,
-            $comparisonRate > 0.0 ? $primaryRate / $comparisonRate : 0.0,
+            $comparisonRate > 0.0 ? (($primaryRate - $comparisonRate) / $comparisonRate) * 100.0 : null,
+            $comparisonRate > 0.0 ? $primaryRate / $comparisonRate : null,
             BenchmarkMetricFormat::Percent,
             $primaryNumerator,
             $primaryTotal,
@@ -446,8 +447,8 @@ final readonly class BenchmarkMetricBuilder
             $primaryValue,
             $comparisonValue,
             $primaryValue - $comparisonValue,
-            $comparisonValue > 0.0 ? (($primaryValue - $comparisonValue) / $comparisonValue) * 100.0 : 0.0,
-            $comparisonValue > 0.0 ? $primaryValue / $comparisonValue : 0.0,
+            $comparisonValue > 0.0 ? (($primaryValue - $comparisonValue) / $comparisonValue) * 100.0 : null,
+            $comparisonValue > 0.0 ? $primaryValue / $comparisonValue : null,
             $format,
         );
     }
@@ -481,7 +482,7 @@ final readonly class BenchmarkMetricBuilder
                 $comparisonNumerator,
                 $primaryShare,
                 $comparisonShare,
-                $comparisonShare > 0.0 ? $primaryShare / $comparisonShare : 0.0,
+                $comparisonShare > 0.0 ? $primaryShare / $comparisonShare : null,
             );
         }
 
