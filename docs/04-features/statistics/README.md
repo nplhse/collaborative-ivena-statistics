@@ -26,6 +26,7 @@
 |----------|-------------|
 | [projection-and-materialized-views.md](projection-and-materialized-views.md) | Projection table, MV refresh, test handling |
 | [statistics-filter-and-scope.md](statistics-filter-and-scope.md) | Filter scopes and comparison resolution |
+| [correctness-checklist.md](correctness-checklist.md) | Same numbers across surfaces: matrix, named exceptions, checklist for new surfaces |
 | [data-quality-indicator.md](data-quality-indicator.md) | Traffic-light badge dimensions |
 | [analysis-explorer.md](analysis-explorer.md) | Explorer V2 architecture and schema |
 | [analysis-explorer-library-standards.md](analysis-explorer-library-standards.md) | Product standards and dashboard alignment |
