@@ -13,11 +13,14 @@ use App\User\Domain\Factory\UserFactory;
 use App\User\Infrastructure\Repository\UserActivityRepository;
 use App\User\UI\Console\Command\BackfillUserActivityCommand;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
+/**
+ * Dry run and apply of `app:user-activity:backfill` over the console. What the backfill derives, that a second run
+ * writes nothing and skips rows the live recorder wrote, is in `UserActivityBackfillTest`.
+ */
 #[ResetDatabase]
 final class BackfillUserActivityCommandTest extends KernelTestCase
 {
@@ -26,63 +29,66 @@ final class BackfillUserActivityCommandTest extends KernelTestCase
     #[\Override]
     protected function setUp(): void
     {
+        parent::setUp();
+
         self::bootKernel();
     }
 
-    public function testDefaultDryRunDoesNotWriteAndApplyIsIdempotent(): void
+    public function testDefaultDryRunWritesNothing(): void
     {
-        $user = UserFactory::createOne([
-            'username' => 'activity-backfill',
-            'createdAt' => new \DateTimeImmutable('2022-01-01 08:00:00'),
-        ]);
-        $hospital = HospitalFactory::createOne([
-            'name' => 'Command Klinik',
-            'owner' => $user,
-        ]);
-        ImportFactory::createOne([
-            'createdBy' => $user,
-            'hospital' => $hospital,
-            'status' => ImportStatus::COMPLETED,
-            'createdAt' => new \DateTimeImmutable('2022-04-17 10:00:00'),
-        ]);
-
+        $alice = $this->createUserWithImport();
         $tester = $this->createCommandTester();
-        $dryRun = $tester->execute([]);
 
-        self::assertSame(Command::SUCCESS, $dryRun);
-        $display = $tester->getDisplay();
-        self::assertStringContainsString('Dry run: no rows will be written.', $display);
-        self::assertStringContainsString('Rows would be written', $display);
-        self::assertSame([], $this->activityTypes($user));
+        $tester->execute([]);
 
-        $apply = $tester->execute(['--apply' => true]);
-        self::assertSame(Command::SUCCESS, $apply);
+        $tester->assertCommandIsSuccessful();
+        self::assertStringContainsString('Dry run: no rows will be written.', $tester->getDisplay());
+        self::assertStringContainsString('Rows would be written', $tester->getDisplay());
+        self::assertSame([], $this->activityTypes($alice));
+    }
+
+    public function testApplyWritesTheActivity(): void
+    {
+        $alice = $this->createUserWithImport();
+        $tester = $this->createCommandTester();
+
+        $tester->execute(['--apply' => true]);
+
+        $tester->assertCommandIsSuccessful();
         self::assertStringContainsString('Apply mode', $tester->getDisplay());
         self::assertStringContainsString('Rows written', $tester->getDisplay());
-
-        $types = $this->activityTypes($user);
+        $types = $this->activityTypes($alice);
         self::assertContains(UserActivityType::JOINED, $types);
         self::assertContains(UserActivityType::FIRST_IMPORT, $types);
         self::assertContains(UserActivityType::HOSPITAL_OWNER_GRANTED, $types);
-
-        $second = $tester->execute(['--apply' => true]);
-        self::assertSame(Command::SUCCESS, $second);
-        self::assertSame($types, $this->activityTypes($user));
-        self::assertStringContainsString('Skipped existing', $tester->getDisplay());
     }
 
     public function testApplyTakesPrecedenceOverDryRun(): void
     {
-        $user = UserFactory::createOne(['username' => 'both-flags']);
+        $alice = UserFactory::createOne(['username' => 'alice']);
         $tester = $this->createCommandTester();
-        $exitCode = $tester->execute([
-            '--apply' => true,
-            '--dry-run' => true,
+
+        $tester->execute(['--apply' => true, '--dry-run' => true]);
+
+        $tester->assertCommandIsSuccessful();
+        self::assertStringContainsString('Both --apply and --dry-run were passed', $tester->getDisplay());
+        self::assertContains(UserActivityType::JOINED, $this->activityTypes($alice));
+    }
+
+    private function createUserWithImport(): User
+    {
+        $alice = UserFactory::createOne([
+            'username' => 'alice',
+            'createdAt' => new \DateTimeImmutable('2022-01-01 08:00:00'),
+        ]);
+        ImportFactory::createOne([
+            'createdBy' => $alice,
+            'hospital' => HospitalFactory::createOne(['name' => 'Command Klinik', 'owner' => $alice]),
+            'status' => ImportStatus::COMPLETED,
+            'createdAt' => new \DateTimeImmutable('2022-04-17 10:00:00'),
         ]);
 
-        self::assertSame(Command::SUCCESS, $exitCode);
-        self::assertStringContainsString('Both --apply and --dry-run were passed', $tester->getDisplay());
-        self::assertContains(UserActivityType::JOINED, $this->activityTypes($user));
+        return $alice;
     }
 
     /**

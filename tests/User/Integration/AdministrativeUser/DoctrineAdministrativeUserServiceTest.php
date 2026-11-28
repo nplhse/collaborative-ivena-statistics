@@ -185,6 +185,23 @@ final class DoctrineAdministrativeUserServiceTest extends KernelTestCase
         $this->service()->delete($user);
     }
 
+    public function testDeleteThrowsWhenOtherRecordsReferenceTheUser(): void
+    {
+        $alice = UserFactory::createOne(['username' => 'alice', 'email' => 'alice@example.test']);
+        $bob = UserFactory::createOne(['username' => 'bob', 'email' => 'bob@example.test']);
+        // alice created the hospital bob owns: the foreign key from hospital.created_by blocks the deletion
+        HospitalFactory::createOne(['owner' => $bob, 'createdBy' => $alice, 'name' => 'Referenced Hospital']);
+
+        try {
+            $this->service()->delete($alice);
+            self::fail('Expected UserNotDeletableException for a referenced user.');
+        } catch (UserNotDeletableException $exception) {
+            self::assertSame(UserNotDeletableException::REFERENCED, $exception->getMessage());
+        }
+
+        self::assertSame(1, self::getContainer()->get(UserRepository::class)->count(['username' => 'alice']));
+    }
+
     private function service(): AdministrativeUserService
     {
         /** @var AdministrativeUserService $service */

@@ -6,173 +6,154 @@ namespace App\Tests\User\Unit\UI\Console\Command;
 
 use App\User\Application\AdministrativeUser\AdministrativeUserService;
 use App\User\Application\AdministrativeUser\AdministrativeUserValidationException;
+use App\User\Application\AdministrativeUser\CreateUserInput;
 use App\User\Application\AdministrativeUser\IdentityTakenException;
 use App\User\Domain\Entity\User;
 use App\User\UI\Console\Command\CreateUserCommand;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\MockObject\Stub;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\Validator\Constraints\NotCompromisedPasswordValidator;
+use Symfony\Component\Validator\ConstraintValidatorFactory;
+use Symfony\Component\Validator\Validation;
 
+/**
+ * Every answer and branch of `app:user:create`, with a stubbed service and the real constraints. That the user is stored
+ * enabled and verified with a valid password hash is in the functional `CreateUserCommandTest`; how the service
+ * validates and maps a unique constraint race is in `DoctrineAdministrativeUserServiceTest` (integration).
+ */
+#[CoversClass(CreateUserCommand::class)]
 final class CreateUserCommandTest extends TestCase
 {
-    public function testReturnsFailureWhenCreateReportsIdentityTaken(): void
+    private const string PASSWORD = 'super-secret-password';
+
+    /** @var list<CreateUserInput> */
+    private array $created = [];
+
+    public function testFailsWhenNotInteractive(): void
     {
-        $service = $this->createMock(AdministrativeUserService::class);
-        $service->expects(self::once())->method('isIdentityTaken')->willReturn(false);
-        $service->expects(self::once())->method('create')->willThrowException(new IdentityTakenException());
+        $tester = $this->tester();
 
-        $io = $this->createInteractiveIo('alice', 'alice@example.test');
-        $io->expects(self::once())->method('error')->with(IdentityTakenException::MESSAGE);
-
-        $status = new CreateUserCommand($service, $this->acceptingValidator())(
-            $io,
-            $this->interactiveInput(),
-        );
+        $status = $tester->execute([], ['interactive' => false]);
 
         self::assertSame(Command::FAILURE, $status);
+        self::assertStringContainsString('must be run interactively', $this->display($tester));
+        self::assertSame([], $this->created);
     }
 
-    public function testReturnsFailureWhenCreateReportsValidationErrors(): void
+    public function testCreatesTheUserFromTheNormalisedAnswers(): void
     {
-        $service = $this->createMock(AdministrativeUserService::class);
-        $service->expects(self::once())->method('isIdentityTaken')->willReturn(false);
-        $service->expects(self::once())->method('create')->willThrowException(
-            new AdministrativeUserValidationException(['Password is too weak.']),
-        );
+        $tester = $this->tester();
+        $tester->setInputs([' alice ', ' Alice@Example.TEST ', self::PASSWORD, self::PASSWORD, 'yes']);
 
-        $io = $this->createInteractiveIo('alice', 'alice@example.test');
-        $io->expects(self::once())->method('error')->with('Password is too weak.');
+        $tester->execute([]);
 
-        $status = new CreateUserCommand($service, $this->acceptingValidator())(
-            $io,
-            $this->interactiveInput(),
-        );
-
-        self::assertSame(Command::FAILURE, $status);
+        $tester->assertCommandIsSuccessful();
+        self::assertEquals([new CreateUserInput('alice', 'alice@example.test', self::PASSWORD, true)], $this->created);
+        self::assertStringContainsString('Created user "alice" <alice@example.test> (admin: yes).', $this->display($tester));
+        self::assertStringNotContainsString(self::PASSWORD, $this->display($tester));
     }
 
-    public function testAskValidatedRejectsInvalidAnswersThenAcceptsRetry(): void
+    public function testAsksAgainForAnInvalidUsernameAndEmail(): void
     {
-        $created = new User()->setUsername('alice')->setEmail('alice@example.test');
+        $tester = $this->tester();
+        $tester->setInputs(['ab', 'alice', 'not-an-email', 'alice@example.test', self::PASSWORD, self::PASSWORD, 'no']);
 
-        $service = $this->createMock(AdministrativeUserService::class);
-        $service->expects(self::once())->method('isIdentityTaken')->willReturn(false);
-        $service->expects(self::once())->method('create')->willReturn($created);
+        $tester->execute([]);
 
-        $validator = $this->createStub(ValidatorInterface::class);
-        $validator->method('validate')->willReturnCallback(
-            static function (mixed $value): ConstraintViolationList {
-                if ('ab' === $value || 'not-an-email' === $value) {
-                    return new ConstraintViolationList([
-                        new ConstraintViolation('Invalid value.', null, [], $value, null, $value),
-                    ]);
-                }
-
-                return new ConstraintViolationList();
-            },
-        );
-
-        $io = $this->createMock(SymfonyStyle::class);
-        $io->expects(self::exactly(2))->method('ask')->willReturnCallback(
-            static function (string $question, mixed $default, ?callable $validatorFn): string {
-                self::assertIsCallable($validatorFn);
-                unset($default);
-
-                if ('Username' === $question) {
-                    try {
-                        $validatorFn('ab');
-                        self::fail('Expected the short username to be rejected.');
-                    } catch (\InvalidArgumentException) {
-                    }
-
-                    $username = $validatorFn('alice');
-                    self::assertIsString($username);
-
-                    return $username;
-                }
-
-                try {
-                    $validatorFn('not-an-email');
-                    self::fail('Expected the invalid email to be rejected.');
-                } catch (\InvalidArgumentException) {
-                }
-
-                $email = $validatorFn('alice@example.test');
-                self::assertIsString($email);
-
-                return $email;
-            },
-        );
-        $io->expects(self::exactly(2))->method('askHidden')->willReturn('super-secret-password');
-        $io->expects(self::once())->method('confirm')->willReturn(false);
-        $io->expects(self::once())->method('success');
-
-        $status = new CreateUserCommand($service, $validator)($io, $this->interactiveInput());
-
-        self::assertSame(Command::SUCCESS, $status);
+        $tester->assertCommandIsSuccessful();
+        self::assertStringContainsString('This value is too short.', $this->display($tester));
+        self::assertStringContainsString('This value is not a valid email address.', $this->display($tester));
+        self::assertEquals([new CreateUserInput('alice', 'alice@example.test', self::PASSWORD, false)], $this->created);
     }
 
-    public function testThrowsWhenUsernameAnswerIsNotAString(): void
+    /** @return iterable<string, array{list<string>, string}> */
+    public static function passwordRetries(): iterable
     {
-        $io = $this->createMock(SymfonyStyle::class);
-        $io->expects(self::once())->method('ask')->willReturn(null);
-
-        $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage('Expected a string answer.');
-
-        new CreateUserCommand(
-            $this->createStub(AdministrativeUserService::class),
-            $this->acceptingValidator(),
-        )($io, $this->interactiveInput());
-    }
-
-    public function testThrowsWhenPasswordAnswerIsNotAString(): void
-    {
-        $service = $this->createStub(AdministrativeUserService::class);
-        $service->method('isIdentityTaken')->willReturn(false);
-
-        $io = $this->createMock(SymfonyStyle::class);
-        $io->expects(self::exactly(2))->method('ask')->willReturnOnConsecutiveCalls('alice', 'alice@example.test');
-        $io->expects(self::once())->method('askHidden')->willReturn(null);
-
-        $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage('Expected a string password.');
-
-        new CreateUserCommand($service, $this->acceptingValidator())($io, $this->interactiveInput());
+        // password answers before the admin question, message shown before the retry
+        yield 'too weak' => [['short', self::PASSWORD, self::PASSWORD], 'This value is too short.'];
+        yield 'confirmation differs' => [[self::PASSWORD, 'does-not-match-password', self::PASSWORD, self::PASSWORD], 'The password and confirmation do not match.'];
     }
 
     /**
-     * @return MockObject&SymfonyStyle
+     * @param list<string> $passwordAnswers
      */
-    private function createInteractiveIo(string $username, string $email): SymfonyStyle
+    #[DataProvider('passwordRetries')]
+    public function testAsksAgainForThePassword(array $passwordAnswers, string $message): void
     {
-        $io = $this->createMock(SymfonyStyle::class);
-        $io->method('ask')->willReturnOnConsecutiveCalls($username, $email);
-        $io->method('askHidden')->willReturn('super-secret-password');
-        $io->method('confirm')->willReturn(false);
+        $tester = $this->tester();
+        $tester->setInputs(['alice', 'alice@example.test', ...$passwordAnswers, 'no']);
 
-        return $io;
+        $tester->execute([]);
+
+        $tester->assertCommandIsSuccessful();
+        self::assertStringContainsString($message, $this->display($tester));
+        self::assertSame(self::PASSWORD, $this->created[0]->plainPassword);
+        self::assertStringNotContainsString(self::PASSWORD, $this->display($tester));
     }
 
-    private function interactiveInput(): InputInterface
+    public function testStopsBeforeThePasswordWhenTheIdentityIsTaken(): void
     {
-        $input = $this->createStub(InputInterface::class);
-        $input->method('isInteractive')->willReturn(true);
+        $tester = $this->tester(identityTaken: true);
+        $tester->setInputs(['alice', 'alice@example.test']);
 
-        return $input;
+        $status = $tester->execute([]);
+
+        self::assertSame(Command::FAILURE, $status);
+        self::assertStringContainsString(IdentityTakenException::MESSAGE, $this->display($tester));
+        self::assertStringNotContainsString('Password', $this->display($tester));
+        self::assertSame([], $this->created);
     }
 
-    private function acceptingValidator(): ValidatorInterface&Stub
+    /** @return iterable<string, array{\RuntimeException, string}> */
+    public static function createFailures(): iterable
     {
-        $validator = $this->createStub(ValidatorInterface::class);
-        $validator->method('validate')->willReturn(new ConstraintViolationList());
+        yield 'identity taken in the meantime' => [new IdentityTakenException(), IdentityTakenException::MESSAGE];
+        yield 'rejected by the service' => [new AdministrativeUserValidationException(['Password is too weak.']), 'Password is too weak.'];
+    }
 
-        return $validator;
+    #[DataProvider('createFailures')]
+    public function testReportsWhenTheServiceRefusesToCreate(\RuntimeException $exception, string $message): void
+    {
+        $tester = $this->tester(createFails: $exception);
+        $tester->setInputs(['alice', 'alice@example.test', self::PASSWORD, self::PASSWORD, 'no']);
+
+        $status = $tester->execute([]);
+
+        self::assertSame(Command::FAILURE, $status);
+        self::assertStringContainsString($message, $this->display($tester));
+        self::assertStringNotContainsString('Created user', $this->display($tester));
+    }
+
+    /** The output with SymfonyStyle's line wrapping undone. */
+    private function display(CommandTester $tester): string
+    {
+        return (string) preg_replace('/\s+/', ' ', $tester->getDisplay());
+    }
+
+    private function tester(bool $identityTaken = false, ?\RuntimeException $createFails = null): CommandTester
+    {
+        $service = $this->createStub(AdministrativeUserService::class);
+        $service->method('isIdentityTaken')->willReturn($identityTaken);
+        $service->method('create')->willReturnCallback(function (CreateUserInput $input) use ($createFails): User {
+            if ($createFails instanceof \RuntimeException) {
+                throw $createFails;
+            }
+            $this->created[] = $input;
+
+            return new User()->setUsername($input->username)->setEmail($input->email);
+        });
+
+        // The password constraints include NotCompromisedPassword; switched off as in the test environment.
+        $validator = Validation::createValidatorBuilder()
+            ->setConstraintValidatorFactory(new ConstraintValidatorFactory([
+                NotCompromisedPasswordValidator::class => new NotCompromisedPasswordValidator(new MockHttpClient(), 'UTF-8', false),
+            ]))
+            ->getValidator();
+
+        return new CommandTester(new CreateUserCommand($service, $validator));
     }
 }

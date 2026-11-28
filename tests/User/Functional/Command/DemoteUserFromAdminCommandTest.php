@@ -8,11 +8,14 @@ use App\User\Domain\Factory\UserFactory;
 use App\User\Domain\Security\UserRole;
 use App\User\UI\Console\Command\DemoteUserFromAdminCommand;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
+/**
+ * `app:user:demote-admin` with the real service and database. Every answer and branch (not interactive, invalid or
+ * unknown username, no administrator, last administrator, abort) is in the unit `DemoteUserFromAdminCommandTest`.
+ */
 #[ResetDatabase]
 final class DemoteUserFromAdminCommandTest extends KernelTestCase
 {
@@ -37,112 +40,16 @@ final class DemoteUserFromAdminCommandTest extends KernelTestCase
             'email' => 'alice@example.test',
             'roles' => [UserRole::USER, UserRole::ADMIN, UserRole::PARTICIPANT],
         ]);
-
         $tester = $this->createCommandTester();
         $tester->setInputs(['alice', 'yes']);
+
         $tester->execute([]);
 
         $tester->assertCommandIsSuccessful();
         self::assertStringContainsString('Removed ROLE_ADMIN from "alice"', $tester->getDisplay());
-
         \Zenstruck\Foundry\Persistence\refresh($user);
         self::assertNotContains(UserRole::ADMIN, $user->getRoles());
         self::assertContains(UserRole::PARTICIPANT, $user->getRoles());
-    }
-
-    public function testNonAdminIsNoOp(): void
-    {
-        UserFactory::createOne([
-            'username' => 'alice',
-            'email' => 'alice@example.test',
-        ]);
-
-        $tester = $this->createCommandTester();
-        $tester->setInputs(['alice']);
-        $tester->execute([]);
-
-        $tester->assertCommandIsSuccessful();
-        self::assertStringContainsString('does not have administrator privileges', $tester->getDisplay());
-    }
-
-    public function testUnknownUsernameFails(): void
-    {
-        $tester = $this->createCommandTester();
-        $tester->setInputs(['unknown-user']);
-        $status = $tester->execute([]);
-
-        self::assertSame(Command::FAILURE, $status);
-        self::assertStringContainsString('No user found with username "unknown-user"', $tester->getDisplay());
-    }
-
-    public function testRetriesInvalidUsernameThenDemotes(): void
-    {
-        UserFactory::new()->asAdmin()->create([
-            'username' => 'other-admin',
-            'email' => 'other-admin@example.test',
-        ]);
-        $user = UserFactory::createOne([
-            'username' => 'alice',
-            'email' => 'alice@example.test',
-            'roles' => [UserRole::USER, UserRole::ADMIN],
-        ]);
-
-        $tester = $this->createCommandTester();
-        $tester->setInputs(['ab', 'alice', 'yes']);
-        $tester->execute([]);
-
-        $tester->assertCommandIsSuccessful();
-        self::assertStringContainsString('Removed ROLE_ADMIN from "alice"', $tester->getDisplay());
-
-        \Zenstruck\Foundry\Persistence\refresh($user);
-        self::assertNotContains(UserRole::ADMIN, $user->getRoles());
-    }
-
-    public function testAbortLeavesRolesUnchanged(): void
-    {
-        UserFactory::new()->asAdmin()->create([
-            'username' => 'other-admin',
-            'email' => 'other-admin@example.test',
-        ]);
-        $user = UserFactory::createOne([
-            'username' => 'alice',
-            'email' => 'alice@example.test',
-            'roles' => [UserRole::USER, UserRole::ADMIN],
-        ]);
-
-        $tester = $this->createCommandTester();
-        $tester->setInputs(['alice', 'no']);
-        $tester->execute([]);
-
-        $tester->assertCommandIsSuccessful();
-        self::assertStringContainsString('Aborted', $tester->getDisplay());
-
-        \Zenstruck\Foundry\Persistence\refresh($user);
-        self::assertContains(UserRole::ADMIN, $user->getRoles());
-    }
-
-    public function testFailsWhenNotInteractive(): void
-    {
-        $tester = $this->createCommandTester();
-        $status = $tester->execute([], ['interactive' => false]);
-
-        self::assertSame(Command::FAILURE, $status);
-        self::assertStringContainsString('must be run interactively', $tester->getDisplay());
-    }
-
-    public function testRefusesToDemoteTheLastAdministrator(): void
-    {
-        UserFactory::new()->asAdmin()->create([
-            'username' => 'alice',
-            'email' => 'alice@example.test',
-        ]);
-
-        $tester = $this->createCommandTester();
-        $tester->setInputs(['alice']);
-        $status = $tester->execute([]);
-
-        self::assertSame(Command::FAILURE, $status);
-        self::assertStringContainsString('last remaining administrator', $tester->getDisplay());
     }
 
     private function createCommandTester(): CommandTester

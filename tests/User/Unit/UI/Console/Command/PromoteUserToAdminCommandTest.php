@@ -6,66 +6,128 @@ namespace App\Tests\User\Unit\UI\Console\Command;
 
 use App\User\Application\AdministrativeUser\AdministrativeUserService;
 use App\User\Domain\Entity\User;
+use App\User\Domain\Security\UserRole;
 use App\User\UI\Console\Command\PromoteUserToAdminCommand;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Validator\Validation;
 
+/**
+ * Every answer and branch of `app:user:promote-admin`, with a stubbed service and the real username constraints. The
+ * stored role is in the functional `PromoteUserToAdminCommandTest`; that promoting an administrator again changes
+ * nothing in `DoctrineAdministrativeUserServiceTest::testPromoteIsNoOpWhenAlreadyAdmin` (integration).
+ */
+#[CoversClass(PromoteUserToAdminCommand::class)]
 final class PromoteUserToAdminCommandTest extends TestCase
 {
-    public function testConfirmUsesFallbackWhenUserHasNoEmail(): void
+    /** @var list<User> */
+    private array $promoted = [];
+
+    public function testFailsWhenNotInteractive(): void
     {
-        $user = new User()->setUsername('alice');
+        $tester = $this->tester($this->alice());
 
-        $service = $this->createMock(AdministrativeUserService::class);
-        $service->method('findByUsername')->with('alice')->willReturn($user);
-        $service->expects(self::once())->method('promoteToAdmin')->with($user);
-
-        $io = $this->createMock(SymfonyStyle::class);
-        $io->method('ask')->willReturn('alice');
-        $io->expects(self::once())->method('confirm')->with(
-            'Grant administrator privileges to "alice" (—)?',
-            false,
-        )->willReturn(true);
-
-        $status = new PromoteUserToAdminCommand($service, $this->acceptingValidator())(
-            $io,
-            $this->interactiveInput(),
-        );
-
-        self::assertSame(Command::SUCCESS, $status);
-    }
-
-    public function testReturnsFailureWhenUsernameAnswerIsNotAString(): void
-    {
-        $io = $this->createMock(SymfonyStyle::class);
-        $io->method('ask')->willReturn(null);
-        $io->expects(self::once())->method('error')->with('No user found with the given username.');
-
-        $status = new PromoteUserToAdminCommand(
-            $this->createStub(AdministrativeUserService::class),
-            $this->acceptingValidator(),
-        )($io, $this->interactiveInput());
+        $status = $tester->execute([], ['interactive' => false]);
 
         self::assertSame(Command::FAILURE, $status);
+        self::assertStringContainsString('must be run interactively', $this->display($tester));
+        self::assertSame([], $this->promoted);
     }
 
-    private function interactiveInput(): InputInterface
+    public function testPromotesAfterConfirmation(): void
     {
-        $input = $this->createStub(InputInterface::class);
-        $input->method('isInteractive')->willReturn(true);
+        $alice = $this->alice();
+        $tester = $this->tester($alice);
+        $tester->setInputs(['alice', 'yes']);
 
-        return $input;
+        $tester->execute([]);
+
+        $tester->assertCommandIsSuccessful();
+        self::assertStringContainsString('Grant administrator privileges to "alice" (alice@example.test)?', $this->display($tester));
+        self::assertStringContainsString('Granted ROLE_ADMIN to "alice".', $this->display($tester));
+        self::assertSame([$alice], $this->promoted);
     }
 
-    private function acceptingValidator(): ValidatorInterface
+    public function testConfirmationShowsADashForAUserWithoutEmail(): void
     {
-        $validator = $this->createStub(ValidatorInterface::class);
-        $validator->method('validate')->willReturn(new ConstraintViolationList());
+        $tester = $this->tester(new User()->setUsername('alice')->setRoles([UserRole::USER]));
+        $tester->setInputs(['alice', 'no']);
 
-        return $validator;
+        $tester->execute([]);
+
+        self::assertStringContainsString('Grant administrator privileges to "alice" (—)?', $this->display($tester));
+    }
+
+    public function testAsksAgainForAnInvalidUsername(): void
+    {
+        $alice = $this->alice();
+        $tester = $this->tester($alice);
+        $tester->setInputs(['ab', 'alice', 'yes']);
+
+        $tester->execute([]);
+
+        $tester->assertCommandIsSuccessful();
+        self::assertStringContainsString('This value is too short.', $this->display($tester));
+        self::assertSame([$alice], $this->promoted);
+    }
+
+    public function testFailsForAnUnknownUsername(): void
+    {
+        $tester = $this->tester(null);
+        $tester->setInputs(['unknown-user']);
+
+        $status = $tester->execute([]);
+
+        self::assertSame(Command::FAILURE, $status);
+        self::assertStringContainsString('No user found with username "unknown-user".', $this->display($tester));
+    }
+
+    public function testAnAdministratorIsLeftAloneWithoutConfirmation(): void
+    {
+        $tester = $this->tester($this->alice()->setRoles([UserRole::USER, UserRole::ADMIN]));
+        $tester->setInputs(['alice']);
+
+        $tester->execute([]);
+
+        $tester->assertCommandIsSuccessful();
+        self::assertStringContainsString('User "alice" already has administrator privileges.', $this->display($tester));
+        self::assertStringNotContainsString('Grant administrator privileges to', $this->display($tester));
+        self::assertSame([], $this->promoted);
+    }
+
+    public function testAbortPromotesNobody(): void
+    {
+        $tester = $this->tester($this->alice());
+        $tester->setInputs(['alice', 'no']);
+
+        $tester->execute([]);
+
+        $tester->assertCommandIsSuccessful();
+        self::assertStringContainsString('Aborted.', $this->display($tester));
+        self::assertSame([], $this->promoted);
+    }
+
+    private function alice(): User
+    {
+        return new User()->setUsername('alice')->setEmail('alice@example.test')->setRoles([UserRole::USER, UserRole::PARTICIPANT]);
+    }
+
+    private function tester(?User $found): CommandTester
+    {
+        $service = $this->createStub(AdministrativeUserService::class);
+        $service->method('findByUsername')->willReturnCallback(static fn (string $username): ?User => $username === $found?->getUserIdentifier() ? $found : null);
+        $service->method('promoteToAdmin')->willReturnCallback(function (User $user): void {
+            $this->promoted[] = $user;
+        });
+
+        return new CommandTester(new PromoteUserToAdminCommand($service, Validation::createValidator()));
+    }
+
+    /** The output with SymfonyStyle's line wrapping undone. */
+    private function display(CommandTester $tester): string
+    {
+        return (string) preg_replace('/\s+/', ' ', $tester->getDisplay());
     }
 }
