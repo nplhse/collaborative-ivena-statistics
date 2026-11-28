@@ -3509,6 +3509,126 @@
         <source>admin.dispatch_area.map_shape.incomplete</source>
         <target>{count, plural, one {# boundary missing} other {# boundaries missing}}</target>
       </trans-unit>
+      <trans-unit id="sis22417567" resname="sign_in_security.menu">
+        <source>sign_in_security.menu</source>
+        <target>Sign-in security</target>
+      </trans-unit>
+      <trans-unit id="sis57CC0747" resname="sign_in_security.page.title">
+        <source>sign_in_security.page.title</source>
+        <target>Sign-in security</target>
+      </trans-unit>
+      <trans-unit id="sisBEE1B317" resname="sign_in_security.card.title">
+        <source>sign_in_security.card.title</source>
+        <target>Failed sign-ins</target>
+      </trans-unit>
+      <trans-unit id="sis5B3E5246" resname="sign_in_security.card.details">
+        <source>sign_in_security.card.details</source>
+        <target>Details</target>
+      </trans-unit>
+      <trans-unit id="sisF38FD59D" resname="sign_in_security.card.attempts">
+        <source>sign_in_security.card.attempts</source>
+        <target>failed attempts in {days} days</target>
+      </trans-unit>
+      <trans-unit id="sis4A55825D" resname="sign_in_security.card.bars_label">
+        <source>sign_in_security.card.bars_label</source>
+        <target>Failed sign-ins per day</target>
+      </trans-unit>
+      <trans-unit id="sis20C41B89" resname="sign_in_security.card.flagged_days">
+        <source>sign_in_security.card.flagged_days</source>
+        <target>{count, plural, =0 {No suspicious day} one {# suspicious day} other {# suspicious days}}</target>
+      </trans-unit>
+      <trans-unit id="sisAACD6847" resname="sign_in_security.card.locked_accounts">
+        <source>sign_in_security.card.locked_accounts</source>
+        <target>{count, plural, =0 {No locked account} one {# locked account} other {# locked accounts}}</target>
+      </trans-unit>
+      <trans-unit id="sisC1E3F41B" resname="sign_in_security.not_counted">
+        <source>sign_in_security.not_counted</source>
+        <target>not counted</target>
+      </trans-unit>
+      <trans-unit id="sis71D75B5A" resname="sign_in_security.lock.enabled">
+        <source>sign_in_security.lock.enabled</source>
+        <target>Account lock on</target>
+      </trans-unit>
+      <trans-unit id="sis80480B27" resname="sign_in_security.lock.disabled">
+        <source>sign_in_security.lock.disabled</source>
+        <target>Account lock off</target>
+      </trans-unit>
+      <trans-unit id="sis39C8A177" resname="sign_in_security.today.title">
+        <source>sign_in_security.today.title</source>
+        <target>Today</target>
+      </trans-unit>
+      <trans-unit id="sis54B1D9F0" resname="sign_in_security.column.date">
+        <source>sign_in_security.column.date</source>
+        <target>Day</target>
+      </trans-unit>
+      <trans-unit id="sis61B7C086" resname="sign_in_security.column.failures">
+        <source>sign_in_security.column.failures</source>
+        <target>Failed</target>
+      </trans-unit>
+      <trans-unit id="sisAD49F999" resname="sign_in_security.column.refused">
+        <source>sign_in_security.column.refused</source>
+        <target>Refused</target>
+      </trans-unit>
+      <trans-unit id="sisB6D8C517" resname="sign_in_security.column.identifiers">
+        <source>sign_in_security.column.identifiers</source>
+        <target>Usernames</target>
+      </trans-unit>
+      <trans-unit id="sis5C75DA27" resname="sign_in_security.column.ips">
+        <source>sign_in_security.column.ips</source>
+        <target>IPs</target>
+      </trans-unit>
+      <trans-unit id="sisD9C167F6" resname="sign_in_security.column.max_ips">
+        <source>sign_in_security.column.max_ips</source>
+        <target>Max. IPs / username</target>
+      </trans-unit>
+      <trans-unit id="sis2D4E71A4" resname="sign_in_security.column.max_identifiers">
+        <source>sign_in_security.column.max_identifiers</source>
+        <target>Max. usernames / IP</target>
+      </trans-unit>
+      <trans-unit id="sisDABA615C" resname="sign_in_security.column.locks">
+        <source>sign_in_security.column.locks</source>
+        <target>Locks</target>
+      </trans-unit>
+      <trans-unit id="sis98B839A6" resname="sign_in_security.locked.title">
+        <source>sign_in_security.locked.title</source>
+        <target>Locked accounts</target>
+      </trans-unit>
+      <trans-unit id="sis1558EF60" resname="sign_in_security.locked.none">
+        <source>sign_in_security.locked.none</source>
+        <target>No account is locked.</target>
+      </trans-unit>
+      <trans-unit id="sis79752C08" resname="sign_in_security.locked.username">
+        <source>sign_in_security.locked.username</source>
+        <target>Username</target>
+      </trans-unit>
+      <trans-unit id="sis358CB2D3" resname="sign_in_security.locked.until">
+        <source>sign_in_security.locked.until</source>
+        <target>Locked until</target>
+      </trans-unit>
+      <trans-unit id="sisB5F86ED8" resname="sign_in_security.locked.actions">
+        <source>sign_in_security.locked.actions</source>
+        <target>Actions</target>
+      </trans-unit>
+      <trans-unit id="sis02008358" resname="sign_in_security.locked.unlock">
+        <source>sign_in_security.locked.unlock</source>
+        <target>Lift lock</target>
+      </trans-unit>
+      <trans-unit id="sis297DFC7B" resname="sign_in_security.daily.title">
+        <source>sign_in_security.daily.title</source>
+        <target>Last {days} days</target>
+      </trans-unit>
+      <trans-unit id="sis07619A5B" resname="sign_in_security.daily.none">
+        <source>sign_in_security.daily.none</source>
+        <target>No day counted yet.</target>
+      </trans-unit>
+      <trans-unit id="sisC3A6C2C6" resname="sign_in_security.daily.flagged">
+        <source>sign_in_security.daily.flagged</source>
+        <target>Suspicious</target>
+      </trans-unit>
+      <trans-unit id="sis52FEF4DF" resname="sign_in_security.flash.unlocked">
+        <source>sign_in_security.flash.unlocked</source>
+        <target>The lock of {username} was lifted.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

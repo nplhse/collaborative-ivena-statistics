@@ -18,10 +18,19 @@ final class InMemoryAccountLockWriter implements AccountLockWriterInterface
 
     public int $saves = 0;
 
+    public int $unlocks = 0;
+
     #[\Override]
     public function saveLock(User $user): void
     {
         $this->savedLocks[(int) $user->getId()] = $user->getLoginLockedUntil();
         ++$this->saves;
+    }
+
+    #[\Override]
+    public function saveUnlock(User $user): void
+    {
+        $this->savedLocks[(int) $user->getId()] = $user->getLoginLockedUntil();
+        ++$this->unlocks;
     }
 }

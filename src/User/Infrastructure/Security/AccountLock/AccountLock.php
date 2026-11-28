@@ -94,6 +94,14 @@ final readonly class AccountLock
         ));
     }
 
+    /** An administrator lifts the lock (#1487): forgets earlier wrong passwords and saves the account. */
+    public function unlock(User $user): void
+    {
+        $this->clear($user);
+        $this->writer->saveUnlock($user);
+        $this->logger->info('security.login.account_unlocked', ['user_id' => $user->getId()]);
+    }
+
     /**
      * Lifts a lock and forgets earlier wrong passwords. The caller flushes, under its own audit intent; returns whether
      * the account was locked.

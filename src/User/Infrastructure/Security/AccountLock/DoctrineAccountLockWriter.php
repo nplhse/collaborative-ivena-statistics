@@ -11,7 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
 /**
- * Flushes the locked account under the audit intent INTENT_LOCKED.
+ * Flushes the account under the audit intent INTENT_LOCKED or INTENT_UNLOCKED.
  *
  * @psalm-suppress UnusedClass Wired via #[AsAlias] for AccountLockWriterInterface.
  */
@@ -19,6 +19,8 @@ use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 final readonly class DoctrineAccountLockWriter implements AccountLockWriterInterface
 {
     public const string INTENT_LOCKED = 'user.login.account_locked';
+
+    public const string INTENT_UNLOCKED = 'user.login.account_unlocked';
 
     public function __construct(
         private EntityManagerInterface $entityManager,
@@ -30,7 +32,19 @@ final readonly class DoctrineAccountLockWriter implements AccountLockWriterInter
     #[\Override]
     public function saveLock(User $user): void
     {
-        $this->auditContext->beginIntent(self::INTENT_LOCKED, []);
+        $this->flush(self::INTENT_LOCKED);
+    }
+
+    /** @psalm-suppress UnusedParam The user is managed; flushing writes its lock. */
+    #[\Override]
+    public function saveUnlock(User $user): void
+    {
+        $this->flush(self::INTENT_UNLOCKED);
+    }
+
+    private function flush(string $intent): void
+    {
+        $this->auditContext->beginIntent($intent, []);
         try {
             $this->entityManager->flush();
         } finally {

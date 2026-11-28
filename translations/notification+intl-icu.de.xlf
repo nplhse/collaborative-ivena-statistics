@@ -665,6 +665,18 @@
         <source>security.account_locked.label</source>
         <target>Konto gesperrt</target>
       </trans-unit>
+      <trans-unit id="Ntf6E6620A4" resname="admin.login_failure_pattern.title">
+        <source>admin.login_failure_pattern.title</source>
+        <target>Auffällige fehlgeschlagene Anmeldungen am {date, date, ::yMMMd}</target>
+      </trans-unit>
+      <trans-unit id="Ntf8B2BEF11" resname="admin.login_failure_pattern.message">
+        <source>admin.login_failure_pattern.message</source>
+        <target>{failures} fehlgeschlagene Anmeldungen. Ein Benutzername wurde von bis zu {maxIps} IPs versucht, eine IP hat bis zu {maxIdentifiers} Benutzernamen versucht.</target>
+      </trans-unit>
+      <trans-unit id="Ntf33D61C79" resname="admin.login_failure_pattern.label">
+        <source>admin.login_failure_pattern.label</source>
+        <target>Auffällige fehlgeschlagene Anmeldungen</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

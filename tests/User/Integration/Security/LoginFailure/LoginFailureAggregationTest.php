@@ -6,6 +6,7 @@ namespace App\Tests\User\Integration\Security\LoginFailure;
 
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Entity\LoginFailureDaily;
+use App\User\Domain\Factory\UserFactory;
 use App\User\Infrastructure\Security\LoginFailure\LoginFailureAggregation;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -45,8 +46,32 @@ final class LoginFailureAggregationTest extends DatabaseKernelTestCase
         );
     }
 
+    public function testAFlaggedDayIsAnnouncedToAdministratorsOnce(): void
+    {
+        self::bootKernel();
+        $connection = self::getContainer()->get(Connection::class);
+        UserFactory::new()->asAdmin()->create(['username' => 'admin', 'isVerified' => true]);
+        // 27 Nov: one username from 10 IPs.
+        $this->insertFailures($connection, '2026-11-27 12:00:00', 'id-alice', ['ip-1', 'ip-2', 'ip-3', 'ip-4', 'ip-5', 'ip-6', 'ip-7', 'ip-8', 'ip-9', 'ip-10']);
+        self::mockTime(new \DateTimeImmutable('2026-11-28 08:00:00', new \DateTimeZone('Europe/Berlin')));
+        $aggregation = self::getContainer()->get(LoginFailureAggregation::class);
+        $aggregation->run();
+
+        $aggregation->run();
+
+        self::assertSame(1, (int) $connection->fetchOne("SELECT COUNT(*) FROM notification WHERE type = 'admin.login_failure_pattern'"));
+    }
+
     private function insertFailure(Connection $connection, string $occurredAt): void
     {
-        $connection->insert('login_failure_event', ['occurred_at' => $occurredAt, 'kind' => 'failure', 'identifier_hash' => 'id-alice', 'ip_hash' => 'ip-1']);
+        $this->insertFailures($connection, $occurredAt, 'id-alice', ['ip-1']);
+    }
+
+    /** @param list<string> $ipHashes */
+    private function insertFailures(Connection $connection, string $occurredAt, string $identifierHash, array $ipHashes): void
+    {
+        foreach ($ipHashes as $ipHash) {
+            $connection->insert('login_failure_event', ['occurred_at' => $occurredAt, 'kind' => 'failure', 'identifier_hash' => $identifierHash, 'ip_hash' => $ipHash]);
+        }
     }
 }

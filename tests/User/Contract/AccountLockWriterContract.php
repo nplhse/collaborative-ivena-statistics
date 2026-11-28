@@ -23,14 +23,14 @@ abstract class AccountLockWriterContract extends KernelTestCase
         self::assertEquals(new \DateTimeImmutable('2026-11-27 13:00:00'), $this->storedLock($user));
     }
 
-    public function testASavedClearedLockIsGone(): void
+    public function testAnUnlockedAccountHasNoLock(): void
     {
         $user = $this->user();
         $user->lockLoginUntil(new \DateTimeImmutable('2026-11-27 13:00:00'));
         $this->writer()->saveLock($user);
         $user->clearLoginLock();
 
-        $this->writer()->saveLock($user);
+        $this->writer()->saveUnlock($user);
 
         self::assertNull($this->storedLock($user));
     }
