@@ -44,6 +44,11 @@ app:
             # ADR 040). On by default since #1567, so production is safe without extra configuration; off in dev,
             # demo and test (below). Needs APP_TWO_FACTOR_KEY, without it the obligation has no effect.
             required_for_admins: true
+        account_lock:
+            # Lock sign-in for three hours after 20 wrong passwords per hour and account (#1762). Off for now: reaching
+            # the threshold is only logged (security.login.account_lock_threshold_reached), to see how often it happens
+            # before sign-ins are refused. On in test (below).
+            enabled: false
 
     research:
         # Days of a Board voting round on a data extract request, and the time an applicant has for a requested
@@ -206,6 +211,7 @@ when@demo:
 
 # Tests sign in administrators without two-factor authentication; tests of the obligation switch it on themselves (#1567).
 # The same holds for the terms of use: tests of the login prompt set a version themselves (#1564).
+# The account lock is on, so its tests cover the enforced lock; the default (off) is covered by AccountLockTest (unit).
 when@test:
     app:
         terms:
@@ -213,3 +219,5 @@ when@test:
         security:
             two_factor:
                 required_for_admins: false
+            account_lock:
+                enabled: true

@@ -70,6 +70,7 @@ Custom app settings in `config/packages/app.yaml` (via `AppExtension`):
 | `app.import.reject_writer` | `db` | Reject persistence: `db` or `csv` |
 | `app.import.csv_reject_dir` | `var/import_rejects` | CSV reject output directory |
 | `app.encounter.data_prep.min_version` | `1.0.0` | Lowest data preparation tool version whose encounter files are accepted; older files are rejected as a whole ([encounter import](../04-features/encounter/README.md#import)) |
+| `app.security.account_lock.enabled` | `false` | Locks sign-in with password and login link for three hours after 20 wrong passwords per hour and account, and tells the owner (#1762). Off, reaching the threshold is only logged as `security.login.account_lock_threshold_reached`. On in test. See [authentication.md](../04-features/user/authentication.md#account-lock) |
 | `app.security.two_factor.required_for_admins` | `true` | Administrators must set up two-factor authentication before they can use the application and cannot switch it off (#1357, #1567, ADR 040). Always off in dev, demo and test; has no effect without `APP_TWO_FACTOR_KEY` |
 | `app.registration.blocked_email_domains` | `.ru` | Domain suffixes that silently suppress registration (exact domain or TLD; case-insensitive, label-based; UI matches a successful registration) |
 | `app.feedback.spam.*` | — | Feedback spam check: thresholds, limits, keywords ([feedback](../04-features/feedback/README.md#score)) |

@@ -185,6 +185,31 @@ A successful password login resets this limiter, so two-factor codes have their 
 `two_factor_code` ([Two-factor authentication](#two-factor-authentication)). Codes in the two-factor settings use
 `two_factor_settings_code` (5 per 15 minutes per user).
 
+## Account lock
+
+`login_throttling` does not stop many IPs from guessing one account. `AccountLock` (#1762) therefore counts wrong
+passwords per account across all IPs in `login_account_failure` (sliding window, 20 per hour). The 20th locks the
+account for three hours (`AccountLock::LOCK_DURATION`, column `user.login_locked_until`):
+
+- `AccountLockListener` refuses sign-ins with the password form and the login link while the account is locked, before
+  the password is checked, with the same "Invalid credentials." as a wrong password, so the form does not reveal the
+  account or the lock. Password confirmation of a signed-in user and two-factor codes are not affected.
+- Only a wrong password for an enabled, verified account counts. Unknown identifiers, CSRF errors, throttling and
+  refusals for disabled or unverified accounts do not, and failures during a lock neither extend it nor count.
+- The lock ends on its own after three hours, or when the owner resets the password (`ResetPasswordController`, audit
+  intent `user.password_reset_completed` with `login_lock_lifted`). Lifting a lock from the admin area follows with
+  #1487.
+- Locking writes the audit intent `user.login.account_locked`, logs `security.login.account_locked` (user id only) and
+  tells the owner once per lock with the notification `security.account_locked` (in-app and a mandatory email), which
+  points to the password reset.
+
+The lock is **off by default** (`app.security.account_lock.enabled: false` in `config/packages/app.yaml`,
+[configuration](../../06-reference/configuration.md)).
+Off, wrong passwords are counted the same way, but reaching the threshold only logs
+`security.login.account_lock_threshold_reached` (user id only, `security` channel) and starts counting again: nothing is
+locked, nobody is told and no audit entry is written. This shows how often such attacks happen before sign-ins are
+refused. An existing `login_locked_until` is ignored while the lock is off. The test environment switches it on.
+
 ## Sessions and re-authentication
 
 - Remember-me lasts 7 days (cookie `REMEMBERME`, with the demo prefix in the demo environment, ADR 023). Its signature
@@ -205,5 +230,7 @@ logged. These entries are not sent to Sentry (#1577); an aggregated view for adm
 `tests/User/Functional/Controller/SecurityControllerTest.php` covers username and email login, the generic errors and
 the shared throttling; `LoginLinkTest` covers the login link (opt-in, same answer for every request, rate limit,
 confirmation page, single use, invalidation, consent); `TwoFactorLoginTest`, `TwoFactorSettingsTest`,
-`TwoFactorObligationAndResetTest`, `SignInGatesTest` and `ResetTwoFactorCommandTest` cover the second factor; `RegistrationControllerTest` covers the registration answers for new and existing addresses; `RememberMeLoginTest` and `ConfirmPasswordControllerTest` cover
+`TwoFactorObligationAndResetTest`, `SignInGatesTest` and `ResetTwoFactorCommandTest` cover the second factor;
+`AccountLockTest` (unit: counting, duration, expiry, clearing; functional: many IPs, password reset) covers the account
+lock; `RegistrationControllerTest` covers the registration answers for new and existing addresses; `RememberMeLoginTest` and `ConfirmPasswordControllerTest` cover
 sessions and re-authentication.
