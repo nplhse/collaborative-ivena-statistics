@@ -326,7 +326,8 @@ final class TwoFactorLoginTest extends WebTestCase
         $user->enableTotpAuthentication(
             self::getContainer()->get(TwoFactorSecretCipher::class)->encrypt(self::SECRET),
             self::SECRET,
-            [password_hash(User::normalizeBackupCode(self::BACKUP_CODE), \PASSWORD_DEFAULT), password_hash('ZYXWVUTSRQ', \PASSWORD_DEFAULT)],
+            // Lowest bcrypt cost: the default cost makes every hash and every check take about 0.25 s.
+            [password_hash(User::normalizeBackupCode(self::BACKUP_CODE), \PASSWORD_BCRYPT, ['cost' => 4]), password_hash('ZYXWVUTSRQ', \PASSWORD_BCRYPT, ['cost' => 4])],
             new \DateTimeImmutable('2026-11-22 12:00:00'),
         );
         $this->entityManager()->flush();
