@@ -51,7 +51,9 @@ final class CaseIdHasherKeyTest extends KernelTestCase
 
         $hash = $this->hashOf('123456');
 
-        self::assertSame(hash_hmac('sha256', '123456', '$ecretf0rt3st', true), $hash);
+        // CI sets its own APP_SECRET, so read the effective value instead of the one in .env.test.
+        $appSecret = (string) self::getContainer()->getParameter('kernel.secret');
+        self::assertSame(hash_hmac('sha256', '123456', $appSecret, true), $hash);
     }
 
     private function hashOf(string $caseId): ?string
