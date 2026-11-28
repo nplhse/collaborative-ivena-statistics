@@ -56,6 +56,15 @@ final class PageTest extends TestCase
         self::assertSame('About us', (string) $page);
     }
 
+    public function testAnEmptyHelpKeyIsNoKey(): void
+    {
+        $page = new Page();
+
+        $page->setHelpKey('  ');
+
+        self::assertNull($page->getHelpKey());
+    }
+
     public function testHasPublishedTranslation(): void
     {
         $page = new Page();

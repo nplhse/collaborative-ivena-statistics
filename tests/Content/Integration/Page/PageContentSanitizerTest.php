@@ -7,152 +7,49 @@ namespace App\Tests\Content\Integration\Page;
 use App\Content\Application\Page\PageContentSanitizer;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
+/**
+ * Proves the `page_richtext` sanitizer configuration (config/packages/framework.yaml) behind the page content; which
+ * blocks and fields are sanitized is covered by {@see \App\Tests\Content\Unit\Page\PageContentSanitizerTest}.
+ */
 final class PageContentSanitizerTest extends KernelTestCase
 {
+    private PageContentSanitizer $sanitizer;
+
+    #[\Override]
     protected function setUp(): void
     {
         self::bootKernel();
+        $this->sanitizer = self::getContainer()->get(PageContentSanitizer::class);
     }
 
-    public function testSanitizerKeepsTrixStyleMarkupAllowedByConfig(): void
+    public function testKeepsTheMarkupTheEditorAndMediaSnippetsProduce(): void
     {
-        $sut = self::getContainer()->get(PageContentSanitizer::class);
+        $raw = "<p>Absatz</p>\n<h2>Überschrift</h2>\n<ul><li>Punkt</li></ul>"
+            .'<div>Zeile mit <strong>Fett</strong></div>'
+            .'<p>Start <a href="/help">here</a></p>'
+            .'<a href="/uploads/media/sample.png" data-fslightbox="content-gallery"><img src="/uploads/media/sample.png" alt="Sample"></a>';
 
-        $raw = <<<'HTML'
-<p>Absatz</p>
-<h2>Überschrift</h2>
-<ul><li>Punkt</li></ul>
-HTML;
+        $content = $this->sanitizer->sanitize([['type' => 'richtext', 'data' => ['html' => $raw]]]);
 
-        $out = $sut->sanitize([['type' => 'richtext', 'data' => ['html' => $raw]]]);
-        $html = (string) ($out[0]['data']['html'] ?? '');
-
-        self::assertStringContainsString('<p>', $html);
-        self::assertStringContainsString('Absatz', $html);
+        $html = (string) $content[0]['data']['html'];
+        self::assertStringContainsString('<p>Absatz</p>', $html);
         self::assertStringContainsString('<h2>', $html);
-    }
-
-    public function testSanitizerPreservesDivBlocksUsedByTrix(): void
-    {
-        $sut = self::getContainer()->get(PageContentSanitizer::class);
-
-        $raw = '<div>Zeile mit <strong>Fett</strong></div>';
-
-        $out = $sut->sanitize([['type' => 'richtext', 'data' => ['html' => $raw]]]);
-        $html = (string) ($out[0]['data']['html'] ?? '');
-
-        self::assertStringContainsString('Fett', $html);
+        self::assertStringContainsString('<li>Punkt</li>', $html);
         self::assertStringContainsString('<div>', $html);
-    }
-
-    public function testSanitizerKeepsImageTagsFromMediaSnippets(): void
-    {
-        $sut = self::getContainer()->get(PageContentSanitizer::class);
-
-        $raw = '<p>Text</p><img src="/uploads/media/sample.png" alt="Sample">';
-
-        $out = $sut->sanitize([['type' => 'richtext', 'data' => ['html' => $raw]]]);
-        $html = (string) ($out[0]['data']['html'] ?? '');
-
-        self::assertStringContainsString('<img', $html);
-        self::assertStringContainsString('/uploads/media/sample.png', $html);
-        self::assertStringContainsString('alt="Sample"', $html);
-    }
-
-    public function testSanitizerKeepsLightboxWrappedImageTagsFromMediaSnippets(): void
-    {
-        $sut = self::getContainer()->get(PageContentSanitizer::class);
-
-        $raw = '<p>Text</p><a href="/uploads/media/sample.png" data-fslightbox="content-gallery"><img src="/uploads/media/sample.png" alt="Sample"></a>';
-
-        $out = $sut->sanitize([['type' => 'richtext', 'data' => ['html' => $raw]]]);
-        $html = (string) ($out[0]['data']['html'] ?? '');
-
+        self::assertStringContainsString('<strong>Fett</strong>', $html);
+        self::assertStringContainsString('href="/help"', $html);
         self::assertStringContainsString('data-fslightbox="content-gallery"', $html);
         self::assertStringContainsString('<img', $html);
-        self::assertStringContainsString('/uploads/media/sample.png', $html);
+        self::assertStringContainsString('src="/uploads/media/sample.png"', $html);
         self::assertStringContainsString('alt="Sample"', $html);
     }
 
-    public function testSanitizerSanitizesHighlightHtml(): void
+    public function testRemovesScripts(): void
     {
-        $sut = self::getContainer()->get(PageContentSanitizer::class);
+        $content = $this->sanitizer->sanitize([['type' => 'richtext', 'data' => ['html' => '<p>Notice</p><script>alert(1)</script>']]]);
 
-        $raw = '<p>Notice</p><script>alert(1)</script>';
-
-        $out = $sut->sanitize([['type' => 'highlight', 'data' => ['html' => $raw]]]);
-        $html = (string) ($out[0]['data']['html'] ?? '');
-
+        $html = (string) $content[0]['data']['html'];
         self::assertStringContainsString('Notice', $html);
-        self::assertStringNotContainsString('<script>', $html);
-    }
-
-    public function testSanitizerSanitizesAccordionItemHtml(): void
-    {
-        $sut = self::getContainer()->get(PageContentSanitizer::class);
-
-        $raw = '<p>Answer</p><script>alert(1)</script>';
-
-        $out = $sut->sanitize([
-            [
-                'type' => 'accordion',
-                'data' => [
-                    'items' => [
-                        ['title' => 'Q', 'html' => $raw],
-                    ],
-                ],
-            ],
-        ]);
-
-        $html = (string) ($out[0]['data']['items'][0]['html'] ?? '');
-
-        self::assertStringContainsString('Answer', $html);
-        self::assertStringNotContainsString('<script>', $html);
-    }
-
-    public function testSanitizerSkipsInvalidAccordionItems(): void
-    {
-        $sut = self::getContainer()->get(PageContentSanitizer::class);
-
-        $out = $sut->sanitize([
-            [
-                'type' => 'accordion',
-                'data' => [
-                    'items' => [
-                        'invalid-item',
-                        ['title' => 'Q', 'html' => '<p>Answer</p>'],
-                    ],
-                ],
-            ],
-        ]);
-
-        self::assertCount(1, $out[0]['data']['items']);
-        self::assertSame('Answer', strip_tags((string) $out[0]['data']['items'][0]['html']));
-    }
-
-    public function testSanitizerPassesThroughNonHtmlBlocks(): void
-    {
-        $sut = self::getContainer()->get(PageContentSanitizer::class);
-
-        $block = [
-            'type' => 'headline',
-            'data' => ['text' => 'Title', 'level' => 'h2'],
-        ];
-
-        self::assertSame([$block], $sut->sanitize([$block]));
-    }
-
-    public function testSanitizerCleansTheTextOfEveryCard(): void
-    {
-        $sut = self::getContainer()->get(PageContentSanitizer::class);
-
-        $out = $sut->sanitize([['type' => 'cards', 'data' => ['items' => [
-            ['title' => 'Staff', 'html' => '<p>Start <a href="/help">here</a><script>alert(1)</script></p>'],
-        ]]]]);
-        $item = $out[0]['data']['items'][0] ?? [];
-
-        self::assertSame('Staff', $item['title'] ?? null);
-        self::assertStringContainsString('href="/help"', (string) ($item['html'] ?? ''));
-        self::assertStringNotContainsString('script', (string) ($item['html'] ?? ''));
+        self::assertStringNotContainsString('script', $html);
     }
 }

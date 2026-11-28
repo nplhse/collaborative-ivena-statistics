@@ -8,129 +8,43 @@ use App\Content\Application\Blog\PostContentSanitizer;
 use App\Content\Application\Media\MediaImageFigureHtmlBuilder;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
+/**
+ * Proves that the `page_richtext` sanitizer configuration keeps the media snippets of blog posts; decoding and the
+ * previews are covered by {@see \App\Tests\Content\Unit\Blog\PostContentSanitizerTest}.
+ */
 final class PostContentSanitizerTest extends KernelTestCase
 {
-    public function testSanitizerDecodesEntityEncodedImageSnippet(): void
+    private PostContentSanitizer $sanitizer;
+
+    #[\Override]
+    protected function setUp(): void
     {
         self::bootKernel();
-
-        $sut = self::getContainer()->get(PostContentSanitizer::class);
-
-        $raw = '<p>Intro</p>&lt;a href=&quot;/uploads/media/sample.png&quot; data-fslightbox=&quot;content-gallery&quot;&gt;&lt;img src=&quot;/uploads/media/sample.png&quot; alt=&quot;Sample&quot;&gt;&lt;/a&gt;';
-
-        $html = $sut->sanitize($raw);
-
-        self::assertStringContainsString('<img', $html);
-        self::assertStringContainsString('/uploads/media/sample.png', $html);
-        self::assertStringContainsString('data-fslightbox="content-gallery"', $html);
-        self::assertStringNotContainsString('&lt;img', $html);
+        $this->sanitizer = self::getContainer()->get(PostContentSanitizer::class);
     }
 
-    public function testSanitizerKeepsPlainImageTag(): void
+    public function testKeepsAnEntityEncodedLightboxImageSnippet(): void
     {
-        self::bootKernel();
+        $raw = '<p>Intro</p>&lt;a href=&quot;/uploads/media/sample.png&quot; data-fslightbox=&quot;content-gallery&quot;&gt;&lt;img src=&quot;/uploads/media/sample.png&quot; alt=&quot;Sample&quot;&gt;&lt;/a&gt;';
 
-        $sut = self::getContainer()->get(PostContentSanitizer::class);
-
-        $raw = '<p>Text</p><img src="/uploads/media/sample.png" alt="Sample">';
-
-        $html = $sut->sanitize($raw);
+        $html = $this->sanitizer->sanitize($raw);
 
         self::assertStringContainsString('<img', $html);
         self::assertStringContainsString('/uploads/media/sample.png', $html);
         self::assertStringContainsString('alt="Sample"', $html);
+        self::assertStringContainsString('data-fslightbox="content-gallery"', $html);
+        self::assertStringNotContainsString('&lt;img', $html);
     }
 
-    public function testSanitizerKeepsFigureWithLayoutClasses(): void
+    public function testKeepsTheFigureWithItsLayoutClasses(): void
     {
-        self::bootKernel();
+        $figure = new MediaImageFigureHtmlBuilder()->build('/uploads/media/sample.png', 'Sample', 'md', 'left');
 
-        $sut = self::getContainer()->get(PostContentSanitizer::class);
-
-        $raw = new MediaImageFigureHtmlBuilder()->build(
-            '/uploads/media/sample.png',
-            'Sample',
-            'md',
-            'left',
-        );
-
-        $html = $sut->sanitize('<p>Intro</p>'.$raw);
+        $html = $this->sanitizer->sanitize('<p>Intro</p>'.$figure);
 
         self::assertStringContainsString('<figure', $html);
         self::assertStringContainsString('page-content-image--size-md', $html);
         self::assertStringContainsString('page-content-image--float-left', $html);
         self::assertStringContainsString('float-start', $html);
-    }
-
-    public function testPreviewKeepsFirstParagraphAndStripsScript(): void
-    {
-        self::bootKernel();
-
-        $sut = self::getContainer()->get(PostContentSanitizer::class);
-        $preview = $sut->preview('<p>Safe intro</p><script>alert(1)</script><p>More</p>');
-
-        self::assertStringContainsString('<p>Safe intro</p>', $preview);
-        self::assertStringNotContainsString('<script>', $preview);
-        self::assertStringNotContainsString('More', $preview);
-    }
-
-    public function testPreviewTruncatesPlainTextWithoutParagraph(): void
-    {
-        self::bootKernel();
-
-        $sut = self::getContainer()->get(PostContentSanitizer::class);
-        $long = str_repeat('a', PostContentSanitizer::PLAIN_PREVIEW_MAX_LENGTH + 40);
-        $preview = $sut->preview($long);
-
-        self::assertStringNotContainsString('<', $preview);
-        self::assertStringEndsWith('...', $preview);
-        self::assertSame(
-            PostContentSanitizer::PLAIN_PREVIEW_MAX_LENGTH + 3,
-            mb_strlen(html_entity_decode($preview, ENT_QUOTES | ENT_HTML5, 'UTF-8')),
-        );
-    }
-
-    public function testPreviewReturnsEmptyStringForEmptyContent(): void
-    {
-        self::bootKernel();
-
-        $sut = self::getContainer()->get(PostContentSanitizer::class);
-
-        self::assertSame('', $sut->preview(''));
-        self::assertSame('', $sut->compactPreview(''));
-    }
-
-    public function testCompactPreviewStripsImagesAndFiguresFromFirstParagraph(): void
-    {
-        self::bootKernel();
-
-        $sut = self::getContainer()->get(PostContentSanitizer::class);
-        $figure = new MediaImageFigureHtmlBuilder()->build(
-            '/uploads/media/sample.png',
-            'Sample',
-            'md',
-            'none',
-        );
-        $preview = $sut->compactPreview(
-            '<p>Safe intro <img src="/uploads/media/sample.png" alt="Sample"></p>'.$figure.'<p>More</p>',
-        );
-
-        self::assertStringContainsString('Safe intro', $preview);
-        self::assertStringNotContainsString('<img', $preview);
-        self::assertStringNotContainsString('<figure', $preview);
-        self::assertStringNotContainsString('More', $preview);
-    }
-
-    public function testCompactPreviewReturnsEmptyWhenFirstParagraphIsOnlyMedia(): void
-    {
-        self::bootKernel();
-
-        $sut = self::getContainer()->get(PostContentSanitizer::class);
-        $figure = new MediaImageFigureHtmlBuilder()->build(
-            '/uploads/media/sample.png',
-            'Sample',
-        );
-
-        self::assertSame('', $sut->compactPreview('<p>'.$figure.'</p>'));
     }
 }
