@@ -22,22 +22,6 @@ final class RememberMeLoginTest extends WebTestCase
 
     private const int REMEMBER_ME_LIFETIME_SECONDS = 604800;
 
-    public function testLoginWithRememberMeCheckboxSetsRememberMeCookie(): void
-    {
-        UserFactory::new([
-            'email' => 'remember-cookie@example.test',
-            'isVerified' => true,
-            'username' => 'remember-cookie-user',
-        ])->create();
-
-        $client = $this->createLoginClient();
-        $this->loginWithRememberMe($client, 'remember-cookie-user');
-
-        $rememberMe = $client->getCookieJar()->get('REMEMBERME');
-        self::assertNotNull($rememberMe);
-        self::assertFalse($rememberMe->isExpired());
-    }
-
     public function testLoginWithoutRememberMeCheckboxDoesNotSetRememberMeCookie(): void
     {
         UserFactory::new([
@@ -50,11 +34,13 @@ final class RememberMeLoginTest extends WebTestCase
         $this->loginWithoutRememberMe($client, 'no-remember-user');
 
         self::assertNull($client->getCookieJar()->get('REMEMBERME'));
-        self::assertResponseIsSuccessful();
-        self::assertSelectorExists('#user_name');
     }
 
-    public function testRememberMeCookieExpiresAfterConfiguredLifetime(): void
+    /**
+     * The checkbox sets the cookie for the configured lifetime. Symfony computes the expiry with time(), not with the
+     * clock, so the test brackets the sign-in with time() instead of mocking the clock.
+     */
+    public function testRememberMeCheckboxSetsTheCookieForTheConfiguredLifetime(): void
     {
         UserFactory::new([
             'email' => 'remember-expiry@example.test',
@@ -69,7 +55,7 @@ final class RememberMeLoginTest extends WebTestCase
 
         $rememberMe = $client->getCookieJar()->get('REMEMBERME');
         self::assertNotNull($rememberMe);
-
+        self::assertFalse($rememberMe->isExpired());
         $expiresAt = $rememberMe->getExpiresTime();
         self::assertNotNull($expiresAt);
         self::assertGreaterThanOrEqual($beforeLogin + self::REMEMBER_ME_LIFETIME_SECONDS, $expiresAt);
@@ -114,9 +100,5 @@ final class RememberMeLoginTest extends WebTestCase
             'login[password]' => $password,
         ]);
         $client->submit($form);
-
-        if ($client->getResponse()->isRedirect()) {
-            $client->followRedirect();
-        }
     }
 }

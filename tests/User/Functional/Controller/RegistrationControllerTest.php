@@ -15,15 +15,13 @@ use App\Tests\User\Support\AlwaysAvailableRegistrationIdentityChecker;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use App\User\Infrastructure\Registration\RegistrationIdentityGuard;
-use App\User\Infrastructure\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PreFlushEventArgs;
 use Doctrine\ORM\Events;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\MailerAssertionsTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mime\Email;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -32,6 +30,15 @@ use Zenstruck\Browser\Test\HasBrowser;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
+/**
+ * The registration page over HTTP: the main flow, the controller's own branches (rate limit, suppressed domains,
+ * taken addresses and the races on the unique constraints) and the e-mail confirmation.
+ *
+ * The rules behind the form are tested lower down (#1348): usernames in UserUsernameConstraintsTest and
+ * UserUsernameTest, suppressed domains in RegistrationEmailSuppressionPolicyTest, taken identities in
+ * RegistrationIdentityCheckerTest, the admin notification in UserRegisteredNotificationSubscriberTest, the stored
+ * terms acceptance in RegistrationTermsAcceptanceTest and the password field in PasswordWidgetRenderingTest.
+ */
 #[ResetDatabase]
 final class RegistrationControllerTest extends WebTestCase
 {
@@ -42,329 +49,178 @@ final class RegistrationControllerTest extends WebTestCase
     use HasBrowser;
     use MailerAssertionsTrait;
 
+    /**
+     * @return iterable<string, array{bool}>
+     */
+    public static function cookieDecisions(): iterable
+    {
+        yield 'without a cookie decision' => [false];
+        yield 'after a cookie decision' => [true];
+    }
+
+    /** Registering never signs the user in: the address has to be confirmed first. */
+    #[DataProvider('cookieDecisions')]
+    public function testUserCanRegisterButIsNotSignedIn(bool $decidedOnCookies): void
+    {
+        $browser = $this->browser();
+        if ($decidedOnCookies) {
+            $this->acceptEssentialCookies($browser);
+        }
+
+        $browser
+            ->visit('/register')
+            ->fillField('registration_form[username]', 'alice')
+            ->fillField('registration_form[email]', 'alice@example.test')
+            ->fillField('registration_form[plainPassword]', 'super-secret-password')
+            ->checkField('registration_form[acceptTerms]')
+            ->click('Register')
+
+            ->assertSuccessful()
+            ->assertSeeIn('h2', 'Check your email')
+            ->assertSee('Your registration was almost successful.')
+            ->assertNotSee('alice')
+        ;
+        UserFactory::assert()->exists(['username' => 'alice', 'isVerified' => false]);
+    }
+
     public function testRegistrationPageHasNoMissingTranslationsInGerman(): void
     {
         $client = self::createClient();
         $client->enableProfiler();
-        $client->request(Request::METHOD_GET, '/register', server: [
-            'HTTP_Accept-Language' => 'de-DE,de;q=0.9',
-        ]);
+
+        $client->request(Request::METHOD_GET, '/register', server: ['HTTP_Accept-Language' => 'de-DE,de;q=0.9']);
 
         self::assertResponseIsSuccessful();
-
         $this->assertNoMissingTranslations($client->getProfile());
     }
 
-    public function testRegistrationStoresResolvedGermanLocaleFromCookie(): void
+    /** The locale chosen before registering is stored with the account; how it is resolved: LocaleResolverTest. */
+    public function testRegistrationStoresTheLocaleOfTheVisitor(): void
     {
-        $suffix = bin2hex(random_bytes(4));
-        $username = sprintf('register-locale-de-%s', $suffix);
-        $email = sprintf('register-locale-de-%s@example.test', $suffix);
-
         $this->browser()
             ->visit('/locale/switch/de?_target_path=/register')
-            ->visit('/register')
-            ->fillField('registration_form[username]', $username)
-            ->fillField('registration_form[email]', $email)
+            ->fillField('registration_form[username]', 'alice')
+            ->fillField('registration_form[email]', 'alice@example.test')
             ->fillField('registration_form[plainPassword]', 'super-secret-password')
             ->checkField('registration_form[acceptTerms]')
             ->click('Registrieren')
+
             ->assertSuccessful()
             ->assertSeeIn('h2', 'E-Mail prüfen')
         ;
-
-        UserFactory::assert()->exists([
-            'username' => $username,
-            'locale' => 'de',
-        ]);
-    }
-
-    public function testRegistrationStoresEnglishLocaleWhenBrowserLanguageIsNotGerman(): void
-    {
-        $suffix = bin2hex(random_bytes(4));
-        $username = sprintf('register-locale-en-%s', $suffix);
-        $email = sprintf('register-locale-en-%s@example.test', $suffix);
-
-        $client = self::createClient();
-        $client->setServerParameter('HTTP_Accept-Language', 'fr-FR,fr;q=0.9');
-        $client->request(Request::METHOD_GET, '/register');
-        self::assertResponseIsSuccessful();
-
-        $client->submitForm('Register', [
-            'registration_form[username]' => $username,
-            'registration_form[email]' => $email,
-            'registration_form[plainPassword]' => 'super-secret-password',
-            'registration_form[acceptTerms]' => true,
-        ]);
-        self::assertResponseRedirects('/register/check-email');
-
-        UserFactory::assert()->exists([
-            'username' => $username,
-            'locale' => 'en',
-        ]);
+        UserFactory::assert()->exists(['username' => 'alice', 'locale' => 'de']);
     }
 
     public function testRegistrationIsRateLimited(): void
     {
-        $suffix = bin2hex(random_bytes(4));
-        $username = sprintf('register-rate-limit-%s', $suffix);
-        $email = sprintf('register-rate-limit-%s@example.test', $suffix);
-
-        $client = self::createClient();
-        $client->disableReboot();
+        $client = $this->client();
         $this->denyRateLimiter('limiter.register', $this->ipRateLimitKey('register'));
 
-        $client->request(Request::METHOD_GET, '/register');
-        self::assertResponseIsSuccessful();
-
-        $client->submitForm('Register', [
-            'registration_form[username]' => $username,
-            'registration_form[email]' => $email,
-            'registration_form[plainPassword]' => 'super-secret-password',
-            'registration_form[acceptTerms]' => true,
-        ]);
+        $this->submitRegistration($client, 'alice', 'alice@example.test');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('body', 'Too many registration attempts');
-        UserFactory::assert()->notExists(['email' => $email]);
+        UserFactory::assert()->notExists(['email' => 'alice@example.test']);
     }
 
-    public function testRegistrationSendsAdminNotificationToNotificationRecipients(): void
+    /** The controller dispatches the registration once; who gets the mail is UserRegisteredNotificationSubscriberTest. */
+    public function testRegistrationNotifiesTheAdministratorsOnce(): void
     {
-        $suffix = bin2hex(random_bytes(4));
-        $recipientEmail = sprintf('admin-notify-%s@example.test', $suffix);
-        UserFactory::new()
-            ->asAdmin()
-            ->create([
-                'username' => sprintf('admin-notify-%s', $suffix),
-                'email' => $recipientEmail,
-            ]);
+        $client = $this->client();
+        UserFactory::new()->asAdmin()->create(['username' => 'ada', 'email' => 'ada@example.test']);
 
-        $username = sprintf('register-admin-mail-%s', $suffix);
-        $email = sprintf('register-admin-mail-%s@example.test', $suffix);
+        $this->submitRegistration($client, 'alice', 'alice@example.test');
 
-        $previousFollowRedirects = $_SERVER['BROWSER_FOLLOW_REDIRECTS'] ?? null;
-        $_SERVER['BROWSER_FOLLOW_REDIRECTS'] = '0';
-
-        try {
-            $this->browser()
-                ->disableReboot()
-                ->visit('/register')
-                ->fillField('registration_form[username]', $username)
-                ->fillField('registration_form[email]', $email)
-                ->fillField('registration_form[plainPassword]', 'super-secret-password')
-                ->checkField('registration_form[acceptTerms]')
-                ->click('Register')
-                ->assertStatus(302)
-            ;
-        } finally {
-            if (null === $previousFollowRedirects) {
-                unset($_SERVER['BROWSER_FOLLOW_REDIRECTS']);
-            } else {
-                $_SERVER['BROWSER_FOLLOW_REDIRECTS'] = $previousFollowRedirects;
-            }
-        }
-
-        $adminNotifications = [];
-        foreach (self::getMailerMessages() as $message) {
-            if ($message instanceof Email && str_contains((string) $message->getSubject(), 'New user registration')) {
-                $adminNotifications[] = $message;
-            }
-        }
-
-        self::assertCount(1, $adminNotifications, 'the admin mail is sent once, through the notification system only');
-        self::assertInstanceOf(TemplatedEmail::class, $adminNotifications[0]);
-        self::assertEmailAddressContains($adminNotifications[0], 'to', $recipientEmail);
-        self::assertEmailSubjectContains($adminNotifications[0], 'New user registration: '.$username);
+        $notices = $this->mailsTo('ada@example.test');
+        self::assertCount(1, $notices);
+        self::assertSame('New user registration: alice', $notices[0]->getSubject());
     }
 
-    public function testRegistrationWithBlockedEmailDomainShowsGenericCheckEmailWithoutCreatingUser(): void
+    /** A blocked domain gets the same answer as a real registration, but no account and no mail. */
+    public function testRegistrationWithBlockedEmailDomainShowsTheCheckEmailPageWithoutCreatingAUser(): void
     {
-        $suffix = bin2hex(random_bytes(4));
-        $username = sprintf('blocked-ru-%s', $suffix);
-        $email = sprintf('blocked-ru-%s@example.ru', $suffix);
+        $client = $this->client();
 
-        $this->submitRegistrationWithoutFollowingRedirects($username, $email);
+        $this->submitRegistration($client, 'mallory', 'mallory@example.ru');
 
-        self::assertNull($this->getUserRepository()->findOneBy(['email' => $email]));
-        self::assertNull($this->getUserRepository()->findOneBy(['username' => $username]));
+        self::assertResponseRedirects('/register/check-email');
         self::assertQueuedEmailCount(0);
-
-        $this->browser()
-            ->visit('/register/check-email')
-            ->assertSuccessful()
-            ->assertSeeIn('h2', 'Check your email')
-            ->assertSee('Your registration was almost successful.')
-            ->assertNotSee($username)
-        ;
-    }
-
-    public function testRegistrationWithBlockedEmailSubdomainIsAlsoSuppressed(): void
-    {
-        $suffix = bin2hex(random_bytes(4));
-        $username = sprintf('blocked-sub-ru-%s', $suffix);
-        $email = sprintf('blocked-sub-ru-%s@mail.example.ru', $suffix);
-
-        $this->submitRegistrationWithoutFollowingRedirects($username, $email);
-
-        self::assertNull($this->getUserRepository()->findOneBy(['email' => $email]));
-        self::assertNull($this->getUserRepository()->findOneBy(['username' => $username]));
-        self::assertQueuedEmailCount(0);
-    }
-
-    public function testRegistrationWithLookalikeDomainIsNotSuppressed(): void
-    {
-        $suffix = bin2hex(random_bytes(4));
-        $username = sprintf('lookalike-%s', $suffix);
-        $email = sprintf('lookalike-%s@pru.test', $suffix);
-
-        $this->submitRegistrationWithoutFollowingRedirects($username, $email);
-
-        self::assertNotNull($this->getUserRepository()->findOneBy(['email' => $email]));
-        self::assertQueuedEmailCount(1);
-    }
-
-    public function testUserCanRegisterButIsNotAutoLoggedInWithoutConsentDecision(): void
-    {
-        $suffix = bin2hex(random_bytes(4));
-        $username = sprintf('register-%s', $suffix);
-        $email = sprintf('register-%s@example.test', $suffix);
-
-        $this->browser()
-            ->visit('/register')
-            ->fillField('registration_form[username]', $username)
-            ->fillField('registration_form[email]', $email)
-            ->fillField('registration_form[plainPassword]', 'super-secret-password')
-            ->checkField('registration_form[acceptTerms]')
-            ->click('Register')
-            ->assertSuccessful()
-            ->assertSeeIn('h2', 'Check your email')
-            ->assertSee('Your registration was almost successful.')
-            ->assertNotSee($username)
-        ;
-    }
-
-    public function testRegistrationFailsWithoutAcceptingTerms(): void
-    {
-        $suffix = bin2hex(random_bytes(4));
-        $username = sprintf('register-no-terms-%s', $suffix);
-        $email = sprintf('register-no-terms-%s@example.test', $suffix);
-
-        $this->browser()
-            ->visit('/register')
-            ->fillField('registration_form[username]', $username)
-            ->fillField('registration_form[email]', $email)
-            ->fillField('registration_form[plainPassword]', 'super-secret-password')
-            ->click('Register')
-            ->assertStatus(422)
-            ->assertSeeIn('h2', 'Register')
-            ->assertSee('You must accept the terms and conditions to register.')
-        ;
+        UserFactory::assert()->notExists(['username' => 'mallory']);
+        UserFactory::assert()->notExists(['email' => 'mallory@example.ru']);
+        $client->followRedirect();
+        self::assertSelectorTextContains('h2', 'Check your email');
+        self::assertSelectorTextNotContains('body', 'mallory');
     }
 
     public function testRegistrationShowsTakenUsername(): void
     {
-        $suffix = bin2hex(random_bytes(4));
-        $existingUsername = sprintf('taken-user-%s', $suffix);
-        UserFactory::createOne([
-            'username' => $existingUsername,
-            'email' => sprintf('existing-%s@example.test', $suffix),
-        ]);
+        $client = $this->client();
+        UserFactory::createOne(['username' => 'alice', 'email' => 'alice@example.test']);
 
-        $attemptEmail = sprintf('new-%s@example.test', $suffix);
+        $this->submitRegistration($client, 'alice', 'other@example.test');
 
-        $this->browser()
-            ->visit('/register')
-            ->fillField('registration_form[username]', $existingUsername)
-            ->fillField('registration_form[email]', $attemptEmail)
-            ->fillField('registration_form[plainPassword]', 'super-secret-password')
-            ->checkField('registration_form[acceptTerms]')
-            ->click('Register')
-            ->assertStatus(422)
-            ->assertSeeIn('h2', 'Register')
-            ->assertSee('This username is already taken.')
-            ->assertNotSee('Check your email')
-        ;
-
-        UserFactory::assert()->notExists(['email' => $attemptEmail]);
-        UserFactory::assert()->count(1, ['username' => $existingUsername]);
+        self::assertResponseStatusCodeSame(422);
+        self::assertSelectorTextContains('body', 'This username is already taken.');
+        UserFactory::assert()->notExists(['email' => 'other@example.test']);
+        UserFactory::assert()->count(1, ['username' => 'alice']);
     }
 
+    /** One invalid username for the wiring; the rules: UserUsernameConstraintsTest. */
+    public function testRegistrationRejectsAnInvalidUsername(): void
+    {
+        $client = $this->client();
+
+        $this->submitRegistration($client, 'user@host', 'alice@example.test');
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertSelectorTextContains('body', 'Please use letters and numbers. Periods, underscores, and hyphens are fine, but spaces are not.');
+        UserFactory::assert()->notExists(['email' => 'alice@example.test']);
+    }
+
+    /**
+     * A taken address (here in other case) gets the same answer as a new one, so the page does not reveal which
+     * addresses have an account. The existing account gets a notice that names it and links to the password reset.
+     */
     public function testRegistrationWithTakenEmailAnswersLikeANewAddressAndNotifiesTheAccount(): void
     {
-        $client = self::createClient();
-        $client->disableReboot();
-        $client->getContainer()->get('cache.rate_limiter')->clear();
+        $client = $this->client();
+        UserFactory::createOne(['username' => 'alice', 'email' => 'alice@example.test', 'locale' => 'en']);
 
-        $suffix = bin2hex(random_bytes(4));
-        $existingUsername = sprintf('existing-user-%s', $suffix);
-        $existingEmail = sprintf('taken-email-%s@example.test', $suffix);
-        UserFactory::createOne(['username' => $existingUsername, 'email' => $existingEmail, 'locale' => 'en']);
+        $this->submitRegistration($client, 'mallory', 'ALICE@example.test');
 
-        // A new address: account, verification mail, redirect to the check-email page.
-        $newEmail = sprintf('new-address-%s@example.test', $suffix);
-        $this->submitRegistration($client, sprintf('new-user-%s', $suffix), $newEmail);
-        $newStatus = $client->getResponse()->getStatusCode();
-        $newLocation = $client->getResponse()->headers->get('Location');
-        $newMails = $this->mailSubjectsTo($newEmail);
-        self::assertSame(['Confirm your email address'], $newMails);
-        UserFactory::assert()->exists(['email' => $newEmail]);
-
-        // A taken address (in other case): the same answer, but no account and a notice to the existing account.
-        $attemptUsername = sprintf('attempt-user-%s', $suffix);
-        $this->submitRegistration($client, $attemptUsername, strtoupper($existingEmail));
-        self::assertSame($newStatus, $client->getResponse()->getStatusCode());
-        self::assertSame($newLocation, $client->getResponse()->headers->get('Location'));
-        self::assertSame('/register/check-email', $newLocation);
-
-        $notices = $this->mailsTo($existingEmail);
+        self::assertResponseRedirects('/register/check-email');
+        $notices = $this->mailsTo('alice@example.test');
         self::assertCount(1, $notices);
         self::assertSame('Registration attempt with your email address', $notices[0]->getSubject());
         $body = (string) $notices[0]->getHtmlBody();
-        self::assertStringContainsString($existingUsername, $body);
+        self::assertStringContainsString('alice', $body);
         self::assertStringContainsString('http://localhost/reset-password', $body);
-        self::assertStringNotContainsString($attemptUsername, $body);
-        UserFactory::assert()->notExists(['username' => $attemptUsername]);
-        UserFactory::assert()->count(1, ['email' => $existingEmail]);
-
-        $client->followRedirect();
-        self::assertSelectorTextContains('h2', 'Check your email');
+        self::assertStringNotContainsString('mallory', $body);
+        UserFactory::assert()->notExists(['username' => 'mallory']);
+        UserFactory::assert()->count(1, ['email' => 'alice@example.test']);
     }
 
     public function testRegistrationAttemptNoticeIsSentAtMostOncePerAccountWithinTheLimit(): void
     {
-        $client = self::createClient();
-        $client->disableReboot();
-        $client->getContainer()->get('cache.rate_limiter')->clear();
-
-        $suffix = bin2hex(random_bytes(4));
-        $existingEmail = sprintf('flood-%s@example.test', $suffix);
-        UserFactory::createOne(['username' => sprintf('flood-user-%s', $suffix), 'email' => $existingEmail]);
-
-        $this->submitRegistration($client, sprintf('flood-a-%s', $suffix), $existingEmail);
-        self::assertCount(1, $this->mailsTo($existingEmail));
+        $client = $this->client();
+        UserFactory::createOne(['username' => 'alice', 'email' => 'alice@example.test']);
+        $this->submitRegistration($client, 'mallory', 'alice@example.test');
+        self::assertCount(1, $this->mailsTo('alice@example.test'));
 
         // The second attempt gets the same answer, but no further mail (registration_attempt_notice: 1 per 24 hours).
-        $this->submitRegistration($client, sprintf('flood-b-%s', $suffix), $existingEmail);
+        $this->submitRegistration($client, 'trudy', 'alice@example.test');
+
         self::assertResponseRedirects('/register/check-email');
-        self::assertCount(0, $this->mailsTo($existingEmail));
-        UserFactory::assert()->count(1, ['email' => $existingEmail]);
+        self::assertCount(0, $this->mailsTo('alice@example.test'));
+        UserFactory::assert()->count(1, ['email' => 'alice@example.test']);
     }
 
     public function testRegistrationHandlesUniqueConstraintRaceOnTheEmailLikeATakenAddress(): void
     {
-        $client = self::createClient();
-        $client->disableReboot();
-        $client->getContainer()->get('cache.rate_limiter')->clear();
-
-        $suffix = bin2hex(random_bytes(4));
-        $email = sprintf('race-email-%s@example.test', $suffix);
-        $racingUsername = sprintf('racing-user-%s', $suffix);
-        $attemptUsername = sprintf('attempt-user-%s', $suffix);
-
+        $client = $this->client();
         // Another registration stores the same address between the lookup and the flush.
         $entityManager = $client->getContainer()->get(EntityManagerInterface::class);
-        $entityManager->getEventManager()->addEventListener(Events::preFlush, new class($racingUsername, $email) {
+        $entityManager->getEventManager()->addEventListener(Events::preFlush, new class('racer', 'alice@example.test') {
             private bool $done = false;
 
             public function __construct(private readonly string $username, private readonly string $email)
@@ -387,131 +243,62 @@ final class RegistrationControllerTest extends WebTestCase
             }
         });
 
-        $this->submitRegistration($client, $attemptUsername, $email);
+        $this->submitRegistration($client, 'alice', 'alice@example.test');
 
         self::assertResponseRedirects('/register/check-email');
-        self::assertCount(1, $this->mailsTo($email));
-        self::assertStringContainsString($racingUsername, (string) $this->mailsTo($email)[0]->getHtmlBody());
-        UserFactory::assert()->notExists(['username' => $attemptUsername]);
+        $notices = $this->mailsTo('alice@example.test');
+        self::assertCount(1, $notices);
+        self::assertStringContainsString('racer', (string) $notices[0]->getHtmlBody());
+        UserFactory::assert()->notExists(['username' => 'alice']);
     }
 
     public function testRegistrationHandlesUniqueConstraintRaceOnTheUsername(): void
     {
-        self::ensureKernelShutdown();
-        $client = self::createClient();
-        $client->disableReboot();
-
-        $suffix = bin2hex(random_bytes(4));
-        $existingUsername = sprintf('race-user-%s', $suffix);
-        $existingEmail = sprintf('race-%s@example.test', $suffix);
-        UserFactory::createOne([
-            'username' => $existingUsername,
-            'email' => $existingEmail,
-        ]);
-
+        $client = $this->client();
+        UserFactory::createOne(['username' => 'alice', 'email' => 'alice@example.test']);
+        // The identity check always answers "available", as if the other account was stored right after it: the
+        // controller then has to handle the unique constraint violation of the flush.
         $container = self::getContainer();
-        $container->set(
-            RegistrationIdentityGuard::class,
-            new AlwaysAvailableRegistrationIdentityChecker(
-                $container->get(TranslatorInterface::class),
-            ),
-        );
+        $container->set(RegistrationIdentityGuard::class, new AlwaysAvailableRegistrationIdentityChecker($container->get(TranslatorInterface::class)));
 
-        $client->request(Request::METHOD_GET, '/register');
-        self::assertResponseIsSuccessful();
-
-        $client->submitForm('Register', [
-            'registration_form[username]' => $existingUsername,
-            'registration_form[email]' => sprintf('other-%s@example.test', $suffix),
-            'registration_form[plainPassword]' => 'super-secret-password',
-            'registration_form[acceptTerms]' => true,
-        ]);
+        $this->submitRegistration($client, 'alice', 'other@example.test');
 
         self::assertResponseStatusCodeSame(422);
-        self::assertSelectorTextContains('h2', 'Register');
-        self::assertStringContainsString(
-            'This username is already taken.',
-            (string) $client->getResponse()->getContent(),
-        );
-        self::assertStringNotContainsString('Check your email', (string) $client->getResponse()->getContent());
-
-        UserFactory::assert()->count(1, ['username' => $existingUsername]);
+        self::assertSelectorTextContains('body', 'This username is already taken.');
+        self::assertSelectorTextNotContains('body', 'Check your email');
+        UserFactory::assert()->count(1, ['username' => 'alice']);
     }
 
-    public function testRegistrationShowsTermsLinkWhenPublishedTermsPageExists(): void
+    /**
+     * @return iterable<string, array{bool}>
+     */
+    public static function termsPages(): iterable
     {
-        $parent = PageFactory::createOne([
-            'slug' => 'legal',
-            'status' => PageTranslation::STATUS_PUBLISHED,
-            'visibility' => Page::VISIBILITY_PUBLIC,
-        ]);
-
-        PageFactory::createOne([
-            'parent' => $parent,
-            'slug' => 'terms-of-service',
-            'key' => PageKey::Terms,
-            'status' => PageTranslation::STATUS_PUBLISHED,
-            'visibility' => Page::VISIBILITY_PUBLIC,
-        ]);
-
-        $this->browser()
-            ->visit('/register')
-            ->assertSuccessful()
-            ->assertSeeElement('label[for="registration_form_acceptTerms"] a[href="/legal/terms-of-service"]')
-            ->assertSee('terms and conditions')
-        ;
+        yield 'published terms page' => [true];
+        yield 'no terms page' => [false];
     }
 
-    public function testRegistrationWorksWithoutTermsPageLink(): void
+    /** The terms checkbox links to the published terms page, and to nothing while there is none. */
+    #[DataProvider('termsPages')]
+    public function testTheTermsCheckboxLinksToThePublishedTermsPage(bool $published): void
     {
-        $suffix = bin2hex(random_bytes(4));
-        $username = sprintf('register-no-terms-page-%s', $suffix);
-        $email = sprintf('register-no-terms-page-%s@example.test', $suffix);
+        if ($published) {
+            $legal = PageFactory::createOne(['slug' => 'legal', 'status' => PageTranslation::STATUS_PUBLISHED, 'visibility' => Page::VISIBILITY_PUBLIC]);
+            PageFactory::createOne(['parent' => $legal, 'slug' => 'terms-of-service', 'key' => PageKey::Terms, 'status' => PageTranslation::STATUS_PUBLISHED, 'visibility' => Page::VISIBILITY_PUBLIC]);
+        }
 
-        $this->browser()
-            ->visit('/register')
-            ->assertSuccessful()
-            ->assertNotSee('href="/legal/terms-of-service"')
-            ->fillField('registration_form[username]', $username)
-            ->fillField('registration_form[email]', $email)
-            ->fillField('registration_form[plainPassword]', 'super-secret-password')
-            ->checkField('registration_form[acceptTerms]')
-            ->click('Register')
-            ->assertSuccessful()
-            ->assertSeeIn('h2', 'Check your email')
-        ;
-    }
+        $browser = $this->browser()->visit('/register');
 
-    public function testUserCanRegisterButIsNotAutoLoggedInAfterConsentDecision(): void
-    {
-        $suffix = bin2hex(random_bytes(4));
-        $username = sprintf('register-consented-%s', $suffix);
-        $email = sprintf('register-consented-%s@example.test', $suffix);
-
-        $this->acceptEssentialCookies($this->browser())
-            ->visit('/register')
-            ->fillField('registration_form[username]', $username)
-            ->fillField('registration_form[email]', $email)
-            ->fillField('registration_form[plainPassword]', 'super-secret-password')
-            ->checkField('registration_form[acceptTerms]')
-            ->click('Register')
-            ->assertSuccessful()
-            ->assertSeeIn('h2', 'Check your email')
-            ->assertSee('Your registration was almost successful.')
-            ->assertNotSee($username)
-        ;
+        $browser->assertSuccessful()->assertSee('terms and conditions');
+        $published
+            ? $browser->assertSeeElement('label[for="registration_form_acceptTerms"] a[href="/legal/terms-of-service"]')
+            : $browser->assertNotSeeElement('label[for="registration_form_acceptTerms"] a');
     }
 
     public function testVerifyEmailRedirectsToLoginWithSuccessMessage(): void
     {
-        $user = UserFactory::new([
-            'isVerified' => false,
-            'username' => 'verify-me',
-        ])->create();
-
-        /** @var VerifyEmailHelperInterface $helper */
-        $helper = self::getContainer()->get(VerifyEmailHelperInterface::class);
-        $signedUrl = $helper->generateSignature(
+        $user = UserFactory::createOne(['isVerified' => false, 'username' => 'alice']);
+        $signedUrl = self::getContainer()->get(VerifyEmailHelperInterface::class)->generateSignature(
             'app_verify_email',
             (string) $user->getId(),
             (string) $user->getEmail(),
@@ -520,224 +307,32 @@ final class RegistrationControllerTest extends WebTestCase
 
         $this->browser()
             ->visit($signedUrl)
+
             ->assertSuccessful()
             ->assertSeeIn('h2', 'Login')
             ->assertSee('Your email address has been confirmed. You can sign in now.')
         ;
-
         \Zenstruck\Foundry\Persistence\refresh($user);
         self::assertTrue($user->isVerified());
     }
 
-    public function testRegistrationPasswordFieldHasAccessibleVisibilityToggle(): void
+    /**
+     * The client is created first: Foundry boots the kernel, and createClient() refuses an already booted one. It
+     * keeps its kernel so the replaced services stay in place, and starts with empty rate limits, because the
+     * limiter cache outlives the database reset.
+     */
+    private function client(): KernelBrowser
     {
-        $this->browser()
-            ->visit('/register')
-            ->assertSuccessful()
-            ->assertSeeElement('input[name="registration_form[plainPassword]"][type="password"]')
-            ->assertSeeElement('[data-testid="password-toggle-registration_form_plainPassword"]')
-            ->use(static function (Crawler $crawler): void {
-                $input = $crawler->filter('input[name="registration_form[plainPassword]"]');
-                $toggle = $crawler->filter('[data-testid="password-toggle-registration_form_plainPassword"]');
+        $client = self::createClient();
+        $client->disableReboot();
+        $client->getContainer()->get('cache.rate_limiter')->clear();
 
-                self::assertSame('registration_form[plainPassword]', $input->attr('name'));
-                self::assertNull($input->attr('autocomplete'));
-                self::assertSame('password', $input->attr('type'));
-                self::assertSame('button', $toggle->attr('type'));
-                self::assertSame('false', $toggle->attr('aria-pressed'));
-                self::assertSame('registration_form_plainPassword', $toggle->attr('aria-controls'));
-                self::assertNotEmpty($toggle->attr('aria-label'));
-                self::assertSame('Show password', $toggle->attr('aria-label'));
-            })
-        ;
-    }
-
-    public function testRegistrationPasswordFieldShowsStrengthFeedbackUi(): void
-    {
-        $this->browser()
-            ->visit('/register')
-            ->assertSuccessful()
-            ->assertSeeElement('[data-testid="password-strength-registration_form_plainPassword"]')
-            ->assertSee('Password strength')
-            ->assertSee('At least 8 characters')
-            ->assertSee('Sufficient password strength')
-            ->use(static function (Crawler $crawler): void {
-                $wrapper = $crawler->filter('[data-controller*="password-strength"]');
-                $input = $crawler->filter('input[name="registration_form[plainPassword]"]');
-
-                self::assertCount(1, $wrapper);
-                self::assertStringContainsString('password-visibility', (string) $wrapper->attr('data-controller'));
-                self::assertStringContainsString('password-strength', (string) $wrapper->attr('data-controller'));
-                self::assertSame('input->password-strength#evaluate', $input->attr('data-action'));
-                self::assertNotEmpty($wrapper->attr('data-password-strength-policy-value'));
-                self::assertNotEmpty($wrapper->attr('data-password-strength-strength-labels-value'));
-            })
-        ;
-    }
-
-    public function testRegistrationAcceptsLettersDigitsAndAllowedPunctuation(): void
-    {
-        $suffix = bin2hex(random_bytes(4));
-        $username = sprintf('Müller.User_%s-1', $suffix);
-        $email = sprintf('register-valid-%s@example.test', $suffix);
-
-        $this->browser()
-            ->visit('/register')
-            ->fillField('registration_form[username]', $username)
-            ->fillField('registration_form[email]', $email)
-            ->fillField('registration_form[plainPassword]', 'super-secret-password')
-            ->checkField('registration_form[acceptTerms]')
-            ->click('Register')
-            ->assertSuccessful()
-            ->assertSeeIn('h2', 'Check your email')
-        ;
-
-        UserFactory::assert()->exists(['username' => $username]);
-    }
-
-    public function testRegistrationTrimsLeadingAndTrailingWhitespace(): void
-    {
-        $suffix = bin2hex(random_bytes(4));
-        $username = sprintf('trim-user-%s', $suffix);
-        $email = sprintf('register-trim-%s@example.test', $suffix);
-
-        $this->browser()
-            ->visit('/register')
-            ->fillField('registration_form[username]', '  '.$username.'  ')
-            ->fillField('registration_form[email]', $email)
-            ->fillField('registration_form[plainPassword]', 'super-secret-password')
-            ->checkField('registration_form[acceptTerms]')
-            ->click('Register')
-            ->assertSuccessful()
-            ->assertSeeIn('h2', 'Check your email')
-        ;
-
-        UserFactory::assert()->exists(['username' => $username]);
-        UserFactory::assert()->notExists(['username' => '  '.$username.'  ']);
-    }
-
-    public function testRegistrationRejectsInternalWhitespace(): void
-    {
-        $suffix = bin2hex(random_bytes(4));
-        $email = sprintf('register-space-%s@example.test', $suffix);
-
-        $this->browser()
-            ->visit('/register')
-            ->fillField('registration_form[username]', 'John Doe')
-            ->fillField('registration_form[email]', $email)
-            ->fillField('registration_form[plainPassword]', 'super-secret-password')
-            ->checkField('registration_form[acceptTerms]')
-            ->click('Register')
-            ->assertStatus(422)
-            ->assertSeeIn('h2', 'Register')
-            ->assertSee('Please use letters and numbers. Periods, underscores, and hyphens are fine, but spaces are not.')
-        ;
-
-        UserFactory::assert()->notExists(['email' => $email]);
-    }
-
-    public function testRegistrationRejectsForbiddenCharacters(): void
-    {
-        $suffix = bin2hex(random_bytes(4));
-        $email = sprintf('register-at-%s@example.test', $suffix);
-
-        $this->browser()
-            ->visit('/register')
-            ->fillField('registration_form[username]', 'user@host')
-            ->fillField('registration_form[email]', $email)
-            ->fillField('registration_form[plainPassword]', 'super-secret-password')
-            ->checkField('registration_form[acceptTerms]')
-            ->click('Register')
-            ->assertStatus(422)
-            ->assertSeeIn('h2', 'Register')
-            ->assertSee('Please use letters and numbers. Periods, underscores, and hyphens are fine, but spaces are not.')
-        ;
-
-        UserFactory::assert()->notExists(['email' => $email]);
-    }
-
-    public function testRegistrationFailsWhenTrimmedUsernameIsTaken(): void
-    {
-        $suffix = bin2hex(random_bytes(4));
-        $existingUsername = sprintf('taken-trim-%s', $suffix);
-        UserFactory::createOne([
-            'username' => $existingUsername,
-            'email' => sprintf('existing-trim-%s@example.test', $suffix),
-        ]);
-
-        $attemptEmail = sprintf('new-trim-%s@example.test', $suffix);
-
-        $this->browser()
-            ->visit('/register')
-            ->fillField('registration_form[username]', '  '.$existingUsername.'  ')
-            ->fillField('registration_form[email]', $attemptEmail)
-            ->fillField('registration_form[plainPassword]', 'super-secret-password')
-            ->checkField('registration_form[acceptTerms]')
-            ->click('Register')
-            ->assertStatus(422)
-            ->assertSeeIn('h2', 'Register')
-            ->assertSee('This username is already taken.')
-        ;
-
-        UserFactory::assert()->notExists(['email' => $attemptEmail]);
-        UserFactory::assert()->count(1, ['username' => $existingUsername]);
-    }
-
-    public function testRegisteredUsernameCanBeUsedToLogIn(): void
-    {
-        $suffix = bin2hex(random_bytes(4));
-        $username = sprintf('login-after-%s', $suffix);
-        $email = sprintf('login-after-%s@example.test', $suffix);
-
-        $this->browser()
-            ->visit('/register')
-            ->fillField('registration_form[username]', '  '.$username.'  ')
-            ->fillField('registration_form[email]', $email)
-            ->fillField('registration_form[plainPassword]', 'super-secret-password')
-            ->checkField('registration_form[acceptTerms]')
-            ->click('Register')
-            ->assertSuccessful()
-        ;
-
-        $user = UserFactory::repository()->findOneBy(['username' => $username]);
-        self::assertInstanceOf(User::class, $user);
-        $user->setIsVerified(true);
-        \Zenstruck\Foundry\Persistence\save($user);
-
-        $this->loginWithConsent($this->browser(), '  '.$username.'  ', 'super-secret-password')
-            ->assertSeeIn('#user_name', $username)
-        ;
-    }
-
-    private function submitRegistrationWithoutFollowingRedirects(string $username, string $email): void
-    {
-        $previousFollowRedirects = $_SERVER['BROWSER_FOLLOW_REDIRECTS'] ?? null;
-        $_SERVER['BROWSER_FOLLOW_REDIRECTS'] = '0';
-
-        try {
-            $this->browser()
-                ->disableReboot()
-                ->visit('/register')
-                ->fillField('registration_form[username]', $username)
-                ->fillField('registration_form[email]', $email)
-                ->fillField('registration_form[plainPassword]', 'super-secret-password')
-                ->checkField('registration_form[acceptTerms]')
-                ->click('Register')
-                ->assertStatus(302)
-            ;
-        } finally {
-            if (null === $previousFollowRedirects) {
-                unset($_SERVER['BROWSER_FOLLOW_REDIRECTS']);
-            } else {
-                $_SERVER['BROWSER_FOLLOW_REDIRECTS'] = $previousFollowRedirects;
-            }
-        }
+        return $client;
     }
 
     private function submitRegistration(KernelBrowser $client, string $username, string $email): void
     {
         $client->request(Request::METHOD_GET, '/register');
-        self::assertResponseIsSuccessful();
         $client->submitForm('Register', [
             'registration_form[username]' => $username,
             'registration_form[email]' => $email,
@@ -747,38 +342,16 @@ final class RegistrationControllerTest extends WebTestCase
     }
 
     /**
-     * Mails of the last request sent to `$address`.
+     * Mails of the last request sent to `$address`, in any letter case.
      *
      * @return list<Email>
      */
     private function mailsTo(string $address): array
     {
-        $mails = [];
-        foreach (self::getMailerMessages() as $message) {
-            if (!$message instanceof Email) {
-                continue;
-            }
-
-            foreach ($message->getTo() as $to) {
-                if (mb_strtolower($to->getAddress()) === mb_strtolower($address)) {
-                    $mails[] = $message;
-                }
-            }
-        }
-
-        return $mails;
-    }
-
-    /**
-     * @return list<string|null>
-     */
-    private function mailSubjectsTo(string $address): array
-    {
-        return array_map(static fn (Email $mail): ?string => $mail->getSubject(), $this->mailsTo($address));
-    }
-
-    private function getUserRepository(): UserRepository
-    {
-        return self::getContainer()->get(UserRepository::class);
+        return array_values(array_filter(
+            self::getMailerMessages(),
+            static fn (object $message): bool => $message instanceof Email
+                && [] !== array_filter($message->getTo(), static fn (\Symfony\Component\Mime\Address $to): bool => 0 === strcasecmp($to->getAddress(), $address)),
+        ));
     }
 }

@@ -6,35 +6,24 @@ namespace App\Tests\User\Functional\Controller;
 
 use App\Tests\Support\Browser\CookieConsentTestHelper;
 use App\User\Domain\Factory\UserFactory;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Browser\Test\HasBrowser;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
+/**
+ * Re-entering the password: a session restored from the remember-me cookie must confirm the password before it
+ * changes the password or the address; a fully signed-in session never sees the page. That a remembered session
+ * may open the other settings pages: RememberMeLoginTest.
+ */
 #[ResetDatabase]
 final class ConfirmPasswordControllerTest extends WebTestCase
 {
     use CookieConsentTestHelper;
     use Factories;
     use HasBrowser;
-
-    public function testRememberMeUserCanAccessSettingsOverviewWithoutConfirm(): void
-    {
-        UserFactory::new([
-            'email' => 'remember@example.test',
-            'isVerified' => true,
-            'username' => 'remember-user',
-        ])->create();
-
-        $client = $this->createRememberMeOnlyClient('remember-user');
-
-        $client->request(Request::METHOD_GET, '/settings/account');
-
-        self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('h2', 'Account Settings');
-        self::assertStringNotContainsString('Confirm your password', (string) $client->getResponse()->getContent());
-    }
 
     public function testRememberMeUserMustConfirmPasswordBeforeChangingPassword(): void
     {
@@ -51,22 +40,6 @@ final class ConfirmPasswordControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h2', 'Confirm your password');
         self::assertStringNotContainsString('Change password', (string) $client->getResponse()->getContent());
-    }
-
-    public function testRememberMeUserIsRedirectedToConfirmPasswordWhenAccessingChangeEmail(): void
-    {
-        UserFactory::new([
-            'email' => 'remember-email@example.test',
-            'isVerified' => true,
-            'username' => 'remember-email-user',
-        ])->create();
-
-        $client = $this->createRememberMeOnlyClient('remember-email-user');
-
-        $client->request(Request::METHOD_GET, '/settings/email');
-
-        self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('h2', 'Confirm your password');
     }
 
     public function testRememberMeUserCanConfirmPasswordAndAccessChangeEmail(): void
@@ -93,11 +66,7 @@ final class ConfirmPasswordControllerTest extends WebTestCase
             '_csrf_token' => $csrfToken,
         ]);
 
-        if ($client->getResponse()->isRedirect()) {
-            $client->followRedirect();
-        }
-
-        self::assertResponseIsSuccessful();
+        // The client follows the redirect back to the page that asked for the confirmation.
         self::assertSelectorTextContains('h2', 'Change email');
     }
 
@@ -130,33 +99,16 @@ final class ConfirmPasswordControllerTest extends WebTestCase
 
     public function testFullyAuthenticatedUserIsRedirectedAwayFromConfirmPage(): void
     {
-        UserFactory::new([
-            'email' => 'full-auth@example.test',
-            'isVerified' => true,
-            'username' => 'full-auth-user',
-        ])->create();
-
         $client = $this->browser()->client();
-        $this->acceptEssentialCookiesOnly($client);
-
-        $crawler = $client->request(Request::METHOD_GET, '/login');
-        $form = $crawler->selectButton('Sign in')->form([
-            'login[username]' => 'full-auth-user',
-            'login[password]' => 'password',
-        ]);
-        $client->submit($form);
-
-        if ($client->getResponse()->isRedirect()) {
-            $client->followRedirect();
-        }
+        $client->followRedirects(false);
+        $client->loginUser(UserFactory::createOne(['username' => 'alice', 'isVerified' => true]));
 
         $client->request(Request::METHOD_GET, '/login/confirm');
 
-        self::assertResponseIsSuccessful();
-        self::assertStringNotContainsString('Confirm your password', (string) $client->getResponse()->getContent());
+        self::assertResponseRedirects('/');
     }
 
-    private function createRememberMeOnlyClient(string $username): \Symfony\Bundle\FrameworkBundle\KernelBrowser
+    private function createRememberMeOnlyClient(string $username): KernelBrowser
     {
         $client = $this->browser()->client();
         $this->loginWithRememberMe($client, $username);
