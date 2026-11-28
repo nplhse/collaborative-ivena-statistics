@@ -26,7 +26,8 @@ final class ErrorPreviewPagesTest extends SystemWebTestCase
         self::assertStringContainsString($expectedTitleFragment, $content);
         self::assertStringContainsString('btn btn-primary', $content);
         self::assertStringContainsString('btn btn-outline-secondary', $content);
-        self::assertStringContainsString('javascript:history.back()', $content);
+        self::assertStringContainsString('data-history-back', $content);
+        self::assertStringNotContainsString('javascript:', $content);
         self::assertStringContainsString('href="/"', $content);
     }
 
