@@ -13,6 +13,7 @@ final class StatisticsAgeGroupFilterTest extends TestCase
     {
         self::assertContains(StatisticsAgeGroupFilter::UNDER_18, StatisticsAgeGroupFilter::AGGREGATE_KEYS);
         self::assertContains(StatisticsAgeGroupFilter::ADULTS, StatisticsAgeGroupFilter::AGGREGATE_KEYS);
+        self::assertContains(StatisticsAgeGroupFilter::OVER_65, StatisticsAgeGroupFilter::AGGREGATE_KEYS);
         self::assertContains(StatisticsAgeGroupFilter::OVER_80, StatisticsAgeGroupFilter::AGGREGATE_KEYS);
     }
 
@@ -40,24 +41,15 @@ final class StatisticsAgeGroupFilterTest extends TestCase
         );
     }
 
-    public function testSqlConditionForDecadeBuckets(): void
+    public function testSqlConditionForSeniors(): void
     {
-        self::assertSame(
-            'p.age >= 30 AND p.age <= 39',
-            StatisticsAgeGroupFilter::sqlCondition('p.age', '30_39'),
-        );
-        self::assertSame(
-            'p.age IS NOT NULL AND p.age <= 17',
-            StatisticsAgeGroupFilter::sqlCondition('p.age', '0_17'),
-        );
-        self::assertSame(
-            'p.age >= 18 AND p.age <= 29',
-            StatisticsAgeGroupFilter::sqlCondition('p.age', '18_29'),
-        );
-        self::assertSame(
-            'p.age >= 90 AND p.age <= 99',
-            StatisticsAgeGroupFilter::sqlCondition('p.age', '90_99'),
-        );
+        self::assertSame('p.age >= 65', StatisticsAgeGroupFilter::sqlCondition('p.age', StatisticsAgeGroupFilter::OVER_65));
+    }
+
+    public function testSqlConditionReturnsNullForAgeBuckets(): void
+    {
+        // The age buckets are an Explorer dimension, not filter values (#1799).
+        self::assertNull(StatisticsAgeGroupFilter::sqlCondition('p.age', '30_39'));
     }
 
     public function testSqlConditionReturnsNullForUnknownBucket(): void
@@ -77,17 +69,17 @@ final class StatisticsAgeGroupFilterTest extends TestCase
         );
     }
 
-    public function testIsKnownAcceptsAggregatesAndDisplayBuckets(): void
+    public function testIsKnownAcceptsTheNamedGroups(): void
     {
-        foreach ([...StatisticsAgeGroupFilter::AGGREGATE_KEYS, '0_17', '18_29', '90_99'] as $key) {
+        foreach (['under_18', 'adults', 'over_65', 'over_80'] as $key) {
             self::assertTrue(StatisticsAgeGroupFilter::isKnown($key), $key);
         }
     }
 
     public function testIsKnownRejectsEveryOtherValue(): void
     {
-        // The Explorer's unknown bucket, the pre-#1040 keys and arbitrary input set no age restriction (#1724).
-        foreach (['unknown', '0_18', '19_29', 'UNDER_18', ' adults', 'foo', ''] as $key) {
+        // Age buckets (#1799), the Explorer's unknown bucket, the pre-#1040 keys and other input are no filter values.
+        foreach (['0_17', '30_39', 'unknown', '0_18', '19_29', 'UNDER_18', ' adults', 'foo', ''] as $key) {
             self::assertFalse(StatisticsAgeGroupFilter::isKnown($key), $key);
         }
     }

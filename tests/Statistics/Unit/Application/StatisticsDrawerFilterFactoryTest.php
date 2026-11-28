@@ -34,7 +34,7 @@ final class StatisticsDrawerFilterFactoryTest extends TestCase
         $filter = $this->factory->fromQuery($this->queryBag([
             'gender' => '2',
             'urgency' => '1',
-            'age_group' => '30_39',
+            'age_group' => 'over_65',
             'requiresResus' => '1',
             'department' => '12',
             'speciality' => '34',
@@ -44,7 +44,7 @@ final class StatisticsDrawerFilterFactoryTest extends TestCase
         self::assertTrue($filter->isActive());
         self::assertSame(2, $filter->gender);
         self::assertSame(1, $filter->urgency);
-        self::assertSame('30_39', $filter->ageGroup);
+        self::assertSame('over_65', $filter->ageGroup);
         self::assertSame(12, $filter->department);
         self::assertSame(34, $filter->speciality);
         self::assertSame(7, $filter->infection);

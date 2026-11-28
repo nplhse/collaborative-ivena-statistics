@@ -37,9 +37,13 @@
         <source>statistics.distribution.age.90_99</source>
         <target>90–99 (und älter)</target>
       </trans-unit>
+      <trans-unit id="statsAgeOv65" resname="statistics.distribution.age.over_65">
+        <source>statistics.distribution.age.over_65</source>
+        <target>Senior:innen (ab 65)</target>
+      </trans-unit>
       <trans-unit id="statsAgeOv80" resname="statistics.distribution.age.over_80">
         <source>statistics.distribution.age.over_80</source>
-        <target>80 und älter</target>
+        <target>Hochbetagte (ab 80)</target>
       </trans-unit>
       <trans-unit id="statsAgeAdults" resname="statistics.distribution.age.adults">
         <source>statistics.distribution.age.adults</source>

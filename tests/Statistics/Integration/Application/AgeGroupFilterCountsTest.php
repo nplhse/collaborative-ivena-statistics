@@ -39,15 +39,17 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 /**
- * Fixture: three allocations of one hospital and one indication with ages 17, 18 and none (#181).
- * Imports reject rows without age, so the third case gets its projection age cleared after the rebuild
+ * Fixture: six allocations of one hospital and one indication with ages 17, 18, 64, 65, 80 and none (#181).
+ * Imports reject rows without age, so the last case gets its projection age cleared after the rebuild
  * (`allocation_stats_projection.age` is nullable).
  *
- * Expected by hand: all cases = 3, children & adolescents (< 18) = 1 (age 17),
- * adults (>= 18) = 1 (age 18). The case without age only counts without an age group.
- * The age buckets put 18-year-olds with adults (#1040): 0–17 = 1 (age 17), 18–29 = 1 (age 18).
- * Unknown keys (the pre-#1040 keys 0_18 and 19_29, no longer mapped since #1125, and the Explorer's `unknown`
- * bucket, which is no filter option) set no age restriction on every surface (#1724): all 3 cases.
+ * Expected by hand: all cases = 6; children & adolescents (< 18) = 1 (age 17); adults (>= 18) = 4 (18, 64, 65,
+ * 80); seniors (>= 65) = 2 (65, 80); oldest old (>= 80) = 1 (80). The case without age only counts without an
+ * age group.
+ * The Explorer age buckets put 18-year-olds with adults (#1040): 0–17 = 1, 18–29 = 1, 60–69 = 2, 80–89 = 1.
+ * Unknown keys set no age restriction on every surface (#1724): all 6 cases. Unknown are the age buckets, which
+ * are an Explorer dimension and no filter value (#1799), the pre-#1040 keys 0_18 and 19_29, and the Explorer's
+ * `unknown` bucket.
  */
 #[ResetDatabase]
 final class AgeGroupFilterCountsTest extends KernelTestCase
@@ -59,11 +61,11 @@ final class AgeGroupFilterCountsTest extends KernelTestCase
      */
     public static function ageGroupProvider(): iterable
     {
-        yield 'all cases' => [null, 3];
+        yield 'all cases' => [null, 6];
         yield 'children and adolescents' => [StatisticsAgeGroupFilter::UNDER_18, 1];
-        yield 'adults' => [StatisticsAgeGroupFilter::ADULTS, 1];
-        yield '0-17' => ['0_17', 1];
-        yield '18-29' => ['18_29', 1];
+        yield 'adults' => [StatisticsAgeGroupFilter::ADULTS, 4];
+        yield 'seniors, 64 is out and 65 is in' => [StatisticsAgeGroupFilter::OVER_65, 2];
+        yield 'oldest old' => [StatisticsAgeGroupFilter::OVER_80, 1];
     }
 
     #[DataProvider('ageGroupProvider')]
@@ -110,6 +112,8 @@ final class AgeGroupFilterCountsTest extends KernelTestCase
         yield '0_18' => ['0_18'];
         yield '19_29' => ['19_29'];
         yield 'unknown' => ['unknown'];
+        yield 'age bucket 0_17' => ['0_17'];
+        yield 'age bucket 60_69' => ['60_69'];
     }
 
     #[DataProvider('unknownKeyProvider')]
@@ -128,7 +132,7 @@ final class AgeGroupFilterCountsTest extends KernelTestCase
         $rows = $report->build($context, 25)->payload['rows'];
 
         self::assertCount(1, $rows);
-        self::assertSame('3', $rows[0][2]);
+        self::assertSame('6', $rows[0][2]);
     }
 
     #[DataProvider('unknownKeyProvider')]
@@ -143,7 +147,7 @@ final class AgeGroupFilterCountsTest extends KernelTestCase
             filters: [new AnalysisFilter('age_group', AnalysisFilterOperator::Equals, $ageGroup)],
         ));
 
-        self::assertSame(3, $result->grandTotal);
+        self::assertSame(6, $result->grandTotal);
     }
 
     public function testExplorerAgeGroupBucketsCountEighteenYearOldsAsAdults(): void
@@ -163,7 +167,7 @@ final class AgeGroupFilterCountsTest extends KernelTestCase
             }
         }
 
-        self::assertSame(['0_17' => 1, '18_29' => 1], $counts);
+        self::assertSame(['0_17' => 1, '18_29' => 1, '60_69' => 2, '80_89' => 1], $counts);
     }
 
     /**
@@ -189,7 +193,7 @@ final class AgeGroupFilterCountsTest extends KernelTestCase
         $indication = IndicationNormalizedFactory::createOne(['name' => 'Age Filter Indication']);
 
         $import = ImportFactory::createOne(['name' => 'AgeGroupFilterImport', 'hospital' => $hospital, 'createdBy' => $user]);
-        foreach ([17, 18, 50] as $index => $age) {
+        foreach ([17, 18, 64, 65, 80, 50] as $index => $age) {
             AllocationFactory::createOne([
                 'import' => $import,
                 'hospital' => $hospital,

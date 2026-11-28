@@ -140,7 +140,7 @@ final class ExplorerAnalysisFilterMapperTest extends TestCase
         $restored = $this->mapper->applyToFormData(new ExplorerEditFormData(), [
             new AnalysisFilter('department', AnalysisFilterOperator::In, ['10', 20]),
             new AnalysisFilter('urgency', AnalysisFilterOperator::Equals, '3'),
-            new AnalysisFilter('age_group', AnalysisFilterOperator::Equals, '30_39'),
+            new AnalysisFilter('age_group', AnalysisFilterOperator::Equals, 'over_65'),
             new AnalysisFilter('ventilation', AnalysisFilterOperator::Equals, 1),
             new AnalysisFilter('assignment', AnalysisFilterOperator::Equals, 'invalid'),
             new AnalysisFilter('unknown_axis', AnalysisFilterOperator::Equals, 1),
@@ -148,7 +148,7 @@ final class ExplorerAnalysisFilterMapperTest extends TestCase
 
         self::assertSame(10, $restored->filterDepartmentId);
         self::assertSame(3, $restored->filterUrgency);
-        self::assertSame('30_39', $restored->filterAgeGroup);
+        self::assertSame('over_65', $restored->filterAgeGroup);
         self::assertTrue($restored->filterVentilation);
         self::assertNull($restored->filterAssignmentId);
     }

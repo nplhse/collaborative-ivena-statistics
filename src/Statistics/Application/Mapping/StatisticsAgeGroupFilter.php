@@ -9,18 +9,21 @@ namespace App\Statistics\Application\Mapping;
  *
  * Every value excludes cases without a recorded age (`age IS NULL`); those only count when no age group is selected.
  *
- * Aggregate buckets (under_18, adults, over_80) complement the age buckets of {@see StatisticsAgeGroupBucketSql}.
+ * The filter offers named groups only (#1799); the age buckets of {@see StatisticsAgeGroupBucketSql} are an Explorer
+ * dimension, not filter values.
  */
 final class StatisticsAgeGroupFilter
 {
     public const string UNDER_18 = 'under_18';
     public const string ADULTS = 'adults';
+    public const string OVER_65 = 'over_65';
     public const string OVER_80 = 'over_80';
 
     /** @var list<string> */
     public const array AGGREGATE_KEYS = [
         self::UNDER_18,
         self::ADULTS,
+        self::OVER_65,
         self::OVER_80,
     ];
 
@@ -28,16 +31,18 @@ final class StatisticsAgeGroupFilter
     public const array AGGREGATE_TRANSLATION_KEYS = [
         self::UNDER_18 => 'statistics.distribution.age.under_18',
         self::ADULTS => 'statistics.distribution.age.adults',
+        self::OVER_65 => 'statistics.distribution.age.over_65',
         self::OVER_80 => 'statistics.distribution.age.over_80',
     ];
 
     /**
-     * Keys the age-group filter understands: the aggregates and the display buckets. Every other value, including
-     * the Explorer's `unknown` bucket and the pre-#1040 keys, is unknown and sets no age restriction (#1724).
+     * Keys the age-group filter understands: the named groups (#1799). Every other value, including the age
+     * buckets of the Explorer dimension, its `unknown` bucket and the pre-#1040 keys, is unknown and sets no age
+     * restriction (#1724).
      */
     public static function isKnown(string $key): bool
     {
-        return self::isAggregate($key) || \in_array($key, StatisticsAgeGroupBucketSql::DISPLAY_BUCKET_KEYS, true);
+        return self::isAggregate($key);
     }
 
     public static function isAggregate(string $key): bool
@@ -55,16 +60,8 @@ final class StatisticsAgeGroupFilter
         return match ($key) {
             self::UNDER_18 => sprintf('%s IS NOT NULL AND %s < 18', $ageColumn, $ageColumn),
             self::ADULTS => sprintf('%s IS NOT NULL AND %s >= 18', $ageColumn, $ageColumn),
+            self::OVER_65 => sprintf('%s >= 65', $ageColumn),
             self::OVER_80 => sprintf('%s >= 80', $ageColumn),
-            '0_17' => sprintf('%s IS NOT NULL AND %s <= 17', $ageColumn, $ageColumn),
-            '18_29' => sprintf('%s >= 18 AND %s <= 29', $ageColumn, $ageColumn),
-            '30_39' => sprintf('%s >= 30 AND %s <= 39', $ageColumn, $ageColumn),
-            '40_49' => sprintf('%s >= 40 AND %s <= 49', $ageColumn, $ageColumn),
-            '50_59' => sprintf('%s >= 50 AND %s <= 59', $ageColumn, $ageColumn),
-            '60_69' => sprintf('%s >= 60 AND %s <= 69', $ageColumn, $ageColumn),
-            '70_79' => sprintf('%s >= 70 AND %s <= 79', $ageColumn, $ageColumn),
-            '80_89' => sprintf('%s >= 80 AND %s <= 89', $ageColumn, $ageColumn),
-            '90_99' => sprintf('%s >= 90 AND %s <= 99', $ageColumn, $ageColumn),
             default => null,
         };
     }

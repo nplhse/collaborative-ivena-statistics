@@ -63,20 +63,15 @@ final class AnalysisFilterChoiceProviderIntegrationTest extends KernelTestCase
         self::assertContains('Emergency Care', $urgencyChoices);
     }
 
-    public function testAgeGroupChoicesIncludeAggregatesAndDecadeBuckets(): void
+    public function testAgeGroupChoicesAreTheNamedGroupsOnly(): void
     {
-        $choices = $this->provider->ageGroupChoices();
-
-        self::assertArrayHasKey(StatisticsAgeGroupFilter::UNDER_18, $choices);
-        self::assertArrayHasKey(StatisticsAgeGroupFilter::OVER_80, $choices);
-        self::assertSame('Children & adolescents (under 18)', $choices[StatisticsAgeGroupFilter::UNDER_18]);
-        self::assertSame('Adults (18 and over)', $choices[StatisticsAgeGroupFilter::ADULTS]);
-        self::assertSame(
-            [StatisticsAgeGroupFilter::UNDER_18, StatisticsAgeGroupFilter::ADULTS, StatisticsAgeGroupFilter::OVER_80],
-            \array_slice(array_keys($choices), 0, 3),
-        );
-        self::assertArrayHasKey('30_39', $choices);
-        self::assertArrayNotHasKey('unknown', $choices);
+        // The age buckets are an Explorer dimension, not filter values (#1799).
+        self::assertSame([
+            StatisticsAgeGroupFilter::UNDER_18 => 'Children & adolescents (under 18)',
+            StatisticsAgeGroupFilter::ADULTS => 'Adults (18 and over)',
+            StatisticsAgeGroupFilter::OVER_65 => 'Seniors (65 and over)',
+            StatisticsAgeGroupFilter::OVER_80 => 'Oldest old (80 and over)',
+        ], $this->provider->ageGroupChoices());
     }
 
     public function testBooleanTriStateChoices(): void

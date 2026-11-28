@@ -301,9 +301,13 @@
         <source>statistics.distribution.age.under_18</source>
         <target>Children &amp; adolescents (under 18)</target>
       </trans-unit>
+      <trans-unit id="statsAgeOv65" resname="statistics.distribution.age.over_65">
+        <source>statistics.distribution.age.over_65</source>
+        <target>Seniors (65 and over)</target>
+      </trans-unit>
       <trans-unit id="statsAgeOv80" resname="statistics.distribution.age.over_80">
         <source>statistics.distribution.age.over_80</source>
-        <target>80 and older</target>
+        <target>Oldest old (80 and over)</target>
       </trans-unit>
       <trans-unit id="NyeAvsM" resname="statistics.distribution.age.unknown">
         <source>statistics.distribution.age.unknown</source>

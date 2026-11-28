@@ -118,11 +118,15 @@ The filter drawer and the Analysis Explorer share one age-group filter: URL key 
 | *(empty)* | All / Alle | No age restriction; cases without age are counted |
 | `under_18` | Children & adolescents (under 18) / Kinder & Jugendliche (unter 18) | `age IS NOT NULL AND age < 18` |
 | `adults` | Adults (18 and over) / Erwachsene (ab 18) | `age IS NOT NULL AND age >= 18` |
-| `over_80` | 80 and older / 80 und älter | `age >= 80` |
-| `0_17`, `18_29` … `90_99` | Age buckets of `StatisticsAgeGroupBucketSql` | `age` between the bounds |
+| `over_65` | Seniors (65 and over) / Senior:innen (ab 65) | `age >= 65` |
+| `over_80` | Oldest old (80 and over) / Hochbetagte (ab 80) | `age >= 80` |
+
+The filter offers named groups only (#1799). The age buckets `0_17`, `18_29` … `90_99` of
+`StatisticsAgeGroupBucketSql` are the Explorer `age_group` dimension (rows, columns) and the age distributions
+on other pages, not filter values; until v0.4-beta the filter offered them too.
 
 The adult threshold is 18 (#181): a patient aged 18 counts as an adult. The age buckets follow it: the
-Explorer `age_group` dimension, the filter and Benchmarking, Insights, Overview and Case Flow all use
+Explorer `age_group` dimension and the age distributions of Benchmarking, Insights, Overview and Case Flow all use
 `StatisticsAgeGroupBucketSql` (`0_17`, `18_29`, `30_39`, …), so 18-year-olds are in `18_29` everywhere (#1040).
 
 **Pre-#1040 keys.** Until #1040 the Explorer used `0_18` and `19_29`; migration `Version20261113144614`
@@ -130,8 +134,8 @@ rewrote saved views. Since v0.4-beta (#1125) these keys are no longer mapped and
 unknown age-group value.
 
 **Unknown values.** Only the values in the table above are age groups
-(`StatisticsAgeGroupFilter::isKnown()`). Every other value, including the pre-#1040 keys and the Explorer's
-`unknown` bucket, sets no age restriction on every surface (#1724): the drawer drops it, so the filter is
+(`StatisticsAgeGroupFilter::isKnown()`). Every other value, including the age buckets, the pre-#1040 keys and
+the Explorer's `unknown` bucket, sets no age restriction on every surface (#1724): the drawer drops it, so the filter is
 not active; the Explorer drops it from URLs, saved views and the assistant; and the Explorer queries treat a
 stored unknown value as no condition. Until v0.4-beta the Explorer compared the bucket key instead and
 showed no cases.
