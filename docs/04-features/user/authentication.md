@@ -199,7 +199,7 @@ account for three hours (`AccountLock::LOCK_DURATION`, column `user.login_locked
 - The lock ends on its own after three hours, or when the owner resets the password (`ResetPasswordController`, audit
   intent `user.password_reset_completed` with `login_lock_lifted`). Lifting a lock from the admin area follows with
   #1487.
-- Locking writes the audit intent `user.login.account_locked`, logs `security.login.account_locked` (user id only) and
+- Locking writes the audit intent `user.login.account_locked` (`DoctrineAccountLockWriter`), logs `security.login.account_locked` (user id only) and
   tells the owner once per lock with the notification `security.account_locked` (in-app and a mandatory email), which
   points to the password reset.
 
@@ -256,7 +256,9 @@ for administrators and their notification follow in a later step.
 the shared throttling; `LoginLinkTest` covers the login link (opt-in, same answer for every request, rate limit,
 confirmation page, single use, invalidation, consent); `TwoFactorLoginTest`, `TwoFactorSettingsTest`,
 `TwoFactorObligationAndResetTest`, `SignInGatesTest` and `ResetTwoFactorCommandTest` cover the second factor;
-`AccountLockTest` (unit: counting, duration, expiry, clearing; functional: many IPs, password reset, recorded kinds) covers the account
-lock; `LoginFailureAggregationTest` (integration: daily counts, day boundaries, second run, retention, hashes) and
-`LoginFailureDailyTest` cover the counters; `RegistrationControllerTest` covers the registration answers for new and existing addresses; `RememberMeLoginTest` and `ConfirmPasswordControllerTest` cover
+`AccountLockTest` (unit: counting, duration, expiry, clearing; functional: the form counts, a locked account is refused, the
+password reset lifts the lock) and `AccountLockListenerTest` (which sign-ins are refused and which failures count) cover
+the account lock; `LoginFailureDayQueryTest` (SQL of the daily counts), `LoginFailureDailyTest` (patterns, which days a
+run writes), `LoginFailureAggregationTest` (one run with retention) and the contract tests of
+`LoginFailureRecorderInterface` and `AccountLockWriterInterface` (fakes in `tests/User/Doubles/`) cover the counters; `RegistrationControllerTest` covers the registration answers for new and existing addresses; `RememberMeLoginTest` and `ConfirmPasswordControllerTest` cover
 sessions and re-authentication.

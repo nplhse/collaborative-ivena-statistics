@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace App\Tests\User\Unit\Infrastructure\Security;
 
+use App\Tests\User\Doubles\InMemoryLoginFailureRecorder;
+use App\User\Domain\Enum\LoginFailureKind;
 use App\User\Infrastructure\Security\AccountLock\AccountLockedException;
-use App\User\Infrastructure\Security\LoginFailure\LoginFailureRecorder;
 use App\User\Infrastructure\Security\LoginFailureSubscriber;
-use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
-use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
@@ -30,38 +29,32 @@ final class LoginFailureSubscriberTest extends TestCase
 
     private LoginFailureSubscriber $subscriber;
 
-    /** @var list<array<string, mixed>> rows written to login_failure_event */
-    private array $recorded = [];
+    private InMemoryLoginFailureRecorder $recorder;
 
     protected function setUp(): void
     {
         $this->logger = $this->createMock(LoggerInterface::class);
-
-        $connection = $this->createStub(Connection::class);
-        $connection->method('insert')->willReturnCallback(function (string $table, array $data): int {
-            $this->recorded[] = $data;
-
-            return 1;
-        });
-
-        $this->subscriber = new LoginFailureSubscriber(
-            $this->logger,
-            new LoginFailureRecorder($connection, new MockClock('2026-11-28 10:00:00'), 'test-secret', new NullLogger()),
-        );
+        $this->recorder = new InMemoryLoginFailureRecorder();
+        $this->subscriber = new LoginFailureSubscriber($this->logger, $this->recorder);
     }
 
-    public function testRecordsWrongCredentialsAsFailureAndLimitsAsRefused(): void
+    /** @return iterable<string, array{AuthenticationException, LoginFailureKind}> */
+    public static function exceptionKinds(): iterable
     {
-        $this->logger->expects(self::exactly(3))->method('warning');
+        yield 'wrong credentials' => [new BadCredentialsException('Invalid credentials.'), LoginFailureKind::Failure];
+        yield 'login throttling' => [new TooManyLoginAttemptsAuthenticationException(), LoginFailureKind::Refused];
+        yield 'locked account' => [new AccountLockedException('Invalid credentials.'), LoginFailureKind::Refused];
+    }
+
+    #[DataProvider('exceptionKinds')]
+    public function testRecordsTheFailureWithUsernameAndIp(AuthenticationException $exception, LoginFailureKind $kind): void
+    {
+        $this->logger->expects(self::once())->method('warning');
         $request = Request::create('/login', Request::METHOD_POST, ['login' => ['username' => 'Alice']], server: ['REMOTE_ADDR' => '203.0.113.10']);
 
-        $this->subscriber->onLoginFailure($this->createFailureEvent($request));
-        $this->subscriber->onLoginFailure($this->createFailureEvent($request, exception: new TooManyLoginAttemptsAuthenticationException()));
-        $this->subscriber->onLoginFailure($this->createFailureEvent($request, exception: new AccountLockedException('Invalid credentials.')));
+        $this->subscriber->onLoginFailure($this->createFailureEvent($request, exception: $exception));
 
-        self::assertSame(['failure', 'refused', 'refused'], array_column($this->recorded, 'kind'));
-        self::assertSame(hash_hmac('sha256', 'identifier:alice', 'test-secret'), $this->recorded[0]['identifier_hash']);
-        self::assertSame(hash_hmac('sha256', 'ip:203.0.113.10', 'test-secret'), $this->recorded[0]['ip_hash']);
+        self::assertSame([['kind' => $kind, 'identifier' => 'alice', 'ip' => '203.0.113.10']], $this->recorder->records);
     }
 
     public function testLogsHashFromLoginFormUsernameWithoutPassport(): void
