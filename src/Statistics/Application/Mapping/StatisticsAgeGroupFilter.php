@@ -31,6 +31,15 @@ final class StatisticsAgeGroupFilter
         self::OVER_80 => 'statistics.distribution.age.over_80',
     ];
 
+    /**
+     * Keys the age-group filter understands: the aggregates and the display buckets. Every other value, including
+     * the Explorer's `unknown` bucket and the pre-#1040 keys, is unknown and sets no age restriction (#1724).
+     */
+    public static function isKnown(string $key): bool
+    {
+        return self::isAggregate($key) || \in_array($key, StatisticsAgeGroupBucketSql::DISPLAY_BUCKET_KEYS, true);
+    }
+
     public static function isAggregate(string $key): bool
     {
         return \in_array($key, self::AGGREGATE_KEYS, true);

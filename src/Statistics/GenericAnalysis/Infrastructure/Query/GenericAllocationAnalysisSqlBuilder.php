@@ -306,6 +306,11 @@ final readonly class GenericAllocationAnalysisSqlBuilder
         }
 
         if ('age_group' === $filter->dimensionKey && \is_string($filter->value)) {
+            if (!StatisticsAgeGroupFilter::isKnown($filter->value)) {
+                // An unknown age group sets no restriction, as in the filter drawer (#1724).
+                return ['TRUE', [], []];
+            }
+
             $ageColumn = $usesAllocationAlias ? self::ALLOCATION_ALIAS.'.age' : 'age';
             $aggregateCondition = StatisticsAgeGroupFilter::sqlCondition($ageColumn, $filter->value);
             if (null !== $aggregateCondition) {

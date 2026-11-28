@@ -7,6 +7,7 @@ namespace App\Statistics\AnalysisExplorer\Application;
 use App\Statistics\AnalysisExplorer\Domain\Exception\InvalidExplorerConfigException;
 use App\Statistics\AnalysisExplorer\Domain\ExplorerAnalysisFilterCatalog;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
+use App\Statistics\Application\Mapping\StatisticsAgeGroupFilter;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisFilter;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisFilterOperator;
 
@@ -177,7 +178,9 @@ final readonly class ExplorerAnalysisFilterMapper
     {
         return array_values(array_filter(
             $filters,
-            static fn (AnalysisFilter $filter): bool => ExplorerAnalysisFilterCatalog::isAllowed($filter->dimensionKey),
+            static fn (AnalysisFilter $filter): bool => ExplorerAnalysisFilterCatalog::isAllowed($filter->dimensionKey)
+                && ('age_group' !== $filter->dimensionKey
+                    || (\is_string($filter->value) && StatisticsAgeGroupFilter::isKnown($filter->value))),
         ));
     }
 

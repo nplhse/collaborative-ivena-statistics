@@ -122,6 +122,11 @@ final readonly class GenericAllocationDistributionSqlBuilder
         }
 
         if ('age_group' === $filter->dimensionKey && \is_string($filter->value)) {
+            if (!StatisticsAgeGroupFilter::isKnown($filter->value)) {
+                // An unknown age group sets no restriction, as in the filter drawer (#1724).
+                return ['TRUE', [], []];
+            }
+
             $aggregateCondition = StatisticsAgeGroupFilter::sqlCondition('age', $filter->value);
             if (null !== $aggregateCondition) {
                 return [$aggregateCondition, [], []];

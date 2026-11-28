@@ -121,4 +121,12 @@ final class ExplorerAssistantQueryFactoryTest extends TestCase
         self::assertSame(7, $query->filters->secondaryIndicationId);
         self::assertSame(8, $query->filters->indicationGroupId);
     }
+
+    public function testUnknownAgeGroupIsIgnoredWithoutMarkingTheQueryMalformed(): void
+    {
+        $query = $this->factory->fromRequest(Request::create('/', 'GET', ['age_group' => '0_18']));
+
+        self::assertFalse($query->malformed);
+        self::assertNull($query->filters->ageGroup);
+    }
 }
