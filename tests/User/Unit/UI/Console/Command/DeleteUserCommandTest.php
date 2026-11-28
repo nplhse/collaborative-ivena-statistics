@@ -4,67 +4,163 @@ declare(strict_types=1);
 
 namespace App\Tests\User\Unit\UI\Console\Command;
 
+use App\Allocation\Domain\Entity\Hospital;
 use App\User\Application\AdministrativeUser\AdministrativeUserService;
 use App\User\Application\AdministrativeUser\UserNotDeletableException;
 use App\User\Domain\Entity\User;
+use App\User\Domain\Security\UserRole;
 use App\User\UI\Console\Command\DeleteUserCommand;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Validator\Validation;
 
+/**
+ * Every answer and refusal of `app:user:delete`, with a stubbed service and the real username constraints. The deletion
+ * in the database is in the functional `DeleteUserCommandTest`; that the service itself refuses the last administrator,
+ * a hospital owner and a user other records still reference is in `DoctrineAdministrativeUserServiceTest` (integration).
+ */
+#[CoversClass(DeleteUserCommand::class)]
 final class DeleteUserCommandTest extends TestCase
 {
-    public function testReturnsFailureWhenDeleteReportsTheUserIsStillReferenced(): void
+    /** @var list<User> */
+    private array $deleted = [];
+
+    public function testFailsWhenNotInteractive(): void
     {
-        $user = new User()->setUsername('alice');
+        $tester = $this->tester($this->alice());
 
-        $service = $this->createMock(AdministrativeUserService::class);
-        $service->method('findByUsername')->with('alice')->willReturn($user);
-        $service->method('delete')->willThrowException(UserNotDeletableException::referenced());
-
-        $io = $this->createMock(SymfonyStyle::class);
-        $io->method('ask')->willReturn('alice');
-        $io->method('confirm')->willReturn(true);
-        $io->expects(self::once())->method('error')->with(UserNotDeletableException::REFERENCED);
-
-        $status = new DeleteUserCommand($service, $this->acceptingValidator())(
-            $io,
-            $this->interactiveInput(),
-        );
+        $status = $tester->execute([], ['interactive' => false]);
 
         self::assertSame(Command::FAILURE, $status);
+        self::assertStringContainsString('must be run interactively', $this->display($tester));
+        self::assertSame([], $this->deleted);
     }
 
-    public function testReturnsFailureWhenUsernameAnswerIsNotAString(): void
+    public function testDeletesAfterConfirmation(): void
     {
-        $io = $this->createMock(SymfonyStyle::class);
-        $io->method('ask')->willReturn(null);
-        $io->expects(self::once())->method('error')->with('No user found with the given username.');
+        $alice = $this->alice();
+        $tester = $this->tester($alice);
+        $tester->setInputs(['alice', 'yes']);
 
-        $status = new DeleteUserCommand(
-            $this->createStub(AdministrativeUserService::class),
-            $this->acceptingValidator(),
-        )($io, $this->interactiveInput());
+        $tester->execute([]);
+
+        $tester->assertCommandIsSuccessful();
+        self::assertStringContainsString('Delete user "alice" (alice@example.test)? This cannot be undone.', $this->display($tester));
+        self::assertStringContainsString('Deleted user "alice".', $this->display($tester));
+        self::assertSame([$alice], $this->deleted);
+    }
+
+    public function testAsksAgainForAnInvalidUsername(): void
+    {
+        $alice = $this->alice();
+        $tester = $this->tester($alice);
+        $tester->setInputs(['ab', 'alice', 'yes']);
+
+        $tester->execute([]);
+
+        $tester->assertCommandIsSuccessful();
+        self::assertStringContainsString('This value is too short.', $this->display($tester));
+        self::assertSame([$alice], $this->deleted);
+    }
+
+    public function testFailsForAnUnknownUsername(): void
+    {
+        $tester = $this->tester(null);
+        $tester->setInputs(['unknown-user']);
+
+        $status = $tester->execute([]);
 
         self::assertSame(Command::FAILURE, $status);
+        self::assertStringContainsString('No user found with username "unknown-user".', $this->display($tester));
     }
 
-    private function interactiveInput(): InputInterface
+    public function testRefusesTheLastAdministratorBeforeAskingForConfirmation(): void
     {
-        $input = $this->createStub(InputInterface::class);
-        $input->method('isInteractive')->willReturn(true);
+        $tester = $this->tester($this->alice()->setRoles([UserRole::USER, UserRole::ADMIN]), administrators: 1);
+        $tester->setInputs(['alice']);
 
-        return $input;
+        $status = $tester->execute([]);
+
+        self::assertSame(Command::FAILURE, $status);
+        self::assertStringContainsString(UserNotDeletableException::LAST_ADMINISTRATOR, $this->display($tester));
+        self::assertStringNotContainsString('This cannot be undone', $this->display($tester));
+        self::assertSame([], $this->deleted);
     }
 
-    private function acceptingValidator(): ValidatorInterface
+    public function testRefusesAHospitalOwnerBeforeAskingForConfirmation(): void
     {
-        $validator = $this->createStub(ValidatorInterface::class);
-        $validator->method('validate')->willReturn(new ConstraintViolationList());
+        $tester = $this->tester($this->alice()->addHospital(new Hospital()));
+        $tester->setInputs(['alice']);
 
-        return $validator;
+        $status = $tester->execute([]);
+
+        self::assertSame(Command::FAILURE, $status);
+        self::assertStringContainsString(UserNotDeletableException::OWNS_HOSPITALS, $this->display($tester));
+        self::assertStringNotContainsString('This cannot be undone', $this->display($tester));
+        self::assertSame([], $this->deleted);
+    }
+
+    public function testAnotherAdministratorMayBeDeleted(): void
+    {
+        $alice = $this->alice()->setRoles([UserRole::USER, UserRole::ADMIN]);
+        $tester = $this->tester($alice, administrators: 2);
+        $tester->setInputs(['alice', 'yes']);
+
+        $tester->execute([]);
+
+        $tester->assertCommandIsSuccessful();
+        self::assertSame([$alice], $this->deleted);
+    }
+
+    public function testAbortDeletesNothing(): void
+    {
+        $tester = $this->tester($this->alice());
+        $tester->setInputs(['alice', 'no']);
+
+        $tester->execute([]);
+
+        $tester->assertCommandIsSuccessful();
+        self::assertStringContainsString('Aborted.', $this->display($tester));
+        self::assertSame([], $this->deleted);
+    }
+
+    public function testReportsWhenOtherRecordsStillReferenceTheUser(): void
+    {
+        $tester = $this->tester($this->alice(), deleteFails: UserNotDeletableException::referenced());
+        $tester->setInputs(['alice', 'yes']);
+
+        $status = $tester->execute([]);
+
+        self::assertSame(Command::FAILURE, $status);
+        self::assertStringContainsString(UserNotDeletableException::REFERENCED, $this->display($tester));
+        self::assertStringNotContainsString('Deleted user', $this->display($tester));
+    }
+
+    private function alice(): User
+    {
+        return new User()->setUsername('alice')->setEmail('alice@example.test')->setRoles([UserRole::USER]);
+    }
+
+    /** The output with SymfonyStyle's line wrapping undone. */
+    private function display(CommandTester $tester): string
+    {
+        return (string) preg_replace('/\s+/', ' ', $tester->getDisplay());
+    }
+
+    private function tester(?User $found, int $administrators = 1, ?UserNotDeletableException $deleteFails = null): CommandTester
+    {
+        $service = $this->createStub(AdministrativeUserService::class);
+        $service->method('findByUsername')->willReturnCallback(static fn (string $username): ?User => $username === $found?->getUserIdentifier() ? $found : null);
+        $service->method('countAdministrators')->willReturn($administrators);
+        $service->method('delete')->willReturnCallback(function (User $user) use ($deleteFails): void {
+            if ($deleteFails instanceof UserNotDeletableException) {
+                throw $deleteFails;
+            }
+            $this->deleted[] = $user;
+        });
+
+        return new CommandTester(new DeleteUserCommand($service, Validation::createValidator()));
     }
 }

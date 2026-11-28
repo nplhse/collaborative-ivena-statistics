@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\User\Functional\Command;
 
-use App\Allocation\Infrastructure\Factory\HospitalAccessGrantFactory;
+use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Infrastructure\Factory\ImportFactory;
@@ -12,12 +12,18 @@ use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use App\User\UI\Console\Command\BackfillUserCreatedAtCommand;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
+/**
+ * Dry run and apply of `app:user:backfill-created-at` over the console. Which date wins (own import before hospital
+ * import, earliest hospital, already earlier, none) is in `UserCreatedAtBackfillDecisionTest`; that failed and pending
+ * imports do not count in `DoctrineUserCreatedAtBackfillImportSourceTest`; that access grants do not count in
+ * `UserCreatedAtBackfillHospitalQueryTest`.
+ */
 #[ResetDatabase]
 final class BackfillUserCreatedAtCommandTest extends KernelTestCase
 {
@@ -26,366 +32,76 @@ final class BackfillUserCreatedAtCommandTest extends KernelTestCase
     #[\Override]
     protected function setUp(): void
     {
+        parent::setUp();
+
         self::bootKernel();
     }
 
-    public function testOwnImportUpdatesCreatedAtAndIsIdempotent(): void
+    /** @return iterable<string, array{array<string, bool>}> */
+    public static function dryRunOptions(): iterable
     {
-        $user = $this->createUser('max-mustermann', '2026-08-13 14:20:00');
-        $hospital = HospitalFactory::createOne([
-            'name' => 'Own Import Klinik',
-            'owner' => $user,
-            'createdBy' => $user,
-        ]);
-        ImportFactory::createOne([
-            'hospital' => $hospital,
-            'createdBy' => $user,
-            'status' => ImportStatus::COMPLETED,
-            'createdAt' => new \DateTimeImmutable('2022-05-10 09:42:00'),
-        ]);
+        yield 'default' => [[]];
+        yield 'explicit --dry-run' => [['--dry-run' => true]];
+    }
 
-        $userId = $this->userId($user);
-        $updatedAtBefore = $this->fetchUpdatedAt($userId);
-
+    /**
+     * @param array<string, bool> $options
+     */
+    #[DataProvider('dryRunOptions')]
+    public function testDryRunReportsEveryUserAndWritesNothing(array $options): void
+    {
+        $alice = $this->createUser('alice', '2026-08-13 14:20:00');
+        $bob = $this->createUser('bob', '2026-08-13 14:20:00');
+        // carol imports for bob's hospital; her own account date is older than that import
+        $carol = $this->createUser('carol', '2020-01-01 00:00:00');
+        $dave = $this->createUser('dave', '2026-08-13 14:20:00');
+        $this->import($alice, HospitalFactory::createOne(['name' => 'Alice Klinik', 'owner' => $alice]), '2022-05-10 09:42:00');
+        $this->import($carol, HospitalFactory::createOne(['name' => 'Klinikum Musterstadt', 'owner' => $bob]), '2021-04-03 08:15:00');
         $tester = $this->createCommandTester();
-        $dryRun = $tester->execute([]);
 
-        self::assertSame(Command::SUCCESS, $dryRun);
-        $display = $tester->getDisplay();
-        self::assertStringContainsString('User #'.$userId.' – max-mustermann', $display);
-        self::assertStringContainsString('2026-08-13 14:20', $display);
-        self::assertStringContainsString('own import', $display);
-        self::assertStringContainsString('2022-05-10 09:42', $display);
-        self::assertStringContainsString('would update', $display);
+        $tester->execute($options);
+
+        $tester->assertCommandIsSuccessful();
+        $display = $tester->getDisplay(true);
         self::assertStringContainsString('Dry run: no rows will be written.', $display);
-        self::assertSame('2026-08-13 14:20:00', $this->fetchCreatedAt($userId)->format('Y-m-d H:i:s'));
-
-        $apply = $tester->execute(['--apply' => true]);
-
-        self::assertSame(Command::SUCCESS, $apply);
-        self::assertStringContainsString('updated', $tester->getDisplay());
-        self::assertSame('2022-05-10 09:42:00', $this->fetchCreatedAt($userId)->format('Y-m-d H:i:s'));
-        self::assertSame($updatedAtBefore, $this->fetchUpdatedAt($userId));
-
-        $second = $tester->execute(['--apply' => true]);
-
-        self::assertSame(Command::SUCCESS, $second);
-        self::assertStringContainsString('no change – current value is already earlier', $tester->getDisplay());
-        self::assertSame('2022-05-10 09:42:00', $this->fetchCreatedAt($userId)->format('Y-m-d H:i:s'));
-        self::assertSame($updatedAtBefore, $this->fetchUpdatedAt($userId));
+        self::assertStringContainsString(
+            $this->block($alice, '2026-08-13 14:20', "Source:\nown import\nReconstructed createdAt:\n2022-05-10 09:42\nAction:\nwould update"),
+            $display,
+        );
+        self::assertStringContainsString(
+            $this->block($bob, '2026-08-13 14:20', "Source:\nhospital import\nHospital:\nKlinikum Musterstadt\nReconstructed createdAt:\n2021-04-03 08:15\nAction:\nwould update"),
+            $display,
+        );
+        self::assertStringContainsString(
+            $this->block($carol, '2020-01-01 00:00', "Source:\nown import\nReconstructed createdAt:\n2021-04-03 08:15\nAction:\nno change – current value is already earlier"),
+            $display,
+        );
+        self::assertStringContainsString(
+            $this->block($dave, '2026-08-13 14:20', "Own import:\nnone\nHospital import:\nnone\nAction:\nno change"),
+            $display,
+        );
+        self::assertSame('2026-08-13 14:20:00', $this->fetchCreatedAt($alice));
+        self::assertSame('2026-08-13 14:20:00', $this->fetchCreatedAt($bob));
     }
 
-    public function testHospitalOwnerImportUsedWhenNoOwnImport(): void
+    public function testApplyWritesTheEarlierDateWithoutTouchingUpdatedAt(): void
     {
-        $user = $this->createUser('max-mustermann', '2026-08-13 14:20:00');
-        $importer = $this->createUser('legacy-importer', '2020-01-01 00:00:00');
-        $hospital = HospitalFactory::createOne([
-            'name' => 'Klinikum Musterstadt',
-            'owner' => $user,
-            'createdBy' => $importer,
-        ]);
-        ImportFactory::createOne([
-            'hospital' => $hospital,
-            'createdBy' => $importer,
-            'status' => ImportStatus::COMPLETED,
-            'createdAt' => new \DateTimeImmutable('2021-04-03 08:15:00'),
-        ]);
-
+        $alice = $this->createUser('alice', '2026-08-13 14:20:00');
+        $bob = $this->createUser('bob', '2026-08-13 14:20:00');
+        $carol = $this->createUser('carol', '2020-01-01 00:00:00');
+        $this->import($alice, HospitalFactory::createOne(['name' => 'Alice Klinik', 'owner' => $alice]), '2022-05-10 09:42:00');
+        $this->import($carol, HospitalFactory::createOne(['name' => 'Klinikum Musterstadt', 'owner' => $bob]), '2021-04-03 08:15:00');
+        $updatedAtBefore = $this->fetchUpdatedAt($alice);
         $tester = $this->createCommandTester();
-        $exitCode = $tester->execute(['--apply' => true]);
 
-        self::assertSame(Command::SUCCESS, $exitCode);
-        $display = $tester->getDisplay();
-        self::assertStringContainsString('hospital import', $display);
-        self::assertStringContainsString('Klinikum Musterstadt', $display);
-        self::assertStringContainsString('2021-04-03 08:15', $display);
-        self::assertSame('2021-04-03 08:15:00', $this->fetchCreatedAt($this->userId($user))->format('Y-m-d H:i:s'));
-    }
+        $tester->execute(['--apply' => true]);
 
-    public function testAccessGrantHospitalImportIsIgnored(): void
-    {
-        $user = $this->createUser('erika-beispiel', '2026-08-13 14:20:00');
-        $owner = $this->createUser('hospital-owner', '2020-01-01 00:00:00');
-        $hospital = HospitalFactory::createOne([
-            'name' => 'Grant Klinik',
-            'owner' => $owner,
-            'createdBy' => $owner,
-        ]);
-        HospitalAccessGrantFactory::createOne([
-            'user' => $user,
-            'hospital' => $hospital,
-            'createdBy' => $owner,
-        ]);
-        ImportFactory::createOne([
-            'hospital' => $hospital,
-            'createdBy' => $owner,
-            'status' => ImportStatus::COMPLETED,
-            'createdAt' => new \DateTimeImmutable('2021-09-03 11:14:00'),
-        ]);
-
-        $tester = $this->createCommandTester();
-        $exitCode = $tester->execute(['--apply' => true]);
-
-        self::assertSame(Command::SUCCESS, $exitCode);
-        $block = $this->userBlock($tester->getDisplay(), 'erika-beispiel');
-        self::assertStringContainsString('Own import:', $block);
-        self::assertStringContainsString('none', $block);
-        self::assertStringContainsString('Hospital import:', $block);
-        self::assertStringContainsString('no change', $block);
-        self::assertSame('2026-08-13 14:20:00', $this->fetchCreatedAt($this->userId($user))->format('Y-m-d H:i:s'));
-    }
-
-    public function testAccessGrantUserStillUsesOwnImport(): void
-    {
-        $user = $this->createUser('grant-with-own-import', '2026-08-13 14:20:00');
-        $owner = $this->createUser('grant-hospital-owner', '2020-01-01 00:00:00');
-        $hospital = HospitalFactory::createOne([
-            'name' => 'Grant Own Import Klinik',
-            'owner' => $owner,
-            'createdBy' => $owner,
-        ]);
-        HospitalAccessGrantFactory::createOne([
-            'user' => $user,
-            'hospital' => $hospital,
-            'createdBy' => $owner,
-        ]);
-        ImportFactory::createOne([
-            'hospital' => $hospital,
-            'createdBy' => $owner,
-            'status' => ImportStatus::COMPLETED,
-            'createdAt' => new \DateTimeImmutable('2020-01-01 00:00:00'),
-        ]);
-        ImportFactory::createOne([
-            'hospital' => $hospital,
-            'createdBy' => $user,
-            'status' => ImportStatus::COMPLETED,
-            'createdAt' => new \DateTimeImmutable('2022-05-10 09:42:00'),
-        ]);
-
-        $tester = $this->createCommandTester();
-        $exitCode = $tester->execute(['--apply' => true]);
-
-        self::assertSame(Command::SUCCESS, $exitCode);
-        $block = $this->userBlock($tester->getDisplay(), 'grant-with-own-import');
-        self::assertStringContainsString('own import', $block);
-        self::assertStringNotContainsString('hospital import', $block);
-        self::assertSame('2022-05-10 09:42:00', $this->fetchCreatedAt($this->userId($user))->format('Y-m-d H:i:s'));
-    }
-
-    public function testGrantHospitalIsIgnoredWhenUserAlsoOwnsAnotherHospital(): void
-    {
-        $user = $this->createUser('owner-and-grantee', '2026-08-13 14:20:00');
-        $otherOwner = $this->createUser('other-hospital-owner', '2019-01-01 00:00:00');
-        $ownedHospital = HospitalFactory::createOne([
-            'name' => 'Owned Klinik',
-            'owner' => $user,
-            'createdBy' => $user,
-        ]);
-        $grantedHospital = HospitalFactory::createOne([
-            'name' => 'Older Grant Klinik',
-            'owner' => $otherOwner,
-            'createdBy' => $otherOwner,
-        ]);
-        HospitalAccessGrantFactory::createOne([
-            'user' => $user,
-            'hospital' => $grantedHospital,
-            'createdBy' => $otherOwner,
-        ]);
-        ImportFactory::createOne([
-            'hospital' => $ownedHospital,
-            'createdBy' => $otherOwner,
-            'status' => ImportStatus::COMPLETED,
-            'createdAt' => new \DateTimeImmutable('2023-01-01 10:00:00'),
-        ]);
-        ImportFactory::createOne([
-            'hospital' => $grantedHospital,
-            'createdBy' => $otherOwner,
-            'status' => ImportStatus::COMPLETED,
-            'createdAt' => new \DateTimeImmutable('2020-08-15 07:30:00'),
-        ]);
-
-        $tester = $this->createCommandTester();
-        $exitCode = $tester->execute(['--apply' => true]);
-
-        self::assertSame(Command::SUCCESS, $exitCode);
-        $block = $this->userBlock($tester->getDisplay(), 'owner-and-grantee');
-        self::assertStringContainsString('hospital import', $block);
-        self::assertStringContainsString('Owned Klinik', $block);
-        self::assertStringNotContainsString('Older Grant Klinik', $block);
-        self::assertSame('2023-01-01 10:00:00', $this->fetchCreatedAt($this->userId($user))->format('Y-m-d H:i:s'));
-    }
-
-    public function testEarliestHospitalImportWinsAcrossMultipleHospitals(): void
-    {
-        $user = $this->createUser('multi-hospital', '2026-08-13 14:20:00');
-        $importer = $this->createUser('multi-importer', '2019-01-01 00:00:00');
-        $hospitalA = HospitalFactory::createOne([
-            'name' => 'Hospital A',
-            'owner' => $user,
-            'createdBy' => $importer,
-        ]);
-        $hospitalB = HospitalFactory::createOne([
-            'name' => 'Hospital B',
-            'owner' => $user,
-            'createdBy' => $importer,
-        ]);
-        ImportFactory::createOne([
-            'hospital' => $hospitalA,
-            'createdBy' => $importer,
-            'status' => ImportStatus::COMPLETED,
-            'createdAt' => new \DateTimeImmutable('2023-01-01 10:00:00'),
-        ]);
-        ImportFactory::createOne([
-            'hospital' => $hospitalB,
-            'createdBy' => $importer,
-            'status' => ImportStatus::COMPLETED,
-            'createdAt' => new \DateTimeImmutable('2020-08-15 07:30:00'),
-        ]);
-
-        $tester = $this->createCommandTester();
-        $exitCode = $tester->execute(['--apply' => true]);
-
-        self::assertSame(Command::SUCCESS, $exitCode);
-        self::assertStringContainsString('Hospital B', $tester->getDisplay());
-        self::assertSame('2020-08-15 07:30:00', $this->fetchCreatedAt($this->userId($user))->format('Y-m-d H:i:s'));
-    }
-
-    public function testOwnImportTakesPrecedenceOverOlderHospitalImport(): void
-    {
-        $user = $this->createUser('priority-user', '2026-08-13 14:20:00');
-        $importer = $this->createUser('priority-importer', '2019-01-01 00:00:00');
-        $hospital = HospitalFactory::createOne([
-            'name' => 'Priority Klinik',
-            'owner' => $user,
-            'createdBy' => $importer,
-        ]);
-        ImportFactory::createOne([
-            'hospital' => $hospital,
-            'createdBy' => $user,
-            'status' => ImportStatus::COMPLETED,
-            'createdAt' => new \DateTimeImmutable('2022-05-10 09:42:00'),
-        ]);
-        ImportFactory::createOne([
-            'hospital' => $hospital,
-            'createdBy' => $importer,
-            'status' => ImportStatus::COMPLETED,
-            'createdAt' => new \DateTimeImmutable('2020-01-01 00:00:00'),
-        ]);
-
-        $tester = $this->createCommandTester();
-        $exitCode = $tester->execute(['--apply' => true]);
-
-        self::assertSame(Command::SUCCESS, $exitCode);
-        $display = $tester->getDisplay();
-        self::assertStringContainsString('own import', $display);
-        self::assertStringNotContainsString('hospital import', $this->userBlock($display, 'priority-user'));
-        self::assertSame('2022-05-10 09:42:00', $this->fetchCreatedAt($this->userId($user))->format('Y-m-d H:i:s'));
-    }
-
-    public function testNoHistoricalDataLeavesCreatedAtUnchanged(): void
-    {
-        $user = $this->createUser('no-history', '2026-08-13 14:20:00');
-
-        $tester = $this->createCommandTester();
-        $exitCode = $tester->execute(['--apply' => true]);
-
-        self::assertSame(Command::SUCCESS, $exitCode);
-        $display = $tester->getDisplay();
-        self::assertStringContainsString('Own import:', $display);
-        self::assertStringContainsString('none', $display);
-        self::assertStringContainsString('Hospital import:', $display);
-        self::assertStringContainsString('no change', $this->userBlock($display, 'no-history'));
-        self::assertSame('2026-08-13 14:20:00', $this->fetchCreatedAt($this->userId($user))->format('Y-m-d H:i:s'));
-    }
-
-    public function testCurrentCreatedAtAlreadyEarlierIsNotReplaced(): void
-    {
-        $user = $this->createUser('already-earlier', '2021-01-01 00:00:00');
-        $hospital = HospitalFactory::createOne([
-            'name' => 'Later Import Klinik',
-            'owner' => $user,
-            'createdBy' => $user,
-        ]);
-        ImportFactory::createOne([
-            'hospital' => $hospital,
-            'createdBy' => $user,
-            'status' => ImportStatus::COMPLETED,
-            'createdAt' => new \DateTimeImmutable('2022-05-10 09:42:00'),
-        ]);
-
-        $tester = $this->createCommandTester();
-        $exitCode = $tester->execute(['--apply' => true]);
-
-        self::assertSame(Command::SUCCESS, $exitCode);
-        self::assertStringContainsString('no change – current value is already earlier', $tester->getDisplay());
-        self::assertSame('2021-01-01 00:00:00', $this->fetchCreatedAt($this->userId($user))->format('Y-m-d H:i:s'));
-    }
-
-    public function testFailedAndPendingImportsAreIgnoredAndPartialCounts(): void
-    {
-        $user = $this->createUser('status-user', '2026-08-13 14:20:00');
-        $importer = $this->createUser('status-importer', '2018-01-01 00:00:00');
-        $hospital = HospitalFactory::createOne([
-            'name' => 'Status Klinik',
-            'owner' => $user,
-            'createdBy' => $importer,
-        ]);
-        ImportFactory::createOne([
-            'hospital' => $hospital,
-            'createdBy' => $user,
-            'status' => ImportStatus::FAILED,
-            'createdAt' => new \DateTimeImmutable('2020-01-01 00:00:00'),
-        ]);
-        ImportFactory::createOne([
-            'hospital' => $hospital,
-            'createdBy' => $user,
-            'status' => ImportStatus::PENDING,
-            'createdAt' => new \DateTimeImmutable('2020-06-01 00:00:00'),
-        ]);
-        ImportFactory::createOne([
-            'hospital' => $hospital,
-            'createdBy' => $user,
-            'status' => ImportStatus::PARTIAL,
-            'createdAt' => new \DateTimeImmutable('2022-05-10 09:42:00'),
-        ]);
-        ImportFactory::createOne([
-            'hospital' => $hospital,
-            'createdBy' => $importer,
-            'status' => ImportStatus::COMPLETED,
-            'createdAt' => new \DateTimeImmutable('2019-01-01 00:00:00'),
-        ]);
-
-        $tester = $this->createCommandTester();
-        $exitCode = $tester->execute(['--apply' => true]);
-
-        self::assertSame(Command::SUCCESS, $exitCode);
-        $block = $this->userBlock($tester->getDisplay(), 'status-user');
-        self::assertStringContainsString('own import', $block);
-        self::assertStringContainsString('2022-05-10 09:42', $block);
-        self::assertSame('2022-05-10 09:42:00', $this->fetchCreatedAt($this->userId($user))->format('Y-m-d H:i:s'));
-    }
-
-    public function testExplicitDryRunFlagDoesNotWrite(): void
-    {
-        $user = $this->createUser('dry-run-flag', '2026-08-13 14:20:00');
-        $hospital = HospitalFactory::createOne([
-            'name' => 'Dry Run Klinik',
-            'owner' => $user,
-            'createdBy' => $user,
-        ]);
-        ImportFactory::createOne([
-            'hospital' => $hospital,
-            'createdBy' => $user,
-            'status' => ImportStatus::COMPLETED,
-            'createdAt' => new \DateTimeImmutable('2022-04-17 09:42:00'),
-        ]);
-
-        $tester = $this->createCommandTester();
-        $exitCode = $tester->execute(['--dry-run' => true]);
-
-        self::assertSame(Command::SUCCESS, $exitCode);
-        self::assertStringContainsString('would update', $tester->getDisplay());
-        self::assertSame('2026-08-13 14:20:00', $this->fetchCreatedAt($this->userId($user))->format('Y-m-d H:i:s'));
+        $tester->assertCommandIsSuccessful();
+        self::assertStringContainsString('Updated 2 user(s).', $tester->getDisplay(true));
+        self::assertSame('2022-05-10 09:42:00', $this->fetchCreatedAt($alice), 'own import');
+        self::assertSame('2021-04-03 08:15:00', $this->fetchCreatedAt($bob), 'import of the owned hospital');
+        self::assertSame('2020-01-01 00:00:00', $this->fetchCreatedAt($carol), 'already earlier');
+        self::assertSame($updatedAtBefore, $this->fetchUpdatedAt($alice), 'the backfill is no profile change');
     }
 
     private function createUser(string $username, string $createdAt): User
@@ -397,48 +113,34 @@ final class BackfillUserCreatedAtCommandTest extends KernelTestCase
         ]);
     }
 
-    private function userId(User $user): int
+    private function import(User $createdBy, Hospital $hospital, string $createdAt): void
     {
-        $id = $user->getId();
-        self::assertNotNull($id);
-
-        return $id;
+        ImportFactory::createOne([
+            'hospital' => $hospital,
+            'createdBy' => $createdBy,
+            'status' => ImportStatus::COMPLETED,
+            'createdAt' => new \DateTimeImmutable($createdAt),
+        ]);
     }
 
-    private function fetchCreatedAt(int $userId): \DateTimeImmutable
+    private function block(User $user, string $currentCreatedAt, string $rest): string
     {
-        /** @var Connection $connection */
-        $connection = self::getContainer()->get(Connection::class);
-        $value = $connection->fetchOne('SELECT created_at FROM "user" WHERE id = :id', ['id' => $userId]);
-        self::assertNotFalse($value);
-        self::assertNotNull($value);
-
-        if ($value instanceof \DateTimeImmutable) {
-            return $value;
-        }
-
-        if ($value instanceof \DateTimeInterface) {
-            return \DateTimeImmutable::createFromInterface($value);
-        }
-
-        return new \DateTimeImmutable((string) $value);
+        return \sprintf("User #%d – %s\nCurrent createdAt:\n%s\n%s\n", (int) $user->getId(), (string) $user->getUsername(), $currentCreatedAt, $rest);
     }
 
-    private function fetchUpdatedAt(int $userId): mixed
+    private function fetchCreatedAt(User $user): string
     {
-        /** @var Connection $connection */
-        $connection = self::getContainer()->get(Connection::class);
+        $value = self::getContainer()->get(Connection::class)
+            ->fetchOne('SELECT created_at FROM "user" WHERE id = :id', ['id' => $user->getId()]);
+        self::assertIsString($value);
 
-        return $connection->fetchOne('SELECT updated_at FROM "user" WHERE id = :id', ['id' => $userId]);
+        return $value;
     }
 
-    private function userBlock(string $display, string $username): string
+    private function fetchUpdatedAt(User $user): mixed
     {
-        if (1 !== preg_match('/User #\d+ – '.preg_quote($username, '/').'\n.*?(?=User #\d+ – |\nSummary\n|\n \[OK\])/s', $display, $matches)) {
-            self::fail('Could not find report block for user '.$username);
-        }
-
-        return $matches[0];
+        return self::getContainer()->get(Connection::class)
+            ->fetchOne('SELECT updated_at FROM "user" WHERE id = :id', ['id' => $user->getId()]);
     }
 
     private function createCommandTester(): CommandTester
