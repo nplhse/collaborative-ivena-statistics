@@ -135,4 +135,14 @@ final class StatisticsDrawerFilterFactoryTest extends TestCase
     {
         return (new Request($parameters))->query;
     }
+
+    public function testIgnoresUnknownAgeGroups(): void
+    {
+        foreach (['0_18', 'unknown', 'foo'] as $value) {
+            $filter = $this->factory->fromQuery($this->queryBag(['age_group' => $value]));
+
+            self::assertNull($filter->ageGroup, $value);
+            self::assertFalse($filter->isActive(), $value);
+        }
+    }
 }

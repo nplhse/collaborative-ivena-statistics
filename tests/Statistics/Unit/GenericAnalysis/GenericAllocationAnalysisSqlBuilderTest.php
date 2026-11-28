@@ -323,4 +323,24 @@ final class GenericAllocationAnalysisSqlBuilderTest extends TestCase
         self::assertStringContainsString('age >= 80', $sql);
         self::assertStringNotContainsString('filter_age_group', $sql);
     }
+
+    public function testUnknownAgeGroupFilterSetsNoRestriction(): void
+    {
+        [$sql, $params] = $this->builder->build(new AnalysisQuery(
+            primaryDimensionKey: 'month',
+            scopeCriteria: StatisticsScopeCriteria::public(),
+            periodBounds: new StatisticsPeriodBounds(null),
+            filters: [
+                new \App\Statistics\GenericAnalysis\Domain\DTO\AnalysisFilter(
+                    dimensionKey: 'age_group',
+                    operator: \App\Statistics\GenericAnalysis\Domain\Enum\AnalysisFilterOperator::Equals,
+                    value: '0_18',
+                ),
+            ],
+        ));
+
+        self::assertStringNotContainsString('filter_age_group', $sql);
+        self::assertStringNotContainsString('age >=', $sql);
+        self::assertNotContains('0_18', $params);
+    }
 }

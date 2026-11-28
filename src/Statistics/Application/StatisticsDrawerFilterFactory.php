@@ -7,6 +7,7 @@ namespace App\Statistics\Application;
 use App\Allocation\Application\Filter\OptionalRelationFilter;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Statistics\Application\DTO\StatisticsDrawerFilter;
+use App\Statistics\Application\Mapping\StatisticsAgeGroupFilter;
 use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -43,7 +44,9 @@ final class StatisticsDrawerFilterFactory
 
     private function parseAgeGroup(string $value): ?string
     {
-        return $this->parseNonEmptyString($value);
+        $key = $this->parseNonEmptyString($value);
+
+        return null !== $key && StatisticsAgeGroupFilter::isKnown($key) ? $key : null;
     }
 
     private function parsePositiveInt(string $value): ?int

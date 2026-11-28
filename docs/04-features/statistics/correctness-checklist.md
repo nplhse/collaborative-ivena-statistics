@@ -56,7 +56,7 @@ adds its own exception here.
 | #1788 | Empty periods show 0.0 instead of no value on Benchmarking, the self-benchmark and the monthly report |
 | #1789 | Overview top reports group by name, the other surfaces by ID |
 | #1790 | Closure Analytics counts allocations from `allocation`, not from the deduplicated projection |
-| #1724 | Allocations without an age: unknown bucket on the Overview, left out in the Explorer, part of the denominator on Benchmarking |
+| #1795 | Allocations without an age: unknown bucket on the Overview, left out in the Explorer, part of the denominator on Benchmarking |
 | #1252 | A relative change against 0 is no value on Overview and monthly report, 0.0 on Benchmarking |
 
 Remove a row when its issue is merged, and adjust the table above if the fix changes it.

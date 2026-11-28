@@ -107,4 +107,24 @@ final class GenericAllocationDistributionSqlBuilderTest extends TestCase
         self::assertSame([10, 20], $params['filter_department']);
         self::assertArrayHasKey('filter_department', $types);
     }
+
+    public function testUnknownAgeGroupFilterSetsNoRestriction(): void
+    {
+        [$sql, $params] = $this->builder->build(new AnalysisQuery(
+            primaryDimensionKey: 'urgency',
+            scopeCriteria: StatisticsScopeCriteria::public(),
+            periodBounds: new StatisticsPeriodBounds(null),
+            filters: [
+                new \App\Statistics\GenericAnalysis\Domain\DTO\AnalysisFilter(
+                    dimensionKey: 'age_group',
+                    operator: \App\Statistics\GenericAnalysis\Domain\Enum\AnalysisFilterOperator::Equals,
+                    value: '0_18',
+                ),
+            ],
+        ));
+
+        self::assertStringNotContainsString('filter_age_group', $sql);
+        self::assertStringNotContainsString('age >=', $sql);
+        self::assertNotContains('0_18', $params);
+    }
 }

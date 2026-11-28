@@ -76,4 +76,19 @@ final class StatisticsAgeGroupFilterTest extends TestCase
             StatisticsAgeGroupFilter::bucketTranslationKey('30_39'),
         );
     }
+
+    public function testIsKnownAcceptsAggregatesAndDisplayBuckets(): void
+    {
+        foreach ([...StatisticsAgeGroupFilter::AGGREGATE_KEYS, '0_17', '18_29', '90_99'] as $key) {
+            self::assertTrue(StatisticsAgeGroupFilter::isKnown($key), $key);
+        }
+    }
+
+    public function testIsKnownRejectsEveryOtherValue(): void
+    {
+        // The Explorer's unknown bucket, the pre-#1040 keys and arbitrary input set no age restriction (#1724).
+        foreach (['unknown', '0_18', '19_29', 'UNDER_18', ' adults', 'foo', ''] as $key) {
+            self::assertFalse(StatisticsAgeGroupFilter::isKnown($key), $key);
+        }
+    }
 }

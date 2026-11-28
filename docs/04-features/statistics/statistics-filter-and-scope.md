@@ -127,8 +127,14 @@ Explorer `age_group` dimension, the filter and Benchmarking, Insights, Overview 
 
 **Pre-#1040 keys.** Until #1040 the Explorer used `0_18` and `19_29`; migration `Version20261113144614`
 rewrote saved views. Since v0.4-beta (#1125) these keys are no longer mapped and behave like any
-unknown age-group value: the filter drawer sets no age condition (all ages), and an Explorer filter
-compares the bucket key and matches no case.
+unknown age-group value.
+
+**Unknown values.** Only the values in the table above are age groups
+(`StatisticsAgeGroupFilter::isKnown()`). Every other value, including the pre-#1040 keys and the Explorer's
+`unknown` bucket, sets no age restriction on every surface (#1724): the drawer drops it, so the filter is
+not active; the Explorer drops it from URLs, saved views and the assistant; and the Explorer queries treat a
+stored unknown value as no condition. Until v0.4-beta the Explorer compared the bucket key instead and
+showed no cases.
 
 **Missing age.** Cases without a recorded age cannot be assigned to an age group, so every
 age-group value excludes them, from numerator and denominator alike. They only count when no age

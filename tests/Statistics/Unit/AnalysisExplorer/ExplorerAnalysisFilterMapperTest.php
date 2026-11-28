@@ -152,4 +152,16 @@ final class ExplorerAnalysisFilterMapperTest extends TestCase
         self::assertTrue($restored->filterVentilation);
         self::assertNull($restored->filterAssignmentId);
     }
+
+    public function testFromStateArrayDropsUnknownAgeGroups(): void
+    {
+        $filters = $this->mapper->fromStateArray([
+            ['dimensionKey' => 'age_group', 'operator' => 'equals', 'value' => '0_18'],
+            ['dimensionKey' => 'age_group', 'operator' => 'equals', 'value' => 'unknown'],
+            ['dimensionKey' => 'age_group', 'operator' => 'equals', 'value' => 'adults'],
+        ]);
+
+        self::assertCount(1, $filters);
+        self::assertSame('adults', $filters[0]->value);
+    }
 }

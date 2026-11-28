@@ -23,6 +23,7 @@ use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\Mapping\StatisticsAgeGroupFilter;
+use App\Statistics\Application\StatisticsDrawerFilterFactory;
 use App\Statistics\Application\TopList\TopDiagnosesReport;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisFilter;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisQuery;
@@ -33,6 +34,7 @@ use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
@@ -44,8 +46,8 @@ use Zenstruck\Foundry\Test\Factories;
  * Expected by hand: all cases = 3, children & adolescents (< 18) = 1 (age 17),
  * adults (>= 18) = 1 (age 18). The case without age only counts without an age group.
  * The age buckets put 18-year-olds with adults (#1040): 0–17 = 1 (age 17), 18–29 = 1 (age 18).
- * The pre-#1040 keys 0_18 and 19_29 are no longer mapped (#1125) and behave like any unknown key: the drawer
- * filter sets no age condition (all 3 cases), the Explorer filter compares the bucket and matches none (0).
+ * Unknown keys (the pre-#1040 keys 0_18 and 19_29, no longer mapped since #1125, and the Explorer's `unknown`
+ * bucket, which is no filter option) set no age restriction on every surface (#1724): all 3 cases.
  */
 #[ResetDatabase]
 final class AgeGroupFilterCountsTest extends KernelTestCase
@@ -103,14 +105,15 @@ final class AgeGroupFilterCountsTest extends KernelTestCase
     /**
      * @return iterable<string, array{string}>
      */
-    public static function pre1040KeyProvider(): iterable
+    public static function unknownKeyProvider(): iterable
     {
         yield '0_18' => ['0_18'];
         yield '19_29' => ['19_29'];
+        yield 'unknown' => ['unknown'];
     }
 
-    #[DataProvider('pre1040KeyProvider')]
-    public function testPre1040KeysAreUnknownToTheDrawerFilter(string $ageGroup): void
+    #[DataProvider('unknownKeyProvider')]
+    public function testUnknownKeysSetNoRestrictionInTheDrawerFilter(string $ageGroup): void
     {
         [$user, $hospitalId] = $this->createFixture();
 
@@ -118,7 +121,8 @@ final class AgeGroupFilterCountsTest extends KernelTestCase
         $context = new StatisticsContext(
             $user,
             new StatisticsFilter(StatisticsFilterScope::Hospital, $hospitalId, null, StatisticsFilterPeriod::AllTime),
-            drawerFilter: new StatisticsDrawerFilter(ageGroup: $ageGroup),
+            drawerFilter: self::getContainer()->get(StatisticsDrawerFilterFactory::class)
+                ->fromRequest(Request::create('/statistics/top-lists', 'GET', ['age_group' => $ageGroup])),
         );
 
         $rows = $report->build($context, 25)->payload['rows'];
@@ -127,8 +131,8 @@ final class AgeGroupFilterCountsTest extends KernelTestCase
         self::assertSame('3', $rows[0][2]);
     }
 
-    #[DataProvider('pre1040KeyProvider')]
-    public function testPre1040KeysMatchNoExplorerBucket(string $ageGroup): void
+    #[DataProvider('unknownKeyProvider')]
+    public function testUnknownKeysSetNoRestrictionInTheExplorer(string $ageGroup): void
     {
         [, $hospitalId] = $this->createFixture();
 
@@ -139,7 +143,7 @@ final class AgeGroupFilterCountsTest extends KernelTestCase
             filters: [new AnalysisFilter('age_group', AnalysisFilterOperator::Equals, $ageGroup)],
         ));
 
-        self::assertSame(0, $result->grandTotal);
+        self::assertSame(3, $result->grandTotal);
     }
 
     public function testExplorerAgeGroupBucketsCountEighteenYearOldsAsAdults(): void
