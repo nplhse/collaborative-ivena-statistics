@@ -73,16 +73,17 @@ final readonly class BenchmarkInsightProvider
     private function addMetricInsights(array &$candidates, array $kpiMetrics): void
     {
         $medianAge = $this->findMetric($kpiMetrics, BenchmarkMetricKey::MedianAge);
+        $medianAgeRatio = $medianAge instanceof BenchmarkMetric ? $medianAge->ratio : null;
         if ($medianAge instanceof BenchmarkMetric
             && $medianAge->primaryValue > 0.0
-            && $medianAge->comparisonValue > 0.0) {
+            && null !== $medianAgeRatio) {
             $delta = $medianAge->primaryValue - $medianAge->comparisonValue;
             if ($delta >= 10.0) {
                 $candidates[] = $this->buildInsight(
                     'age_old',
                     BenchmarkInsightDirection::Above,
                     BenchmarkInsightSeverity::Elevated,
-                    $medianAge->ratio,
+                    $medianAgeRatio,
                     $medianAge->primaryValue,
                     $medianAge->comparisonValue,
                     65,
@@ -92,7 +93,7 @@ final readonly class BenchmarkInsightProvider
                     'age_young',
                     BenchmarkInsightDirection::Below,
                     BenchmarkInsightSeverity::Elevated,
-                    abs($medianAge->ratio > 0.0 ? $medianAge->ratio : 1.0),
+                    abs($medianAgeRatio > 0.0 ? $medianAgeRatio : 1.0),
                     $medianAge->primaryValue,
                     $medianAge->comparisonValue,
                     65,
@@ -101,24 +102,25 @@ final readonly class BenchmarkInsightProvider
         }
 
         $meanTransport = $this->findMetric($kpiMetrics, BenchmarkMetricKey::MeanTransport);
+        $meanTransportRatio = $meanTransport instanceof BenchmarkMetric ? $meanTransport->ratio : null;
         if ($meanTransport instanceof BenchmarkMetric
-            && $meanTransport->comparisonValue > 0.0) {
-            if ($meanTransport->ratio >= 1.2) {
+            && null !== $meanTransportRatio) {
+            if ($meanTransportRatio >= 1.2) {
                 $candidates[] = $this->buildInsight(
                     'transport_time_long',
                     BenchmarkInsightDirection::Above,
                     BenchmarkInsightSeverity::Elevated,
-                    $meanTransport->ratio,
+                    $meanTransportRatio,
                     $meanTransport->primaryValue,
                     $meanTransport->comparisonValue,
                     50,
                 );
-            } elseif ($meanTransport->ratio <= 0.8) {
+            } elseif ($meanTransportRatio <= 0.8) {
                 $candidates[] = $this->buildInsight(
                     'transport_time_short',
                     BenchmarkInsightDirection::Below,
                     BenchmarkInsightSeverity::Elevated,
-                    $meanTransport->ratio,
+                    $meanTransportRatio,
                     $meanTransport->primaryValue,
                     $meanTransport->comparisonValue,
                     45,

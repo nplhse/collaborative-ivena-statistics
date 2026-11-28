@@ -49,7 +49,7 @@ final readonly class OverviewBenchmarkSummaryFactory
                 continue;
             }
 
-            $status = $this->benchmarkStatus($metric->ratio, $report->suppressRatios);
+            $status = $this->benchmarkStatus($metric, $report->suppressRatios);
             $items[] = new OverviewBenchmarkScorecardItem(
                 $key->value,
                 'stats.benchmark.metric.'.$key->value,
@@ -76,7 +76,7 @@ final readonly class OverviewBenchmarkSummaryFactory
         foreach ($mixViewModel->overRepresented as $row) {
             $positive[] = new OverviewBenchmarkDeviation(
                 $row->bucket->label,
-                $row->bucket->ratio,
+                $row->ratio,
                 'above',
                 $row->insightsUrl,
             );
@@ -86,7 +86,7 @@ final readonly class OverviewBenchmarkSummaryFactory
         foreach ($mixViewModel->underRepresented as $row) {
             $negative[] = new OverviewBenchmarkDeviation(
                 $row->bucket->label,
-                $row->bucket->ratio,
+                $row->ratio,
                 'below',
                 $row->insightsUrl,
             );
@@ -115,10 +115,16 @@ final readonly class OverviewBenchmarkSummaryFactory
         return null;
     }
 
-    private function benchmarkStatus(float $ratio, bool $suppressRatios): string
+    private function benchmarkStatus(BenchmarkMetric $metric, bool $suppressRatios): string
     {
         if ($suppressRatios) {
             return 'within';
+        }
+
+        $ratio = $metric->ratio;
+        if (null === $ratio) {
+            // Comparison value 0: no ratio (#1252). A positive value is above it, 0 is the same.
+            return $metric->primaryValue > 0.0 ? 'above' : 'within';
         }
 
         if ($ratio >= self::OVER_RATIO) {

@@ -23,17 +23,24 @@ final readonly class BenchmarkIndicationMixViewModelFactory
         $underRepresented = [];
 
         foreach ($indicationMix->buckets as $bucket) {
+            $ratio = $bucket->ratio;
+            if (null === $ratio) {
+                // No ratio without a comparison share (#1252); such a bucket is neither over- nor underrepresented.
+                continue;
+            }
+
             $row = new BenchmarkIndicationMixRowViewModel(
                 $bucket,
+                $ratio,
                 $this->insightsUrl($request, $bucket),
             );
 
-            if ($bucket->ratio >= BenchmarkMetricBuilder::INDICATION_OVER_RATIO) {
+            if ($ratio >= BenchmarkMetricBuilder::INDICATION_OVER_RATIO) {
                 $overRepresented[] = $row;
                 continue;
             }
 
-            if ($bucket->ratio <= BenchmarkMetricBuilder::INDICATION_UNDER_RATIO) {
+            if ($ratio <= BenchmarkMetricBuilder::INDICATION_UNDER_RATIO) {
                 $underRepresented[] = $row;
             }
         }

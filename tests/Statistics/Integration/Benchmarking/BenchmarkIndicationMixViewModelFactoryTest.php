@@ -65,6 +65,24 @@ final class BenchmarkIndicationMixViewModelFactoryTest extends KernelTestCase
         self::assertCount(6, $viewModel->overRepresented);
     }
 
+    public function testBucketWithoutRatioIsNeitherOverNorUnderRepresented(): void
+    {
+        self::bootKernel();
+        $factory = self::getContainer()->get(BenchmarkIndicationMixViewModelFactory::class);
+
+        // Comparison share 0 %: no ratio (#1252). With `null <= 0.77` being true in PHP, it would have been listed
+        // as underrepresented.
+        $viewModel = $factory->create(
+            new Request(),
+            new BenchmarkDistribution(BenchmarkMetricKey::IndicationMix, [
+                new BenchmarkDistributionBucket('9', 'No comparison', 50, 0, 5.0, 0.0, null),
+            ]),
+        );
+
+        self::assertSame([], $viewModel->overRepresented);
+        self::assertSame([], $viewModel->underRepresented);
+    }
+
     public function testReportsEmptyViewModel(): void
     {
         self::bootKernel();

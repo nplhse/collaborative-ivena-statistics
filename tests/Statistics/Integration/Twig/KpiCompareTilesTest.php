@@ -48,9 +48,9 @@ final class KpiCompareTilesTest extends KernelTestCase
 
     public function testUndefinedRatioIsShownAsNotAvailable(): void
     {
-        // 5 vs. 0 cases: the ratio 5 / 0 is undefined; the builder stores 0.0.
+        // 5 vs. 0 cases: the ratio 5 / 0 is undefined; the builder stores null (#1252).
         $html = $this->render('en', [
-            new BenchmarkMetric(BenchmarkMetricKey::Total, 5.0, 0.0, 5.0, 0.0, 0.0, BenchmarkMetricFormat::Count),
+            new BenchmarkMetric(BenchmarkMetricKey::Total, 5.0, 0.0, 5.0, null, null, BenchmarkMetricFormat::Count),
         ]);
 
         self::assertStringContainsString('data-testid="test-total-ratio-unavailable"', $html);
@@ -62,7 +62,7 @@ final class KpiCompareTilesTest extends KernelTestCase
     public function testUndefinedRatioUsesGermanText(): void
     {
         $html = $this->render('de', [
-            new BenchmarkMetric(BenchmarkMetricKey::Total, 5.0, 0.0, 5.0, 0.0, 0.0, BenchmarkMetricFormat::Count),
+            new BenchmarkMetric(BenchmarkMetricKey::Total, 5.0, 0.0, 5.0, null, null, BenchmarkMetricFormat::Count),
         ]);
 
         self::assertStringContainsString('title="Verhältnis nicht berechenbar: Vergleichswert ist 0"', $html);

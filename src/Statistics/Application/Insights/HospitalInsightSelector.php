@@ -110,7 +110,18 @@ final readonly class HospitalInsightSelector
             return null;
         }
 
-        if ($metric->ratio < self::BASELINE_RATIO_HIGH && $metric->ratio > self::BASELINE_RATIO_LOW) {
+        // A baseline period without cases has no rate, not a rate of 0 % (#1252, #1788).
+        if ($metric->comparisonDenominator <= 0) {
+            return null;
+        }
+
+        $ratio = $metric->ratio;
+        if (null === $ratio) {
+            // Baseline 0 % (#1252): no ratio. Only a positive value is a change worth a hint.
+            if ($metric->primaryValue <= 0.0) {
+                return null;
+            }
+        } elseif ($ratio < self::BASELINE_RATIO_HIGH && $ratio > self::BASELINE_RATIO_LOW) {
             return null;
         }
 

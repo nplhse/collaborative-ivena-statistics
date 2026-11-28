@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\Application\Overview;
 
+use App\Statistics\Application\Overview\Dto\OverviewBenchmarkScorecardItem;
 use App\Statistics\Application\Overview\OverviewBenchmarkSummaryFactory;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkDistribution;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkDistributionBucket;
@@ -72,6 +73,20 @@ final class OverviewBenchmarkSummaryFactoryTest extends TestCase
         self::assertSame('42,3 min', $items[1]->displayValue);
         self::assertSame('below', $items[1]->status);
         self::assertSame('below', $items[2]->status);
+    }
+
+    public function testBuildScorecardWithoutComparisonValueComparesTheOwnValueWithZero(): void
+    {
+        // Comparison 0 % has no ratio (#1252): 3,0 % against 0 % is above, 0 % against 0 % is within. Both used to be
+        // "below", because the builder stored the undefined ratio as 0.0.
+        $report = $this->report(kpiMetrics: [
+            new BenchmarkMetric(BenchmarkMetricKey::WithPhysician, 3.0, 0.0, 3.0, null, null, BenchmarkMetricFormat::Percent),
+            new BenchmarkMetric(BenchmarkMetricKey::Resus, 0.0, 0.0, 0.0, null, null, BenchmarkMetricFormat::Percent),
+        ]);
+
+        $items = $this->factory()->buildScorecard($report);
+
+        self::assertSame(['above', 'within'], array_map(static fn (OverviewBenchmarkScorecardItem $item): string => $item->status, $items));
     }
 
     public function testBuildScorecardSuppressesDeviationStatusWhenRatiosAreSuppressed(): void
