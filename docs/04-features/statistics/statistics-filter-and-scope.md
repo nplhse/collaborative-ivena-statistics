@@ -190,6 +190,7 @@ whole filter state except comparison parameters and the page number stays
 
 ## Related
 
+- [correctness-checklist.md](correctness-checklist.md)
 - [permission-model.md](../../02-architecture/permission-model.md)
 - [projection-and-materialized-views.md](projection-and-materialized-views.md)
 - [overview-dashboard-performance.md](overview-dashboard-performance.md)
