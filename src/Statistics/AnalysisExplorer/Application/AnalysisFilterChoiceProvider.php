@@ -9,14 +9,12 @@ use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsTransportTypeProjectionCode;
 use App\Statistics\Application\Mapping\StatisticsAgeGroupFilter;
-use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class AnalysisFilterChoiceProvider
 {
     public function __construct(
         private ExploreFilterOptionsProvider $referenceData,
-        private DimensionRegistry $dimensionRegistry,
         private TranslatorInterface $translator,
     ) {
     }
@@ -92,20 +90,6 @@ final readonly class AnalysisFilterChoiceProvider
         $choices = [];
         foreach (StatisticsAgeGroupFilter::AGGREGATE_TRANSLATION_KEYS as $key => $translationKey) {
             $choices[$key] = $this->translator->trans($translationKey, [], 'statistics');
-        }
-
-        $dimension = $this->dimensionRegistry->get('age_group');
-        foreach ($dimension->fixedBuckets as $bucket) {
-            $bucketKey = (string) $bucket;
-            if ('unknown' === $bucketKey || StatisticsAgeGroupFilter::isAggregate($bucketKey)) {
-                continue;
-            }
-
-            $choices[$bucketKey] = $this->translator->trans(
-                StatisticsAgeGroupFilter::bucketTranslationKey($bucketKey),
-                [],
-                'messages',
-            );
         }
 
         return $choices;
