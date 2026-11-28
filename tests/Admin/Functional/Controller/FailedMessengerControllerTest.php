@@ -6,55 +6,60 @@ namespace App\Tests\Admin\Functional\Controller;
 
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
+/**
+ * The admin page "Failed messages": list, detail and the delete actions with their CSRF tokens. Which rows the
+ * queries read and delete is tested in MessengerStatsRepositoryTest.
+ */
 #[ResetDatabase]
 final class FailedMessengerControllerTest extends WebTestCase
 {
     use Factories;
 
-    public function testAdminCanInspectFailedMessages(): void
+    public function testTheListShowsTheMessageClassAndUsesStimulusInsteadOfInlineScripts(): void
     {
-        $client = self::createClient();
+        $client = $this->adminClient();
+        $this->insertFailedMessage('test-body-content');
 
-        $admin = UserFactory::new()->asAdmin()->create([
-            'username' => 'failed-msg-admin-'.bin2hex(random_bytes(4)),
-        ]);
+        $client->request(Request::METHOD_GET, '/admin/operations/failed-messages');
 
+        self::assertResponseIsSuccessful();
+        $html = (string) $client->getResponse()->getContent();
+        self::assertStringContainsString('ImportAllocationsMessage', $html);
+        self::assertStringContainsString('data-controller="confirm-submit"', $html);
+        self::assertStringContainsString('data-controller="checkbox-select-all"', $html);
+        self::assertStringNotContainsString('onsubmit=', $html);
+        self::assertStringNotContainsString("document.getElementById('failed-messages-select-all')", $html);
+    }
+
+    public function testTheDetailShowsHeadersAndBodyOfTheMessage(): void
+    {
+        $client = $this->adminClient();
         $messageId = $this->insertFailedMessage('test-body-content');
 
-        $client->loginUser($admin);
-        $client->request(Request::METHOD_GET, '/admin/operations/failed-messages');
-        self::assertResponseIsSuccessful();
-        $indexHtml = (string) $client->getResponse()->getContent();
-        self::assertStringContainsString('ImportAllocationsMessage', $indexHtml);
-        self::assertStringContainsString('data-controller="confirm-submit"', $indexHtml);
-        self::assertStringContainsString('data-controller="checkbox-select-all"', $indexHtml);
-        self::assertStringNotContainsString('onsubmit=', $indexHtml);
-        self::assertStringNotContainsString("document.getElementById('failed-messages-select-all')", $indexHtml);
-
         $client->request(Request::METHOD_GET, '/admin/operations/failed-messages/'.$messageId);
+
         self::assertResponseIsSuccessful();
-        $detailHtml = (string) $client->getResponse()->getContent();
-        self::assertStringContainsString('test-body-content', $detailHtml);
-        self::assertStringContainsString('data-controller="confirm-submit"', $detailHtml);
-        self::assertStringNotContainsString('onsubmit=', $detailHtml);
-        self::assertStringContainsString('ea-failed-messages-pre-headers', $detailHtml);
-        self::assertStringContainsString('ea-failed-messages-pre-body', $detailHtml);
+        $html = (string) $client->getResponse()->getContent();
+        self::assertStringContainsString('test-body-content', $html);
+        self::assertStringContainsString('data-controller="confirm-submit"', $html);
+        self::assertStringNotContainsString('onsubmit=', $html);
+        self::assertStringContainsString('ea-failed-messages-pre-headers', $html);
+        self::assertStringContainsString('ea-failed-messages-pre-body', $html);
         self::assertCount(1, $client->getCrawler()->filter('link[rel="stylesheet"][href*="admin-kpi"]'), 'admin-kpi.css comes only from the asset-mapper entry (#1236)');
     }
 
     public function testAdminCanDeleteSingleFailedMessage(): void
     {
-        $client = self::createClient();
-        $admin = UserFactory::new()->asAdmin()->create();
+        $client = $this->adminClient();
         $messageId = $this->insertFailedMessage('delete-me');
 
-        $client->loginUser($admin);
         $crawler = $client->request(Request::METHOD_GET, '/admin/operations/failed-messages');
         $client->request(Request::METHOD_POST, '/admin/operations/failed-messages/'.$messageId.'/delete', [
             '_token' => $this->extractCsrfToken($crawler, 'failed-messages/'.$messageId.'/delete'),
@@ -68,13 +73,11 @@ final class FailedMessengerControllerTest extends WebTestCase
 
     public function testAdminCanDeleteSelectedFailedMessages(): void
     {
-        $client = self::createClient();
-        $admin = UserFactory::new()->asAdmin()->create();
+        $client = $this->adminClient();
         $firstId = $this->insertFailedMessage('first');
         $secondId = $this->insertFailedMessage('second');
         $thirdId = $this->insertFailedMessage('third');
 
-        $client->loginUser($admin);
         $crawler = $client->request(Request::METHOD_GET, '/admin/operations/failed-messages');
         $client->request(Request::METHOD_POST, '/admin/operations/failed-messages/delete-selected', [
             '_token' => $this->extractCsrfToken($crawler, 'delete-selected'),
@@ -82,20 +85,16 @@ final class FailedMessengerControllerTest extends WebTestCase
         ]);
 
         self::assertResponseRedirects('/admin/operations/failed-messages');
+        self::assertNotFalse($this->findFailedMessageById($secondId), 'only the selected messages are deleted');
         self::assertSame(1, $this->countFailedMessages());
-        self::assertNotFalse($this->findFailedMessageById($secondId));
-        self::assertFalse($this->findFailedMessageById($firstId));
-        self::assertFalse($this->findFailedMessageById($thirdId));
     }
 
     public function testAdminCanDeleteAllFailedMessages(): void
     {
-        $client = self::createClient();
-        $admin = UserFactory::new()->asAdmin()->create();
+        $client = $this->adminClient();
         $this->insertFailedMessage('one');
         $this->insertFailedMessage('two');
 
-        $client->loginUser($admin);
         $crawler = $client->request(Request::METHOD_GET, '/admin/operations/failed-messages');
         $client->request(Request::METHOD_POST, '/admin/operations/failed-messages/delete-all', [
             '_token' => $this->extractCsrfToken($crawler, 'delete-all'),
@@ -107,11 +106,9 @@ final class FailedMessengerControllerTest extends WebTestCase
 
     public function testDeleteSelectedWithoutSelectionShowsWarning(): void
     {
-        $client = self::createClient();
-        $admin = UserFactory::new()->asAdmin()->create();
+        $client = $this->adminClient();
         $this->insertFailedMessage('keep-me');
 
-        $client->loginUser($admin);
         $crawler = $client->request(Request::METHOD_GET, '/admin/operations/failed-messages');
         $client->request(Request::METHOD_POST, '/admin/operations/failed-messages/delete-selected', [
             '_token' => $this->extractCsrfToken($crawler, 'delete-selected'),
@@ -127,10 +124,19 @@ final class FailedMessengerControllerTest extends WebTestCase
     public function testNonAdminIsForbidden(): void
     {
         $client = self::createClient();
-        $user = UserFactory::createOne();
-        $client->loginUser($user);
+        $client->loginUser(UserFactory::createOne());
+
         $client->request(Request::METHOD_GET, '/admin/operations/failed-messages');
+
         self::assertResponseStatusCodeSame(403);
+    }
+
+    private function adminClient(): KernelBrowser
+    {
+        $client = self::createClient();
+        $client->loginUser(UserFactory::new()->asAdmin()->create());
+
+        return $client;
     }
 
     private function insertFailedMessage(string $body): int
@@ -140,8 +146,8 @@ final class FailedMessengerControllerTest extends WebTestCase
             'body' => $body,
             'headers' => json_encode(['type' => \App\Import\Application\Message\ImportAllocationsMessage::class], JSON_THROW_ON_ERROR),
             'queue_name' => 'failed',
-            'created_at' => new \DateTimeImmutable()->format('Y-m-d H:i:s'),
-            'available_at' => new \DateTimeImmutable()->format('Y-m-d H:i:s'),
+            'created_at' => '2026-11-13 09:00:00',
+            'available_at' => '2026-11-13 09:00:00',
             'delivered_at' => null,
         ]);
 

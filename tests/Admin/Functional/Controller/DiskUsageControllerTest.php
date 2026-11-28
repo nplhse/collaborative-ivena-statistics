@@ -16,6 +16,7 @@ use App\Storage\Domain\ValueObject\StorageMeasurementItem;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
@@ -23,6 +24,7 @@ use Zenstruck\Foundry\Test\Factories;
 #[ResetDatabase]
 final class DiskUsageControllerTest extends WebTestCase
 {
+    use ClockSensitiveTrait;
     use Factories;
 
     public function testShowsAHintBeforeTheFirstMeasurement(): void
@@ -44,18 +46,17 @@ final class DiskUsageControllerTest extends WebTestCase
     {
         $client = $this->adminClient();
         $repository = self::getContainer()->get(StorageMeasurementRepositoryInterface::class);
-        $repository->save($this->measurement(new \DateTimeImmutable('-8 days'), 800_000_000));
-        $repository->save($this->measurement(new \DateTimeImmutable('-1 day'), 900_000_000));
+        $repository->save($this->measurement(new \DateTimeImmutable('2026-11-05 12:30:00 UTC'), 800_000_000));
+        $repository->save($this->measurement(new \DateTimeImmutable('2026-11-12 12:30:00 UTC'), 900_000_000));
 
         $crawler = $client->request(Request::METHOD_GET, '/admin/operations/storage');
 
         self::assertResponseIsSuccessful();
         $text = $crawler->text();
-        foreach (['Configured budget', 'Deployer', 'Categories', 'Database', 'Imports', 'Media', 'Application', 'Temporary', 'Other',
+        $labels = ['Configured budget', 'Deployer', 'Categories', 'Database', 'Imports', 'Media', 'Application', 'Temporary', 'Other',
             'PHP dependencies (vendor)', 'Current release', 'Previous release', 'Shared directory', 'Leftover data',
-            'Filesystem', 'Largest database tables', 'History', 'Open imports', 'Open media library', 'Normal'] as $expected) {
-            self::assertStringContainsString($expected, $text);
-        }
+            'Filesystem', 'Largest database tables', 'History', 'Open imports', 'Open media library', 'Normal'];
+        self::assertSame([], array_values(array_filter($labels, static fn (string $label): bool => !str_contains($text, $label))), 'labels missing on the page');
 
         $kpiLabels = $crawler->filter('.ea-storage-kpis .card-body > div:first-child')->each(static fn ($label): string => trim($label->text()));
         self::assertSame(['Capacity', 'Used', 'Remaining', 'Level', 'Last measurement', 'Mode'], $kpiLabels, 'capacity first, then used and remaining');
@@ -82,7 +83,7 @@ final class DiskUsageControllerTest extends WebTestCase
     public function testMarksAnOutdatedMeasurement(): void
     {
         $client = $this->adminClient();
-        self::getContainer()->get(StorageMeasurementRepositoryInterface::class)->save($this->measurement(new \DateTimeImmutable('-3 days'), 1_000));
+        self::getContainer()->get(StorageMeasurementRepositoryInterface::class)->save($this->measurement(new \DateTimeImmutable('2026-11-10 12:30:00 UTC'), 1_000));
 
         $crawler = $client->request(Request::METHOD_GET, '/admin/operations/storage');
 
@@ -104,6 +105,7 @@ final class DiskUsageControllerTest extends WebTestCase
     private function adminClient(): KernelBrowser
     {
         $client = self::createClient();
+        self::mockTime('2026-11-13 12:30:00 UTC');
         $client->loginUser(UserFactory::new()->asAdmin()->create());
 
         return $client;

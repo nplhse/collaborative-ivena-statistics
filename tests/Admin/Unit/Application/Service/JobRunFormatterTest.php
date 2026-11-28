@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Tests\Admin\Unit\Application\Service;
 
 use App\Admin\Application\Service\JobRun\JobRunFormatter;
-use App\Admin\Infrastructure\Repository\HospitalNameRepository;
-use App\Shared\Infrastructure\Monitoring\JobRun\Entity\JobRun;
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Symfony\Contracts\Translation\TranslatableInterface;
 
+/**
+ * Durations and memory of job runs; the metrics table needs the hospital names and is tested in
+ * tests/Admin/Integration/JobRun/JobRunFormatterTest.
+ */
 final class JobRunFormatterTest extends TestCase
 {
     #[DataProvider('durations')]
@@ -40,56 +40,5 @@ final class JobRunFormatterTest extends TestCase
     {
         self::assertSame('—', JobRunFormatter::memory(null));
         self::assertSame('106.0 MB', JobRunFormatter::memory(111_149_056));
-    }
-
-    public function testMetricsFollowTheJobOrderAndKeepUnknownKeys(): void
-    {
-        $formatter = new JobRunFormatter($this->hospitalNames([40 => 'Klinikum Nord']));
-        $run = $this->jobRun('closure_rebuild', [
-            'zeta' => ['a' => 1],
-            'queries' => 90,
-            'hospital_ids' => [40, 41],
-            'full' => false,
-            'custom_ms' => 1_500,
-            'publish_ms' => null,
-        ]);
-
-        $rows = $formatter->metricsRows($run);
-
-        self::assertSame(['full', 'hospital_ids', 'publish_ms', 'queries', 'custom_ms', 'zeta'], array_column($rows, 'key'));
-        self::assertSame(['✗', 'Klinikum Nord, #41', '—', '90', '1.5 s', '{"a":1}'], array_column($rows, 'value'));
-        self::assertInstanceOf(TranslatableInterface::class, $rows[0]['label']);
-        self::assertSame('zeta', $rows[5]['label']);
-    }
-
-    public function testHospitalChoicesKeepDuplicateNamesApart(): void
-    {
-        $formatter = new JobRunFormatter($this->hospitalNames([1 => 'Klinikum', 2 => 'Klinikum', 3 => '']));
-
-        self::assertSame(['Klinikum' => 1, 'Klinikum (#2)' => 2, '#3' => 3], $formatter->hospitalChoices());
-        self::assertSame('#9', $formatter->hospital(9));
-        self::assertSame('—', $formatter->hospital(null));
-    }
-
-    /**
-     * @param array<int, string> $names
-     */
-    private function hospitalNames(array $names): HospitalNameRepository
-    {
-        $connection = $this->createStub(Connection::class);
-        $connection->method('fetchAllKeyValue')->willReturn($names);
-
-        return new HospitalNameRepository($connection);
-    }
-
-    /**
-     * @param array<string, mixed> $metrics
-     */
-    private function jobRun(string $job, array $metrics): JobRun
-    {
-        $run = new JobRun('run-1', $job, 'console', 'succeeded', new \DateTimeImmutable('2026-10-25 12:00:00'));
-        new \ReflectionProperty(JobRun::class, 'metrics')->setValue($run, $metrics);
-
-        return $run;
     }
 }

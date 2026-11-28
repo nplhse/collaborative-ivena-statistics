@@ -16,14 +16,20 @@ use Psr\Log\NullLogger;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Clock\MockClock;
+use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
+/**
+ * The admin job run list (ADR 018): access, filters, shortcuts and the detail page. The metrics of every job are
+ * formatted in JobRunFormatterTest, their labels are checked in JobRunCatalogTranslationTest.
+ */
 #[ResetDatabase]
 final class JobRunCrudControllerTest extends WebTestCase
 {
+    use ClockSensitiveTrait;
     use Factories;
 
     private const string INDEX = '/admin/job-run';
@@ -51,16 +57,24 @@ final class JobRunCrudControllerTest extends WebTestCase
         self::assertSame(['run-new', 'run-mid', 'run-old'], $this->rowIds($crawler));
     }
 
-    public function testUsersWithoutAdminRoleAreForbidden(): void
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function pages(): iterable
+    {
+        yield 'list' => [self::INDEX];
+        yield 'detail' => [self::INDEX.'/run-a'];
+    }
+
+    #[DataProvider('pages')]
+    public function testUsersWithoutAdminRoleAreForbidden(string $url): void
     {
         $client = self::createClient();
         $client->loginUser(UserFactory::createOne());
         $this->record('run-a', 'allocation_import', 'succeeded');
 
-        $client->request(Request::METHOD_GET, self::INDEX);
-        self::assertResponseStatusCodeSame(403);
+        $client->request(Request::METHOD_GET, $url);
 
-        $client->request(Request::METHOD_GET, self::INDEX.'/run-a');
         self::assertResponseStatusCodeSame(403);
     }
 
@@ -74,25 +88,46 @@ final class JobRunCrudControllerTest extends WebTestCase
         self::assertStringContainsString('/login', (string) $client->getResponse()->headers->get('Location'));
     }
 
-    public function testNothingCanBeCreatedEditedOrDeleted(): void
+    public function testTheListOffersNoActionsThatChangeRuns(): void
     {
         $client = $this->adminClient();
         $this->record('run-a', 'allocation_import', 'failed');
 
         $crawler = $client->request(Request::METHOD_GET, self::INDEX);
+
         self::assertCount(0, $crawler->filter('a.action-new, a.action-edit, a.action-delete, button.action-batchDelete'));
+    }
+
+    public function testTheDetailOffersNoActionsThatChangeTheRun(): void
+    {
+        $client = $this->adminClient();
+        $this->record('run-a', 'allocation_import', 'failed');
 
         $crawler = $client->request(Request::METHOD_GET, self::INDEX.'/run-a');
+
         self::assertResponseIsSuccessful();
         self::assertCount(0, $crawler->filter('a.action-edit, a.action-delete'));
+    }
 
-        $client->request(Request::METHOD_GET, self::INDEX.'/new');
-        self::assertFalse($client->getResponse()->isSuccessful());
-        $client->request(Request::METHOD_GET, self::INDEX.'/run-a/edit');
-        self::assertFalse($client->getResponse()->isSuccessful());
-        $client->request(Request::METHOD_POST, self::INDEX.'/run-a/delete');
-        self::assertFalse($client->getResponse()->isSuccessful());
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function changingRequests(): iterable
+    {
+        yield 'new' => [Request::METHOD_GET, self::INDEX.'/new'];
+        yield 'edit' => [Request::METHOD_GET, self::INDEX.'/run-a/edit'];
+        yield 'delete' => [Request::METHOD_POST, self::INDEX.'/run-a/delete'];
+    }
 
+    #[DataProvider('changingRequests')]
+    public function testRunsCannotBeCreatedEditedOrDeleted(string $method, string $url): void
+    {
+        $client = $this->adminClient();
+        $this->record('run-a', 'allocation_import', 'failed');
+
+        $client->request($method, $url);
+
+        self::assertFalse($client->getResponse()->isSuccessful());
         self::assertSame(1, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM job_run'));
     }
 
@@ -146,10 +181,7 @@ final class JobRunCrudControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSame(['run-south'], $this->rowIds($crawler));
-        self::assertStringNotContainsString('Klinikum Süd', $crawler->filter('tr[data-id="run-south"]')->text());
-
-        $crawler = $client->request(Request::METHOD_GET, self::INDEX.'/run-south');
-        self::assertStringContainsString('Klinikum Süd', $crawler->text());
+        self::assertStringNotContainsString('Klinikum Süd', $crawler->filter('tr[data-id="run-south"]')->text(), 'the hospital is shown on the detail page only');
     }
 
     public function testTheListShowsOnlyTheKeyColumnsAndTheTriggerAsBadge(): void
@@ -180,39 +212,39 @@ final class JobRunCrudControllerTest extends WebTestCase
         self::assertStringNotContainsString('admin.job_run.job', $crawler->text());
     }
 
-    public function testShortcutsLinkToFilteredLists(): void
+    /**
+     * @return iterable<string, array{int, list<string>}>
+     */
+    public static function shortcuts(): iterable
     {
-        $client = $this->adminClient();
-        $this->record('run-ok', 'allocation_import', 'succeeded', startedAt: '-2 days');
-        $this->record('run-failed', 'allocation_import', 'failed', startedAt: '-2 hours');
-        $this->record('run-slow', 'closure_rebuild', 'succeeded', thresholds: ['long_run'], startedAt: '-3 days');
-
-        $crawler = $client->request(Request::METHOD_GET, self::INDEX);
-        $urls = $crawler->filter('a.dropdown-item')->each(static fn (Crawler $link): string => (string) $link->attr('href'));
-
-        $results = [];
-        foreach ($urls as $url) {
-            if (!str_contains(urldecode($url), 'filters[')) {
-                continue;
-            }
-            $results[] = $this->rowIds($client->request(Request::METHOD_GET, $url));
-        }
-
-        // Failed, thresholds exceeded, last 24 hours: the last two runs started earlier.
-        self::assertSame([['run-failed'], ['run-slow'], ['run-failed']], $results);
+        yield 'failed' => [0, ['run-failed']];
+        yield 'thresholds exceeded' => [1, ['run-slow']];
+        yield 'last 24 hours' => [2, ['run-failed']];
     }
 
     /**
-     * @param array<string, mixed> $metrics
-     * @param list<string>         $expected
+     * @param list<string> $expected
      */
-    #[DataProvider('metricsPerJob')]
-    public function testTheDetailPageShowsTheMetricsOfEveryJob(string $job, array $metrics, array $expected): void
+    #[DataProvider('shortcuts')]
+    public function testShortcutsLinkToFilteredLists(int $position, array $expected): void
+    {
+        $client = $this->adminClient();
+        self::mockTime('2026-10-25 12:00:00');
+        $this->record('run-ok', 'allocation_import', 'succeeded', startedAt: '2026-10-23 12:00:00');
+        $this->record('run-failed', 'allocation_import', 'failed', startedAt: '2026-10-25 10:00:00');
+        $this->record('run-slow', 'closure_rebuild', 'succeeded', thresholds: ['long_run'], startedAt: '2026-10-22 12:00:00');
+        $link = $client->request(Request::METHOD_GET, self::INDEX)->filter('a.dropdown-item[href*="filters"]')->eq($position)->link();
+
+        $crawler = $client->click($link);
+
+        self::assertSame($expected, $this->rowIds($crawler));
+    }
+
+    public function testTheDetailPageShowsDurationMemoryAndTheLabelledMetrics(): void
     {
         $client = $this->adminClient();
         $hospital = $this->hospital('Klinikum Kennzahlen');
-        $metrics = array_map(static fn (mixed $value): mixed => '@hospital' === $value ? [$hospital->getId()] : $value, $metrics);
-        $this->record('run-detail', $job, 'succeeded', metrics: $metrics, durationMs: 92_000, peakBytes: 37_748_736);
+        $this->record('run-detail', 'closure_rebuild', 'succeeded', metrics: ['hospital_ids' => [$hospital->getId()], 'hours_written' => 7_000], durationMs: 92_000, peakBytes: 37_748_736);
 
         $crawler = $client->request(Request::METHOD_GET, self::INDEX.'/run-detail');
 
@@ -220,28 +252,12 @@ final class JobRunCrudControllerTest extends WebTestCase
         $text = $crawler->filter('body')->text();
         self::assertStringContainsString('1 min 32 s', $text);
         self::assertStringContainsString('36.0 MB', $text);
+        self::assertStringContainsString('Klinikum Kennzahlen', $text);
+        self::assertStringContainsString('7 000', $text);
+        self::assertCount(1, $crawler->filter('th[title="hours_written"]'), 'the metric key is the title of its label');
+        self::assertStringNotContainsString('admin.job_run.metric.', $text);
         self::assertStringNotContainsString('Error class', $text);
         self::assertStringNotContainsString('Fehlerklasse', $text);
-        foreach ($expected as $snippet) {
-            self::assertStringContainsString($snippet, $text);
-        }
-        foreach (array_keys($metrics) as $key) {
-            self::assertCount(1, $crawler->filter(sprintf('th[title="%s"]', $key)), $key);
-            self::assertStringNotContainsString('admin.job_run.metric.'.$key, $text);
-        }
-    }
-
-    /**
-     * @return iterable<string, array{string, array<string, mixed>, list<string>}>
-     */
-    public static function metricsPerJob(): iterable
-    {
-        yield 'allocation import' => ['allocation_import', ['rows_total' => 12_345, 'rows_ok' => 12_000, 'rows_rejected' => 345, 'rows_deduplicated' => 3, 'chunks' => 50, 'read_ms' => 1_500, 'map_ms' => 800, 'persist_ms' => 65_000], ['12 345', '1.5 s', '800 ms', '1 min 05 s']];
-        yield 'closure import' => ['closure_import', ['rows_total' => 15, 'rows_ok' => 15, 'rows_rejected' => 0, 'chunks' => 1, 'read_ms' => 10, 'map_ms' => 20, 'persist_ms' => 30], ['15', '30 ms']];
-        yield 'encounter import' => ['encounter_import', ['rows_total' => 2_500, 'rows_ok' => 2_490, 'rows_rejected' => 10, 'rows_deduplicated' => 400], ['2 500', '2 490', '400']];
-        yield 'projection rebuild' => ['allocation_projection_rebuild', ['imports' => 1, 'rows_deleted' => 10, 'rows_written' => 20, 'mv_refreshed' => true, 'change_detection_ms' => 5, 'delete_ms' => 6, 'insert_ms' => 7, 'closure_request_ms' => 8, 'mv_refresh_ms' => 2_000], ['✓', '2.0 s']];
-        yield 'full projection rebuild' => ['allocation_projection_full_rebuild', ['imports' => 1_120, 'rows_deleted' => 0, 'rows_written' => 900_000, 'mv_refreshed' => false, 'truncate_ms' => 50, 'rebuild_imports_ms' => 600_000, 'closure_request_ms' => 3, 'mv_refresh_ms' => 4], ['900 000', '✗', '10 min 00 s']];
-        yield 'closure rebuild' => ['closure_rebuild', ['full' => false, 'hospital_ids' => '@hospital', 'passes' => 1, 'events' => 300, 'partitions' => 4, 'hours_written' => 7_000, 'publish_ms' => 120, 'requests' => 2, 'queries' => 90, 'reference_window' => 'P12M', 'extra_key' => 'x'], ['Klinikum Kennzahlen', 'P12M', '7 000']];
     }
 
     public function testTheDetailPageShowsTheErrorAndLinksToTheImport(): void
