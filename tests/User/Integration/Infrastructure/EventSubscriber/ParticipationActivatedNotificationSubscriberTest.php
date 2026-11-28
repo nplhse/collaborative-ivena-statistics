@@ -13,6 +13,7 @@ use Doctrine\DBAL\Connection;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Mime\Address;
 
 final class ParticipationActivatedNotificationSubscriberTest extends DatabaseKernelTestCase
 {
@@ -35,7 +36,7 @@ final class ParticipationActivatedNotificationSubscriberTest extends DatabaseKer
         self::assertEmailCount(1);
         $email = self::getMailerMessage();
         self::assertInstanceOf(TemplatedEmail::class, $email);
-        self::assertSame(['welcome-me@example.test'], array_map(static fn (\Symfony\Component\Mime\Address $address): string => $address->getAddress(), $email->getTo()));
+        self::assertSame(['welcome-me@example.test'], array_map(static fn (Address $address): string => $address->getAddress(), $email->getTo()));
         self::assertStringContainsString('welcome-me', (string) $email->getHtmlBody());
         self::assertSame('sent', $this->connection()->fetchOne(
             'SELECT d.status FROM notification_delivery d JOIN notification n ON n.id = d.notification_id WHERE n.recipient_id = ?',
@@ -43,7 +44,11 @@ final class ParticipationActivatedNotificationSubscriberTest extends DatabaseKer
         ), 'the welcome mail is the mandatory email of participation.activated');
     }
 
-    public function testEveryActivationIsItsOwnNotification(): void
+    /**
+     * The deduplication key holds the time of the activation to the second: the same event handled twice at one instant
+     * (for example a retried message) is one notification, an activation three days later is a new one.
+     */
+    public function testRepeatedActivationAtTheSameInstantIsOneNotificationALaterOneIsAnother(): void
     {
         $user = UserFactory::createOne();
         $clock = new MockClock('2026-10-22 10:00:00');

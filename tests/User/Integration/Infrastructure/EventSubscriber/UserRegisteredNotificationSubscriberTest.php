@@ -7,6 +7,7 @@ namespace App\Tests\User\Integration\Infrastructure\EventSubscriber;
 use App\Notification\Application\Contract\NotificationPublisherInterface;
 use App\Notification\Application\Publishing\NotificationRequest;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
+use App\Tests\Support\Notification\NotificationPreferenceTestState;
 use App\User\Application\Event\UserRegistered;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
@@ -14,39 +15,71 @@ use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Mime\Address;
 
+/**
+ * A registration notifies the administrators. Which administrators count (enabled, verified) is in
+ * `AdminNotificationRecipientResolverTest`.
+ */
 final class UserRegisteredNotificationSubscriberTest extends DatabaseKernelTestCase
 {
-    public function testRegistrationNotifiesEachSystemRecipientOnce(): void
+    public function testRegistrationNotifiesEveryAdministratorWithoutTheEmailAddress(): void
     {
-        $recipient = UserFactory::new()->asAdmin()->create(['email' => 'admin-notify@example.test']);
-        $otherRecipient = UserFactory::new()->asAdmin()->create();
+        $first = UserFactory::new()->asAdmin()->create();
+        $second = UserFactory::new()->asAdmin()->create();
+        $user = UserFactory::createOne(['username' => 'notify-me', 'email' => 'notify-me@example.test']);
+        $userId = (int) $user->getId();
+
+        $this->dispatch($userId);
+
+        $expected = [
+            'type' => 'admin.user_registered',
+            'category' => 'administration',
+            'access_scope' => 'role',
+            'required_role' => 'ROLE_ADMIN',
+            'action_route' => 'app_admin_dashboard_user_detail',
+            'action_parameters' => ['entityId' => $userId],
+            // No email address is stored.
+            'parameters' => ['userId' => $userId, 'username' => 'notify-me'],
+        ];
+        self::assertSame([
+            ['recipient_id' => $first->getId()] + $expected,
+            ['recipient_id' => $second->getId()] + $expected,
+        ], $this->notifications());
+    }
+
+    public function testAdministratorWhoSwitchedTheTypeOffGetsNothing(): void
+    {
+        $recipient = UserFactory::new()->asAdmin()->create();
         $adminWhoSwitchedItOff = UserFactory::new()->asAdmin()->create();
-        $preferences = new \App\Tests\Support\Notification\NotificationPreferenceTestState(self::getContainer()->get(Connection::class));
+        $preferences = new NotificationPreferenceTestState($this->connection());
         $preferences->switchOff($adminWhoSwitchedItOff, 'admin.user_registered', 'in_app');
         $preferences->switchOff($adminWhoSwitchedItOff, 'admin.user_registered', 'email');
-        $disabledRecipient = UserFactory::new()->asAdmin()->create(['isEnabled' => false]);
+        $user = UserFactory::createOne();
+
+        $this->dispatch((int) $user->getId());
+
+        self::assertSame([$recipient->getId()], array_column($this->notifications(), 'recipient_id'));
+        self::assertEmailCount(1);
+    }
+
+    public function testTheSameRegistrationNotifiesOnlyOnce(): void
+    {
+        $recipient = UserFactory::new()->asAdmin()->create();
+        $user = UserFactory::createOne();
+        $this->dispatch((int) $user->getId());
+
+        $this->dispatch((int) $user->getId());
+
+        self::assertSame([$recipient->getId()], array_column($this->notifications(), 'recipient_id'));
+        self::assertEmailCount(1);
+    }
+
+    public function testMailNamesTheNewUserAndLinksToTheNextSteps(): void
+    {
+        UserFactory::new()->asAdmin()->create(['email' => 'admin-notify@example.test']);
         $user = UserFactory::createOne(['username' => 'notify-me', 'email' => 'notify-me@example.test']);
 
         $this->dispatch((int) $user->getId());
-        $this->dispatch((int) $user->getId());
 
-        foreach ([$recipient, $otherRecipient] as $admin) {
-            $rows = $this->connection()->fetchAllAssociative('SELECT * FROM notification WHERE recipient_id = ?', [$admin->getId()]);
-            self::assertCount(1, $rows, 'the same registration notifies every recipient once');
-            self::assertSame('admin.user_registered', $rows[0]['type']);
-            self::assertSame('administration', $rows[0]['category']);
-            self::assertSame('role', $rows[0]['access_scope']);
-            self::assertSame('ROLE_ADMIN', $rows[0]['required_role']);
-            self::assertSame('app_admin_dashboard_user_detail', $rows[0]['action_route']);
-            self::assertSame(['entityId' => $user->getId()], json_decode((string) $rows[0]['action_parameters'], true));
-            self::assertSame(['userId' => $user->getId(), 'username' => 'notify-me'], json_decode((string) $rows[0]['parameters'], true), 'no email address is stored');
-        }
-
-        foreach ([$adminWhoSwitchedItOff, $disabledRecipient, $user] as $other) {
-            self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM notification WHERE recipient_id = ?', [$other->getId()]));
-        }
-
-        self::assertEmailCount(2);
         $email = $this->emailTo('admin-notify@example.test');
         self::assertSame('New user registration: notify-me', $email->getSubject());
         $html = (string) $email->getHtmlBody();
@@ -83,6 +116,23 @@ final class UserRegisteredNotificationSubscriberTest extends DatabaseKernelTestC
 
         self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM notification'));
         self::assertEmailCount(0);
+    }
+
+    /**
+     * @return list<array<string, mixed>> the notification rows by recipient, JSON columns decoded
+     */
+    private function notifications(): array
+    {
+        $rows = $this->connection()->fetchAllAssociative(
+            'SELECT recipient_id, type, category, access_scope, required_role, action_route, action_parameters, parameters FROM notification ORDER BY recipient_id',
+        );
+
+        return array_map(static function (array $row): array {
+            $row['action_parameters'] = json_decode((string) $row['action_parameters'], true);
+            $row['parameters'] = json_decode((string) $row['parameters'], true);
+
+            return $row;
+        }, $rows);
     }
 
     private function dispatch(int $userId): void

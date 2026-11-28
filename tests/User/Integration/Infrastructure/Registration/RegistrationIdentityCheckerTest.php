@@ -4,17 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\User\Integration\Infrastructure\Registration;
 
+use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Factory\UserFactory;
 use App\User\Infrastructure\Registration\RegistrationIdentityChecker;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Zenstruck\Foundry\Attribute\ResetDatabase;
-use Zenstruck\Foundry\Test\Factories;
 
-#[ResetDatabase]
-final class RegistrationIdentityCheckerTest extends KernelTestCase
+final class RegistrationIdentityCheckerTest extends DatabaseKernelTestCase
 {
-    use Factories;
-
     public function testIsIdentityTakenWhenUsernameExistsWithSurroundingWhitespace(): void
     {
         UserFactory::createOne([
@@ -58,18 +53,39 @@ final class RegistrationIdentityCheckerTest extends KernelTestCase
         self::assertFalse($checker->isIdentityTaken('bob', 'bob@example.test'));
     }
 
-    public function testIsUsernameTakenIgnoresTheEmail(): void
+    public function testUsernameIsTakenIgnoringCaseAndSurroundingWhitespace(): void
     {
         UserFactory::createOne([
             'username' => 'Alice',
             'email' => 'alice@example.test',
         ]);
-
         $checker = self::getContainer()->get(RegistrationIdentityChecker::class);
 
-        self::assertTrue($checker->isUsernameTaken('  aLiCe  '));
-        // Self-registration must not learn whether an email has an account (#936).
-        self::assertFalse($checker->isUsernameTaken('bob'));
-        self::assertSame('This username is already taken.', $checker->createUsernameTakenFormError()->getMessage());
+        $taken = $checker->isUsernameTaken('  aLiCe  ');
+
+        self::assertTrue($taken);
+    }
+
+    public function testFreeUsernameIsNotTaken(): void
+    {
+        UserFactory::createOne([
+            'username' => 'Alice',
+            'email' => 'bob@example.test',
+        ]);
+        $checker = self::getContainer()->get(RegistrationIdentityChecker::class);
+
+        // Only the username counts: self-registration must not learn whether an email has an account (#936).
+        $taken = $checker->isUsernameTaken('bob');
+
+        self::assertFalse($taken);
+    }
+
+    public function testUsernameTakenErrorIsTranslated(): void
+    {
+        $checker = self::getContainer()->get(RegistrationIdentityChecker::class);
+
+        $error = $checker->createUsernameTakenFormError();
+
+        self::assertSame('This username is already taken.', $error->getMessage());
     }
 }

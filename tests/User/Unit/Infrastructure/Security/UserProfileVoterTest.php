@@ -7,92 +7,67 @@ namespace App\Tests\User\Unit\Infrastructure\Security;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use App\User\Infrastructure\Security\Voter\UserProfileVoter;
-use PHPUnit\Framework\MockObject\Stub;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authentication\Token\NullToken;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Role\RoleHierarchy;
 
+#[CoversClass(UserProfileVoter::class)]
 final class UserProfileVoterTest extends TestCase
 {
-    private UserProfileVoter $voter;
-
-    #[\Override]
-    protected function setUp(): void
+    /**
+     * @return iterable<string, array{list<string>, ?int, ?int, string, int}>
+     */
+    public static function votes(): iterable
     {
-        $this->voter = new UserProfileVoter(new RoleHierarchy([
-            UserRole::ADMIN => [UserRole::PARTICIPANT, UserRole::REVIEW_INDICATIONS],
-        ]));
+        // viewer roles, viewer id, profile id, attribute => vote
+        yield 'participant views any profile' => [[UserRole::USER, UserRole::PARTICIPANT], 1, 2, UserProfileVoter::VIEW, Voter::ACCESS_GRANTED];
+        yield 'admin views any profile via the role hierarchy' => [[UserRole::USER, UserRole::ADMIN], 1, 2, UserProfileVoter::VIEW, Voter::ACCESS_GRANTED];
+        yield 'user without participant role views the own profile' => [[UserRole::USER], 1, 1, UserProfileVoter::VIEW, Voter::ACCESS_GRANTED];
+        yield 'user without participant role does not view other profiles' => [[UserRole::USER], 1, 2, UserProfileVoter::VIEW, Voter::ACCESS_DENIED];
+        // Two users without an id are not the same profile, although null === null.
+        yield 'unsaved users are never the same profile' => [[UserRole::USER], null, null, UserProfileVoter::VIEW, Voter::ACCESS_DENIED];
+        yield 'other attributes abstain' => [[UserRole::USER], 1, 1, 'EDIT', Voter::ACCESS_ABSTAIN];
     }
 
-    public function testParticipantMayViewAnyProfile(): void
+    /**
+     * @param list<string> $viewerRoles
+     */
+    #[DataProvider('votes')]
+    public function testVote(array $viewerRoles, ?int $viewerId, ?int $profileId, string $attribute, int $expected): void
     {
-        $token = $this->createToken($this->createUser(1), [UserRole::USER, UserRole::PARTICIPANT]);
+        $token = new UsernamePasswordToken($this->user('viewer', $viewerId), 'main', $viewerRoles);
 
-        self::assertSame(Voter::ACCESS_GRANTED, $this->voter->vote($token, $this->createUser(2), [UserProfileVoter::VIEW]));
-    }
+        $vote = $this->voter()->vote($token, $this->user('profile', $profileId), [$attribute]);
 
-    public function testAdminMayViewAnyProfileViaRoleHierarchy(): void
-    {
-        $token = $this->createToken($this->createUser(1), [UserRole::USER, UserRole::ADMIN]);
-
-        self::assertSame(Voter::ACCESS_GRANTED, $this->voter->vote($token, $this->createUser(2), [UserProfileVoter::VIEW]));
-    }
-
-    public function testUserWithoutParticipantRoleMayViewOwnProfile(): void
-    {
-        $token = $this->createToken($this->createUser(1), [UserRole::USER]);
-
-        self::assertSame(Voter::ACCESS_GRANTED, $this->voter->vote($token, $this->createUser(1), [UserProfileVoter::VIEW]));
-    }
-
-    public function testUserWithoutParticipantRoleMayNotViewOtherProfiles(): void
-    {
-        $token = $this->createToken($this->createUser(1), [UserRole::USER]);
-
-        self::assertSame(Voter::ACCESS_DENIED, $this->voter->vote($token, $this->createUser(2), [UserProfileVoter::VIEW]));
-    }
-
-    public function testUnsavedUsersAreNeverTheSameProfile(): void
-    {
-        $token = $this->createToken($this->createUser(null), [UserRole::USER]);
-
-        self::assertSame(Voter::ACCESS_DENIED, $this->voter->vote($token, $this->createUser(null), [UserProfileVoter::VIEW]));
+        self::assertSame($expected, $vote);
     }
 
     public function testAnonymousVisitorIsDenied(): void
     {
-        $token = $this->createStub(TokenInterface::class);
-        $token->method('getUser')->willReturn(null);
-        $token->method('getRoleNames')->willReturn([]);
+        $token = new NullToken();
 
-        self::assertSame(Voter::ACCESS_DENIED, $this->voter->vote($token, $this->createUser(1), [UserProfileVoter::VIEW]));
+        $vote = $this->voter()->vote($token, $this->user('profile', 1), [UserProfileVoter::VIEW]);
+
+        self::assertSame(Voter::ACCESS_DENIED, $vote);
     }
 
-    public function testOtherAttributesAbstain(): void
+    private function voter(): UserProfileVoter
     {
-        $token = $this->createToken($this->createUser(1), [UserRole::USER]);
-
-        self::assertSame(Voter::ACCESS_ABSTAIN, $this->voter->vote($token, $this->createUser(1), ['EDIT']));
+        return new UserProfileVoter(new RoleHierarchy([
+            UserRole::ADMIN => [UserRole::PARTICIPANT, UserRole::REVIEW_INDICATIONS],
+        ]));
     }
 
-    private function createUser(?int $id): User&Stub
+    private function user(string $username, ?int $id): User
     {
-        $user = $this->createStub(User::class);
-        $user->method('getId')->willReturn($id);
+        $user = new User()->setUsername($username);
+        // The id is generated by the database; set it the way Doctrine does.
+        new \ReflectionProperty(User::class, 'id')->setValue($user, $id);
 
         return $user;
-    }
-
-    /**
-     * @param list<string> $roleNames
-     */
-    private function createToken(User $user, array $roleNames): TokenInterface&Stub
-    {
-        $token = $this->createStub(TokenInterface::class);
-        $token->method('getUser')->willReturn($user);
-        $token->method('getRoleNames')->willReturn($roleNames);
-
-        return $token;
     }
 }

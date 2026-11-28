@@ -67,4 +67,22 @@ final class UserHospitalRelationsQueryTest extends DatabaseKernelTestCase
         self::assertSame(220, $byName['Owned Klinik']->beds);
         self::assertSame(UserHospitalRelation::ACCESS, $byName['Grant Klinik']->relation);
     }
+
+    public function testHospitalFilterChoicesListEveryHospitalByName(): void
+    {
+        $owner = UserFactory::createOne();
+        $zeta = HospitalFactory::createOne(['name' => 'Zeta Klinik', 'owner' => $owner, 'createdBy' => $owner]);
+        $alpha = HospitalFactory::createOne(['name' => 'Alpha Klinik', 'owner' => $owner, 'createdBy' => $owner]);
+        // Owned by somebody else: the choices are not limited to one user.
+        $other = UserFactory::createOne();
+        $middle = HospitalFactory::createOne(['name' => 'Mitte Klinik', 'owner' => $other, 'createdBy' => $other]);
+
+        $choices = self::getContainer()->get(UserHospitalRelationsQuery::class)->hospitalFilterChoices();
+
+        self::assertSame([
+            ['id' => $alpha->getId(), 'name' => 'Alpha Klinik'],
+            ['id' => $middle->getId(), 'name' => 'Mitte Klinik'],
+            ['id' => $zeta->getId(), 'name' => 'Zeta Klinik'],
+        ], $choices);
+    }
 }

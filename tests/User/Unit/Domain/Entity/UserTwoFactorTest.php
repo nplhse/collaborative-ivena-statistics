@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\User\Unit\Domain\Entity;
 
 use App\User\Domain\Entity\User;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class UserTwoFactorTest extends TestCase
@@ -38,19 +39,56 @@ final class UserTwoFactorTest extends TestCase
         self::assertNotSame('JBSWY3DPEHPK3PXP', $secret);
     }
 
-    public function testBackupCodeIgnoresCaseAndSeparatorsAndWorksOnce(): void
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function normalisedBackupCodes(): iterable
+    {
+        yield 'lower case with hyphen' => ['abcde-fghjk'];
+        yield 'upper case with spaces around and inside' => [' ABCDE FGHJK '];
+        yield 'as stored' => ['ABCDEFGHJK'];
+    }
+
+    #[DataProvider('normalisedBackupCodes')]
+    public function testBackupCodeIgnoresCaseAndSeparators(string $code): void
     {
         $user = $this->enabledUser();
 
-        self::assertTrue($user->isBackupCode('abcde-fghjk'));
-        self::assertTrue($user->isBackupCode(' ABCDE FGHJK '));
-        self::assertFalse($user->isBackupCode('ABCDE-FGHJL'));
-        self::assertFalse($user->isBackupCode('123456'));
-        self::assertFalse($user->isBackupCode(''));
+        $isBackupCode = $user->isBackupCode($code);
+
+        self::assertTrue($isBackupCode);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function invalidBackupCodes(): iterable
+    {
+        yield 'one letter off' => ['ABCDE-FGHJL'];
+        // Six digits are a TOTP code; backup codes contain letters only.
+        yield 'TOTP code' => ['123456'];
+        yield 'empty' => [''];
+    }
+
+    #[DataProvider('invalidBackupCodes')]
+    public function testWrongOrDigitCodeIsNoBackupCode(string $code): void
+    {
+        $user = $this->enabledUser();
+
+        $isBackupCode = $user->isBackupCode($code);
+
+        self::assertFalse($isBackupCode);
+    }
+
+    public function testUsedBackupCodeIsInvalidAndTheOtherStays(): void
+    {
+        $user = $this->enabledUser();
 
         $user->invalidateBackupCode('abcde-fghjk');
+
         self::assertFalse($user->isBackupCode('ABCDEFGHJK'));
         self::assertSame(1, $user->countBackupCodes());
+        self::assertTrue($user->isBackupCode('ZYXWVUTSRQ'));
     }
 
     public function testDisablingRemovesSecretAndBackupCodes(): void
