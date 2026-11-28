@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\User\Functional\Controller;
 
 use App\Tests\Support\Browser\CookieConsentTestHelper;
+use App\Tests\Support\RateLimit\DeniesRateLimiter;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use App\User\Infrastructure\Security\TwoFactor\TwoFactorSecretCipher;
@@ -23,6 +24,7 @@ use Zenstruck\Foundry\Test\Factories;
 #[ResetDatabase]
 final class TwoFactorSettingsTest extends WebTestCase
 {
+    use DeniesRateLimiter;
     use CookieConsentTestHelper;
     use Factories;
 
@@ -172,12 +174,10 @@ final class TwoFactorSettingsTest extends WebTestCase
     {
         $user = $this->createUserWithTwoFactor();
         $this->signIn($user);
-        $wrongCode = $this->otherCodeThan($this->currentCode());
-
-        for ($i = 0; $i < 5; ++$i) {
-            $this->client->request(Request::METHOD_GET, '/settings/two-factor');
-            $this->submit('Switch off', $wrongCode);
-        }
+        // The limit is used up beforehand instead of by five wrong codes; the replaced limiter only lives as long
+        // as the kernel, so the client must not reboot it between requests.
+        $this->client->disableReboot();
+        $this->denyRateLimiter('limiter.two_factor_settings_code', (string) $user->getId());
 
         $this->client->request(Request::METHOD_GET, '/settings/two-factor');
         $this->submit('Switch off', $this->currentCode());
@@ -232,7 +232,8 @@ final class TwoFactorSettingsTest extends WebTestCase
         $user->enableTotpAuthentication(
             self::getContainer()->get(TwoFactorSecretCipher::class)->encrypt(self::SECRET),
             self::SECRET,
-            array_map(static fn (string $code): string => password_hash($code, \PASSWORD_DEFAULT), $backupCodes),
+            // Lowest bcrypt cost: the default cost makes every hash and every check take about 0.25 s.
+            array_map(static fn (string $code): string => password_hash($code, \PASSWORD_BCRYPT, ['cost' => 4]), $backupCodes),
             new \DateTimeImmutable('2026-11-22 12:00:00'),
         );
         $this->entityManager()->flush();
