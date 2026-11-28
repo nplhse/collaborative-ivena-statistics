@@ -62,6 +62,7 @@ Each ADR includes:
 | [044](044-explore-restricted-to-own-hospitals.md) | Explore restricted to the viewer's own hospitals | accepted |
 | [045](045-data-extract-requests.md) | Data extract requests with Board vote, admin SQL and time-limited export | accepted |
 | [046](046-maintenance-mode-by-flag-file.md) | Maintenance mode by a shared flag file | accepted |
+| [047](047-inline-style-attributes-allowed-by-csp.md) | Inline style attributes stay allowed by the Content Security Policy | accepted |
 
 ## Template
 
