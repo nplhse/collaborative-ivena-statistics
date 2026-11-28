@@ -27,7 +27,10 @@ when@prod:
             hsts_subdomains: true
             hsts_preload: false
         csp:
-            report:
+            # Enforced since #580; violations are still reported to Sentry through report-uri
+            # (docs/05-operations/content-security-policy.md). style-src-attr is appended by StyleAttributePolicyListener
+            # (ADR 047), because Nelmio 3.9 does not know it.
+            enforce:
                 default-src: ["'self'"]
                 base-uri: ["'self'"]
                 object-src: ["'none'"]
@@ -37,5 +40,6 @@ when@prod:
                 font-src: ["'self'", "data:"]
                 connect-src: ["'self'", "https://*.tile.openstreetmap.org", "https://*.ingest.sentry.io"]
                 form-action: ["'self'"]
+                frame-ancestors: ["'none'"]
                 # Read at runtime; nelmio drops the directive when the variable is empty.
                 report-uri: ['%env(trim:SENTRY_CSP_REPORT_URI)%']

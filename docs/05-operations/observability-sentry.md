@@ -77,7 +77,7 @@ never sampled; errors and logs count against separate quotas. Knobs, from coarse
 
 ## CSP violation reports
 
-CSP is configured separately via Nelmio (report-only in prod). Violations appear in Sentry under **Issues**, not Logs. Setup, policy, verification, and triage: [content-security-policy.md](content-security-policy.md).
+CSP is configured separately via Nelmio (enforced in prod). Violations appear in Sentry under **Issues**, not Logs. Setup, policy, verification, and triage: [content-security-policy.md](content-security-policy.md).
 
 ## Issues vs. logs
 

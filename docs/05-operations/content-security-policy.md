@@ -1,22 +1,22 @@
-# Content Security Policy (report-only)
+# Content Security Policy
 
 Related: [observability-sentry.md](observability-sentry.md) (Sentry SDK), [deployment.md](deployment.md) (pre-deploy checks)
 
-Production uses **Content-Security-Policy-Report-Only** via [NelmioSecurityBundle](https://symfony.com/bundles/NelmioSecurityBundle). The browser reports violations but **does not block** resources. This prepares beta monitoring before a future enforce phase (P2).
+Production sends an **enforced Content-Security-Policy** via [NelmioSecurityBundle](https://symfony.com/bundles/NelmioSecurityBundle) (since #580; report-only before). The browser blocks what the policy does not allow and, when `SENTRY_CSP_REPORT_URI` is set, reports the violation to Sentry.
 
 ## When CSP is active
 
 | Environment | CSP header | Sentry reporting |
 |-------------|------------|------------------|
 | `dev` / `test` | No | No |
-| `prod`, `SENTRY_CSP_REPORT_URI` empty | Yes (`Content-Security-Policy-Report-Only`) | DevTools only |
+| `prod`, `SENTRY_CSP_REPORT_URI` empty | Yes (`Content-Security-Policy`) | DevTools only |
 | `prod`, `SENTRY_CSP_REPORT_URI` set | Yes, includes `report-uri` | Browser POSTs to Sentry **Issues** |
 
 ## Configuration
 
 | Piece | Location |
 |-------|----------|
-| Policy directives | [`config/packages/nelmio_security.yaml`](../../config/packages/nelmio_security.yaml) (`when@prod` → `csp.report`) |
+| Policy directives | [`config/packages/nelmio_security.yaml`](../../config/packages/nelmio_security.yaml) (`when@prod` → `csp.enforce`) |
 | Optional `report-uri` | Same file, `report-uri: ['%env(trim:SENTRY_CSP_REPORT_URI)%']`. Read at runtime, so a changed value needs no cache clear; when it is empty, Nelmio leaves the directive out |
 | Env default | [`config/services.yaml`](../../config/services.yaml) — `env(SENTRY_CSP_REPORT_URI): ''` |
 | Example env | [`.env.example`](../../.env.example) |
@@ -34,7 +34,7 @@ Report URI:  https://o{ORG}.ingest[.region].sentry.io/api/{PROJECT_ID}/security/
 
 Set in `shared/.env.local` on the server when you want violations in Sentry.
 
-## Current policy (report-only)
+## Current policy
 
 | Directive | Value | Notes |
 |-----------|-------|-------|
@@ -48,8 +48,9 @@ Set in `shared/.env.local` on the server when you want violations in Sentry.
 | `font-src` | `'self'`, `data:` | |
 | `connect-src` | `'self'`, `https://*.tile.openstreetmap.org`, `https://*.ingest.sentry.io` | Fetch/XHR, OSM tiles, CSP report POST to Sentry |
 | `form-action` | `'self'` | |
+| `frame-ancestors` | `'none'` | No embedding in frames (#580) |
 
-`frame-ancestors` is intentionally omitted from report-only (browsers ignore it there). Use `X-Frame-Options: DENY` for clickjacking instead.
+`frame-ancestors 'none'` forbids embedding the application in frames; `X-Frame-Options: DENY` stays as the fallback for older browsers.
 
 ## Verification
 
@@ -59,7 +60,7 @@ Set in `shared/.env.local` on the server when you want violations in Sentry.
 curl -sI https://<APP_URL>/statistics/ | grep -i content-security-policy
 ```
 
-Expect `Content-Security-Policy-Report-Only` with `default-src 'self'`. When `SENTRY_CSP_REPORT_URI` is set, the header should also contain `report-uri https://o….ingest….sentry.io/...`.
+Expect `Content-Security-Policy` with `default-src 'self'`. When `SENTRY_CSP_REPORT_URI` is set, the header should also contain `report-uri https://o….ingest….sentry.io/...`.
 
 ### Manual violation (browser console)
 
@@ -71,7 +72,7 @@ s.src = 'https://cdn.jsdelivr.net/npm/lodash@4/lodash.min.js';
 document.body.appendChild(s);
 ```
 
-Expect `[Report Only] Refused to load …` — the page keeps working.
+Expect `Refused to load …` — the script is blocked; the page itself keeps working.
 
 With Sentry configured, check **Issues** (not Logs) within a few minutes. In **Network**, look for a POST to `…ingest….sentry.io/…/security/`.
 
@@ -103,7 +104,7 @@ See [observability-sentry.md](observability-sentry.md) for general Sentry setup 
 |---------|-------|--------|
 | `does not specify a report-to` | No `SENTRY_CSP_REPORT_URI` | Set URI for Sentry, or ignore (DevTools reporting still works) |
 | Report not in Sentry | Missing URI or blocked POST | Set URI; confirm `connect-src` includes `*.ingest.sentry.io` |
-| `[Report Only] Refused to load …` | Expected on policy mismatch | Normal in report-only; see triage below |
+| `Refused to load …` | Blocked by the policy | Check whether a feature broke; see triage below |
 
 ## Triage checklist (beta)
 
@@ -141,7 +142,7 @@ Multiple users / many events / unknown domain?
 
 ### EasyAdmin and nonces
 
-EasyAdmin calls Nelmio’s `csp_nonce()` and adds `'nonce-…'` to `script-src` / `style-src` on `/admin` responses. Under **CSP Level 3**, that **disables `'unsafe-inline'`** for those directives — even though the YAML policy still lists it. Inline event handlers (`onsubmit`), bare `<script>` / `style=""` attributes, and vendor-injected `<style>` without a matching nonce therefore show up as Report-Only violations on admin pages only.
+EasyAdmin calls Nelmio’s `csp_nonce()` and adds `'nonce-…'` to `script-src` / `style-src` on `/admin` responses. Under **CSP Level 3**, that **disables `'unsafe-inline'`** for those directives — even though the YAML policy still lists it. Inline event handlers (`onsubmit`), bare `<script>` / `style=""` attributes, and vendor-injected `<style>` without a matching nonce are therefore blocked on admin pages.
 
 Style attributes are not affected: `style-src-attr 'unsafe-inline'` allows them on every page, also with a nonce in `style-src` ([ADR 047](../02-architecture/decisions/047-inline-style-attributes-allowed-by-csp.md)). Before it was added (#580), they caused nearly all reports (`style-src-attr`, `blocked_uri: inline`).
 
@@ -221,34 +222,28 @@ Reports outside these patterns on your own pages deserve a closer look.
 | New CSP issue | Label `csp` or `security` if you use labels |
 | After triage | `test`, `extension`, `policy-gap`, or `investigate` |
 | Manual tests | Resolve with note |
-| Real suspicion | Assign owner; do not only rely on report-only long term |
+| Real suspicion | Assign owner |
 
 > **CSP issue ≠ hack.** Clarify the source first: test, extension, policy gap, or genuine concern. Escalate mainly on unknown `blocked_uri`, many users/events, or suspicious URLs.
 
 ## Audit (SEC-014)
 
-Pre-beta security review **accepted** Report-Only CSP with `'unsafe-inline'` for the beta period. The policy monitors violations without breaking pages; it does **not** yet block XSS.
+Pre-beta security review **accepted** Report-Only CSP with `'unsafe-inline'` for the beta period. The exit criteria (report URI set in production, triage rhythm, low noise) were met in November 2026: over 90 days the only report was the style-attribute noise on `/admin`, resolved by [ADR 047](../02-architecture/decisions/047-inline-style-attributes-allowed-by-csp.md). The policy has been enforced since #580, with the accepted exceptions below.
 
-**Exit criteria before switching Nelmio to `enforce`** (follow-up ticket, not this rollout):
+**Accepted exceptions:**
 
-1. `SENTRY_CSP_REPORT_URI` is set in production and reports reach Sentry Issues reliably.
-2. A steady triage rhythm exists (see checklist above); unexpected issues are classified within a few days.
-3. Violation noise is low: few recurring unknown `blocked_uri`s on core routes after triage.
-4. Then: add Nelmio `csp.enforce`, reduce `'unsafe-inline'` / prefer nonces or Stimulus, and keep `report` for monitoring — see P2 roadmap below.
+- `style-src 'unsafe-inline'` outside `/admin` and `style-src-attr 'unsafe-inline'` everywhere ([ADR 047](../02-architecture/decisions/047-inline-style-attributes-allowed-by-csp.md)).
+- `script-src 'unsafe-inline'` remains only as a fallback for browsers without nonce support; pages with a nonce ignore it.
+- `script-src data:` for the AssetMapper CSS importmap.
 
 ## Inline scripts (#580)
 
 The application has no inline event handlers and no `javascript:` URLs; use Stimulus instead (`click-proxy` to click another element, `confirm-submit` for confirm dialogs, `autosubmit` to submit a form on change). The few inline `<script>` elements carry a nonce: `<script nonce="{{ csp_nonce('script') }}">`, and `importmap()` gets one with `importmap('app', {nonce: csp_nonce('script')})`. Once a page asks for a nonce, Nelmio adds it to `script-src`, and browsers with CSP Level 2 or later ignore `'unsafe-inline'` for scripts on that page; it stays in the policy only as a fallback for older browsers. JSON data blocks (`<script type="application/json">`) are not executed and need no nonce. The downloaded data preparation tool is a standalone file with its own `<meta>` policy and keeps its plain inline scripts.
 
-## P2 roadmap (enforce)
+## Possible next steps
 
-Not in scope for the initial report-only rollout (and deferred while SEC-014 remains accepted for beta):
-
-- Remove `'unsafe-inline'` where possible (nonces, Stimulus, extracted CSS)
-- ~~Inline event handlers (`onclick`, `onsubmit`) → Stimulus~~ done (#580)
-- AssetMapper: consider `strict-dynamic` + nonces instead of `data:` in `script-src`
-- Add `enforce` block in Nelmio (keep `report` for monitoring)
-- Re-add `frame-ancestors 'none'` under enforce (with `X-Frame-Options` as fallback)
+- Replace `data:` in `script-src` by `strict-dynamic` and nonces (AssetMapper).
+- Move static `style=""` attributes and inline `<style>` to CSS when templates are touched, then drop `style-src 'unsafe-inline'`.
 
 ## Further reading
 

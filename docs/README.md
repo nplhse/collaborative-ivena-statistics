@@ -65,4 +65,4 @@ Role-based reading orders live in each section's README:
 - [Explore MCI cases](04-features/allocation/explore-mci-cases.md)
 - [Allocation orientation map](04-features/allocation/orientation-map.md)
 - [Sentry observability](05-operations/observability-sentry.md)
-- [Content Security Policy (report-only)](05-operations/content-security-policy.md)
+- [Content Security Policy](05-operations/content-security-policy.md)

@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 /*
- * Checks the Content-Security-Policy-Report-Only header of the prod kernel (docs/05-operations/content-security-policy.md).
+ * Checks the enforced Content-Security-Policy header of the prod kernel (docs/05-operations/content-security-policy.md).
  *
  * CI runs it in the job "Prod kernel smoke", which builds the prod container anyway (#1343). Before, a test compiled
  * a prod container inside the database test job, where it was one of the slowest tests.
@@ -28,7 +28,7 @@ $_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = 'prod';
 $_SERVER['APP_DEBUG'] = $_ENV['APP_DEBUG'] = '0';
 new Dotenv()->bootEnv(dirname(__DIR__).'/.env');
 
-$expectedEverywhere = ["default-src 'self'", "connect-src 'self'", 'https://*.ingest.sentry.io', "script-src 'self'", "'unsafe-inline'", "style-src-attr 'unsafe-inline'"];
+$expectedEverywhere = ["default-src 'self'", "connect-src 'self'", 'https://*.ingest.sentry.io', "script-src 'self'", "'unsafe-inline'", "style-src-attr 'unsafe-inline'", "frame-ancestors 'none'"];
 $reportUri = 'https://o1234567890.ingest.sentry.io/api/1/security/?sentry_key=check';
 $failures = [];
 
@@ -38,12 +38,12 @@ foreach (['' => null, $reportUri => $reportUri] as $configured => $expectedRepor
 
     $kernel = new Kernel('prod', false);
     $response = $kernel->handle(Request::create('https://localhost/data-prep/latest.json'));
-    $header = $response->headers->get('Content-Security-Policy-Report-Only');
+    $header = $response->headers->get('Content-Security-Policy');
     $kernel->shutdown();
 
     $case = '' === $configured ? 'SENTRY_CSP_REPORT_URI empty' : 'SENTRY_CSP_REPORT_URI set';
     if (null === $header) {
-        $failures[] = sprintf('%s: no Content-Security-Policy-Report-Only header (status %d)', $case, $response->getStatusCode());
+        $failures[] = sprintf('%s: no Content-Security-Policy header (status %d)', $case, $response->getStatusCode());
         continue;
     }
 
