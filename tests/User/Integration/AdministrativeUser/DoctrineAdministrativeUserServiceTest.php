@@ -6,6 +6,7 @@ namespace App\Tests\User\Integration\AdministrativeUser;
 
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Shared\Infrastructure\Audit\AuditContext;
+use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\Tests\User\Support\AlwaysAvailableRegistrationIdentityChecker;
 use App\User\Application\AdministrativeUser\AdministrativeUserService;
 use App\User\Application\AdministrativeUser\AdministrativeUserValidationException;
@@ -18,20 +19,17 @@ use App\User\Domain\Factory\UserFactory;
 use App\User\Domain\Security\UserRole;
 use App\User\Infrastructure\AdministrativeUser\DoctrineAdministrativeUserService;
 use App\User\Infrastructure\Repository\UserRepository;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Zenstruck\Foundry\Attribute\ResetDatabase;
-use Zenstruck\Foundry\Test\Factories;
 
-#[ResetDatabase]
-final class DoctrineAdministrativeUserServiceTest extends KernelTestCase
+use function Zenstruck\Foundry\Persistence\refresh;
+
+final class DoctrineAdministrativeUserServiceTest extends DatabaseKernelTestCase
 {
-    use Factories;
-
     #[\Override]
     protected function setUp(): void
     {
@@ -106,21 +104,46 @@ final class DoctrineAdministrativeUserServiceTest extends KernelTestCase
         self::assertSame(1, $repository->count(['username' => 'alice']));
     }
 
-    public function testFindByUsernameTrimsAndReturnsNullForBlank(): void
+    public function testFindByUsernameTrimsTheInput(): void
     {
         UserFactory::createOne([
             'username' => 'alice',
             'email' => 'alice@example.test',
         ]);
 
-        $service = $this->service();
-        $found = $service->findByUsername('  alice  ');
+        $found = $this->service()->findByUsername('  alice  ');
+
         self::assertInstanceOf(User::class, $found);
         self::assertSame('alice', $found->getUsername());
-        self::assertNull($service->findByUsername('   '));
     }
 
-    public function testPromoteIsNoOpWhenAlreadyAdmin(): void
+    public function testFindByUsernameReturnsNullForBlankInput(): void
+    {
+        UserFactory::createOne([
+            'username' => 'alice',
+            'email' => 'alice@example.test',
+        ]);
+
+        $found = $this->service()->findByUsername('   ');
+
+        self::assertNull($found);
+    }
+
+    public function testPromoteGrantsTheAdminRoleWithAnAuditEntry(): void
+    {
+        $user = UserFactory::createOne([
+            'username' => 'alice',
+            'email' => 'alice@example.test',
+        ]);
+
+        $this->service()->promoteToAdmin($user);
+
+        refresh($user);
+        self::assertContains(UserRole::ADMIN, $user->getRoles());
+        self::assertSame(1, $this->promotionAuditEntries());
+    }
+
+    public function testPromoteOfAnAdministratorChangesNothing(): void
     {
         $user = UserFactory::new()->asAdmin()->create([
             'username' => 'alice',
@@ -129,8 +152,10 @@ final class DoctrineAdministrativeUserServiceTest extends KernelTestCase
 
         $this->service()->promoteToAdmin($user);
 
-        \Zenstruck\Foundry\Persistence\refresh($user);
+        refresh($user);
         self::assertContains(UserRole::ADMIN, $user->getRoles());
+        // No flush, so no audit entry for a promotion that did not happen.
+        self::assertSame(0, $this->promotionAuditEntries());
     }
 
     public function testDemoteThrowsForLastAdministrator(): void
@@ -153,7 +178,7 @@ final class DoctrineAdministrativeUserServiceTest extends KernelTestCase
 
         $this->service()->demoteFromAdmin($user);
 
-        \Zenstruck\Foundry\Persistence\refresh($user);
+        refresh($user);
         self::assertNotContains(UserRole::ADMIN, $user->getRoles());
     }
 
@@ -200,6 +225,13 @@ final class DoctrineAdministrativeUserServiceTest extends KernelTestCase
         }
 
         self::assertSame(1, self::getContainer()->get(UserRepository::class)->count(['username' => 'alice']));
+    }
+
+    private function promotionAuditEntries(): int
+    {
+        return (int) self::getContainer()->get(Connection::class)->fetchOne(
+            "SELECT COUNT(*) FROM audit_log WHERE intent = 'user.cli.promoted_admin'",
+        );
     }
 
     private function service(): AdministrativeUserService

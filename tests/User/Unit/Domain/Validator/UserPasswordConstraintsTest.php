@@ -7,6 +7,9 @@ namespace App\Tests\User\Unit\Domain\Validator;
 use App\User\Domain\Validator\UserPasswordConstraints;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotCompromisedPassword;
 use Symfony\Component\Validator\Constraints\PasswordStrength;
 use Symfony\Component\Validator\Constraints\PasswordStrengthValidator;
 
@@ -26,13 +29,27 @@ final class UserPasswordConstraintsTest extends TestCase
     {
         $constraints = UserPasswordConstraints::forPlainPassword();
 
-        self::assertCount(4, $constraints);
+        self::assertSame(
+            [NotBlank::class, Length::class, PasswordStrength::class, NotCompromisedPassword::class],
+            array_map(static fn (object $constraint): string => $constraint::class, $constraints),
+        );
+        self::assertInstanceOf(Length::class, $constraints[1]);
+        self::assertSame([8, 4096], [$constraints[1]->min, $constraints[1]->max]);
+        self::assertInstanceOf(PasswordStrength::class, $constraints[2]);
+        self::assertSame(PasswordStrength::STRENGTH_WEAK, $constraints[2]->minScore);
     }
 
+    /**
+     * Pins Symfony's scoring: the strength meter in assets/controllers/password_strength_controller.js re-implements
+     * it to show the same verdict as the server, and has no test of its own. A Symfony update that changes these
+     * scores has to be copied there.
+     */
     #[DataProvider('estimateStrengthProvider')]
     public function testEstimateStrength(string $password, int $expectedStrength): void
     {
-        self::assertSame($expectedStrength, PasswordStrengthValidator::estimateStrength($password));
+        $strength = PasswordStrengthValidator::estimateStrength($password);
+
+        self::assertSame($expectedStrength, $strength);
     }
 
     /**

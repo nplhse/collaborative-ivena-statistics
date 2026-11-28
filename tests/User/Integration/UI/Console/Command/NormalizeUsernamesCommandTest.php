@@ -4,24 +4,19 @@ declare(strict_types=1);
 
 namespace App\Tests\User\Integration\UI\Console\Command;
 
+use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Factory\UserFactory;
 use App\User\UI\Console\Command\NormalizeUsernamesCommand;
 use PHPUnit\Framework\Attributes\DataProvider;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
-use Zenstruck\Foundry\Attribute\ResetDatabase;
-use Zenstruck\Foundry\Test\Factories;
 
 /**
  * `app:user:normalize-usernames` against the database: the command reads and writes users through the repository and
  * the entity manager itself, so it has no unit test. The proposed replacement comes from
  * `UserUsernameConstraints::proposeNormalized()` (`UserUsernameConstraintsTest`).
  */
-#[ResetDatabase]
-final class NormalizeUsernamesCommandTest extends KernelTestCase
+final class NormalizeUsernamesCommandTest extends DatabaseKernelTestCase
 {
-    use Factories;
-
     #[\Override]
     protected function setUp(): void
     {

@@ -10,17 +10,12 @@ use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalAccessGrantFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Factory\UserFactory;
 use App\User\Infrastructure\Repository\UserRepository;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Zenstruck\Foundry\Attribute\ResetDatabase;
-use Zenstruck\Foundry\Test\Factories;
 
-#[ResetDatabase]
-final class UserRepositoryGrantDatalistTest extends KernelTestCase
+final class UserRepositoryGrantDatalistTest extends DatabaseKernelTestCase
 {
-    use Factories;
-
     private UserRepository $repository;
 
     #[\Override]

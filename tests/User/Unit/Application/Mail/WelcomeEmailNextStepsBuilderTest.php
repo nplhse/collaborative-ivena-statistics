@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\User\Unit\Application\Mail;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\User\Application\Mail\WelcomeEmailNextStep;
 use App\User\Application\Mail\WelcomeEmailNextStepsBuilder;
 use App\User\Domain\Entity\User;
 use PHPUnit\Framework\TestCase;
@@ -21,7 +22,7 @@ final class WelcomeEmailNextStepsBuilderTest extends TestCase
                 'app_explore_index',
                 'app_stats_dashboard',
             ],
-            array_map(static fn (\App\User\Application\Mail\WelcomeEmailNextStep $step): string => $step->route, $steps),
+            array_map(static fn (WelcomeEmailNextStep $step): string => $step->route, $steps),
         );
         self::assertSame('email.welcome.next_steps.hospitals.all.title', $steps[0]->titleKey);
     }
@@ -40,7 +41,7 @@ final class WelcomeEmailNextStepsBuilderTest extends TestCase
                 'app_stats_dashboard',
                 'app_import_new',
             ],
-            array_map(static fn (\App\User\Application\Mail\WelcomeEmailNextStep $step): string => $step->route, $steps),
+            array_map(static fn (WelcomeEmailNextStep $step): string => $step->route, $steps),
         );
         self::assertSame('email.welcome.next_steps.hospitals.owned.title', $steps[0]->titleKey);
         self::assertSame('email.welcome.next_steps.import.title', $steps[3]->titleKey);

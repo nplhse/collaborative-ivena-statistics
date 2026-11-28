@@ -73,17 +73,40 @@ final class UserUsernameConstraintsTest extends TestCase
         yield 'digits only, reserved for IDs' => ['1234'];
     }
 
-    public function testTrimRemovesUnicodeWhitespaceAtEdges(): void
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function trimCases(): iterable
     {
-        self::assertSame('Müller', UserUsernameConstraints::trim('  Müller  '));
-        self::assertSame('user', UserUsernameConstraints::trim("\u{00A0}user\u{00A0}"));
-        self::assertSame('John Doe', UserUsernameConstraints::trim(' John Doe '));
+        yield 'spaces at the edges' => ['  Müller  ', 'Müller'];
+        yield 'non-breaking spaces at the edges' => ["\u{00A0}user\u{00A0}", 'user'];
+        yield 'inner space stays' => [' John Doe ', 'John Doe'];
     }
 
-    public function testProposeNormalizedReplacesInternalWhitespaceWithHyphen(): void
+    #[DataProvider('trimCases')]
+    public function testTrimRemovesUnicodeWhitespaceAtEdges(string $input, string $expected): void
     {
-        self::assertSame('John-Doe', UserUsernameConstraints::proposeNormalized(' John  Doe '));
-        self::assertSame('foo@bar', UserUsernameConstraints::proposeNormalized('foo@bar'));
-        self::assertSame('Müller', UserUsernameConstraints::proposeNormalized("\u{00A0}Müller\u{00A0}"));
+        $trimmed = UserUsernameConstraints::trim($input);
+
+        self::assertSame($expected, $trimmed);
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function proposeNormalizedCases(): iterable
+    {
+        yield 'inner whitespace becomes one hyphen' => [' John  Doe ', 'John-Doe'];
+        // Only whitespace is replaced; other invalid characters are left for the validator to report.
+        yield 'other characters stay' => ['foo@bar', 'foo@bar'];
+        yield 'non-breaking spaces at the edges' => ["\u{00A0}Müller\u{00A0}", 'Müller'];
+    }
+
+    #[DataProvider('proposeNormalizedCases')]
+    public function testProposeNormalizedReplacesInternalWhitespaceWithHyphen(string $input, string $expected): void
+    {
+        $proposal = UserUsernameConstraints::proposeNormalized($input);
+
+        self::assertSame($expected, $proposal);
     }
 }

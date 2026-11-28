@@ -7,6 +7,7 @@ namespace App\Tests\User\Unit\Application\Explore;
 use App\User\Application\Explore\ProfileActivity;
 use App\User\Application\Explore\ProfileActivityCursor;
 use App\User\Application\Explore\ProfileActivityType;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class ProfileActivityCursorTest extends TestCase
@@ -23,54 +24,71 @@ final class ProfileActivityCursorTest extends TestCase
         self::assertFalse($decoded->joined);
     }
 
-    public function testTryDecodeReturnsNullForInvalidAndLegacyCursors(): void
+    /**
+     * @return iterable<string, array{?string}>
+     */
+    public static function invalidCursors(): iterable
     {
-        self::assertNull(ProfileActivityCursor::tryDecode(null));
-        self::assertNull(ProfileActivityCursor::tryDecode(''));
-        self::assertNull(ProfileActivityCursor::tryDecode('%%%'));
-        self::assertNull(ProfileActivityCursor::tryDecode(base64_encode('not-json')));
-
-        $legacy = base64_encode(json_encode([
+        yield 'none' => [null];
+        yield 'empty' => [''];
+        yield 'not base64' => ['%%%'];
+        yield 'not JSON' => [base64_encode('not-json')];
+        // Version 1 paged by type and padded stable id; version 2 pages by id and the joined flag, so an old cursor
+        // from a bookmarked page would point to the wrong place and starts on the first page instead.
+        yield 'legacy version 1' => [self::encode([
             'v' => 1,
             'occurredAt' => '2024-06-03T12:00:00+00:00',
             'type' => 'post_published',
             'stableId' => ProfileActivityCursor::padId(8),
-        ], JSON_THROW_ON_ERROR));
-        self::assertNull(ProfileActivityCursor::tryDecode($legacy));
+        ])];
     }
 
-    public function testFromActivitySetsJoinedFlag(): void
+    #[DataProvider('invalidCursors')]
+    public function testTryDecodeReturnsNullForInvalidAndLegacyCursors(?string $cursor): void
     {
-        $occurredAt = new \DateTimeImmutable('2024-01-01T00:00:00+00:00');
-        $joined = ProfileActivityCursor::fromActivity(new ProfileActivity(
-            occurredAt: $occurredAt,
-            type: ProfileActivityType::JOINED,
-            stableId: ProfileActivityCursor::padId(7),
-        ));
-        $post = ProfileActivityCursor::fromActivity(new ProfileActivity(
-            occurredAt: $occurredAt,
-            type: ProfileActivityType::POST_PUBLISHED,
-            stableId: ProfileActivityCursor::padId(9),
-        ));
+        $decoded = ProfileActivityCursor::tryDecode($cursor);
 
-        self::assertTrue($joined->joined);
-        self::assertSame(7, $joined->id);
-        self::assertFalse($post->joined);
-        self::assertSame(9, $post->id);
+        self::assertNull($decoded);
     }
 
+    /**
+     * @return iterable<string, array{ProfileActivityType, int, bool}>
+     */
+    public static function activities(): iterable
+    {
+        yield 'joined' => [ProfileActivityType::JOINED, 7, true];
+        yield 'post published' => [ProfileActivityType::POST_PUBLISHED, 9, false];
+    }
+
+    #[DataProvider('activities')]
+    public function testFromActivityTakesTheIdAndSetsTheJoinedFlag(ProfileActivityType $type, int $id, bool $joined): void
+    {
+        $activity = new ProfileActivity(
+            occurredAt: new \DateTimeImmutable('2024-01-01T00:00:00+00:00'),
+            type: $type,
+            stableId: ProfileActivityCursor::padId($id),
+        );
+
+        $cursor = ProfileActivityCursor::fromActivity($activity);
+
+        self::assertSame([$id, $joined], [$cursor->id, $cursor->joined]);
+    }
+
+    /**
+     * "+" and "/" become "-" and "_", the "=" padding is dropped, so the id is valid in HTML and in a URL.
+     */
     public function testFrameIdIsHtmlSafe(): void
     {
-        $cursor = new ProfileActivityCursor(
-            new \DateTimeImmutable('2024-01-01T00:00:00+00:00'),
-            1,
-            true,
-        );
-        $frameId = ProfileActivityCursor::frameId($cursor->encode());
+        $frameId = ProfileActivityCursor::frameId('ab+c/d==');
 
-        self::assertStringStartsWith('profile-activity-after-', $frameId);
-        self::assertStringNotContainsString('+', $frameId);
-        self::assertStringNotContainsString('/', $frameId);
-        self::assertStringNotContainsString('=', $frameId);
+        self::assertSame('profile-activity-after-ab-c_d', $frameId);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private static function encode(array $payload): string
+    {
+        return base64_encode(json_encode($payload, JSON_THROW_ON_ERROR));
     }
 }
