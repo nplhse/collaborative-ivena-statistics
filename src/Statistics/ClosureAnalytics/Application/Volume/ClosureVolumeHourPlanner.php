@@ -115,7 +115,7 @@ final readonly class ClosureVolumeHourPlanner
         $preStart = $anchor->startsAt->modify('-'.$context);
         $preEnd = $anchor->startsAt < $now ? $anchor->startsAt : $now;
         if ($preStart < $preEnd) {
-            $ranges[] = [false, ClosureVolumeClock::split($preStart, $preEnd)];
+            $ranges[] = [false, $this->splitAtWindowEdges($preStart, $preEnd, $this->windowEdges($anchor->startsAt, '-'))];
         }
 
         $previousEnd = null;
@@ -139,11 +139,53 @@ final readonly class ClosureVolumeHourPlanner
                 $postEnd = $now;
             }
             if ($anchor->endsAt < $postEnd) {
-                $ranges[] = [false, ClosureVolumeClock::split($anchor->endsAt, $postEnd)];
+                $ranges[] = [false, $this->splitAtWindowEdges($anchor->endsAt, $postEnd, $this->windowEdges($anchor->endsAt, '+'))];
             }
         }
 
         return $ranges;
+    }
+
+    /**
+     * The edges of the 1 h and 3 h windows before the start ('-') or after the end ('+'); the 6 h window ends at the
+     * edge of the context anyway (#1018).
+     *
+     * @return list<\DateTimeImmutable>
+     */
+    private function windowEdges(\DateTimeImmutable $at, string $sign): array
+    {
+        $edges = [];
+        foreach (ClosureVolumeReferenceConfig::WINDOW_HOURS as $hours) {
+            if ($hours < ClosureVolumeReferenceConfig::CONTEXT_HOURS) {
+                $offset = new \DateInterval(sprintf('PT%dH', $hours));
+                $edges[] = '-' === $sign ? $at->sub($offset) : $at->add($offset);
+            }
+        }
+
+        return $edges;
+    }
+
+    /**
+     * Clock-hour pieces of [$start, $end), also cut at the given window edges, so that every window of
+     * {@see ClosureVolumeWindowAggregator} consists of whole pieces and counts its allocations exactly (#1018).
+     *
+     * @param list<\DateTimeImmutable> $edges
+     *
+     * @return list<ClosureVolumeBucket>
+     */
+    private function splitAtWindowEdges(\DateTimeImmutable $start, \DateTimeImmutable $end, array $edges): array
+    {
+        $cuts = array_values(array_filter($edges, static fn (\DateTimeImmutable $edge): bool => $edge > $start && $edge < $end));
+        usort($cuts, static fn (\DateTimeImmutable $a, \DateTimeImmutable $b): int => $a <=> $b);
+
+        $buckets = [];
+        $cursor = $start;
+        foreach ([...$cuts, $end] as $cut) {
+            $buckets = [...$buckets, ...ClosureVolumeClock::split($cursor, $cut)];
+            $cursor = $cut;
+        }
+
+        return $buckets;
     }
 
     /**
