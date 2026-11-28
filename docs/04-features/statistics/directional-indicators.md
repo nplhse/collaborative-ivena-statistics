@@ -55,6 +55,17 @@ Do not use this component for:
 
 The tone follows the difference as shown, rounded to its display precision: `+0,04` pp is shown as `+0,0` and stays grey. A ratio above 1 always comes with a positive difference, so the badge shares the tone. When the comparison value is 0 the ratio is undefined (`BenchmarkMetric::hasRatio()` is false); the badge then shows a grey `—` with “Ratio not computable” as title and hidden text instead of `0,0×` (#1231).
 
+**Comparison value 0 (#1252).** Ratio and relative difference are then undefined: `BenchmarkMetric::$ratio`,
+`$relativeDelta` and `BenchmarkDistributionBucket::$ratio` are `null` (the relative change on Overview and monthly
+report was already `null`). Every consumer treats `null` as "no ratio", never as 0:
+
+- The Overview benchmark scorecard compares the own value with 0: above 0 is "above", 0 is "within".
+- The baseline hints of the monthly report and reminder skip 0 % against 0 % and a baseline period without any
+  case (it has no rate, not a rate of 0 %, see #1788); a positive value against a real 0 % is a rise in percentage
+  points.
+- The indication mix only lists buckets with a ratio (its minimum counts already keep the comparison share above 0).
+- The benchmark insights only use median age and mean transport time when the ratio exists.
+
 ## Percentage points
 
 The difference between two shares (20,0 % → 25,0 %) is a change in percentage points (+5,0), not a relative
