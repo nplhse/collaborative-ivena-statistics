@@ -39,6 +39,20 @@ final class PageNavigationTreeBuilderTest extends TestCase
         self::assertSame([], $tree[0]['children']);
     }
 
+    public function testNestsGrandchildrenBelowTheirParent(): void
+    {
+        $root = $this->page(1, 0);
+        $mid = $this->page(2, 0, $root);
+        $leaf = $this->page(3, 0, $mid);
+
+        $tree = new PageNavigationTreeBuilder()->build([$root, $leaf, $mid]);
+
+        self::assertSame([1], array_map(static fn (array $node): ?int => $node['page']->getId(), $tree));
+        self::assertSame([2], array_map(static fn (array $node): ?int => $node['page']->getId(), $tree[0]['children']));
+        self::assertSame([3], array_map(static fn (array $node): ?int => $node['page']->getId(), $tree[0]['children'][0]['children']));
+        self::assertSame([], $tree[0]['children'][0]['children'][0]['children']);
+    }
+
     public function testUsesDisplayTitleAndPath(): void
     {
         $page = $this->page(1, 0);

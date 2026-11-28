@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Content\Integration\Validation;
+namespace App\Tests\Content\Unit\Validation;
 
 use App\Content\Domain\Validation\Constraints\KnownIcon;
 use App\Content\Domain\Validation\Constraints\KnownIconValidator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
@@ -31,10 +32,19 @@ final class KnownIconValidatorTest extends ConstraintValidatorTestCase
         return new KnownIconValidator($renderer);
     }
 
-    public function testEmptyValuesAreValid(): void
+    /**
+     * @return iterable<string, array{?string}>
+     */
+    public static function emptyValues(): iterable
     {
-        $this->validator->validate(null, new KnownIcon());
-        $this->validator->validate('', new KnownIcon());
+        yield 'null' => [null];
+        yield 'empty string' => [''];
+    }
+
+    #[DataProvider('emptyValues')]
+    public function testEmptyValuesAreValid(?string $value): void
+    {
+        $this->validator->validate($value, new KnownIcon());
 
         $this->assertNoViolation();
     }
