@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Tests\User\Functional\Controller;
 
+use App\Tests\Support\Browser\CookieConsentTestHelper;
 use App\Tests\Support\RateLimit\DeniesRateLimiter;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use App\User\Infrastructure\Repository\ResetPasswordRequestRepository;
 use App\User\Infrastructure\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 use Zenstruck\Browser\Test\HasBrowser;
@@ -20,6 +20,7 @@ use Zenstruck\Foundry\Test\Factories;
 #[ResetDatabase]
 final class ResetPasswordControllerTest extends WebTestCase
 {
+    use CookieConsentTestHelper;
     use DeniesRateLimiter;
     use Factories;
     use HasBrowser;
@@ -119,31 +120,26 @@ final class ResetPasswordControllerTest extends WebTestCase
         self::assertSame(0, $this->getResetPasswordRequestRepository()->count(['user' => $user]));
     }
 
-    public function testResetPasswordFormShowsStrengthFeedbackOnNewPasswordFieldOnly(): void
+    /**
+     * The main flow after the mail: the link opens the form, the new password is saved and works for the sign-in.
+     * Which fields show the strength meter: PasswordFormTypeTest and PasswordWidgetRenderingTest.
+     */
+    public function testTheResetLinkSetsANewPasswordThatWorksForTheSignIn(): void
     {
-        $user = UserFactory::new([
-            'email' => 'reset-pwd-ui@example.test',
-            'isVerified' => true,
-            'username' => 'reset-pwd-ui-user',
-        ])->create();
-
+        $user = UserFactory::createOne(['username' => 'alice', 'email' => 'alice@example.test', 'isVerified' => true]);
         $resetToken = self::getContainer()->get(ResetPasswordHelperInterface::class)->generateResetToken($user);
 
         $this->browser()
             ->visit('/reset-password/reset/'.$resetToken->getToken())
-            ->assertSuccessful()
             ->assertSee('Set a new password')
-            ->assertSee('Password strength')
-            ->use(static function (Crawler $crawler): void {
-                self::assertGreaterThan(
-                    0,
-                    $crawler->filter('[data-testid^="password-strength-"][data-testid*="_first"]')->count(),
-                );
-                self::assertCount(
-                    0,
-                    $crawler->filter('[data-testid^="password-strength-"][data-testid*="_second"]'),
-                );
-            })
+            ->fillField('New password', 'Gr33n-Valley-Lantern-42!')
+            ->fillField('Repeat new password', 'Gr33n-Valley-Lantern-42!')
+            ->click('Save new password')
+
+            ->assertOn('/login')
+        ;
+        $this->loginWithConsent($this->browser(), 'alice', 'Gr33n-Valley-Lantern-42!')
+            ->assertSeeIn('#user_name', 'alice')
         ;
     }
 
