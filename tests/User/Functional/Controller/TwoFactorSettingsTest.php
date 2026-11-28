@@ -8,6 +8,7 @@ use App\Tests\Support\Browser\CookieConsentTestHelper;
 use App\Tests\Support\RateLimit\DeniesRateLimiter;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
+use App\User\Infrastructure\Security\TwoFactor\TwoFactorAvailability;
 use App\User\Infrastructure\Security\TwoFactor\TwoFactorSecretCipher;
 use Doctrine\ORM\EntityManagerInterface;
 use OTPHP\TOTP;
@@ -19,7 +20,10 @@ use Zenstruck\Foundry\Test\Factories;
 
 /**
  * Two-factor authentication in the settings (#1357): setup with QR code and first code, backup codes shown once,
- * renewing them and switching off with a current code.
+ * renewing them, switching off with a current code and not at all for administrators under the obligation.
+ *
+ * Checked lower down: format and uniqueness of the backup codes in `BackupCodeGeneratorTest`; the settings navigation
+ * entry in `SettingsNavigationExtensionTest`.
  */
 #[ResetDatabase]
 final class TwoFactorSettingsTest extends WebTestCase
@@ -39,24 +43,27 @@ final class TwoFactorSettingsTest extends WebTestCase
         $this->client->getContainer()->get('cache.rate_limiter')->clear();
     }
 
-    public function testSettingsListTheSectionAndTheLoginLinkHintPointsToIt(): void
+    public function testTheSecurityOverviewShowsTheStatusOfEverySubItem(): void
     {
         $this->signIn($this->createUser());
 
         $this->client->request(Request::METHOD_GET, '/settings/security');
-        self::assertSelectorExists('[data-testid="settings-section-nav"] a[href="/settings/two-factor"]');
 
-        $this->client->request(Request::METHOD_GET, '/settings/login-link');
-        self::assertSelectorExists('[data-test="login-link-two-factor-hint"] a[href="/settings/two-factor"]');
-
-        // The overview of "Sign-in & security" shows the status of every sub-item and links to it (#1508).
-        $this->client->request(Request::METHOD_GET, '/settings/security');
-        // The password row offers the change; every account has one, so it shows no status badge.
+        // #1508. The password row offers the change; every account has one, so it shows no status badge.
         self::assertSelectorExists('a[data-test="security-password"][href="/settings/password"]');
         self::assertSelectorNotExists('[data-test="security-password"] .badge');
         self::assertSelectorTextContains('[data-test="security-login-link-status"]', 'On');
         self::assertSelectorTextContains('[data-test="security-two-factor-status"]', 'Off');
         self::assertSelectorExists('a[data-test="security-two-factor"][href="/settings/two-factor"]');
+    }
+
+    public function testTheLoginLinkPageHintsAtTwoFactor(): void
+    {
+        $this->signIn($this->createUser());
+
+        $this->client->request(Request::METHOD_GET, '/settings/login-link');
+
+        self::assertSelectorExists('[data-test="login-link-two-factor-hint"] a[href="/settings/two-factor"]');
     }
 
     public function testSetupShowsAQrCodeAndKeepsTheSecretOnReload(): void
@@ -103,8 +110,6 @@ final class TwoFactorSettingsTest extends WebTestCase
             static fn ($node): string => trim($node->text()),
         );
         self::assertCount(10, $codes);
-        self::assertCount(10, array_unique($codes));
-        self::assertMatchesRegularExpression('/^[A-HJ-NP-Z]{5}-[A-HJ-NP-Z]{5}$/', $codes[0]);
         self::assertCount(2, $this->client->getCrawler()->filter('[data-test="two-factor-backup-codes"] ul'));
         self::assertSelectorExists('[data-test="two-factor-backup-codes"][data-copy-to-clipboard-target="source"]');
         self::assertSelectorExists('[data-test="two-factor-copy-codes"]');
@@ -140,23 +145,56 @@ final class TwoFactorSettingsTest extends WebTestCase
         self::assertFalse($stored->isBackupCode('OLDCODEAAA'));
     }
 
-    public function testSwitchingOffNeedsACurrentCode(): void
+    public function testAWrongCodeKeepsItOn(): void
     {
         $user = $this->createUserWithTwoFactor();
         $this->signIn($user);
         $this->client->request(Request::METHOD_GET, '/settings/two-factor');
 
         $this->submit('Switch off', $this->otherCodeThan($this->currentCode()));
+
         self::assertResponseRedirects('/settings/two-factor');
         self::assertTrue($this->reload($user)->isTotpAuthenticationEnabled());
+    }
 
-        $this->client->followRedirect();
+    public function testACurrentCodeSwitchesItOff(): void
+    {
+        $user = $this->createUserWithTwoFactor();
+        $this->signIn($user);
+        $this->client->request(Request::METHOD_GET, '/settings/two-factor');
+
         $this->submit('Switch off', $this->currentCode());
+
         self::assertResponseRedirects('/settings/two-factor');
         $stored = $this->reload($user);
         self::assertFalse($stored->isTotpAuthenticationEnabled());
         self::assertNull($stored->getTotpSecretEncrypted());
         self::assertSame(0, $stored->countBackupCodes());
+    }
+
+    public function testAdministratorsCannotSwitchItOffWhileTheObligationIsOn(): void
+    {
+        $this->requireTwoFactorForAdmins();
+        $admin = $this->createUserWithTwoFactor(admin: true);
+        $this->signIn($admin);
+        // A valid token from the renewal form, so the 403 comes from the obligation and not from the CSRF check.
+        $csrfToken = $this->client->request(Request::METHOD_GET, '/settings/two-factor')->filter('input[name="_csrf_token"]')->attr('value');
+
+        $this->client->request(Request::METHOD_POST, '/settings/two-factor/disable', ['_csrf_token' => $csrfToken, 'code' => $this->currentCode()]);
+
+        self::assertResponseStatusCodeSame(403);
+        self::assertTrue($this->reload($admin)->isTotpAuthenticationEnabled());
+    }
+
+    public function testTheSwitchOffIsNotOfferedToAdministratorsWhileTheObligationIsOn(): void
+    {
+        $this->requireTwoFactorForAdmins();
+        $this->signIn($this->createUserWithTwoFactor(admin: true));
+
+        $this->client->request(Request::METHOD_GET, '/settings/two-factor');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('[data-test="two-factor-disable-section"]');
     }
 
     public function testBackupCodeCanSwitchItOff(): void
@@ -213,22 +251,24 @@ final class TwoFactorSettingsTest extends WebTestCase
         self::assertResponseRedirects('/login/confirm');
     }
 
-    private function createUser(): User
+    private function createUser(bool $admin = false): User
     {
-        return UserFactory::new([
+        $factory = UserFactory::new([
             'username' => 'settings-user',
             'email' => 'settings-user@example.test',
             'isVerified' => true,
             'loginLinkEnabled' => true,
-        ])->create();
+        ]);
+
+        return ($admin ? $factory->asAdmin() : $factory)->create();
     }
 
     /**
      * @param list<string> $backupCodes
      */
-    private function createUserWithTwoFactor(array $backupCodes = ['ABCDEFGHJK']): User
+    private function createUserWithTwoFactor(array $backupCodes = ['ABCDEFGHJK'], bool $admin = false): User
     {
-        $user = $this->createUser();
+        $user = $this->createUser($admin);
         $user->enableTotpAuthentication(
             self::getContainer()->get(TwoFactorSecretCipher::class)->encrypt(self::SECRET),
             self::SECRET,
@@ -239,6 +279,14 @@ final class TwoFactorSettingsTest extends WebTestCase
         $this->entityManager()->flush();
 
         return $user;
+    }
+
+    /** The obligation is off in the test environment; this client gets a policy with it switched on. */
+    private function requireTwoFactorForAdmins(): void
+    {
+        $this->client->disableReboot();
+        $container = self::getContainer();
+        $container->set(TwoFactorAvailability::class, new TwoFactorAvailability($container->get(TwoFactorSecretCipher::class), false, true));
     }
 
     private function signIn(User $user): void

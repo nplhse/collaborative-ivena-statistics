@@ -19,7 +19,13 @@ use Zenstruck\Foundry\Test\Factories;
 
 /**
  * Second factor at sign-in (#1357, ADR 040): asked after the password and the login link, not for remember-me,
- * `/login/confirm` or impersonation; wrong codes count towards the login throttling; it fails closed.
+ * `/login/confirm` or impersonation; wrong codes are throttled per account.
+ *
+ * Checked lower down: the per-account limit, its reset by an accepted code and the minutes in the message in
+ * `TwoFactorFailureThrottlingListenerTest`; an undecryptable secret in `TwoFactorSecretLoaderTest` and
+ * `UserTwoFactorTest`; case and separators of backup codes in `UserTwoFactorTest`; the encryption of the secret in
+ * `TwoFactorSecretCipherTest` and, on the real setup path, `TwoFactorSettingsTest`. A password sign-in without two-factor
+ * authentication is in `SecurityControllerTest`.
  */
 #[ResetDatabase]
 final class TwoFactorLoginTest extends WebTestCase
@@ -67,7 +73,7 @@ final class TwoFactorLoginTest extends WebTestCase
         $this->createUserWithTwoFactor('totp-user');
         $this->loginWithPassword('totp-user');
 
-        $this->submitCode('000000' === $this->currentCode() ? '111111' : '000000');
+        $this->submitCode($this->wrongCode());
 
         $this->followRedirects();
         self::assertRouteSame('app_two_factor_login');
@@ -76,61 +82,32 @@ final class TwoFactorLoginTest extends WebTestCase
         self::assertResponseRedirects('http://localhost/2fa');
     }
 
-    public function testAccountsWithoutTwoFactorSignInDirectly(): void
-    {
-        UserFactory::new(['username' => 'plain-user', 'email' => 'plain-user@example.test', 'isVerified' => true])->create();
-
-        $this->loginWithPassword('plain-user');
-        $this->followRedirects();
-
-        self::assertSelectorTextContains('#user_name', 'plain-user');
-    }
-
     public function testBackupCodeWorksOnce(): void
     {
         $this->createUserWithTwoFactor('totp-user');
-
-        $this->loginWithPassword('totp-user');
-        $this->submitCode('abcde fghjk');
-        $this->followRedirects();
-        self::assertSelectorTextContains('#user_name', 'totp-user');
-        self::assertSame(1, $this->reloadUser('totp-user')->countBackupCodes());
-
-        $this->client->request(Request::METHOD_GET, '/logout');
         $this->loginWithPassword('totp-user');
         $this->submitCode(self::BACKUP_CODE);
+        $this->followRedirects();
+        self::assertSelectorTextContains('#user_name', 'totp-user');
+        $this->client->request(Request::METHOD_GET, '/logout');
+        $this->loginWithPassword('totp-user');
+
+        $this->submitCode(self::BACKUP_CODE);
+
+        // The code was invalidated and saved at the first sign-in, so the fresh login loads the account without it.
         $this->followRedirects();
         self::assertRouteSame('app_two_factor_login');
         self::assertSelectorExists('[data-test="two-factor-error"]');
     }
 
-    public function testWrongCodesCountTowardsTheLoginThrottling(): void
-    {
-        $this->createUserWithTwoFactor('totp-user');
-        $this->loginWithPassword('totp-user');
-        $wrongCode = '000000' === $this->currentCode() ? '111111' : '000000';
-
-        // login_throttling allows 5 failures per 15 minutes; the next attempt is refused before the code is checked.
-        for ($i = 0; $i < 5; ++$i) {
-            $this->submitCode($wrongCode);
-        }
-
-        $this->submitCode($this->currentCode());
-        $this->followRedirects();
-        self::assertSelectorTextContains('[data-test="two-factor-error"]', 'Too many failed login attempts');
-        $this->client->request(Request::METHOD_GET, '/settings/account');
-        self::assertResponseRedirects('http://localhost/2fa');
-    }
-
     public function testPasswordLoginDoesNotResetTheTwoFactorFailureCount(): void
     {
         $this->createUserWithTwoFactor('totp-user');
-        $wrongCode = '000000' === $this->currentCode() ? '111111' : '000000';
 
         // Three wrong codes, then a fresh password login, which resets login_throttling (IP + username) ...
         $this->loginWithPassword('totp-user');
         for ($i = 0; $i < 3; ++$i) {
-            $this->submitCode($wrongCode);
+            $this->submitCode($this->wrongCode());
         }
 
         $this->client->request(Request::METHOD_GET, '/logout');
@@ -140,7 +117,7 @@ final class TwoFactorLoginTest extends WebTestCase
 
         // ... but not the per-account limit of two_factor_code: two more wrong codes use up its 5 attempts.
         for ($i = 0; $i < 2; ++$i) {
-            $this->submitCode($wrongCode);
+            $this->submitCode($this->wrongCode());
         }
 
         $this->submitCode($this->currentCode());
@@ -149,69 +126,6 @@ final class TwoFactorLoginTest extends WebTestCase
         self::assertSelectorTextContains('[data-test="two-factor-error"]', 'Too many failed login attempts');
         $this->client->request(Request::METHOD_GET, '/settings/account');
         self::assertResponseRedirects('http://localhost/2fa');
-    }
-
-    public function testTwoFactorFailureCountIsPerAccountAndNotPerIp(): void
-    {
-        $this->createUserWithTwoFactor('totp-user');
-        $wrongCode = '000000' === $this->currentCode() ? '111111' : '000000';
-
-        $this->loginWithPassword('totp-user');
-        for ($i = 0; $i < 5; ++$i) {
-            $this->submitCode($wrongCode);
-        }
-
-        // A new session from another IP signs in with the password but cannot try further codes for this account.
-        $this->client->restart();
-        $this->client->setServerParameter('REMOTE_ADDR', '192.0.2.44');
-        $this->loginWithPassword('totp-user');
-        $this->submitCode($this->currentCode());
-        $this->followRedirects();
-        self::assertSelectorTextContains('[data-test="two-factor-error"]', 'Too many failed login attempts');
-    }
-
-    public function testAcceptedCodeResetsTheTwoFactorFailureCount(): void
-    {
-        $this->createUserWithTwoFactor('totp-user');
-        $wrongCode = '000000' === $this->currentCode() ? '111111' : '000000';
-
-        $this->loginWithPassword('totp-user');
-        for ($i = 0; $i < 4; ++$i) {
-            $this->submitCode($wrongCode);
-        }
-        $this->submitCode(self::BACKUP_CODE);
-        $this->followRedirects();
-        self::assertSelectorTextContains('#user_name', 'totp-user');
-
-        // After the accepted code the account has its full allowance again: four wrong codes, then the right one.
-        $this->client->request(Request::METHOD_GET, '/logout');
-        $this->loginWithPassword('totp-user');
-        for ($i = 0; $i < 4; ++$i) {
-            $this->submitCode($wrongCode);
-        }
-        $this->submitCode('ZYXWVUTSRQ');
-        $this->followRedirects();
-        self::assertSelectorTextContains('#user_name', 'totp-user');
-    }
-
-    public function testCodeOfAnUndecryptableSecretIsRejectedButBackupCodesWork(): void
-    {
-        $user = $this->createUserWithTwoFactor('totp-user');
-        // Encrypted with another key, as after a lost or changed APP_TWO_FACTOR_KEY.
-        $otherCipher = new TwoFactorSecretCipher(str_repeat('ab', 32));
-        $this->entityManager()->getConnection()->executeStatement(
-            'UPDATE "user" SET totp_secret_encrypted = :secret WHERE id = :id',
-            ['secret' => $otherCipher->encrypt(self::SECRET), 'id' => $user->getId()],
-        );
-
-        $this->loginWithPassword('totp-user');
-        $this->submitCode($this->currentCode());
-        $this->followRedirects();
-        self::assertRouteSame('app_two_factor_login');
-
-        $this->submitCode(self::BACKUP_CODE);
-        $this->followRedirects();
-        self::assertSelectorTextContains('#user_name', 'totp-user');
     }
 
     public function testLoginLinkAsksForTheCodeAsWell(): void
@@ -298,20 +212,6 @@ final class TwoFactorLoginTest extends WebTestCase
         self::assertResponseRedirects('/login');
     }
 
-    public function testSecretIsStoredEncrypted(): void
-    {
-        $user = $this->createUserWithTwoFactor('totp-user');
-
-        $stored = $this->entityManager()->getConnection()->fetchOne(
-            'SELECT totp_secret_encrypted FROM "user" WHERE id = :id',
-            ['id' => $user->getId()],
-        );
-
-        self::assertIsString($stored);
-        self::assertStringNotContainsString(self::SECRET, $stored);
-        self::assertSame(self::SECRET, self::getContainer()->get(TwoFactorSecretCipher::class)->decrypt($stored));
-    }
-
     /**
      * @param array<string, mixed> $attributes
      */
@@ -358,18 +258,19 @@ final class TwoFactorLoginTest extends WebTestCase
         }
     }
 
+    /**
+     * TOTP::now() reads the wall clock, as the code check does; the leeway of 10 seconds (scheb_2fa.yaml) keeps a code
+     * taken at the end of a period valid. A code is accepted only once within 90 seconds (code_reuse_cache), so a test
+     * that signs in twice uses a backup code for one of the sign-ins.
+     */
     private function currentCode(): string
     {
         return TOTP::createFromSecret(self::SECRET)->now();
     }
 
-    private function reloadUser(string $username): User
+    private function wrongCode(): string
     {
-        $this->entityManager()->clear();
-        $user = $this->entityManager()->getRepository(User::class)->findOneBy(['username' => $username]);
-        self::assertInstanceOf(User::class, $user);
-
-        return $user;
+        return '000000' === $this->currentCode() ? '111111' : '000000';
     }
 
     private function entityManager(): EntityManagerInterface

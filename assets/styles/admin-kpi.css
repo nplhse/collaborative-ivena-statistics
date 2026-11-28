@@ -368,3 +368,8 @@ body.page-content .content-body > .row:first-child > :first-child {
     border-bottom: 1px dotted var(--bs-secondary-color, #6c757d);
     background: transparent;
 }
+
+/* Info icon next to a label, aligned with the text baseline (was an inline style, ADR 047). */
+.ea-info-tooltip-icon {
+    vertical-align: -0.125em;
+}

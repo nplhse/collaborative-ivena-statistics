@@ -28,7 +28,7 @@ $_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = 'prod';
 $_SERVER['APP_DEBUG'] = $_ENV['APP_DEBUG'] = '0';
 new Dotenv()->bootEnv(dirname(__DIR__).'/.env');
 
-$expectedEverywhere = ["default-src 'self'", "connect-src 'self'", 'https://*.ingest.sentry.io', "script-src 'self'", "'unsafe-inline'"];
+$expectedEverywhere = ["default-src 'self'", "connect-src 'self'", 'https://*.ingest.sentry.io', "script-src 'self'", "'unsafe-inline'", "style-src-attr 'unsafe-inline'"];
 $reportUri = 'https://o1234567890.ingest.sentry.io/api/1/security/?sentry_key=check';
 $failures = [];
 
