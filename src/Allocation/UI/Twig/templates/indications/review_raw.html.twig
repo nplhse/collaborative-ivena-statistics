@@ -271,7 +271,7 @@
     </div>
     {{ form_end(form) }}
 
-    <script>
+    <script nonce="{{ csp_nonce('script') }}">
         document.querySelectorAll('.suggestion-pick').forEach((button) => {
             button.addEventListener('click', () => {
                 const labelInput = document.querySelector('[name="{{ form.target_label.vars.full_name }}"]');

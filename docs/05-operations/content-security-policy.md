@@ -236,12 +236,16 @@ Pre-beta security review **accepted** Report-Only CSP with `'unsafe-inline'` for
 3. Violation noise is low: few recurring unknown `blocked_uri`s on core routes after triage.
 4. Then: add Nelmio `csp.enforce`, reduce `'unsafe-inline'` / prefer nonces or Stimulus, and keep `report` for monitoring — see P2 roadmap below.
 
+## Inline scripts (#580)
+
+The application has no inline event handlers and no `javascript:` URLs; use Stimulus instead (`click-proxy` to click another element, `confirm-submit` for confirm dialogs, `autosubmit` to submit a form on change). The few inline `<script>` elements carry a nonce: `<script nonce="{{ csp_nonce('script') }}">`, and `importmap()` gets one with `importmap('app', {nonce: csp_nonce('script')})`. Once a page asks for a nonce, Nelmio adds it to `script-src`, and browsers with CSP Level 2 or later ignore `'unsafe-inline'` for scripts on that page; it stays in the policy only as a fallback for older browsers. JSON data blocks (`<script type="application/json">`) are not executed and need no nonce. The downloaded data preparation tool is a standalone file with its own `<meta>` policy and keeps its plain inline scripts.
+
 ## P2 roadmap (enforce)
 
 Not in scope for the initial report-only rollout (and deferred while SEC-014 remains accepted for beta):
 
 - Remove `'unsafe-inline'` where possible (nonces, Stimulus, extracted CSS)
-- Inline event handlers (`onclick`, `onsubmit`) → Stimulus
+- ~~Inline event handlers (`onclick`, `onsubmit`) → Stimulus~~ done (#580)
 - AssetMapper: consider `strict-dynamic` + nonces instead of `data:` in `script-src`
 - Add `enforce` block in Nelmio (keep `report` for monitoring)
 - Re-add `frame-ancestors 'none'` under enforce (with `X-Frame-Options` as fallback)

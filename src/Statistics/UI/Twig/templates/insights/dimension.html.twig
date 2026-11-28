@@ -86,7 +86,7 @@
                         {% if searchQuery is not empty %}
                             <a class="btn btn-primary" href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge(app.request.query.all|filter((value, key) => key != 'search'))) }}" target="_top">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</a>
                         {% else %}
-                            <button type="button" class="btn btn-primary" onclick="document.getElementById('statistics-analysis-context-trigger')?.click()">{{ 'empty.context.cta'|trans({}, 'shared') }}</button>
+                            <button type="button" class="btn btn-primary" data-controller="click-proxy" data-click-proxy-target-value="#statistics-analysis-context-trigger" data-action="click-proxy#click">{{ 'empty.context.cta'|trans({}, 'shared') }}</button>
                         {% endif %}
                     </twig:block>
                 </twig:EmptyState>

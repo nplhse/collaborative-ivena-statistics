@@ -32,7 +32,7 @@
         <p class="empty-title">{{ error_title }}</p>
         <p class="empty-subtitle text-secondary">{{ error_description }}</p>
         <div class="empty-action d-flex flex-wrap gap-2 justify-content-center align-items-center">
-            <a href="javascript:history.back()" class="btn btn-primary d-inline-flex align-items-center">
+            <a href="{{ path('app_default') }}" data-history-back class="btn btn-primary d-inline-flex align-items-center">
                 <twig:ux:icon name="tabler:arrow-left" class="icon icon-2" />
                 {{ 'cta.back'|trans({}, 'errors') }}
             </a>

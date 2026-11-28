@@ -151,7 +151,7 @@
                         >
                             <twig:ux:icon name="tabler:edit" width="1em" height="1em" />
                         </a>
-                        <form method="post" action="{{ path('app_hospitals_edit_access_grant_delete', {id: hospital.id, grantId: grant.id}) }}" class="d-inline" onsubmit="return confirm('{{ 'confirm.hospital_access_grant.delete'|trans({}, 'allocation')|e('js') }}');">
+                        <form method="post" action="{{ path('app_hospitals_edit_access_grant_delete', {id: hospital.id, grantId: grant.id}) }}" class="d-inline" data-controller="confirm-submit" data-confirm-submit-message-value="{{ 'confirm.hospital_access_grant.delete'|trans({}, 'allocation') }}" data-action="submit->confirm-submit#confirm">
                             <input type="hidden" name="_token" value="{{ csrf_token('delete_access_grant_' ~ grant.id) }}">
                             <button
                                 type="submit"
