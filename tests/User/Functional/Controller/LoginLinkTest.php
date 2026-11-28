@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\User\Functional\Controller;
 
 use App\Tests\Support\Browser\CookieConsentTestHelper;
+use App\Tests\Support\RateLimit\DeniesRateLimiter;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use App\User\Domain\Security\UserRole;
@@ -12,22 +13,25 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Mime\Email;
-use Symfony\Component\Security\Http\LoginLink\LoginLinkHandlerInterface;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 use function Zenstruck\Foundry\Persistence\refresh;
-use function Zenstruck\Foundry\Persistence\save;
 
 /**
  * One-time login link (#1355): opt-in, same answer for every request, confirmation page, single use.
+ *
+ * Checked lower down: that opting out, a new password, a new email address or a promotion to administrator end open
+ * links, and that links expire, in `LoginLinkSignatureTest`; subject and lifetime handed to the mail template in
+ * `SymfonyTransactionalMailerTest`; the avatar initials in `UserAvatarComponentTest`; the settings navigation for
+ * administrators in `SettingsNavigationExtensionTest`.
  */
 #[ResetDatabase]
 final class LoginLinkTest extends WebTestCase
 {
     use CookieConsentTestHelper;
+    use DeniesRateLimiter;
     use Factories;
 
     private KernelBrowser $client;
@@ -40,28 +44,29 @@ final class LoginLinkTest extends WebTestCase
         $this->client->getContainer()->get('cache.app')->clear();
     }
 
-    public function testOptedInUserGetsALinkByEmail(): void
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function identifiers(): iterable
+    {
+        yield 'email in any case' => ['Link-User@Example.TEST'];
+        yield 'username' => ['link-user'];
+    }
+
+    #[DataProvider('identifiers')]
+    public function testOptedInUserGetsALinkByEmail(string $identifier): void
     {
         $this->createUser('link-user');
 
-        $this->requestLink('Link-User@Example.TEST');
+        $this->requestLink($identifier);
 
         self::assertResponseRedirects('/login/link/sent');
         self::assertEmailCount(1);
         $email = $this->onlyEmail();
         self::assertSame('link-user@example.test', $email->getTo()[0]->getAddress());
-        self::assertSame('Your sign-in link', $email->getSubject());
+        // LoginLinkController::LIFETIME_MINUTES reaches the mail.
         self::assertStringContainsString('valid for 15 minutes', (string) $email->getHtmlBody());
         self::assertStringContainsString('/login/link/check?', $this->linkFrom($email));
-    }
-
-    public function testUsernameWorksAsWell(): void
-    {
-        $this->createUser('link-user');
-
-        $this->requestLink('link-user');
-
-        self::assertEmailCount(1);
     }
 
     /**
@@ -106,13 +111,16 @@ final class LoginLinkTest extends WebTestCase
     public function testRequestsAreRateLimitedPerIdentifier(): void
     {
         $this->createUser('link-user');
+        // The limit (3 per identifier and 15 minutes) is used up beforehand; the replaced limiter only lives as long
+        // as the kernel, so the client must not reboot it between requests.
+        $this->client->disableReboot();
+        $this->denyRateLimiter('limiter.login_link_request_identifier', sha1('link-user@example.test'));
 
-        // 3 per identifier and 15 minutes: the fourth request answers the same but sends nothing.
-        foreach ([1, 1, 1, 0] as $expectedMails) {
-            $this->requestLink('link-user@example.test');
-            self::assertResponseRedirects('/login/link/sent');
-            self::assertEmailCount($expectedMails);
-        }
+        $this->requestLink('Link-User@example.test');
+
+        // The same answer as for every request, but no mail.
+        self::assertResponseRedirects('/login/link/sent');
+        self::assertEmailCount(0);
     }
 
     public function testLinkOpensAConfirmationPageAndSignsInOnlyOnItsPost(): void
@@ -125,7 +133,7 @@ final class LoginLinkTest extends WebTestCase
         self::assertSelectorTextContains('h2', 'Confirm sign-in');
         self::assertSelectorTextContains('[data-test="login-link-account"]', 'Linda Link');
         self::assertSelectorTextContains('[data-test="login-link-account"]', '@link-user');
-        self::assertSelectorTextContains('[data-test="login-link-account"] [data-avatar="initials"]', 'LL');
+        self::assertSelectorExists('[data-test="login-link-account"] [data-avatar="initials"]');
         self::assertSelectorNotExists('#user_name');
 
         $this->client->submit($crawler->selectButton('Sign in')->form());
@@ -162,48 +170,6 @@ final class LoginLinkTest extends WebTestCase
         self::assertNull($this->client->getCookieJar()->get('REMEMBERME'));
     }
 
-    public function testOptingOutInvalidatesOpenLinks(): void
-    {
-        $user = $this->createUser('link-user');
-        $link = $this->linkFor('link-user@example.test');
-
-        refresh($user);
-        $user->setLoginLinkEnabled(false);
-        save($user);
-
-        $this->confirm($link);
-        self::assertResponseRedirects('/login');
-    }
-
-    public function testPasswordChangeInvalidatesOpenLinks(): void
-    {
-        $user = $this->createUser('link-user');
-        $link = $this->linkFor('link-user@example.test');
-
-        refresh($user);
-        $user->setPassword('changed-hash');
-        save($user);
-
-        $this->confirm($link);
-        self::assertResponseRedirects('/login');
-    }
-
-    public function testExpiredLinkFails(): void
-    {
-        $user = $this->createUser('link-user');
-        $this->acceptEssentialCookiesOnly($this->client);
-
-        $requestStack = self::getContainer()->get(RequestStack::class);
-        $requestStack->push(Request::create('/login'));
-        $link = self::getContainer()->get(LoginLinkHandlerInterface::class)->createLoginLink($user, null, -60)->getUrl();
-        $requestStack->pop();
-
-        $this->confirm($link, acceptCookies: false);
-        self::assertResponseRedirects('/login');
-        $this->client->followRedirect();
-        self::assertSelectorNotExists('#user_name');
-    }
-
     public function testSigningInNeedsACookieDecisionAndKeepsTheLinkUsable(): void
     {
         $this->createUser('link-user');
@@ -218,19 +184,6 @@ final class LoginLinkTest extends WebTestCase
         $this->confirm($link);
         $this->client->followRedirect();
         self::assertSelectorTextContains('#user_name', 'link-user');
-    }
-
-    public function testInvalidLinkShowsOnlyTheUsernameFromTheLink(): void
-    {
-        $this->createUser('link-user', ['displayName' => 'Linda Link']);
-        $link = $this->linkFor('link-user@example.test');
-
-        $this->client->request(Request::METHOD_GET, $link.'x');
-
-        self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('[data-test="login-link-account"]', 'Sign in as link-user?');
-        self::assertSelectorTextNotContains('[data-test="login-link-account"]', 'Linda Link');
-        self::assertSelectorNotExists('[data-avatar]');
     }
 
     public function testSignedInUsersAreSentToTheDashboard(): void
@@ -265,23 +218,25 @@ final class LoginLinkTest extends WebTestCase
     }
 
     /**
-     * @return iterable<string, array{string}>
+     * @return iterable<string, array{string, string}>
      */
     public static function malformedLinks(): iterable
     {
-        yield 'unknown user' => ['/login/link/check?user=nobody&expires=9999999999&hash=abc'];
-        yield 'non-numeric expiry' => ['/login/link/check?user=link-user&expires=soon&hash=abc'];
+        yield 'unknown user' => ['/login/link/check?user=nobody&expires=9999999999&hash=abc', 'Sign in as nobody?'];
+        yield 'non-numeric expiry' => ['/login/link/check?user=link-user&expires=soon&hash=abc', 'Sign in as link-user?'];
+        yield 'wrong hash' => ['/login/link/check?user=link-user&expires=9999999999&hash=abc', 'Sign in as link-user?'];
     }
 
     #[DataProvider('malformedLinks')]
-    public function testMalformedLinksShowOnlyTheUsername(string $link): void
+    public function testMalformedLinksShowOnlyTheUsername(string $link, string $question): void
     {
         $this->createUser('link-user', ['displayName' => 'Linda Link']);
 
         $this->client->request(Request::METHOD_GET, $link);
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('[data-test="login-link-account"]', 'Sign in as');
+        self::assertSelectorTextContains('[data-test="login-link-account"]', $question);
+        self::assertSelectorTextNotContains('[data-test="login-link-account"]', 'Linda Link');
         self::assertSelectorNotExists('[data-avatar]');
     }
 
@@ -292,33 +247,45 @@ final class LoginLinkTest extends WebTestCase
         self::assertResponseRedirects('/login');
     }
 
-    public function testUserSwitchesTheOptInInTheSettings(): void
+    public function testTheOptInPageShowsTheLinkIsOff(): void
     {
-        $user = $this->createUser('link-user', ['loginLinkEnabled' => false]);
-        $this->client->loginUser($user);
+        $this->client->loginUser($this->createUser('link-user', ['loginLinkEnabled' => false]));
+
+        $this->client->request(Request::METHOD_GET, '/settings/login-link');
 
         // #1508: the opt-in has its own page below "Sign-in & security", with its status shown like two-factor authentication.
-        $crawler = $this->client->request(Request::METHOD_GET, '/settings/login-link');
         self::assertSelectorTextContains('[data-test="login-link-setting"]', 'two-factor authentication');
         self::assertSelectorTextContains('[data-test="login-link-status"]', 'Off');
         self::assertSelectorTextContains('[data-test="login-link-state"]', 'The sign-in link is off.');
         self::assertSelectorExists('.alert[data-test="login-link-two-factor-hint"]');
         self::assertSelectorExists('form.card-footer [data-test="login-link-switch"].btn-success');
+    }
+
+    public function testUserSwitchesTheOptInOn(): void
+    {
+        $user = $this->createUser('link-user', ['loginLinkEnabled' => false]);
+        $this->client->loginUser($user);
+        $crawler = $this->client->request(Request::METHOD_GET, '/settings/login-link');
 
         $this->client->submit($crawler->selectButton('Switch on')->form());
+
         self::assertResponseRedirects('/settings/login-link');
-        $crawler = $this->client->followRedirect();
+        $this->client->followRedirect();
         self::assertSelectorTextContains('[data-test="login-link-status"]', 'On');
         self::assertSelectorTextContains('[data-test="login-link-state"]', 'The sign-in link is active.');
         self::assertSelectorExists('form.card-footer [data-test="login-link-switch"].btn-danger');
-
-        $this->client->request(Request::METHOD_GET, '/settings/security');
-        self::assertSelectorTextContains('[data-test="security-login-link-status"]', 'On');
-        $crawler = $this->client->request(Request::METHOD_GET, '/settings/login-link');
         refresh($user);
         self::assertTrue($user->isLoginLinkEnabled());
+    }
+
+    public function testUserSwitchesTheOptInOff(): void
+    {
+        $user = $this->createUser('link-user');
+        $this->client->loginUser($user);
+        $crawler = $this->client->request(Request::METHOD_GET, '/settings/login-link');
 
         $this->client->submit($crawler->selectButton('Switch off')->form());
+
         refresh($user);
         self::assertFalse($user->isLoginLinkEnabled());
     }
@@ -335,24 +302,36 @@ final class LoginLinkTest extends WebTestCase
         self::assertFalse($user->isLoginLinkEnabled());
     }
 
-    public function testAdministratorsDoNotGetTheOptIn(): void
+    /**
+     * @return iterable<string, array{string, int}>
+     */
+    public static function optInRequestsOfAdministrators(): iterable
+    {
+        yield 'the page' => [Request::METHOD_GET, 404];
+        yield 'switching it on' => [Request::METHOD_POST, 403];
+    }
+
+    #[DataProvider('optInRequestsOfAdministrators')]
+    public function testAdministratorsDoNotGetTheOptIn(string $method, int $status): void
     {
         $admin = $this->createUser('link-admin', ['loginLinkEnabled' => false, 'roles' => [UserRole::USER, UserRole::ADMIN]]);
         $this->client->loginUser($admin);
 
-        $this->client->request(Request::METHOD_GET, '/settings/account');
-        self::assertResponseIsSuccessful();
-        self::assertSelectorNotExists('[data-test="login-link-setting"]');
-        $this->client->request(Request::METHOD_GET, '/settings/security');
-        self::assertSelectorNotExists('[data-test="security-login-link"]');
-        self::assertSelectorNotExists('[data-testid="settings-subsection-login_link"]');
-        $this->client->request(Request::METHOD_GET, '/settings/login-link');
-        self::assertResponseStatusCodeSame(404);
+        $this->client->request($method, '/settings/login-link', Request::METHOD_POST === $method ? ['enabled' => '1'] : []);
 
-        $this->client->request(Request::METHOD_POST, '/settings/login-link', ['enabled' => '1']);
-        self::assertResponseStatusCodeSame(403);
+        self::assertResponseStatusCodeSame($status);
         refresh($admin);
         self::assertFalse($admin->isLoginLinkEnabled());
+    }
+
+    public function testTheSecurityOverviewOffersNoLoginLinkToAdministrators(): void
+    {
+        $this->client->loginUser($this->createUser('link-admin', ['roles' => [UserRole::USER, UserRole::ADMIN]]));
+
+        $this->client->request(Request::METHOD_GET, '/settings/security');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('[data-test="security-login-link"]');
     }
 
     /**
@@ -384,11 +363,9 @@ final class LoginLinkTest extends WebTestCase
         return $this->linkFrom($this->onlyEmail());
     }
 
-    private function confirm(string $link, bool $acceptCookies = true): void
+    private function confirm(string $link): void
     {
-        if ($acceptCookies) {
-            $this->acceptEssentialCookiesOnly($this->client);
-        }
+        $this->acceptEssentialCookiesOnly($this->client);
 
         $crawler = $this->client->request(Request::METHOD_GET, $link);
         $this->client->submit($crawler->selectButton('Sign in')->form());
