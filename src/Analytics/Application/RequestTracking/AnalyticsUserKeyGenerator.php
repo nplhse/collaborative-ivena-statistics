@@ -10,13 +10,13 @@ final readonly class AnalyticsUserKeyGenerator
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
-        #[Autowire(param: 'kernel.secret')]
-        private string $appSecret,
+        #[Autowire(param: 'app.hash_key')]
+        private string $hashKey,
     ) {
     }
 
     public function generate(int $userId): string
     {
-        return hash_hmac('sha256', (string) $userId, $this->appSecret);
+        return hash_hmac('sha256', (string) $userId, $this->hashKey);
     }
 }

@@ -27,6 +27,10 @@ parameters:
     # bcrypt cost of 2FA backup codes (#1357); null is PHP's default. The test environment lowers it (#1348).
     app.two_factor.backup_code_hash_cost: null
     app.page_content_width_estimate: 800
+    # HMAC key of persistent pseudonymised hashes: case-ID hashes and analytics user keys (#1706, ADR 048).
+    # Separate from APP_SECRET so that APP_SECRET can be rotated; empty falls back to APP_SECRET.
+    app.hash_key_fallback: '%env(APP_SECRET)%'
+    app.hash_key: '%env(default:app.hash_key_fallback:APP_HASH_KEY)%'
     app.rejects_base_dir: '%kernel.project_dir%/var/imports/rejects'
     env(APP_URL): ''
     env(MAILER_FROM): 'no-reply@localhost'

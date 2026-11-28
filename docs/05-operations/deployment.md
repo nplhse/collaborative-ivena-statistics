@@ -118,6 +118,7 @@ Use `--skip-database` only for a quick env-format check without a DB ping. See [
 Manual checks that `app:env:check` cannot perform:
 
 - [ ] `APP_ENV=prod` and `APP_DEBUG=0` in `shared/.env.local`
+- [ ] `APP_HASH_KEY` backed up together with `shared/.env.local`; a new installation generates it once, an existing one keeps its value (never change it, see [secrets and rotation](../06-reference/configuration.md#secrets-and-rotation))
 - [ ] `SYMFONY_TRUSTED_HOSTS` matches the host of `APP_URL`: `curl -s -o /dev/null -w '%{http_code}\n' -H 'Host: other.invalid' https://<APP_URL>/health` returns `400` (or the web server refuses the host before PHP)
 - [ ] Client IP is the visitor's, not a proxy's: change your language in the account settings, then compare `clientIp` in the metadata of the newest audit entry with your public IP (logins are not audited, see [audit-log.md](audit-log.md)); if it is a proxy address, set `SYMFONY_TRUSTED_PROXIES`
 - [ ] Messenger worker running: `systemctl --user status messenger` — see [messenger-workers.md](messenger-workers.md)

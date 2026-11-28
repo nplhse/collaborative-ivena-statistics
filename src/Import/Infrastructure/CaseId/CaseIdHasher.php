@@ -10,8 +10,8 @@ final readonly class CaseIdHasher
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
-        #[Autowire(param: 'kernel.secret')]
-        private string $secret,
+        #[Autowire(param: 'app.hash_key')]
+        private string $hashKey,
     ) {
     }
 
@@ -34,6 +34,6 @@ final readonly class CaseIdHasher
             return null;
         }
 
-        return hash_hmac('sha256', $normalized, $this->secret, true);
+        return hash_hmac('sha256', $normalized, $this->hashKey, true);
     }
 }

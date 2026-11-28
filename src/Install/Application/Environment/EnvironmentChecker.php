@@ -11,6 +11,8 @@ final readonly class EnvironmentChecker
 {
     private const string DATABASE_CHECK_VARIABLE = 'DATABASE_CONNECTION';
 
+    private const string ROTATION_GUIDE = 'docs/06-reference/configuration.md#secrets-and-rotation';
+
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private ?Connection $connection = null,
@@ -29,6 +31,7 @@ final readonly class EnvironmentChecker
             $this->checkAppEnv($profile, $variables),
             $this->checkAppDebug($profile, $variables),
             $this->checkAppSecret($profile, $variables),
+            $this->checkAppHashKey($profile, $variables),
             $this->checkDatabaseUrl($profile, $variables),
             $this->checkAppUrl($profile, $variables),
             $this->checkMailerDsn($profile, $variables),
@@ -105,7 +108,29 @@ final readonly class EnvironmentChecker
         return $this->item(
             'APP_SECRET',
             $profile->isStrict() ? EnvironmentCheckStatus::Fail : EnvironmentCheckStatus::Warn,
-            'too short (minimum 32 characters)',
+            sprintf('too short (minimum 32 characters); set APP_HASH_KEY before rotating it, see %s', self::ROTATION_GUIDE),
+        );
+    }
+
+    /**
+     * @param array<string, string> $variables
+     */
+    private function checkAppHashKey(EnvironmentCheckProfile $profile, array $variables): EnvironmentCheckItem
+    {
+        $value = $this->value($variables, 'APP_HASH_KEY');
+
+        if ('' !== $value && strlen($value) >= 32) {
+            return $this->item('APP_HASH_KEY', EnvironmentCheckStatus::Ok, 'set (length ok)');
+        }
+
+        $message = '' === $value
+            ? sprintf('not set, falls back to APP_SECRET; set it to the current APP_SECRET value, see %s', self::ROTATION_GUIDE)
+            : sprintf('too short (minimum 32 characters); never change it without re-hashing, see %s', self::ROTATION_GUIDE);
+
+        return $this->item(
+            'APP_HASH_KEY',
+            $profile->isStrict() ? EnvironmentCheckStatus::Fail : EnvironmentCheckStatus::Warn,
+            $message,
         );
     }
 
