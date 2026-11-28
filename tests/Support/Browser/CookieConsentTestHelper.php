@@ -4,29 +4,25 @@ declare(strict_types=1);
 
 namespace App\Tests\Support\Browser;
 
+use App\Shared\Domain\Entity\CookieConsent;
+use App\Shared\Infrastructure\Consent\CookieConsentService;
+use App\Shared\Infrastructure\Repository\CookieConsentRepository;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser as SymfonyKernelBrowser;
+use Symfony\Component\BrowserKit\Cookie as BrowserKitCookie;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Browser\KernelBrowser;
 
 trait CookieConsentTestHelper
 {
+    /**
+     * Stores the decision "essential cookies only" and sets the subject cookie, as the banner does, without rendering
+     * a page and posting the banner (two requests per sign-in, #1348). The banner itself is tested in
+     * tests/Shared/Functional/Consent.
+     */
     protected function acceptEssentialCookies(KernelBrowser $browser): KernelBrowser
     {
-        $hasBanner = false;
-
-        $browser
-            ->visit('/')
-            ->assertSuccessful()
-            ->use(static function (Crawler $crawler) use (&$hasBanner): void {
-                $hasBanner = $crawler->filter('form[action="/cookies/banner"] button[name="cookie_consent_banner[essential]"]')->count() > 0;
-            });
-
-        if ($hasBanner) {
-            $browser
-                ->click('Essential Cookies Only')
-                ->assertSuccessful();
-        }
+        $this->storeEssentialCookieDecision($browser->client());
 
         return $browser;
     }
@@ -80,12 +76,12 @@ trait CookieConsentTestHelper
     }
 
     /**
-     * @return array{rememberMe: \Symfony\Component\BrowserKit\Cookie, consentSubject: ?\Symfony\Component\BrowserKit\Cookie}
+     * @return array{rememberMe: BrowserKitCookie, consentSubject: ?BrowserKitCookie}
      */
     protected function extractRememberMeSessionCookies(SymfonyKernelBrowser $client): array
     {
         $rememberMe = $client->getCookieJar()->get('REMEMBERME');
-        if (!$rememberMe instanceof \Symfony\Component\BrowserKit\Cookie) {
+        if (!$rememberMe instanceof BrowserKitCookie) {
             self::fail('REMEMBERME cookie was not set after login with remember me.');
         }
 
@@ -97,13 +93,13 @@ trait CookieConsentTestHelper
 
     protected function useRememberMeSessionOnly(
         SymfonyKernelBrowser $client,
-        \Symfony\Component\BrowserKit\Cookie $rememberMeCookie,
-        ?\Symfony\Component\BrowserKit\Cookie $consentSubjectCookie = null,
+        BrowserKitCookie $rememberMeCookie,
+        ?BrowserKitCookie $consentSubjectCookie = null,
     ): SymfonyKernelBrowser {
         $client->getCookieJar()->clear();
         $client->getCookieJar()->set($rememberMeCookie);
 
-        if ($consentSubjectCookie instanceof \Symfony\Component\BrowserKit\Cookie) {
+        if ($consentSubjectCookie instanceof BrowserKitCookie) {
             $client->getCookieJar()->set($consentSubjectCookie);
         }
 
@@ -112,14 +108,20 @@ trait CookieConsentTestHelper
 
     protected function acceptEssentialCookiesOnly(SymfonyKernelBrowser $client): void
     {
-        $client->request(Request::METHOD_GET, '/');
+        $this->storeEssentialCookieDecision($client);
+    }
 
-        $crawler = $client->getCrawler();
-        $hasBannerButton = $crawler->filter('form[action="/cookies/banner"] button[name="cookie_consent_banner[essential]"]')->count() > 0;
+    private function storeEssentialCookieDecision(SymfonyKernelBrowser $client): void
+    {
+        $container = static::getContainer();
+        $repository = $container->get(CookieConsentRepository::class);
+        $name = $container->get(CookieConsentService::class)->subjectCookieName();
 
-        if ($hasBannerButton) {
-            $form = $crawler->selectButton('Essential Cookies Only')->form();
-            $client->submit($form);
-        }
+        // A visitor who already got a subject cookie decides for that subject, as on the banner.
+        $subjectId = $client->getCookieJar()->get($name)?->getValue() ?? bin2hex(random_bytes(16));
+        $consent = $repository->findOneBySubjectId($subjectId) ?? new CookieConsent($subjectId);
+        $repository->save($consent->setConsents(false));
+
+        $client->getCookieJar()->set(new BrowserKitCookie($name, $subjectId));
     }
 }

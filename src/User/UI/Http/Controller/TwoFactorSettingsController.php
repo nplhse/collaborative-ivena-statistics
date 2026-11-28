@@ -52,6 +52,8 @@ final class TwoFactorSettingsController extends AbstractController
         private readonly ClockInterface $clock,
         #[Autowire(service: 'limiter.two_factor_settings_code')]
         private readonly RateLimiterFactory $codeLimiter,
+        #[Autowire(param: 'app.two_factor.backup_code_hash_cost')]
+        private readonly ?int $backupCodeHashCost = null,
     ) {
     }
 
@@ -97,7 +99,7 @@ final class TwoFactorSettingsController extends AbstractController
             return $this->redirectToRoute('app_settings_two_factor');
         }
 
-        $backupCodes = $this->backupCodeGenerator->generate();
+        $backupCodes = $this->backupCodeGenerator->generate($this->backupCodeHashCost);
         $user->enableTotpAuthentication(
             $this->cipher->encrypt($setup->getSecret()),
             $setup->getSecret(),
@@ -141,7 +143,7 @@ final class TwoFactorSettingsController extends AbstractController
             return $this->redirectToRoute('app_settings_two_factor');
         }
 
-        $backupCodes = $this->backupCodeGenerator->generate();
+        $backupCodes = $this->backupCodeGenerator->generate($this->backupCodeHashCost);
         $user->replaceBackupCodes($backupCodes['hashes']);
         $this->flush('user.settings.two_factor_backup_codes_renewed');
 

@@ -20,9 +20,12 @@ final class BackupCodeGenerator
     private const int LENGTH = 10;
 
     /**
+     * @param int|null $hashCost bcrypt cost; null keeps PHP's default. Only the test environment lowers it
+     *                           (`app.two_factor.backup_code_hash_cost`), like the password hashers in security.yaml.
+     *
      * @return array{codes: list<string>, hashes: list<string>}
      */
-    public function generate(): array
+    public function generate(?int $hashCost = null): array
     {
         $codes = [];
         $hashes = [];
@@ -33,7 +36,11 @@ final class BackupCodeGenerator
             }
 
             $codes[] = substr($code, 0, 5).'-'.substr($code, 5);
-            $hashes[] = password_hash(User::normalizeBackupCode($code), \PASSWORD_DEFAULT);
+            $hashes[] = password_hash(
+                User::normalizeBackupCode($code),
+                \PASSWORD_DEFAULT,
+                null === $hashCost ? [] : ['cost' => $hashCost],
+            );
         }
 
         return ['codes' => $codes, 'hashes' => $hashes];

@@ -9,6 +9,7 @@ use App\User\Domain\Factory\UserFactory;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
+use Zenstruck\Browser\KernelBrowser;
 use Zenstruck\Browser\Test\HasBrowser;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
@@ -28,7 +29,7 @@ final class SettingsControllerTest extends WebTestCase
             'username' => 'settings-user',
         ])->create();
 
-        $this->loginWithConsent($this->browser(), 'settings-user')
+        $this->signedInAs('settings-user')
             ->visit('/settings')
             ->assertSuccessful()
             ->assertSeeIn('h2', 'Settings')
@@ -65,7 +66,7 @@ final class SettingsControllerTest extends WebTestCase
             'username' => 'settings-tiles-user',
         ])->create();
 
-        $browser = $this->loginWithConsent($this->browser(), 'settings-tiles-user');
+        $browser = $this->signedInAs('settings-tiles-user');
 
         foreach (['account' => 'Account Settings', 'email' => 'Change email', 'security' => 'Sign-in & security', 'notifications' => 'Notifications'] as $tile => $heading) {
             $browser
@@ -85,7 +86,7 @@ final class SettingsControllerTest extends WebTestCase
             'username' => 'settings-de-user',
         ])->create();
 
-        $this->loginWithConsent($this->browser(), 'settings-de-user')
+        $this->signedInAs('settings-de-user')
             ->visit('/locale/switch/de?_target_path=/settings')
             ->assertOn('/settings')
             ->assertSuccessful()
@@ -117,7 +118,7 @@ final class SettingsControllerTest extends WebTestCase
             'username' => 'settings-section-user',
         ])->create();
 
-        $this->loginWithConsent($this->browser(), 'settings-section-user')
+        $this->signedInAs('settings-section-user')
             ->visit($path)
             ->assertSuccessful()
             ->assertSeeIn('[data-testid="settings-section-nav"] [aria-current="page"]', $activeSection)
@@ -137,7 +138,7 @@ final class SettingsControllerTest extends WebTestCase
             'username' => 'settings-account-user',
         ])->create();
 
-        $this->loginWithConsent($this->browser(), 'settings-account-user')
+        $this->signedInAs('settings-account-user')
             ->visit('/settings/account')
             ->assertSuccessful()
             ->assertSeeIn('h2', 'Account Settings')
@@ -160,19 +161,13 @@ final class SettingsControllerTest extends WebTestCase
 
     public function testUnverifiedUserSeesResendVerificationAction(): void
     {
-        $user = UserFactory::new([
+        UserFactory::new([
             'email' => 'unverified-settings@example.test',
-            'isVerified' => true,
+            'isVerified' => false,
             'username' => 'unverified-settings-user',
         ])->create();
 
-        $browser = $this->loginWithConsent($this->browser(), 'unverified-settings-user');
-
-        \Zenstruck\Foundry\Persistence\refresh($user);
-        $user->setIsVerified(false);
-        \Zenstruck\Foundry\Persistence\save($user);
-
-        $browser
+        $this->signedInAs('unverified-settings-user')
             ->visit('/settings/account')
             ->assertSuccessful()
             ->assertSee('Resend verification email')
@@ -185,18 +180,13 @@ final class SettingsControllerTest extends WebTestCase
         $username = sprintf('limited-settings-user-%s', $suffix);
         $email = sprintf('limited-settings-%s@example.test', $suffix);
 
-        $user = UserFactory::new([
+        UserFactory::new([
             'email' => $email,
-            'isVerified' => true,
+            'isVerified' => false,
             'username' => $username,
         ])->create();
 
-        $browser = $this->loginWithConsent($this->browser(), $username);
-
-        \Zenstruck\Foundry\Persistence\refresh($user);
-        $user->setIsVerified(false);
-        \Zenstruck\Foundry\Persistence\save($user);
-
+        $browser = $this->signedInAs($username);
         $browser
             ->visit('/settings/account')
             ->assertSuccessful()
@@ -212,16 +202,11 @@ final class SettingsControllerTest extends WebTestCase
     {
         $user = UserFactory::new([
             'email' => 'resend-verified@example.test',
-            'isVerified' => true,
+            'isVerified' => false,
             'username' => 'resend-verified-user',
         ])->create();
 
-        $browser = $this->loginWithConsent($this->browser(), 'resend-verified-user');
-
-        \Zenstruck\Foundry\Persistence\refresh($user);
-        $user->setIsVerified(false);
-        \Zenstruck\Foundry\Persistence\save($user);
-
+        $browser = $this->signedInAs('resend-verified-user');
         $browser->visit('/settings/account')->assertSee('Resend verification email');
 
         \Zenstruck\Foundry\Persistence\refresh($user);
@@ -243,7 +228,7 @@ final class SettingsControllerTest extends WebTestCase
             'username' => 'email-change-user',
         ])->create();
 
-        $this->loginWithConsent($this->browser(), 'email-change-user')
+        $this->signedInAs('email-change-user')
             ->visit('/settings/email')
             ->fillField('settings_email[email]', 'email-changed@example.test')
             ->click('Save email')
@@ -265,7 +250,7 @@ final class SettingsControllerTest extends WebTestCase
             'username' => 'pwd-change-user',
         ])->create();
 
-        $this->loginWithConsent($this->browser(), 'pwd-change-user')
+        $this->signedInAs('pwd-change-user')
             ->visit('/settings/password')
             ->fillField('Current password', 'password')
             ->fillField('New password', 'Gr33n-Valley-Lantern-42!')
@@ -306,7 +291,7 @@ final class SettingsControllerTest extends WebTestCase
             'username' => 'email-page-user',
         ])->create();
 
-        $this->loginWithConsent($this->browser(), 'email-page-user')
+        $this->signedInAs('email-page-user')
             ->visit('/settings/email')
             ->assertSuccessful()
             ->assertSee('Change email')
@@ -321,7 +306,7 @@ final class SettingsControllerTest extends WebTestCase
             'username' => 'pwd-page-user',
         ])->create();
 
-        $this->loginWithConsent($this->browser(), 'pwd-page-user')
+        $this->signedInAs('pwd-page-user')
             ->visit('/settings/password')
             ->assertSuccessful()
             ->assertSee('Change password')
@@ -338,7 +323,7 @@ final class SettingsControllerTest extends WebTestCase
             'username' => 'pwd-wrong-user',
         ])->create();
 
-        $this->loginWithConsent($this->browser(), 'pwd-wrong-user')
+        $this->signedInAs('pwd-wrong-user')
             ->visit('/settings/password')
             ->fillField('Current password', 'not-the-real-password')
             ->fillField('New password', 'newpass-123456')
@@ -358,6 +343,7 @@ final class SettingsControllerTest extends WebTestCase
             'username' => 'force-pwd-ui-user',
         ])->create();
 
+        // A real sign-in: the login sends users with expired credentials to the forced change.
         $this->loginWithConsent($this->browser(), 'force-pwd-ui-user')
             ->assertSuccessful()
             ->assertSee('Set a new password')
@@ -375,7 +361,7 @@ final class SettingsControllerTest extends WebTestCase
             'locale' => null,
         ])->create();
 
-        $browser = $this->loginWithConsent($this->browser(), 'locale-settings-user');
+        $browser = $this->signedInAs('locale-settings-user');
         $browser
             ->visit('/settings/account')
             ->assertSuccessful()
@@ -400,7 +386,7 @@ final class SettingsControllerTest extends WebTestCase
             'locale' => 'en',
         ])->create();
 
-        $this->loginWithConsent($this->browser(), 'locale-default-user')
+        $this->signedInAs('locale-default-user')
             ->visit('/settings/account')
             ->assertSuccessful()
             ->assertSee('English (automatic default)')
@@ -415,7 +401,7 @@ final class SettingsControllerTest extends WebTestCase
             'username' => 'display-name-user',
         ])->create();
 
-        $browser = $this->loginWithConsent($this->browser(), 'display-name-user');
+        $browser = $this->signedInAs('display-name-user');
         $browser
             ->visit('/settings/account')
             ->assertSuccessful()
@@ -452,7 +438,7 @@ final class SettingsControllerTest extends WebTestCase
             'displayName' => 'Ada Admin',
         ])->create();
 
-        $this->loginWithConsent($this->browser(), 'display-name-long')
+        $this->signedInAs('display-name-long')
             ->visit('/settings/account')
             ->fillField('settings_profile[displayName]', str_repeat('a', 101))
             ->click('Update name')
@@ -463,5 +449,14 @@ final class SettingsControllerTest extends WebTestCase
 
         \Zenstruck\Foundry\Persistence\refresh($user);
         self::assertSame('Ada Admin', $user->getDisplayName());
+    }
+
+    /**
+     * Signs the user in without the login form: these tests are about the settings pages, and the sign-in itself is
+     * covered by SecurityControllerTest. The form would add the cookie banner and four requests to every test.
+     */
+    private function signedInAs(string $username): KernelBrowser
+    {
+        return $this->browser()->actingAs(UserFactory::find(['username' => $username]));
     }
 }

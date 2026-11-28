@@ -24,6 +24,8 @@ parameters:
     # Integrity check (ADR 039): bytes hashed per daily run, and the age before an orphaned file is deleted.
     app.media_check_hash_budget_bytes: 268435456
     app.media_check_grace_hours: 24
+    # bcrypt cost of 2FA backup codes (#1357); null is PHP's default. The test environment lowers it (#1348).
+    app.two_factor.backup_code_hash_cost: null
     app.page_content_width_estimate: 800
     app.rejects_base_dir: '%kernel.project_dir%/var/imports/rejects'
     env(APP_URL): ''
@@ -194,6 +196,8 @@ when@test:
         app.media_storage_dir: '%kernel.cache_dir%/media%env(default::TEST_TOKEN)%'
         app.research.exports_dir: '%kernel.cache_dir%/research-exports%env(default::TEST_TOKEN)%'
         app.maintenance_flag_file: '%kernel.cache_dir%/maintenance%env(default::TEST_TOKEN)%/enabled'
+        # The lowest bcrypt cost: secure hashes are not needed in tests and cost about 0.25 s each (#1348).
+        app.two_factor.backup_code_hash_cost: 4
 
     services:
         # One lock directory per ParaTest worker, like its test database (dbname_suffix with TEST_TOKEN):
