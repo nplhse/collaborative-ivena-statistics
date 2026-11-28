@@ -9,7 +9,6 @@ use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Domain\Enum\PageKey;
 use App\Content\Infrastructure\Factory\PageFactory;
-use App\Content\Infrastructure\Factory\PageTranslationFactory;
 use App\Tests\Support\Translation\AssertsNoMissingTranslations;
 use App\User\Application\Terms\TermsVersion;
 use App\User\Domain\Entity\TermsAcceptance;
@@ -29,6 +28,11 @@ use Zenstruck\Foundry\Test\Factories;
 /**
  * Users without an acceptance of the configured version of the terms of use accept it before they continue (#1564,
  * ADR 043). The test environment has no version; each test sets one, like a raised version in production.
+ *
+ * Checked lower down: no configured version, forms and background requests (403), impersonating administrators and the
+ * legal pages (imprint) against other CMS pages in `RequireTermsAcceptanceListenerTest`; an acceptance of the current
+ * version and a raised version in `TermsAcceptanceStatusTest`; the form fields in `TermsAcceptanceTypeTest`; the
+ * hospitals to renew in `TermsAcceptanceRepositoryTest`.
  */
 #[ResetDatabase]
 final class TermsAcceptanceAtLoginTest extends WebTestCase
@@ -45,15 +49,6 @@ final class TermsAcceptanceAtLoginTest extends WebTestCase
         $this->client->disableReboot();
     }
 
-    public function testWithoutAConfiguredVersionNobodyIsAsked(): void
-    {
-        $this->client->loginUser(UserFactory::createOne());
-
-        $this->client->request(Request::METHOD_GET, '/settings/account');
-
-        self::assertResponseIsSuccessful();
-    }
-
     public function testAUserWithoutAcceptanceAcceptsAndReturnsToTheRequestedPage(): void
     {
         $this->configureVersion('2026-12');
@@ -67,11 +62,6 @@ final class TermsAcceptanceAtLoginTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h2', 'Accept the terms of use');
         self::assertSelectorTextContains('body', 'Please read version 2026-12 and accept it');
-
-        $this->client->submitForm('Accept and continue', []);
-        self::assertResponseStatusCodeSame(422);
-        self::assertSelectorTextContains('body', 'You must accept the terms of use to continue.');
-        self::assertSame(0, $this->acceptances()->count([]));
 
         $this->client->submitForm('Accept and continue', ['terms_acceptance[accept]' => true]);
         self::assertResponseRedirects('/settings/account?tab=1');
@@ -125,16 +115,6 @@ final class TermsAcceptanceAtLoginTest extends WebTestCase
         self::assertCount(0, $this->acceptances()->findBy(['user' => $user->getId(), 'kind' => TermsAcceptanceKind::UploadAuthority, 'termsVersion' => '2026-12']));
     }
 
-    public function testWithoutAnEarlierUploadAuthorityThePageAsksOnlyForTheTerms(): void
-    {
-        $this->configureVersion('2026-12');
-        $this->client->loginUser(UserFactory::createOne());
-
-        $this->client->request(Request::METHOD_GET, '/terms/accept');
-
-        self::assertSelectorNotExists('input[name="terms_acceptance[uploadAuthority]"]');
-    }
-
     public function testTheAcceptancePageHasNoMissingTranslationsInGerman(): void
     {
         $this->configureVersion('2026-12');
@@ -150,87 +130,39 @@ final class TermsAcceptanceAtLoginTest extends WebTestCase
         $this->assertNoMissingTranslations($profile);
     }
 
-    public function testAnAcceptanceOfTheCurrentVersionLetsTheUserThrough(): void
+    public function testSubmittingWithoutTheAcceptanceIsRefused(): void
     {
         $this->configureVersion('2026-12');
-        $user = UserFactory::createOne();
-        $this->accept($user, '2026-12');
-        $this->client->loginUser($user);
+        $this->client->loginUser(UserFactory::createOne());
+        $this->client->request(Request::METHOD_GET, '/terms/accept');
 
-        $this->client->request(Request::METHOD_GET, '/settings/account');
+        $this->client->submitForm('Accept and continue', []);
 
-        self::assertResponseIsSuccessful();
+        self::assertResponseStatusCodeSame(422);
+        self::assertSelectorTextContains('body', 'You must accept the terms of use to continue.');
+        self::assertSame(0, $this->acceptances()->count([]));
     }
 
-    public function testRaisingTheVersionAsksAgainButEditingTheTermsPageDoesNot(): void
-    {
-        $page = PageFactory::new()->withoutDefaultTranslation()->create(['key' => PageKey::Terms]);
-        $translation = PageTranslationFactory::createOne(['page' => $page, 'locale' => 'en', 'slug' => 'terms', 'path' => '/terms']);
-        $user = UserFactory::createOne();
-        $this->accept($user, '2026-12');
-        $this->client->loginUser($user);
-        $this->configureVersion('2026-12');
-
-        $translation->setContent([['type' => 'richtext', 'enabled' => true, 'data' => ['html' => '<p>Typo fixed</p>']]]);
-        self::getContainer()->get(EntityManagerInterface::class)->flush();
-        $this->client->request(Request::METHOD_GET, '/settings/account');
-        self::assertResponseIsSuccessful('an editorial edit keeps the version');
-
-        // A deploy with a raised version: a new container, the same session.
-        $this->client->getKernel()->shutdown();
-        $this->client->getKernel()->boot();
-        $this->configureVersion('2027-03');
-        $this->client->request(Request::METHOD_GET, '/settings/account');
-        self::assertResponseRedirects('/terms/accept', message: 'a raised version asks again');
-    }
-
-    public function testLogoutAndTheLegalPagesStayReachable(): void
+    public function testTheTermsPageStaysReachable(): void
     {
         $this->configureVersion('2026-12');
-        $terms = PageFactory::createOne(['key' => PageKey::Terms, 'slug' => 'terms', 'locale' => 'en', 'status' => PageTranslation::STATUS_PUBLISHED]);
-        PageFactory::createOne(['key' => PageKey::Imprint, 'slug' => 'imprint', 'locale' => 'en', 'status' => PageTranslation::STATUS_PUBLISHED]);
-        PageFactory::createOne(['slug' => 'about-us', 'locale' => 'en', 'status' => PageTranslation::STATUS_PUBLISHED]);
-        self::assertSame(PageKey::Terms, $terms->getKey());
+        PageFactory::createOne(['key' => PageKey::Terms, 'slug' => 'terms', 'locale' => 'en', 'status' => PageTranslation::STATUS_PUBLISHED]);
         $this->client->loginUser(UserFactory::createOne());
 
         $this->client->request(Request::METHOD_GET, '/terms');
-        self::assertResponseIsSuccessful('terms');
-        $this->client->request(Request::METHOD_GET, '/imprint');
-        self::assertResponseIsSuccessful('imprint');
-        $this->client->request(Request::METHOD_GET, '/about-us');
-        self::assertResponseRedirects('/terms/accept', message: 'other pages wait for the acceptance');
 
-        $this->client->request(Request::METHOD_GET, '/logout');
-        self::assertResponseRedirects();
-        self::assertStringNotContainsString('/terms/accept', (string) $this->client->getResponse()->headers->get('Location'));
+        self::assertResponseIsSuccessful();
     }
 
-    public function testFormsAndBackgroundRequestsGetA403(): void
+    public function testLogoutStaysReachable(): void
     {
         $this->configureVersion('2026-12');
         $this->client->loginUser(UserFactory::createOne());
 
-        $this->client->request(Request::METHOD_POST, '/settings/account');
-        self::assertResponseStatusCodeSame(403);
+        $this->client->request(Request::METHOD_GET, '/logout');
 
-        $this->client->xmlHttpRequest(Request::METHOD_GET, '/settings/account');
-        self::assertResponseStatusCodeSame(403);
-    }
-
-    public function testAnAdministratorImpersonatingAUserIsNotAskedForThem(): void
-    {
-        $this->configureVersion('2026-12');
-        $admin = UserFactory::new()->asAdmin()->create();
-        $this->accept($admin, '2026-12');
-        $target = UserFactory::createOne(['username' => 'impersonated-user']);
-        $this->client->loginUser($admin);
-
-        $this->client->request(Request::METHOD_GET, '/settings/account?_switch_user='.$target->getUserIdentifier());
-        $this->client->followRedirects();
-        $this->client->request(Request::METHOD_GET, '/settings/account');
-
-        self::assertResponseIsSuccessful();
-        self::assertSame(0, $this->acceptances()->count(['user' => $this->reload($target)]));
+        self::assertResponseRedirects();
+        self::assertStringNotContainsString('/terms/accept', (string) $this->client->getResponse()->headers->get('Location'));
     }
 
     public function testAnAdministratorAcceptsTheTermsBeforeSettingUpTwoFactorAuthentication(): void
@@ -255,13 +187,6 @@ final class TermsAcceptanceAtLoginTest extends WebTestCase
     private function configureVersion(string $version): void
     {
         self::getContainer()->set(TermsVersion::class, new TermsVersion($version));
-    }
-
-    private function accept(User $user, string $version): void
-    {
-        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
-        $entityManager->persist(new TermsAcceptance($this->reload($user), TermsAcceptanceKind::Terms, $version, 'en', null));
-        $entityManager->flush();
     }
 
     private function confirmUploadAuthority(User $user, Hospital $hospital, string $version): void

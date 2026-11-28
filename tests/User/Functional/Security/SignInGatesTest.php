@@ -80,6 +80,7 @@ final class SignInGatesTest extends WebTestCase
         $this->client->request(Request::METHOD_GET, '/settings/account');
         self::assertResponseIsSuccessful();
 
+        // totpEnabledAt is one of the remember-me signature_properties (security.yaml), so the cookie no longer matches.
         $this->enableTwoFactor($user);
         $this->client->getCookieJar()->expire('MOCKSESSID');
         $this->client->request(Request::METHOD_GET, '/settings/account');
@@ -95,6 +96,7 @@ final class SignInGatesTest extends WebTestCase
         $requestStack = $container->get(RequestStack::class);
         self::assertInstanceOf(RequestStack::class, $requestStack);
         $requestStack->push($request);
+        // A private service of the main firewall; the test container keeps it reachable for tests.
         $handler = $container->get('security.authenticator.remember_me_handler.main');
         $handler->createRememberMeCookie($this->reload($user));
         $requestStack->pop();
