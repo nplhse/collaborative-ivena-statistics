@@ -18,6 +18,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
+/**
+ * The admin dashboard page and its card "Recent notifications". Which events the card lists and their context are
+ * tested in RecentNotificationEventsTest; this test checks how the card shows them.
+ */
 #[ResetDatabase]
 final class AdminDashboardTest extends WebTestCase
 {
@@ -27,12 +31,7 @@ final class AdminDashboardTest extends WebTestCase
     {
         $client = self::createClient();
 
-        $admin = UserFactory::new()
-            ->asAdmin()
-            ->create([
-                'username' => 'dashboard-admin-'.bin2hex(random_bytes(4)),
-            ])
-        ;
+        $admin = UserFactory::new()->asAdmin()->create(['username' => 'dashboard-admin']);
 
         $client->loginUser($admin);
         $client->request(Request::METHOD_GET, '/admin');
@@ -72,8 +71,8 @@ final class AdminDashboardTest extends WebTestCase
         ]);
 
         $crawler = $client->request(Request::METHOD_GET, '/admin');
-        self::assertResponseIsSuccessful();
 
+        self::assertResponseIsSuccessful();
         $items = $crawler->filter('.ea-dashboard-ops-notifications li.timeline-item');
         self::assertSame(['Import failed', 'New registration', 'Reminder not delivered'], $items->each(
             static fn (Crawler $item): string => trim($item->filter('.timeline-category')->text()),
@@ -98,30 +97,21 @@ final class AdminDashboardTest extends WebTestCase
         );
     }
 
-    public function testRecentNotificationsLeaveOtherIntentsOutAndFallBackForMissingRecords(): void
+    public function testAnEventWhoseRecordIsGoneShowsItsIdAndKeepsTheFreeTextReasonInTheAuditLog(): void
     {
         $client = self::createClient();
         $client->loginUser(UserFactory::new()->asAdmin()->create());
-
-        $this->persistEntry('2026-11-13 10:00:00', 'req-other', User::class, '1', 'user.admin.updated');
-        // A sent reminder needs no action: it stays in the audit timeline only (#1173).
-        $this->persistEntry('2026-11-13 09:30:00', 'req-sent', MonthlyReminderDispatch::class, '6', AuditEntry::INTENT_HOSPITAL_REMINDER_SENT, [
-            'hospital_id' => 1,
-            'reporting_period' => '2026-10',
-        ]);
-        // An older run: free-text reason, and the import has been deleted since.
         $this->persistEntry('2026-11-13 09:00:00', 'req-legacy', Import::class, '999', AuditEntry::INTENT_IMPORT_RUN_FAILED, [
             'import_id' => 999,
             'reason' => 'SQLSTATE[23505]: duplicate key',
         ]);
 
         $crawler = $client->request(Request::METHOD_GET, '/admin');
-        self::assertResponseIsSuccessful();
 
-        $items = $crawler->filter('.ea-dashboard-ops-notifications li.timeline-item');
-        self::assertCount(1, $items, 'only events an admin may need to act on');
-        self::assertSame('#999 · – · Reason in the audit log', trim($items->filter('.ea-notification-context')->text()));
-        self::assertStringNotContainsString('SQLSTATE', $crawler->filter('.ea-dashboard-ops-notifications')->text(), 'free-text reasons stay in the audit log');
+        self::assertResponseIsSuccessful();
+        $card = $crawler->filter('.ea-dashboard-ops-notifications');
+        self::assertSame('#999 · – · Reason in the audit log', trim($card->filter('li.timeline-item .ea-notification-context')->text()));
+        self::assertStringNotContainsString('SQLSTATE', $card->text());
     }
 
     public function testRecentNotificationsShowAnEmptyState(): void
