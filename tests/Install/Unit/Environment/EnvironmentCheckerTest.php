@@ -62,6 +62,13 @@ final class EnvironmentCheckerTest extends TestCase
         self::assertStringContainsString('configuration.md#secrets-and-rotation', $this->messageFor($report, 'APP_HASH_KEY'));
     }
 
+    public function testATooShortAppSecretPointsToTheRotationGuide(): void
+    {
+        $report = $this->checker->check(EnvironmentCheckProfile::Prod, $this->validProdVariables(['APP_SECRET' => str_repeat('s', 31)]), true);
+
+        self::assertStringContainsString('configuration.md#secrets-and-rotation', $this->messageFor($report, 'APP_SECRET'));
+    }
+
     public function testProdProfileFailsWhenAppUrlUsesLocalhost(): void
     {
         $report = $this->checker->check(
