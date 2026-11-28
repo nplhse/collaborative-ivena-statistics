@@ -11,7 +11,8 @@
 | Variable | Purpose | Example |
 |---|---|---|
 | `APP_ENV` | Environment | `dev` |
-| `APP_SECRET` | Symfony secret | hex string |
+| `APP_SECRET` | Symfony secret | hex string, at least 32 characters; can be rotated, see [secrets and rotation](#secrets-and-rotation) |
+| `APP_HASH_KEY` | Key of the stored case-ID hashes and analytics user keys | at least 32 characters, required in production; on upgrade the current `APP_SECRET` value, then never changed. Empty falls back to `APP_SECRET`. ADR 048 |
 | `DATABASE_URL` | Primary database (PostgreSQL) | `postgresql://...` |
 
 ## Important optional variables
@@ -55,6 +56,23 @@
 | `STORAGE_CAPACITY_SOURCE` | Capacity reference: `budget` or `filesystem` | default `budget`; `filesystem` only on a dedicated server or VPS |
 | `BACKUP_DIR` | Default target directory of `app:backup:create` | default `var/backups`; on a Deployer host set a directory outside the deploy path, e.g. `~/backups`. See [../05-operations/backup-restore.md](../05-operations/backup-restore.md) |
 | `BACKUP_PG_TOOLS` | Where the PostgreSQL client tools run for backups | `local` (default, `pg_dump` on `PATH`) or `docker` (Compose service `database`, local development); ADR 038 |
+
+## Secrets and rotation
+
+Three secrets protect different data. Back them up together with `shared/.env.local`.
+
+| Secret | Protects | Effect of a change |
+|---|---|---|
+| `APP_SECRET` | Sessions and remember-me cookies, login links, CSRF tokens, the hashes of failed sign-ins (kept 30 days) | Users sign in again; open login links stop working; failed sign-ins of the current day may be counted as new identifiers. Safe to rotate once `APP_HASH_KEY` is set |
+| `APP_HASH_KEY` | Case-ID hashes of allocations (duplicate detection on re-import), analytics user keys | Re-imports no longer match earlier cases and inflate the statistics; access statistics break their series. Do not change it |
+| `APP_TWO_FACTOR_KEY` | TOTP secrets of two-factor authentication | Existing setups only accept backup codes (ADR 040) |
+
+To rotate `APP_SECRET` (for example after a possible exposure, or when `app:env:check` reports it too short):
+
+1. Check that `APP_HASH_KEY` is set (`php bin/console app:env:check --check-profile=prod`). If not, set it to the
+   current `APP_SECRET` value first.
+2. Generate a new value (`php -r 'echo bin2hex(random_bytes(32)), PHP_EOL;'`), write it to `shared/.env.local`, then
+   clear the cache and restart the workers (`php bin/console cache:clear`, `systemctl --user restart messenger`).
 
 ## Application configuration (`app.yaml`)
 

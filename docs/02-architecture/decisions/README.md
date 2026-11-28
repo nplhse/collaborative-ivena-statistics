@@ -63,6 +63,7 @@ Each ADR includes:
 | [045](045-data-extract-requests.md) | Data extract requests with Board vote, admin SQL and time-limited export | accepted |
 | [046](046-maintenance-mode-by-flag-file.md) | Maintenance mode by a shared flag file | accepted |
 | [047](047-inline-style-attributes-allowed-by-csp.md) | Inline style attributes stay allowed by the Content Security Policy | accepted |
+| [048](048-dedicated-key-for-persistent-hashes.md) | Dedicated key for persistent hashes | accepted |
 
 ## Template
 

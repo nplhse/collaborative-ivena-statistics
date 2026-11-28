@@ -408,7 +408,8 @@ chmod 600 <deploy_path>/shared/.env.local
 systemctl --user restart messenger
 ```
 
-Rotate `APP_SECRET` if there is any chance the backup was exposed.
+Rotate `APP_SECRET` if there is any chance the backup was exposed, as described in
+[secrets and rotation](../06-reference/configuration.md#secrets-and-rotation). Never change `APP_HASH_KEY`.
 
 ## Restore test log
 

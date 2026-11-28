@@ -11,7 +11,7 @@ final class AnalyticsUserKeyGeneratorTest extends TestCase
 {
     public function testGenerateIsStableAndDoesNotContainUserId(): void
     {
-        $generator = new AnalyticsUserKeyGenerator('test-secret');
+        $generator = new AnalyticsUserKeyGenerator('test-key');
 
         $key = $generator->generate(42);
 
@@ -21,10 +21,10 @@ final class AnalyticsUserKeyGeneratorTest extends TestCase
         self::assertStringNotContainsString('42', $key);
     }
 
-    public function testDifferentSecretsProduceDifferentKeys(): void
+    public function testDifferentHashKeysProduceDifferentKeys(): void
     {
-        $a = new AnalyticsUserKeyGenerator('secret-a');
-        $b = new AnalyticsUserKeyGenerator('secret-b');
+        $a = new AnalyticsUserKeyGenerator('key-a');
+        $b = new AnalyticsUserKeyGenerator('key-b');
 
         self::assertNotSame($a->generate(1), $b->generate(1));
     }

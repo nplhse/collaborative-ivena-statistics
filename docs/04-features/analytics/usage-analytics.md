@@ -94,7 +94,7 @@ There is no dedicated `app:…` reset command; use `dbal:run-sql` as above. See 
 |-----------|----------|
 | No analytics consent | Anonymous metrics (no keys) |
 | Analytics consent | + visitor/session cookies |
-| Consent + logged-in user | + HMAC user key via `APP_SECRET` |
+| Consent + logged-in user | + HMAC user key via `APP_HASH_KEY` |
 
 ### Analytics cookies (only with analytics consent)
 
@@ -108,9 +108,9 @@ Without analytics consent the analytics cookies are cleared on response.
 
 ## Secrets
 
-Pseudonymous analytics user keys use HMAC-SHA256 with `APP_SECRET` (`%kernel.secret%`).
+Pseudonymous analytics user keys use HMAC-SHA256 with `APP_HASH_KEY` (`%app.hash_key%`, ADR 048), not `APP_SECRET`, so `APP_SECRET` can be rotated without breaking the series.
 
-**Risk:** Rotating `APP_SECRET` changes future `analytics_user_key` values. Existing rows keep old keys, so retention across the rotation boundary breaks. Treat rotation as a deliberate continuity break.
+**Risk:** Changing `APP_HASH_KEY` changes future `analytics_user_key` values. Existing rows keep old keys, so retention across that boundary breaks. Do not change it ([secrets and rotation](../../06-reference/configuration.md#secrets-and-rotation)).
 
 ## Feature areas
 

@@ -59,6 +59,13 @@ final class CaseIdHasherTest extends TestCase
         );
     }
 
+    public function testHashFromIsTheRawHmacOfTheDigitsWithTheKey(): void
+    {
+        $hash = $this->hasher->hashFrom('ENR 123-456');
+
+        self::assertSame(hash_hmac('sha256', '123456', '$ecretf0rt3st', true), $hash);
+    }
+
     public function testHashFromReturnsThirtyTwoRawBytes(): void
     {
         $hash = $this->hasher->hashFrom('42');
@@ -67,9 +74,9 @@ final class CaseIdHasherTest extends TestCase
         self::assertSame(32, strlen($hash));
     }
 
-    public function testDifferentSecretsProduceDifferentHashes(): void
+    public function testDifferentKeysProduceDifferentHashes(): void
     {
-        $otherHasher = new CaseIdHasher('another-secret');
+        $otherHasher = new CaseIdHasher('another-key');
 
         self::assertNotSame(
             $this->hasher->hashFrom('123456'),

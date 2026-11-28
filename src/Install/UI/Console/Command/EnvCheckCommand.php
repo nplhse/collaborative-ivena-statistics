@@ -23,6 +23,7 @@ final readonly class EnvCheckCommand
         'APP_ENV',
         'APP_DEBUG',
         'APP_SECRET',
+        'APP_HASH_KEY',
         'DATABASE_URL',
         'APP_URL',
         'MAILER_DSN',

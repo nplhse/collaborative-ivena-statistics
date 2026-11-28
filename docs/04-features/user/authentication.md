@@ -234,6 +234,7 @@ Failed sign-ins are also counted in the database (#1487), so operators can see a
   identifier and other refusals), `refused` (stopped by `login_throttling` or a locked account before the password was
   checked), `lock_threshold` (threshold reached while the lock is off) or `account_locked`. Identifier (trimmed, lower
   case) and IP are stored only as HMAC-SHA256 with `kernel.secret`: equal values can be counted, but not read back.
+  They stay on `APP_SECRET` (not `APP_HASH_KEY`, ADR 048), because they are kept only 30 days.
   The user agent is not stored. A failed write is logged as `security.login.failure_record_failed` and does not change
   the answer of the sign-in.
 - **Daily counts:** the scheduler job `login_failure_aggregation` (daily 02:25,

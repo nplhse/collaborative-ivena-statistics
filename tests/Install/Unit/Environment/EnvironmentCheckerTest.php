@@ -36,6 +36,39 @@ final class EnvironmentCheckerTest extends TestCase
         );
     }
 
+    #[DataProvider('appHashKeyProvider')]
+    public function testAppHashKeyStatus(EnvironmentCheckProfile $profile, string $value, EnvironmentCheckStatus $expected): void
+    {
+        $report = $this->checker->check($profile, $this->validProdVariables(['APP_HASH_KEY' => $value]), true);
+
+        self::assertSame($expected, $this->statusFor($report, 'APP_HASH_KEY'));
+    }
+
+    /**
+     * @return iterable<string, array{EnvironmentCheckProfile, string, EnvironmentCheckStatus}>
+     */
+    public static function appHashKeyProvider(): iterable
+    {
+        yield 'prod, not set' => [EnvironmentCheckProfile::Prod, '', EnvironmentCheckStatus::Fail];
+        yield 'prod, 31 characters' => [EnvironmentCheckProfile::Prod, str_repeat('k', 31), EnvironmentCheckStatus::Fail];
+        yield 'prod, 32 characters' => [EnvironmentCheckProfile::Prod, str_repeat('k', 32), EnvironmentCheckStatus::Ok];
+        yield 'dev, not set' => [EnvironmentCheckProfile::Dev, '', EnvironmentCheckStatus::Warn];
+    }
+
+    public function testAMissingAppHashKeyPointsToTheRotationGuide(): void
+    {
+        $report = $this->checker->check(EnvironmentCheckProfile::Prod, $this->validProdVariables(['APP_HASH_KEY' => '']), true);
+
+        self::assertStringContainsString('configuration.md#secrets-and-rotation', $this->messageFor($report, 'APP_HASH_KEY'));
+    }
+
+    public function testATooShortAppSecretPointsToTheRotationGuide(): void
+    {
+        $report = $this->checker->check(EnvironmentCheckProfile::Prod, $this->validProdVariables(['APP_SECRET' => str_repeat('s', 31)]), true);
+
+        self::assertStringContainsString('configuration.md#secrets-and-rotation', $this->messageFor($report, 'APP_SECRET'));
+    }
+
     public function testProdProfileFailsWhenAppUrlUsesLocalhost(): void
     {
         $report = $this->checker->check(
@@ -170,6 +203,7 @@ final class EnvironmentCheckerTest extends TestCase
             'APP_ENV' => 'prod',
             'APP_DEBUG' => '0',
             'APP_SECRET' => bin2hex(random_bytes(16)),
+            'APP_HASH_KEY' => str_repeat('k', 32),
             'DATABASE_URL' => 'postgresql://app:password@db.example.test:5432/app',
             'APP_URL' => 'https://coishub.example.test',
             'MAILER_DSN' => 'smtp://user:pass@smtp.example.test:587',
@@ -178,6 +212,17 @@ final class EnvironmentCheckerTest extends TestCase
             'SENTRY_DSN' => 'https://example@sentry.example.test/1',
             'SENTRY_ENVIRONMENT' => 'prod',
         ], $overrides);
+    }
+
+    private function messageFor(EnvironmentCheckReport $report, string $variable): string
+    {
+        foreach ($report->items as $item) {
+            if ($item->variable === $variable) {
+                return $item->message;
+            }
+        }
+
+        self::fail(sprintf('Missing check result for %s', $variable));
     }
 
     private function statusFor(EnvironmentCheckReport $report, string $variable): EnvironmentCheckStatus
