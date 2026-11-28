@@ -99,6 +99,18 @@ final class ClosureVolumeWindowEdgesTest extends TestCase
         self::assertNotContains('2026-06-02 14:25:00', $chart['starts']);
     }
 
+    public function testTheMergedPointSpansTheWholeClockHourWhateverTheDraftOrder(): void
+    {
+        $chart = new ClosureVolumeChartFactory()->build(array_reverse($this->drafts($this->closure())));
+
+        // 12:25–13:00 now comes first; the point still starts at 12:00 and ends at 13:00.
+        $index = array_search('2026-06-02 12:00:00', $chart['starts'], true);
+        self::assertIsInt($index);
+        self::assertSame('2026-06-02 13:00:00', $chart['ends'][$index]);
+        self::assertSame(2.0, $chart['observed'][$index]);
+        self::assertNotContains('2026-06-02 12:25:00', $chart['starts']);
+    }
+
     /**
      * @return list<ClosureVolumeHourDraft>
      */
