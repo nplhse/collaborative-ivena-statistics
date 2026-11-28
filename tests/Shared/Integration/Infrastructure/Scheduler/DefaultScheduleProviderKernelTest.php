@@ -23,6 +23,7 @@ use App\Shared\Application\Monitoring\Message\SampleMessengerQueuesMessage;
 use App\Shared\Infrastructure\Scheduler\DefaultScheduleProvider;
 use App\Statistics\Application\Message\RebuildClosureVolumeProjection;
 use App\Storage\Application\Message\MeasureStorageMessage;
+use App\User\Application\Message\AggregateLoginFailuresMessage;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Scheduler\Generator\MessageContext;
 use Symfony\Component\Scheduler\RecurringMessage;
@@ -36,7 +37,7 @@ final class DefaultScheduleProviderKernelTest extends KernelTestCase
         self::bootKernel();
         $provider = self::getContainer()->get(DefaultScheduleProvider::class);
         $recurringMessages = $provider->getSchedule()->getRecurringMessages();
-        self::assertCount(18, $recurringMessages);
+        self::assertCount(19, $recurringMessages);
 
         $classes = [];
         foreach ($recurringMessages as $recurringMessage) {
@@ -73,5 +74,6 @@ final class DefaultScheduleProviderKernelTest extends KernelTestCase
         self::assertContains(PurgePendingImportUploadsMessage::class, $classes);
         self::assertContains(CheckMediaIntegrityMessage::class, $classes);
         self::assertContains(CleanUpReactionsMessage::class, $classes);
+        self::assertContains(AggregateLoginFailuresMessage::class, $classes);
     }
 }

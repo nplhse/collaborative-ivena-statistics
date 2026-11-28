@@ -73,6 +73,7 @@ framework:
             App\Shared\Application\Monitoring\Message\CleanUpMonitoringMessage: async_priority_low
             App\Encounter\Application\Message\DeleteExpiredEncounterSourceFilesMessage: async_priority_low
             App\Encounter\Application\Message\CleanUpEncountersMessage: async_priority_low
+            App\User\Application\Message\AggregateLoginFailuresMessage: async_priority_low
 
 when@dev:
     framework:
@@ -124,4 +125,5 @@ when@test:
                 App\Shared\Application\Monitoring\Message\CleanUpMonitoringMessage: sync
                 App\Encounter\Application\Message\DeleteExpiredEncounterSourceFilesMessage: sync
                 App\Encounter\Application\Message\CleanUpEncountersMessage: sync
+                App\User\Application\Message\AggregateLoginFailuresMessage: sync
                 Symfony\Component\Mailer\Messenger\SendEmailMessage: sync

@@ -9,6 +9,8 @@ use App\Notification\Application\Publishing\NotificationRequest;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
 use App\User\Infrastructure\Security\AccountLock\AccountLock;
+use App\User\Infrastructure\Security\LoginFailure\LoginFailureRecorder;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -29,6 +31,9 @@ final class AccountLockTest extends TestCase
 
     /** @var list<string> */
     private array $logged = [];
+
+    /** @var list<string> kinds written to login_failure_event */
+    private array $recorded = [];
 
     private AccountLock $accountLock;
 
@@ -58,6 +63,7 @@ final class AccountLockTest extends TestCase
         self::assertTrue($this->accountLock->isLocked($user));
         self::assertEquals(new \DateTimeImmutable('2026-11-27 13:00:00', new \DateTimeZone('UTC')), $user->getLoginLockedUntil());
         self::assertSame(1, $this->flushes);
+        self::assertSame(['account_locked'], $this->recorded);
     }
 
     public function testTheOwnerIsToldOncePerLock(): void
@@ -142,6 +148,7 @@ final class AccountLockTest extends TestCase
         self::assertSame(0, $this->flushes);
         // Counting starts again after each threshold, so 40 wrong passwords reach it twice.
         self::assertSame(['security.login.account_lock_threshold_reached', 'security.login.account_lock_threshold_reached'], $this->logged);
+        self::assertSame(['lock_threshold', 'lock_threshold'], $this->recorded);
     }
 
     public function testWhenNotEnforcedAnEarlierLockIsIgnored(): void
@@ -180,6 +187,13 @@ final class AccountLockTest extends TestCase
             }
         };
 
+        $connection = $this->createStub(Connection::class);
+        $connection->method('insert')->willReturnCallback(function (string $table, array $data): int {
+            $this->recorded[] = (string) $data['kind'];
+
+            return 1;
+        });
+
         return new AccountLock(
             new RateLimiterFactory(['id' => 'login_account_failure', 'policy' => 'sliding_window', 'limit' => 20, 'interval' => '1 hour'], new InMemoryStorage()),
             $entityManager,
@@ -187,6 +201,7 @@ final class AccountLockTest extends TestCase
             $publisher,
             $this->clock,
             $logger,
+            new LoginFailureRecorder($connection, $this->clock, 'test-secret', $logger),
             $enforced,
         );
     }

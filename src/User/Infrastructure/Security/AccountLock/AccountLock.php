@@ -9,6 +9,8 @@ use App\Notification\Application\Publishing\NotificationAction;
 use App\Notification\Application\Publishing\NotificationRequest;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
+use App\User\Domain\Enum\LoginFailureKind;
+use App\User\Infrastructure\Security\LoginFailure\LoginFailureRecorder;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
@@ -25,7 +27,7 @@ use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
  *
  * The lock is enforced only with `app.security.account_lock.enabled`. Off (the default for now), the threshold is still
  * counted and logged as `security.login.account_lock_threshold_reached`, so the frequency of such attacks can be
- * seen before sign-ins are refused.
+ * seen before sign-ins are refused. Both are recorded for the daily counters (#1487).
  */
 final readonly class AccountLock
 {
@@ -45,6 +47,7 @@ final readonly class AccountLock
         private ClockInterface $clock,
         #[Autowire(service: 'monolog.logger.security')]
         private LoggerInterface $logger,
+        private LoginFailureRecorder $recorder,
         #[Autowire(param: 'app.security.account_lock.enabled')]
         private bool $enforced,
     ) {
@@ -73,6 +76,7 @@ final readonly class AccountLock
             // Off (default): count how often the threshold is reached, without locking or telling the owner.
             $this->failureLimiter->create($this->limiterKey($id))->reset();
             $this->logger->warning('security.login.account_lock_threshold_reached', ['user_id' => $id]);
+            $this->recorder->record(LoginFailureKind::LockThresholdReached, $user->getUserIdentifier(), null);
 
             return;
         }
@@ -83,6 +87,7 @@ final readonly class AccountLock
         $this->failureLimiter->create($this->limiterKey($id))->reset();
 
         $this->logger->warning('security.login.account_locked', ['user_id' => $id]);
+        $this->recorder->record(LoginFailureKind::AccountLocked, $user->getUserIdentifier(), null);
 
         $this->notificationPublisher->publish(new NotificationRequest(
             type: 'security.account_locked',
