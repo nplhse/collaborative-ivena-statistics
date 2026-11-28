@@ -7,11 +7,10 @@ namespace App\User\Infrastructure\Security\AccountLock;
 use App\Notification\Application\Contract\NotificationPublisherInterface;
 use App\Notification\Application\Publishing\NotificationAction;
 use App\Notification\Application\Publishing\NotificationRequest;
-use App\Shared\Infrastructure\Audit\AuditContext;
+use App\User\Application\Contract\AccountLockWriterInterface;
+use App\User\Application\Contract\LoginFailureRecorderInterface;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Enum\LoginFailureKind;
-use App\User\Infrastructure\Security\LoginFailure\LoginFailureRecorder;
-use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -35,19 +34,16 @@ final readonly class AccountLock
 
     public const int LOCK_DURATION_HOURS = 3;
 
-    public const string INTENT_LOCKED = 'user.login.account_locked';
-
     /** @psalm-suppress PossiblyUnusedMethod Built by the container. */
     public function __construct(
         #[Autowire(service: 'limiter.login_account_failure')]
         private RateLimiterFactoryInterface $failureLimiter,
-        private EntityManagerInterface $entityManager,
-        private AuditContext $auditContext,
+        private AccountLockWriterInterface $writer,
         private NotificationPublisherInterface $notificationPublisher,
         private ClockInterface $clock,
         #[Autowire(service: 'monolog.logger.security')]
         private LoggerInterface $logger,
-        private LoginFailureRecorder $recorder,
+        private LoginFailureRecorderInterface $recorder,
         #[Autowire(param: 'app.security.account_lock.enabled')]
         private bool $enforced,
     ) {
@@ -83,7 +79,7 @@ final readonly class AccountLock
 
         $now = $this->clock->now();
         $user->lockLoginUntil($now->modify(self::LOCK_DURATION));
-        $this->flush(self::INTENT_LOCKED);
+        $this->writer->saveLock($user);
         $this->failureLimiter->create($this->limiterKey($id))->reset();
 
         $this->logger->warning('security.login.account_locked', ['user_id' => $id]);
@@ -96,6 +92,14 @@ final readonly class AccountLock
             parameters: ['hours' => self::LOCK_DURATION_HOURS],
             action: new NotificationAction('app_forgot_password_request'),
         ));
+    }
+
+    /** An administrator lifts the lock (#1487): forgets earlier wrong passwords and saves the account. */
+    public function unlock(User $user): void
+    {
+        $this->clear($user);
+        $this->writer->saveUnlock($user);
+        $this->logger->info('security.login.account_unlocked', ['user_id' => $user->getId()]);
     }
 
     /**
@@ -115,16 +119,6 @@ final readonly class AccountLock
         }
 
         return $wasLocked;
-    }
-
-    private function flush(string $intent): void
-    {
-        $this->auditContext->beginIntent($intent, []);
-        try {
-            $this->entityManager->flush();
-        } finally {
-            $this->auditContext->endIntent();
-        }
     }
 
     private function limiterKey(int $userId): string

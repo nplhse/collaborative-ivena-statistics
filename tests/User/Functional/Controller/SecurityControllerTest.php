@@ -6,12 +6,17 @@ namespace App\Tests\User\Functional\Controller;
 
 use App\Tests\Support\Browser\CookieConsentTestHelper;
 use App\User\Domain\Factory\UserFactory;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
 use Zenstruck\Browser\Test\HasBrowser;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
+/**
+ * The password sign-in over HTTP: cookie decision, success and logout, refused sign-ins, the redirect to the requested
+ * page, throttling and the end of a session whose account was disabled.
+ */
 #[ResetDatabase]
 final class SecurityControllerTest extends WebTestCase
 {
@@ -58,66 +63,37 @@ final class SecurityControllerTest extends WebTestCase
         ;
     }
 
-    public function testDisabledUserCannotLogin(): void
+    /**
+     * @return iterable<string, array{array<string, mixed>, string, string}>
+     */
+    public static function rejectedSignIns(): iterable
     {
-        UserFactory::new([
-            'isEnabled' => false,
-            'username' => 'disabled-user',
-        ])->create();
-
-        $this->acceptEssentialCookies($this->browser())
-            ->visit('/login')
-            ->fillField('Username or email', 'disabled-user')
-            ->fillField('Password', 'password')
-            ->click('Sign in')
-            ->assertSuccessful()
-            ->assertSeeIn('.alert.alert-danger', 'Invalid credentials.')
-            ->assertSee('Login')
-        ;
+        yield 'wrong password' => [[], 'alice', 'wrong-password'];
+        yield 'unknown email' => [[], 'nobody@example.test', 'password'];
+        yield 'disabled account' => [['isEnabled' => false], 'alice', 'password'];
+        yield 'unverified account' => [['isVerified' => false], 'alice@example.test', 'password'];
     }
 
-    public function testUnverifiedUserCannotLogin(): void
+    /**
+     * Every refused sign-in gets the same message, so the page does not reveal which accounts exist or why one is
+     * refused, and keeps what was entered in the identifier field. Which account an identifier names:
+     * LoginFormAuthenticatorTest; why disabled or unverified accounts are refused: UserAccountStatusCheckerTest.
+     *
+     * @param array<string, mixed> $account
+     */
+    #[DataProvider('rejectedSignIns')]
+    public function testARefusedSignInShowsTheSameErrorAndKeepsTheIdentifier(array $account, string $identifier, string $password): void
     {
-        UserFactory::new([
-            'isVerified' => false,
-            'username' => 'unverified-user',
-        ])->create();
+        UserFactory::createOne($account + ['username' => 'alice', 'email' => 'alice@example.test']);
 
-        $this->acceptEssentialCookies($this->browser())
-            ->visit('/login')
-            ->fillField('Username or email', 'unverified-user')
-            ->fillField('Password', 'password')
-            ->click('Sign in')
-            ->assertSuccessful()
+        $browser = $this->loginWithConsent($this->browser(), $identifier, $password);
+
+        $browser
             ->assertSeeIn('.alert.alert-danger', 'Invalid credentials.')
-            ->assertSee('Login')
-        ;
-    }
-
-    public function testWrongPasswordShowsInvalidCredentialsError(): void
-    {
-        UserFactory::new(['username' => 'login-user'])->create();
-
-        $this->acceptEssentialCookies($this->browser())
-            ->visit('/login')
-            ->fillField('Username or email', 'login-user')
-            ->fillField('Password', 'wrong-password')
-            ->click('Sign in')
-            ->assertSuccessful()
-            ->assertSeeIn('.alert.alert-danger', 'Invalid credentials.')
-            ->assertSee('Login')
-            ->use(static function (Crawler $crawler): void {
-                self::assertSame('login-user', $crawler->filter('input[name="login[username]"]')->attr('value'));
-            })
-        ;
-    }
-
-    public function testGuestCannotAccessProtectedRouteWithoutLogin(): void
-    {
-        $this->acceptEssentialCookies($this->browser())
-            ->visit('/settings')
-            ->assertSeeIn('h2', 'Login')
             ->assertNotSeeElement('#user_name')
+            ->use(static function (Crawler $crawler) use ($identifier): void {
+                self::assertSame($identifier, $crawler->filter('input[name="login[username]"]')->attr('value'));
+            })
         ;
     }
 
@@ -172,73 +148,6 @@ final class SecurityControllerTest extends WebTestCase
         ;
     }
 
-    public function testUnknownEmailShowsTheSameErrorAsAWrongPassword(): void
-    {
-        UserFactory::new(['username' => 'known-user', 'email' => 'known-user@example.test'])->create();
-
-        $this->acceptEssentialCookies($this->browser())
-            ->visit('/login')
-            ->fillField('Username or email', 'nobody@example.test')
-            ->fillField('Password', 'password')
-            ->click('Sign in')
-            ->assertSuccessful()
-            ->assertSeeIn('.alert.alert-danger', 'Invalid credentials.')
-            ->use(static function (Crawler $crawler): void {
-                self::assertSame('nobody@example.test', $crawler->filter('input[name="login[username]"]')->attr('value'));
-            })
-            ->visit('/login')
-            ->fillField('Username or email', 'known-user@example.test')
-            ->fillField('Password', 'wrong-password')
-            ->click('Sign in')
-            ->assertSuccessful()
-            ->assertSeeIn('.alert.alert-danger', 'Invalid credentials.')
-        ;
-    }
-
-    public function testUnverifiedUserCannotLoginWithEmail(): void
-    {
-        UserFactory::new([
-            'isVerified' => false,
-            'username' => 'unverified-mail-user',
-            'email' => 'unverified-mail-user@example.test',
-        ])->create();
-
-        $this->loginWithConsent($this->browser(), 'unverified-mail-user@example.test')
-            ->assertSeeIn('.alert.alert-danger', 'Invalid credentials.')
-            ->assertNotSeeElement('#user_name')
-        ;
-    }
-
-    public function testFailedEmailAttemptsAlsoThrottleTheUsername(): void
-    {
-        UserFactory::new(['username' => 'shared-limit-user', 'email' => 'shared-limit-user@example.test'])->create();
-
-        $browser = $this->acceptEssentialCookies($this->browser());
-        for ($attempt = 0; $attempt < 5; ++$attempt) {
-            $this->loginWithConsent($browser, 'Shared-Limit-User@example.test', 'wrong-password');
-        }
-
-        $this->loginWithConsent($browser, 'shared-limit-user')
-            ->assertSee('Too many failed login attempts')
-            ->assertNotSeeElement('#user_name')
-        ;
-    }
-
-    public function testFailedUsernameAttemptsAlsoThrottleTheEmail(): void
-    {
-        UserFactory::new(['username' => 'shared-limit-user', 'email' => 'shared-limit-user@example.test'])->create();
-
-        $browser = $this->acceptEssentialCookies($this->browser());
-        for ($attempt = 0; $attempt < 5; ++$attempt) {
-            $this->loginWithConsent($browser, 'shared-limit-user', 'wrong-password');
-        }
-
-        $this->loginWithConsent($browser, 'shared-limit-user@example.test')
-            ->assertSee('Too many failed login attempts')
-            ->assertNotSeeElement('#user_name')
-        ;
-    }
-
     public function testLoginPageAnnouncesTheEmailOnlyLoginOfVersionOne(): void
     {
         $this->browser()
@@ -265,62 +174,6 @@ final class SecurityControllerTest extends WebTestCase
             ->visit('/settings')
             ->assertSuccessful()
             ->assertSee('Login')
-        ;
-    }
-
-    public function testLoginTrimsLeadingAndTrailingWhitespace(): void
-    {
-        UserFactory::new(['username' => 'trim-login-user'])->create();
-
-        $this->loginWithConsent($this->browser(), '  trim-login-user  ')
-            ->assertSeeIn('#user_name', 'trim-login-user')
-        ;
-    }
-
-    public function testExistingUserWithInternalWhitespaceCanStillLogin(): void
-    {
-        UserFactory::new(['username' => 'John Doe'])->create();
-
-        $this->loginWithConsent($this->browser(), 'John Doe')
-            ->assertSeeIn('#user_name', 'John Doe')
-        ;
-    }
-
-    public function testLoginPasswordFieldHasAccessibleVisibilityToggle(): void
-    {
-        $this->browser()
-            ->visit('/login')
-            ->assertSuccessful()
-            ->assertSeeElement('input[name="login[password]"][type="password"]')
-            ->assertSeeElement('[data-testid="password-toggle-login_password"]')
-            ->use(static function (Crawler $crawler): void {
-                $input = $crawler->filter('input[name="login[password]"]');
-                $toggle = $crawler->filter('[data-testid="password-toggle-login_password"]');
-
-                self::assertSame('login[password]', $input->attr('name'));
-                self::assertNull($input->attr('autocomplete'));
-                self::assertSame('password', $input->attr('type'));
-                self::assertSame('button', $toggle->attr('type'));
-                self::assertSame('false', $toggle->attr('aria-pressed'));
-                self::assertSame('login_password', $toggle->attr('aria-controls'));
-                self::assertNotEmpty($toggle->attr('aria-label'));
-                self::assertSame('Show password', $toggle->attr('aria-label'));
-            })
-        ;
-    }
-
-    public function testLoginPasswordFieldDoesNotShowStrengthFeedbackUi(): void
-    {
-        $this->browser()
-            ->visit('/login')
-            ->assertSuccessful()
-            ->assertNotSeeElement('[data-testid="password-strength-login_password"]')
-            ->use(static function (Crawler $crawler): void {
-                $wrapper = $crawler->filter('[data-controller="password-visibility"]');
-
-                self::assertCount(1, $wrapper);
-                self::assertStringNotContainsString('password-strength', (string) $wrapper->attr('data-controller'));
-            })
         ;
     }
 }

@@ -59,6 +59,31 @@ class LoginFailureDaily
     }
 
     /** @psalm-suppress PossiblyUnusedMethod */
+    /**
+     * Finished days to write: from the day after the last daily row (or the day of the first failure) up to yesterday,
+     * but none older than single failures are kept. Yesterday is always included, so a second run on the same day
+     * gives the same row.
+     *
+     * @param \DateTimeImmutable $today start of today
+     *
+     * @return list<\DateTimeImmutable>
+     */
+    public static function daysToFold(?\DateTimeImmutable $lastAggregated, ?\DateTimeImmutable $firstEventDay, \DateTimeImmutable $today): array
+    {
+        $oneDay = new \DateInterval('P1D');
+        $yesterday = $today->sub($oneDay);
+        $oldestKept = $today->sub(new \DateInterval(\sprintf('P%dD', self::EVENT_RETENTION_DAYS)));
+        $first = $lastAggregated?->add($oneDay) ?? $firstEventDay ?? $yesterday;
+        $first = min(max($first, $oldestKept), $yesterday);
+
+        $days = [];
+        for ($day = $first; $day < $today; $day = $day->add($oneDay)) {
+            $days[] = $day;
+        }
+
+        return $days;
+    }
+
     public function getId(): ?int
     {
         return $this->id;

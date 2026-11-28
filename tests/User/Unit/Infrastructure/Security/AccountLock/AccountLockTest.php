@@ -6,12 +6,10 @@ namespace App\Tests\User\Unit\Infrastructure\Security\AccountLock;
 
 use App\Notification\Application\Contract\NotificationPublisherInterface;
 use App\Notification\Application\Publishing\NotificationRequest;
-use App\Shared\Infrastructure\Audit\AuditContext;
+use App\Tests\User\Doubles\InMemoryAccountLockWriter;
+use App\Tests\User\Doubles\InMemoryLoginFailureRecorder;
 use App\User\Domain\Entity\User;
 use App\User\Infrastructure\Security\AccountLock\AccountLock;
-use App\User\Infrastructure\Security\LoginFailure\LoginFailureRecorder;
-use Doctrine\DBAL\Connection;
-use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;
@@ -24,131 +22,173 @@ final class AccountLockTest extends TestCase
 {
     private MockClock $clock;
 
+    private InMemoryAccountLockWriter $writer;
+
+    private InMemoryLoginFailureRecorder $recorder;
+
     /** @var list<NotificationRequest> */
     private array $published = [];
-
-    private int $flushes = 0;
 
     /** @var list<string> */
     private array $logged = [];
 
-    /** @var list<string> kinds written to login_failure_event */
-    private array $recorded = [];
-
-    private AccountLock $accountLock;
-
     protected function setUp(): void
     {
         $this->clock = new MockClock('2026-11-27 10:00:00', 'UTC');
-        $this->accountLock = $this->accountLock(enforced: true);
+        $this->writer = new InMemoryAccountLockWriter();
+        $this->recorder = new InMemoryLoginFailureRecorder();
     }
 
     public function testNineteenWrongPasswordsDoNotLockTheAccount(): void
     {
+        $accountLock = $this->accountLock();
         $user = $this->user(7);
 
-        $this->failPasswords($user, 19);
+        $this->failPasswords($accountLock, $user, 19);
 
-        self::assertFalse($this->accountLock->isLocked($user));
         self::assertNull($user->getLoginLockedUntil());
-        self::assertSame([], $this->published);
     }
 
     public function testTheTwentiethWrongPasswordLocksForThreeHours(): void
     {
+        $accountLock = $this->accountLock();
         $user = $this->user(7);
+        $this->failPasswords($accountLock, $user, 19);
 
-        $this->failPasswords($user, 20);
+        $accountLock->recordFailedPassword($user);
 
-        self::assertTrue($this->accountLock->isLocked($user));
-        self::assertEquals(new \DateTimeImmutable('2026-11-27 13:00:00', new \DateTimeZone('UTC')), $user->getLoginLockedUntil());
-        self::assertSame(1, $this->flushes);
-        self::assertSame(['account_locked'], $this->recorded);
+        self::assertEquals([7 => new \DateTimeImmutable('2026-11-27 13:00:00', new \DateTimeZone('UTC'))], $this->writer->savedLocks);
+        self::assertSame(['account_locked'], $this->recorder->kinds());
     }
 
-    public function testTheOwnerIsToldOncePerLock(): void
+    public function testTheOwnerIsToldOnceWithTheLockDuration(): void
     {
+        $accountLock = $this->accountLock();
         $user = $this->user(7);
 
-        // Wrong passwords while the account is locked neither extend the lock nor send another notice.
-        $this->failPasswords($user, 40);
+        $this->failPasswords($accountLock, $user, 20);
 
         self::assertCount(1, $this->published);
         self::assertSame('security.account_locked', $this->published[0]->type);
         self::assertSame([7], $this->published[0]->recipientUserIds);
         self::assertSame(['hours' => 3], $this->published[0]->parameters);
-        self::assertEquals(new \DateTimeImmutable('2026-11-27 13:00:00', new \DateTimeZone('UTC')), $user->getLoginLockedUntil());
     }
 
-    public function testTheLockEndsAfterThreeHoursAndCountingStartsAgain(): void
+    public function testWrongPasswordsDuringALockNeitherExtendItNorTellTheOwnerAgain(): void
     {
+        $accountLock = $this->accountLock();
         $user = $this->user(7);
-        $this->failPasswords($user, 20);
+        $this->failPasswords($accountLock, $user, 20);
 
-        $this->clock->modify('2026-11-27 12:59:59 UTC');
-        self::assertTrue($this->accountLock->isLocked($user));
+        $this->failPasswords($accountLock, $user, 20);
+
+        self::assertSame(1, $this->writer->saves);
+        self::assertCount(1, $this->published);
+    }
+
+    public function testTheLockEndsAfterThreeHours(): void
+    {
+        $accountLock = $this->accountLock();
+        $user = $this->user(7);
+        $this->failPasswords($accountLock, $user, 20);
 
         $this->clock->modify('2026-11-27 13:00:00 UTC');
-        self::assertFalse($this->accountLock->isLocked($user));
 
-        // Earlier failures were forgotten when the account was locked: one more does not lock it again.
-        $this->failPasswords($user, 1);
-        self::assertFalse($this->accountLock->isLocked($user));
-        self::assertCount(1, $this->published);
+        self::assertFalse($accountLock->isLocked($user));
+    }
+
+    public function testTheLockHoldsUntilItsLastSecond(): void
+    {
+        $accountLock = $this->accountLock();
+        $user = $this->user(7);
+        $this->failPasswords($accountLock, $user, 20);
+
+        $this->clock->modify('2026-11-27 12:59:59 UTC');
+
+        self::assertTrue($accountLock->isLocked($user));
+    }
+
+    public function testCountingStartsAgainAfterALock(): void
+    {
+        $accountLock = $this->accountLock();
+        $user = $this->user(7);
+        $this->failPasswords($accountLock, $user, 20);
+        $this->clock->modify('2026-11-27 13:00:00 UTC');
+
+        $this->failPasswords($accountLock, $user, 19);
+
+        self::assertSame(1, $this->writer->saves);
     }
 
     public function testFailuresArePerAccount(): void
     {
-        $first = $this->user(7);
-        $second = $this->user(8);
+        $accountLock = $this->accountLock();
+        $this->failPasswords($accountLock, $this->user(7), 15);
 
-        $this->failPasswords($first, 15);
-        $this->failPasswords($second, 15);
+        $this->failPasswords($accountLock, $this->user(8), 15);
 
-        self::assertFalse($this->accountLock->isLocked($first));
-        self::assertFalse($this->accountLock->isLocked($second));
+        self::assertSame(0, $this->writer->saves);
     }
 
-    public function testClearLiftsTheLockAndForgetsEarlierFailures(): void
+    public function testClearLiftsTheLock(): void
     {
+        $accountLock = $this->accountLock();
         $user = $this->user(7);
-        $this->failPasswords($user, 20);
+        $this->failPasswords($accountLock, $user, 20);
 
-        self::assertTrue($this->accountLock->clear($user));
-        self::assertFalse($this->accountLock->isLocked($user));
+        $wasLocked = $accountLock->clear($user);
+
+        self::assertTrue($wasLocked);
         self::assertNull($user->getLoginLockedUntil());
-
-        $this->failPasswords($user, 19);
-        self::assertFalse($this->accountLock->isLocked($user));
     }
 
-    public function testClearOfAnUnlockedAccountForgetsEarlierFailures(): void
+    public function testClearForgetsEarlierFailures(): void
     {
+        $accountLock = $this->accountLock();
         $user = $this->user(7);
-        $this->failPasswords($user, 19);
+        $this->failPasswords($accountLock, $user, 19);
+        $accountLock->clear($user);
 
-        self::assertFalse($this->accountLock->clear($user));
+        $this->failPasswords($accountLock, $user, 19);
 
-        $this->failPasswords($user, 19);
-        self::assertFalse($this->accountLock->isLocked($user));
+        self::assertSame(0, $this->writer->saves);
     }
 
-    public function testWhenNotEnforcedTheThresholdIsOnlyLogged(): void
+    public function testClearOfAnUnlockedAccountSaysItWasNotLocked(): void
+    {
+        $accountLock = $this->accountLock();
+        $user = $this->user(7);
+
+        $wasLocked = $accountLock->clear($user);
+
+        self::assertFalse($wasLocked);
+    }
+
+    public function testAnAdministratorUnlockLiftsTheLockAndSavesIt(): void
+    {
+        $accountLock = $this->accountLock();
+        $user = $this->user(7);
+        $this->failPasswords($accountLock, $user, 20);
+
+        $accountLock->unlock($user);
+
+        self::assertSame(1, $this->writer->unlocks);
+        self::assertSame([7 => null], $this->writer->savedLocks);
+    }
+
+    public function testWhenNotEnforcedReachingTheThresholdIsOnlyLoggedAndRecorded(): void
     {
         $accountLock = $this->accountLock(enforced: false);
         $user = $this->user(7);
 
-        for ($i = 0; $i < 40; ++$i) {
-            $accountLock->recordFailedPassword($user);
-        }
-
-        self::assertFalse($accountLock->isLocked($user));
-        self::assertNull($user->getLoginLockedUntil());
-        self::assertSame([], $this->published);
-        self::assertSame(0, $this->flushes);
         // Counting starts again after each threshold, so 40 wrong passwords reach it twice.
+        $this->failPasswords($accountLock, $user, 40);
+
+        self::assertNull($user->getLoginLockedUntil());
+        self::assertSame(0, $this->writer->saves);
+        self::assertSame([], $this->published);
         self::assertSame(['security.login.account_lock_threshold_reached', 'security.login.account_lock_threshold_reached'], $this->logged);
-        self::assertSame(['lock_threshold', 'lock_threshold'], $this->recorded);
+        self::assertSame(['lock_threshold', 'lock_threshold'], $this->recorder->kinds());
     }
 
     public function testWhenNotEnforcedAnEarlierLockIsIgnored(): void
@@ -156,20 +196,16 @@ final class AccountLockTest extends TestCase
         $user = $this->user(7);
         $user->lockLoginUntil(new \DateTimeImmutable('2026-11-27 12:00:00', new \DateTimeZone('UTC')));
 
-        self::assertTrue($this->accountLock->isLocked($user));
-        self::assertFalse($this->accountLock(enforced: false)->isLocked($user));
+        $isLocked = $this->accountLock(enforced: false)->isLocked($user);
+
+        self::assertFalse($isLocked);
     }
 
-    private function accountLock(bool $enforced): AccountLock
+    private function accountLock(bool $enforced = true): AccountLock
     {
         $publisher = $this->createStub(NotificationPublisherInterface::class);
         $publisher->method('publish')->willReturnCallback(function (NotificationRequest $request): void {
             $this->published[] = $request;
-        });
-
-        $entityManager = $this->createStub(EntityManagerInterface::class);
-        $entityManager->method('flush')->willReturnCallback(function (): void {
-            ++$this->flushes;
         });
 
         $logger = new class(function (string $message): void {
@@ -187,29 +223,21 @@ final class AccountLockTest extends TestCase
             }
         };
 
-        $connection = $this->createStub(Connection::class);
-        $connection->method('insert')->willReturnCallback(function (string $table, array $data): int {
-            $this->recorded[] = (string) $data['kind'];
-
-            return 1;
-        });
-
         return new AccountLock(
             new RateLimiterFactory(['id' => 'login_account_failure', 'policy' => 'sliding_window', 'limit' => 20, 'interval' => '1 hour'], new InMemoryStorage()),
-            $entityManager,
-            new AuditContext(),
+            $this->writer,
             $publisher,
             $this->clock,
             $logger,
-            new LoginFailureRecorder($connection, $this->clock, 'test-secret', $logger),
+            $this->recorder,
             $enforced,
         );
     }
 
-    private function failPasswords(User $user, int $times): void
+    private function failPasswords(AccountLock $accountLock, User $user, int $times): void
     {
         for ($i = 0; $i < $times; ++$i) {
-            $this->accountLock->recordFailedPassword($user);
+            $accountLock->recordFailedPassword($user);
         }
     }
 

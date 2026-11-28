@@ -52,6 +52,8 @@ use App\Feedback\Infrastructure\Repository\FeedbackRepository;
 use App\Kpi\Application\DTO\KpiChangeDto;
 use App\Kpi\Application\Service\KpiDashboardService;
 use App\Storage\Application\View\StorageReportService;
+use App\User\Application\LoginFailure\LoginFailureTrend;
+use App\User\Infrastructure\Query\LoginFailureOverviewQuery;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Asset;
@@ -60,6 +62,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -85,6 +88,8 @@ final class DashboardController extends AbstractDashboardController
         private readonly MessengerMonitoringService $messengerMonitoringService,
         private readonly AccessTrendService $accessTrendService,
         private readonly RequestStack $requestStack,
+        private readonly LoginFailureOverviewQuery $loginFailureOverview,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -110,6 +115,8 @@ final class DashboardController extends AbstractDashboardController
             'ops_messenger' => $this->operationalDashboardService->getMessengerStatus($health),
             'ops_storage' => $this->operationalDashboardService->getStorageSummary(),
             'ops_storage_url' => $this->adminUrlGenerator->setRoute('app_admin_dashboard_operations_storage')->generateUrl(),
+            'ops_sign_in' => $this->signInTrend(),
+            'ops_sign_in_url' => $this->adminUrlGenerator->setRoute('app_admin_dashboard_operations_sign_in_security_index')->generateUrl(),
             'ops_health' => $health,
             'recent_notifications' => $this->operationalDashboardService->getRecentNotificationEvents(),
         ]);
@@ -257,6 +264,18 @@ final class DashboardController extends AbstractDashboardController
         }
     }
 
+    private function signInTrend(): LoginFailureTrend
+    {
+        $now = $this->clock->now();
+        $today = $now->setTime(0, 0);
+
+        return LoginFailureTrend::build(
+            $this->loginFailureOverview->dailySince($today->modify(\sprintf('-%d days', LoginFailureTrend::DAYS))),
+            \count($this->loginFailureOverview->lockedAccounts($now)),
+            $today,
+        );
+    }
+
     private function redirectToFailedMessagesIndex(): RedirectResponse
     {
         return $this->redirect(
@@ -384,6 +403,7 @@ final class DashboardController extends AbstractDashboardController
             MenuItem::linkToRoute(new TranslatableMessage('menu.system.failed_messages', domain: 'admin'), 'fas fa-circle-exclamation', 'app_admin_dashboard_operations_failed_messages'),
             MenuItem::linkTo(JobRunCrudController::class, new TranslatableMessage('admin.job_run.menu', domain: 'admin'), 'fas fa-stopwatch'),
             MenuItem::linkToRoute(new TranslatableMessage('storage.menu.disk_usage', domain: 'storage'), 'fas fa-hard-drive', 'app_admin_dashboard_operations_storage'),
+            MenuItem::linkToRoute(new TranslatableMessage('sign_in_security.menu', domain: 'admin'), 'fas fa-user-lock', 'app_admin_dashboard_operations_sign_in_security_index'),
         ]);
         // The audit timeline is the only log page, so it stays a direct entry instead of a submenu of one.
         yield MenuItem::linkToRoute(new TranslatableMessage('audit.timeline.title', domain: 'admin'), 'fas fa-clipboard-list', 'app_admin_dashboard_audit_timeline');

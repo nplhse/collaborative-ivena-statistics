@@ -4,18 +4,23 @@ declare(strict_types=1);
 
 namespace App\User\Infrastructure\Security\LoginFailure;
 
+use App\Notification\Application\Contract\NotificationPublisherInterface;
+use App\Notification\Application\Publishing\NotificationAction;
+use App\Notification\Application\Publishing\NotificationRequest;
+use App\User\Application\Contract\AdminNotificationRecipientResolverInterface;
 use App\User\Domain\Entity\LoginFailureDaily;
+use App\User\Infrastructure\Notification\LoginFailurePatternNotification;
 use App\User\Infrastructure\Query\LoginFailureDayQuery;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
 
 /**
  * Daily job `login_failure_aggregation` (#1487): folds the single failures of finished days into LoginFailureDaily,
- * then deletes single failures and daily rows past their retention.
+ * tells the administrators about flagged days (at most once per day) and deletes single failures and daily rows past
+ * their retention.
  *
- * Every finished day from the day after the last daily row (or the day of the first failure) up to yesterday is
- * written again, also with zeros, but never one older than the single failures are kept. Days are calendar days of
- * the app time zone (Europe/Berlin).
+ * Which days are written is decided by LoginFailureDaily::daysToFold(). Days are calendar days of the app time zone
+ * (Europe/Berlin).
  */
 final readonly class LoginFailureAggregation
 {
@@ -24,6 +29,8 @@ final readonly class LoginFailureAggregation
         private LoginFailureDayQuery $query,
         private EntityManagerInterface $entityManager,
         private ClockInterface $clock,
+        private AdminNotificationRecipientResolverInterface $recipients,
+        private NotificationPublisherInterface $publisher,
     ) {
     }
 
@@ -33,23 +40,17 @@ final readonly class LoginFailureAggregation
     public function run(): array
     {
         $today = $this->startOfToday();
-        $yesterday = $today->modify('-1 day');
         $oldestKept = $today->modify(\sprintf('-%d days', LoginFailureDaily::EVENT_RETENTION_DAYS));
 
-        $lastAggregated = $this->query->findLastAggregatedDay();
-        $first = $lastAggregated instanceof \DateTimeImmutable
-            ? $lastAggregated->modify('+1 day')
-            : ($this->query->findFirstEventDay() ?? $yesterday);
-        $first = max($first, $oldestKept);
-        // Yesterday is always written again, so a second run on the same day gives the same row.
-        $first = min($first, $yesterday);
-
         $metrics = ['days_processed' => 0, 'failures' => 0, 'flagged_days' => 0];
-        for ($day = $first; $day < $today; $day = $day->modify('+1 day')) {
+        foreach (LoginFailureDaily::daysToFold($this->query->findLastAggregatedDay(), $this->query->findFirstEventDay(), $today) as $day) {
             $daily = $this->aggregate($day);
             ++$metrics['days_processed'];
             $metrics['failures'] += $daily->getFailures();
-            $metrics['flagged_days'] += $daily->isFlagged() ? 1 : 0;
+            if ($daily->isFlagged()) {
+                ++$metrics['flagged_days'];
+                $this->announce($daily);
+            }
         }
 
         return $metrics + [
@@ -83,6 +84,28 @@ final readonly class LoginFailureAggregation
 
             return $daily;
         });
+    }
+
+    private function announce(LoginFailureDaily $daily): void
+    {
+        $recipientIds = $this->recipients->recipientIds();
+        if ([] === $recipientIds) {
+            return;
+        }
+
+        $date = $daily->getDate();
+        $this->publisher->publish(new NotificationRequest(
+            type: LoginFailurePatternNotification::TYPE,
+            recipientUserIds: $recipientIds,
+            deduplicationKey: \sprintf('%s:%s', LoginFailurePatternNotification::TYPE, $date->format('Y-m-d')),
+            parameters: [
+                'date' => $date->getTimestamp(),
+                'failures' => $daily->getFailures() + $daily->getRefused(),
+                'maxIps' => $daily->getMaxIpsPerIdentifier(),
+                'maxIdentifiers' => $daily->getMaxIdentifiersPerIp(),
+            ],
+            action: new NotificationAction('app_admin_dashboard_operations_sign_in_security_index'),
+        ));
     }
 
     private function startOfToday(): \DateTimeImmutable
