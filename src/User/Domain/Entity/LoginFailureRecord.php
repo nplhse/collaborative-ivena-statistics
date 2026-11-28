@@ -37,34 +37,4 @@ class LoginFailureRecord
         private ?string $ipHash,
     ) {
     }
-
-    /** @psalm-suppress PossiblyUnusedMethod */
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    /** @psalm-suppress PossiblyUnusedMethod */
-    public function getOccurredAt(): \DateTimeImmutable
-    {
-        return $this->occurredAt;
-    }
-
-    /** @psalm-suppress PossiblyUnusedMethod */
-    public function getKind(): LoginFailureKind
-    {
-        return $this->kind;
-    }
-
-    /** @psalm-suppress PossiblyUnusedMethod */
-    public function getIdentifierHash(): ?string
-    {
-        return $this->identifierHash;
-    }
-
-    /** @psalm-suppress PossiblyUnusedMethod */
-    public function getIpHash(): ?string
-    {
-        return $this->ipHash;
-    }
 }

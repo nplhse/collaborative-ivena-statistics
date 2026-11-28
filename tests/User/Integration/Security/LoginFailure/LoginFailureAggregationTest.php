@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Tests\User\Integration\Security\LoginFailure;
 
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
+use App\User\Application\Message\AggregateLoginFailuresMessage;
 use App\User\Domain\Entity\LoginFailureDaily;
 use App\User\Domain\Enum\LoginFailureKind;
+use App\User\Infrastructure\Query\LoginFailureDayQuery;
+use App\User\Infrastructure\Security\LoginFailure\AggregateLoginFailuresMessageHandler;
 use App\User\Infrastructure\Security\LoginFailure\LoginFailureAggregation;
 use App\User\Infrastructure\Security\LoginFailure\LoginFailureRecorder;
 use Doctrine\DBAL\Connection;
@@ -16,6 +19,9 @@ use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 
 #[CoversClass(LoginFailureAggregation::class)]
 #[CoversClass(LoginFailureRecorder::class)]
+#[CoversClass(LoginFailureDayQuery::class)]
+#[CoversClass(LoginFailureDaily::class)]
+#[CoversClass(AggregateLoginFailuresMessageHandler::class)]
 final class LoginFailureAggregationTest extends DatabaseKernelTestCase
 {
     use ClockSensitiveTrait;
@@ -113,6 +119,16 @@ final class LoginFailureAggregationTest extends DatabaseKernelTestCase
         self::assertSame(1, $metrics['daily_rows_deleted']);
         self::assertSame(['2025-11-28', '2026-11-26', '2026-11-27'], array_keys($this->dailyRows()));
         self::assertSame(1, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM login_failure_event'));
+    }
+
+    public function testTheSchedulerMessageRunsTheAggregation(): void
+    {
+        $this->record('2026-11-27 12:00:00', LoginFailureKind::Failure, 'bob', '192.0.2.1');
+        self::mockTime(new \DateTimeImmutable(self::NOW, new \DateTimeZone('Europe/Berlin')));
+
+        self::getContainer()->get(AggregateLoginFailuresMessageHandler::class)(new AggregateLoginFailuresMessage());
+
+        self::assertSame(['2026-11-27'], array_keys($this->dailyRows()));
     }
 
     public function testUsernameAndIpAreStoredOnlyAsHashes(): void
