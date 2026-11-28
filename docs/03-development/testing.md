@@ -8,6 +8,58 @@
 - **Command tests** for requeue and exit-code behavior
 - **JavaScript tests** with Node's built-in runner: `npm run test:js`, also part of `make lint-js`. They cover the encounter data preparation tool (`tests/Encounter/DataPrep/*.test.js`, see [data-preparation-tool.md](../04-features/tools/data-preparation-tool.md#tests)), admin scripts (`tests/Admin/JS/*.test.js`) and the sidebar search filter (`tests/Shared/JavaScript/*.test.js`). A new directory has to be added to the `test:js`, `lint` and `format` scripts in `package.json`.
 
+## Test levels and conventions
+
+The suite is a pyramid: many simple unit tests, focused integration tests that prove components work together, and few functional tests that go through the web interface from end to end. Functional tests are the slowest and most expensive to keep, so a behaviour that can be checked lower down is checked there (#1348).
+
+### Which level for what
+
+Pick the lowest level that can test the behaviour, in this order:
+
+1. **Unit test** with real value objects and entities, and stubs or fakes for collaborators.
+2. **Unit test with an in-memory fake** for persistence, where application logic sits around simple persistence (see [Fakes and the database](#fakes-and-the-database)).
+3. **Integration test with the database**, only for what needs it: queries and their SQL semantics, materialized views and the projection, migrations, transactions and locking, Doctrine mapping. Mocks and spies for the parts that are not under test are fine.
+4. **Functional test** (HTTP or console) for the entry points and main flows: page wiring, access rules, redirects and the assumptions between layers. Functional tests do not re-check every calculated value, label or translation; that belongs to the levels below.
+
+| What | Level |
+|---|---|
+| Calculations, mappers, presenters, policies, validators | Unit, with the data passed in instead of a repository |
+| Application services with logic around simple find/save/delete | Unit with an in-memory fake and a contract test |
+| Query classes, repository read methods, MVs, projection, non-trivial SQL | Integration against PostgreSQL with a small, hand-checkable fixture |
+| Controllers, commands, access rules, main flows | Functional, one test per behaviour, not per value |
+
+Each behaviour is tested on one level. When a calculation is covered at query or service level, the HTTP test only checks that the page shows it. Tests under `tests/*/Unit/` boot no kernel and touch no database; a test that needs either belongs under `Integration/`.
+
+### Structure
+
+- **One behaviour per test**, readable without knowing the whole fixture set. Few helpers, no logic (loops, conditions) in the test itself; repeat cases go into a `#[DataProvider]`.
+- **Arrange, Act, Assert**: three blocks separated by blank lines, one act per test. Comments only where the blocks are not obvious.
+- **Expected values can be followed by hand**: small fixtures with explicit numbers, not snapshots of the current output (see [AGENTS.md](../../AGENTS.md#changes-to-statistics) for statistics).
+- **Standards first**: PHPUnit and Symfony test tooling as documented (`TestCase`, `KernelTestCase`, `WebTestCase`, PHPUnit attributes), `zenstruck/foundry` factories for entities and `zenstruck/browser` for HTTP flows where it makes the test clearer. No project-specific test frameworks beyond thin base classes such as `DatabaseKernelTestCase`.
+- **The regular test kernel.** A test that needs another kernel (another environment, bundles left out) makes CI compile an extra container. Avoid it; where it is needed, register the kernel in `bin/warmup-test-kernels` (see [CI reference](#ci-reference)).
+- **No dependence on the debug kernel.** The database job runs with `APP_DEBUG=0`, so a test must pass without debug: `debug:config` and other container debug commands compile the container again, and the profiler's `db` collector works only because `when@test` enables Doctrine profiling.
+
+### Time budget
+
+Guide values per test method, measured locally as described below:
+
+| Level | Budget |
+|---|---|
+| Unit | well under 100 ms |
+| Integration | under 1 s |
+| Functional | under 2 s |
+
+A test above its budget gets a look before it is merged. A slow test can point at slow application code: profile it before deciding whether the test or the code has to change.
+
+### How to measure
+
+CI runners vary by ±20–25 % in every job, and a single test by up to a factor of four, so single CI runs say little.
+
+- **Per change:** run the touched test classes locally, serially, before and after, with `XDEBUG_MODE=off APP_DEBUG=0` (after `APP_DEBUG=0 bin/console cache:clear --env=test`).
+- **For the suite:** use the CI time only as the median over at least five runs on `develop`, together with the test count of the day.
+- Find slow tests with `php bin/report-slowest-tests 25` after a run, or from the JUnit file of a CI run. Profile a single test with `XDEBUG_MODE=profile`.
+- Xdebug in `develop` mode skews timings and, without debug, breaks EasyAdmin association forms.
+
 ## Run locally
 
 ```bash
@@ -59,9 +111,20 @@ Heuristics:
 
 - Asserting on a return value or domain state → stubs for queries; real value objects / entities (do not mock them).
 - Asserting that mail / messages / writes happened → spy before a strict mock.
-- Database or HTTP → Integration / Functional with Foundry, not Unit doubles of persistence.
+- Persistence → a fake behind an interface we own, or an integration test with Foundry; see below.
 
 Do not introduce Mockery or Prophecy for application tests.
+
+### Fakes and the database
+
+ADR [009](../02-architecture/decisions/009-ports-repositories-query-objects-and-naming.md#amendment-november-2026-1348-testing-persistence) sets the rules:
+
+- **Repositories and query classes are tested against PostgreSQL.** Mocking them leaves the SQL untested, and an in-memory database is no substitute (materialized views, PostgreSQL-specific SQL).
+- **Never mock what we do not own**: no doubles of `EntityManagerInterface`, `Connection` or other Doctrine types.
+- **A fake pays off for simple access** (find, save, delete) used by application logic. It sits behind a narrow interface in the owning context's `Application/Contract/`, lives under `tests/<Context>/Doubles/`, and a **contract test** proves that the fake and the Doctrine implementation behave the same: one abstract test class with the expectations, one subclass for the fake (unit) and one for the real implementation (integration).
+- Complex queries are not faked; they would have to be implemented twice. The code that uses them gets the query result as data, or stays an integration test.
+
+Reference: the import ports in `src/Import/Application/Contracts/` (`RowReaderInterface`, `RejectWriterInterface`) with the fakes in `tests/Import/Doubles/` and `AllocationImporterTest`. These fakes predate the contract-test rule and do not have one yet.
 
 PR checklist: see [CONTRIBUTING.md](../../CONTRIBUTING.md) — stub by default, spy for side effects.
 
@@ -169,7 +232,7 @@ After an EasyAdmin upgrade, run `composer install` so `vendor/` matches `compose
 
 ## Common pitfalls
 
-- Tests using `#[ResetDatabase]` or `DatabaseKernelTestCase` belong under `tests/*/Integration/` (or higher layers), not `tests/*/Unit/`: the CI unit job runs ParaTest without PostgreSQL.
+- Tests using `#[ResetDatabase]` or `DatabaseKernelTestCase` belong under `tests/*/Integration/` (or higher layers), not `tests/*/Unit/`: the CI unit job runs ParaTest without PostgreSQL. The same goes for tests that boot the kernel (`KernelTestCase`).
 - Missing test database or wrong `DATABASE_URL`
 - `terminating connection due to administrator command` in a filtered run: the first `#[ResetDatabase]` reset terminates DAMA's kept connections; `MaterializedViewAwareOrmResetter` drops them afterwards ([details](../04-features/statistics/projection-and-materialized-views.md#test-only-reset-decorator), #887). If it shows up again after a DAMA upgrade, check `DamaStaticConnections`.
 - Materialized views not refreshed in statistics-related tests

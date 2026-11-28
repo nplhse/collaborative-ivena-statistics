@@ -45,6 +45,20 @@ For **new** code:
 
 Bulk renames of existing `Dto` / `Contracts` trees are not required before beta; rename opportunistically when a file or folder is already being touched.
 
+## Amendment (November 2026, #1348): testing persistence
+
+"Clear value" for an interface now includes tests: an interface is also justified where it lets an in-memory fake replace database tests of application logic. Repository interfaces are still not introduced by default.
+
+- **Repositories and query classes** are tested against PostgreSQL with small fixtures. They are not mocked and not replaced by an in-memory database: mocks leave the SQL untested, and the statistics depend on materialized views and PostgreSQL-specific SQL.
+- **Calculations, mappers, presenters and policies** receive data instead of repositories and are unit-tested without doubles of persistence.
+- **Application services with real logic around simple persistence** (find, save, delete; for example the import flow, feedback, approvals, notifications) may depend on a narrow interface in the owning context's `Application/Contract/`. Tests use a hand-written fake under `tests/<Context>/Doubles/`, and a contract test runs the same expectations against the fake and the Doctrine implementation.
+- **Complex queries are not faked**; the fake would be a second implementation that needs its own tests.
+- **Doctrine types are never mocked** (`EntityManagerInterface`, `Connection`, repositories we do not own).
+
+The interface is added when a test needs it, not ahead of time, and only for the methods that test uses. How this looks in tests: [testing.md](../../03-development/testing.md#fakes-and-the-database).
+
+Alternatives considered: keeping persistence tests on the database only (simple, but keeps application logic slow to test and pushes the suite towards database tests), and repository interfaces everywhere (rejected above). Sources: Symfony's guide on testing Doctrine repositories against a real database, and the "don't mock what you don't own" rule.
+
 ## Consequences
 
 **Positive:**
