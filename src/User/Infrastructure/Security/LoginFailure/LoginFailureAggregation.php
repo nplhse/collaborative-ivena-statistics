@@ -13,9 +13,8 @@ use Psr\Clock\ClockInterface;
  * Daily job `login_failure_aggregation` (#1487): folds the single failures of finished days into LoginFailureDaily,
  * then deletes single failures and daily rows past their retention.
  *
- * Every finished day from the day after the last daily row (or the day of the first failure) up to yesterday is
- * written again, also with zeros, but never one older than the single failures are kept. Days are calendar days of
- * the app time zone (Europe/Berlin).
+ * Which days are written is decided by LoginFailureDaily::daysToFold(). Days are calendar days of the app time zone
+ * (Europe/Berlin).
  */
 final readonly class LoginFailureAggregation
 {
@@ -33,19 +32,10 @@ final readonly class LoginFailureAggregation
     public function run(): array
     {
         $today = $this->startOfToday();
-        $yesterday = $today->modify('-1 day');
         $oldestKept = $today->modify(\sprintf('-%d days', LoginFailureDaily::EVENT_RETENTION_DAYS));
 
-        $lastAggregated = $this->query->findLastAggregatedDay();
-        $first = $lastAggregated instanceof \DateTimeImmutable
-            ? $lastAggregated->modify('+1 day')
-            : ($this->query->findFirstEventDay() ?? $yesterday);
-        $first = max($first, $oldestKept);
-        // Yesterday is always written again, so a second run on the same day gives the same row.
-        $first = min($first, $yesterday);
-
         $metrics = ['days_processed' => 0, 'failures' => 0, 'flagged_days' => 0];
-        for ($day = $first; $day < $today; $day = $day->modify('+1 day')) {
+        foreach (LoginFailureDaily::daysToFold($this->query->findLastAggregatedDay(), $this->query->findFirstEventDay(), $today) as $day) {
             $daily = $this->aggregate($day);
             ++$metrics['days_processed'];
             $metrics['failures'] += $daily->getFailures();

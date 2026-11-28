@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\User\Infrastructure\Security;
 
+use App\User\Application\Contract\LoginFailureRecorderInterface;
 use App\User\Domain\Enum\LoginFailureKind;
 use App\User\Infrastructure\Security\AccountLock\AccountLockedException;
-use App\User\Infrastructure\Security\LoginFailure\LoginFailureRecorder;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,7 +25,7 @@ final readonly class LoginFailureSubscriber
     public function __construct(
         #[\Symfony\Component\DependencyInjection\Attribute\Autowire(service: 'monolog.logger.security')]
         private LoggerInterface $logger,
-        private LoginFailureRecorder $recorder,
+        private LoginFailureRecorderInterface $recorder,
     ) {
     }
 
