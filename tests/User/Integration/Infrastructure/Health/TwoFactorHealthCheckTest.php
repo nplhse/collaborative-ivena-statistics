@@ -6,20 +6,15 @@ namespace App\Tests\User\Integration\Infrastructure\Health;
 
 use App\Shared\Application\Health\HealthCheckResult;
 use App\Shared\Application\Health\HealthCheckStatus;
+use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Factory\UserFactory;
 use App\User\Infrastructure\Health\TwoFactorHealthCheck;
 use App\User\Infrastructure\Security\TwoFactor\TwoFactorSecretCipher;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Zenstruck\Foundry\Attribute\ResetDatabase;
-use Zenstruck\Foundry\Test\Factories;
 
-#[ResetDatabase]
-final class TwoFactorHealthCheckTest extends KernelTestCase
+final class TwoFactorHealthCheckTest extends DatabaseKernelTestCase
 {
-    use Factories;
-
     private const string KEY = '000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f';
 
     public function testWithoutKeyAndWithoutUsersTheFeatureIsSimplyOff(): void

@@ -5,48 +5,50 @@ declare(strict_types=1);
 namespace App\Tests\User\Unit\Application\Registration;
 
 use App\User\Application\Registration\RegistrationEmailSuppressionLogger;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
+#[CoversClass(RegistrationEmailSuppressionLogger::class)]
 final class RegistrationEmailSuppressionLoggerTest extends TestCase
 {
+    /** @var list<array{string, array<array-key, mixed>}> message and context of every info entry */
+    private array $entries = [];
+
     public function testLogsHashedEmailAndIpWithoutPlaintextAddress(): void
     {
-        $email = 'Spam.User@Example.RU';
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects(self::once())
-            ->method('info')
-            ->with(
-                'registration suppressed by blocked email domain',
-                self::callback(static function (array $context) use ($email): bool {
-                    $serialized = json_encode($context);
-                    self::assertIsString($serialized);
-                    self::assertStringNotContainsString($email, $serialized);
-                    self::assertStringNotContainsString('spam.user@example.ru', $serialized);
-                    self::assertSame(sha1('spam.user@example.ru'), $context['email_hash']);
-                    self::assertSame(sha1('127.0.0.1'), $context['client_ip_hash']);
-                    self::assertSame('ru', $context['matched_suffix']);
+        $logger = new RegistrationEmailSuppressionLogger($this->loggerSpy());
 
-                    return true;
-                }),
-            );
+        $logger->log('Spam.User@Example.RU', '127.0.0.1', 'ru');
 
-        $rejectLogger = new RegistrationEmailSuppressionLogger($logger);
-        $rejectLogger->log($email, '127.0.0.1', 'ru');
+        // The address is trimmed and lower-cased before hashing; the context holds no address in plain text.
+        self::assertSame([['registration suppressed by blocked email domain', [
+            'email_hash' => sha1('spam.user@example.ru'),
+            'client_ip_hash' => sha1('127.0.0.1'),
+            'matched_suffix' => 'ru',
+        ]]], $this->entries);
     }
 
     public function testHashesUnknownIpWhenClientIpIsMissing(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects(self::once())
-            ->method('info')
-            ->with(
-                'registration suppressed by blocked email domain',
-                self::callback(static fn (array $context): bool => sha1('unknown') === $context['client_ip_hash']
-                    && null === $context['matched_suffix']),
-            );
+        $logger = new RegistrationEmailSuppressionLogger($this->loggerSpy());
 
-        $rejectLogger = new RegistrationEmailSuppressionLogger($logger);
-        $rejectLogger->log('user@example.ru', null, null);
+        $logger->log('user@example.ru', null, null);
+
+        self::assertSame([['registration suppressed by blocked email domain', [
+            'email_hash' => sha1('user@example.ru'),
+            'client_ip_hash' => sha1('unknown'),
+            'matched_suffix' => null,
+        ]]], $this->entries);
+    }
+
+    private function loggerSpy(): LoggerInterface
+    {
+        $logger = $this->createStub(LoggerInterface::class);
+        $logger->method('info')->willReturnCallback(function (string|\Stringable $message, array $context = []): void {
+            $this->entries[] = [(string) $message, $context];
+        });
+
+        return $logger;
     }
 }

@@ -6,89 +6,96 @@ namespace App\Tests\User\Unit\Infrastructure\Security;
 
 use App\User\Domain\Entity\User;
 use App\User\Infrastructure\Security\UserAccountStatusChecker;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\User\InMemoryUser;
+use Symfony\Component\Security\Core\User\UserInterface;
 
+/**
+ * Passing a check means not throwing, so the passing cases perform no assertion.
+ */
+#[CoversClass(UserAccountStatusChecker::class)]
 final class UserAccountStatusCheckerTest extends TestCase
 {
-    private UserAccountStatusChecker $checker;
-
-    #[\Override]
-    protected function setUp(): void
+    /**
+     * @return iterable<string, array{UserInterface}>
+     */
+    public static function accountsThatMaySignIn(): iterable
     {
-        $this->checker = new UserAccountStatusChecker();
+        yield 'enabled and verified' => [self::user(true, true)];
+        yield 'not an app user' => [new InMemoryUser('other', null)];
     }
 
-    public function testEnabledVerifiedUserPassesPreAndPostAuthChecks(): void
+    #[DataProvider('accountsThatMaySignIn')]
+    public function testAccountPassesTheCheckBeforeAuthentication(UserInterface $user): void
     {
-        $user = $this->createUser(true, true);
+        $checker = new UserAccountStatusChecker();
 
-        $this->checker->checkPreAuth($user);
-        $this->checker->checkPostAuth($user);
+        $this->expectNotToPerformAssertions();
 
-        self::assertTrue($user->isEnabled());
-        self::assertTrue($user->isVerified());
+        $checker->checkPreAuth($user);
     }
 
-    public function testDisabledUserFailsPreAuthCheck(): void
+    /**
+     * @return iterable<string, array{UserInterface}>
+     */
+    public static function accountsThatKeepTheirSession(): iterable
     {
-        $user = $this->createUser(false, true);
+        yield 'enabled and verified' => [self::user(true, true)];
+        // An existing session of an unverified account stays valid; only a new sign-in needs the verified address.
+        yield 'unverified' => [self::user(true, false)];
+        yield 'not an app user' => [new InMemoryUser('other', null)];
+    }
+
+    #[DataProvider('accountsThatKeepTheirSession')]
+    public function testAccountPassesTheCheckAfterAuthentication(UserInterface $user): void
+    {
+        $checker = new UserAccountStatusChecker();
+
+        $this->expectNotToPerformAssertions();
+
+        $checker->checkPostAuth($user);
+    }
+
+    /**
+     * @return iterable<string, array{User}>
+     */
+    public static function accountsThatMayNotSignIn(): iterable
+    {
+        yield 'disabled' => [self::user(false, true)];
+        yield 'unverified' => [self::user(true, false)];
+    }
+
+    #[DataProvider('accountsThatMayNotSignIn')]
+    public function testAccountFailsTheCheckBeforeAuthenticationWithAGenericMessage(User $user): void
+    {
+        $checker = new UserAccountStatusChecker();
 
         $this->expectException(BadCredentialsException::class);
         $this->expectExceptionMessage('Invalid credentials.');
 
-        $this->checker->checkPreAuth($user);
+        $checker->checkPreAuth($user);
     }
 
-    public function testDisabledUserFailsPostAuthCheck(): void
+    public function testDisabledAccountFailsTheCheckAfterAuthenticationWithAGenericMessage(): void
     {
-        $user = $this->createUser(false, true);
+        $checker = new UserAccountStatusChecker();
 
         $this->expectException(BadCredentialsException::class);
         $this->expectExceptionMessage('Invalid credentials.');
 
-        $this->checker->checkPostAuth($user);
+        $checker->checkPostAuth(self::user(false, true));
     }
 
-    public function testUnverifiedUserFailsPreAuthCheck(): void
+    private static function user(bool $enabled, bool $verified): User
     {
-        $user = $this->createUser(true, false);
-
-        $this->expectException(BadCredentialsException::class);
-        $this->expectExceptionMessage('Invalid credentials.');
-
-        $this->checker->checkPreAuth($user);
-    }
-
-    public function testUnverifiedUserPassesPostAuthCheckForExistingSession(): void
-    {
-        $user = $this->createUser(true, false);
-
-        $this->checker->checkPostAuth($user);
-
-        self::assertFalse($user->isVerified());
-    }
-
-    public function testNonAppUserIsIgnored(): void
-    {
-        $user = new InMemoryUser('other', null);
-
-        $this->checker->checkPreAuth($user);
-        $this->checker->checkPostAuth($user);
-
-        self::assertSame('other', $user->getUserIdentifier());
-    }
-
-    private function createUser(bool $enabled, bool $verified): User
-    {
-        $user = new User();
-        $user->setUsername('status-user');
-        $user->setEmail('status-user@example.test');
-        $user->setPassword('hashed-password');
-        $user->setIsEnabled($enabled);
-        $user->setIsVerified($verified);
-
-        return $user;
+        return new User()
+            ->setUsername('status-user')
+            ->setEmail('status-user@example.test')
+            ->setPassword('hashed-password')
+            ->setIsEnabled($enabled)
+            ->setIsVerified($verified);
     }
 }

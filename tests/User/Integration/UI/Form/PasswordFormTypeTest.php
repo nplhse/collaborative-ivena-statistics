@@ -9,9 +9,11 @@ use App\User\UI\Form\ForceChangePasswordType;
 use App\User\UI\Form\ResetPasswordFormType;
 use App\User\UI\Form\SettingsPasswordType;
 use App\User\UI\Form\UserPasswordType;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\Form\FormView;
 
 final class PasswordFormTypeTest extends KernelTestCase
@@ -25,41 +27,32 @@ final class PasswordFormTypeTest extends KernelTestCase
         $this->formFactory = self::getContainer()->get(FormFactoryInterface::class);
     }
 
-    public function testResetPasswordFormConfiguresStrengthFeedbackOnFirstFieldOnly(): void
+    /**
+     * @return iterable<string, array{class-string<FormTypeInterface<mixed>>}>
+     */
+    public static function repeatedPasswordForms(): iterable
     {
-        $form = $this->formFactory->create(ResetPasswordFormType::class);
-
-        self::assertTrue($form->has('plainPassword'));
-        self::assertSame('user', $form->getConfig()->getOption('translation_domain'));
-        self::assertNull($form->getConfig()->getOption('data_class'));
-
-        $first = $form->get('plainPassword')->get('first');
-        $second = $form->get('plainPassword')->get('second');
-
-        self::assertTrue($first->getConfig()->getOption('strength_feedback'));
-        self::assertFalse($second->getConfig()->getOption('strength_feedback'));
-        self::assertSame(UserPasswordType::class, $first->getConfig()->getType()->getInnerType()::class);
-
-        $this->assertStrengthFeedbackView($first->createView(), enabled: true);
-        $this->assertStrengthFeedbackView($second->createView(), enabled: false);
+        yield 'reset password' => [ResetPasswordFormType::class];
+        yield 'forced password change' => [ForceChangePasswordType::class];
     }
 
-    public function testForceChangePasswordFormConfiguresStrengthFeedbackOnFirstFieldOnly(): void
+    /**
+     * @param class-string<FormTypeInterface<mixed>> $formClass
+     */
+    #[DataProvider('repeatedPasswordForms')]
+    public function testRepeatedPasswordFormConfiguresStrengthFeedbackOnFirstFieldOnly(string $formClass): void
     {
-        $form = $this->formFactory->create(ForceChangePasswordType::class);
+        $form = $this->formFactory->create($formClass);
 
         self::assertTrue($form->has('plainPassword'));
         self::assertSame('user', $form->getConfig()->getOption('translation_domain'));
         self::assertNull($form->getConfig()->getOption('data_class'));
-
         $first = $form->get('plainPassword')->get('first');
         $second = $form->get('plainPassword')->get('second');
-
-        self::assertTrue($first->getConfig()->getOption('strength_feedback'));
-        self::assertFalse($second->getConfig()->getOption('strength_feedback'));
-
-        $this->assertStrengthFeedbackView($first->createView(), enabled: true);
-        $this->assertStrengthFeedbackView($second->createView(), enabled: false);
+        self::assertSame(UserPasswordType::class, $first->getConfig()->getType()->getInnerType()::class);
+        self::assertSame([true, false], [$first->getConfig()->getOption('strength_feedback'), $second->getConfig()->getOption('strength_feedback')]);
+        $this->assertStrengthFeedbackShown($first->createView());
+        $this->assertStrengthFeedbackHidden($second->createView());
     }
 
     public function testSettingsPasswordFormKeepsCurrentPasswordWithoutStrengthFeedback(): void
@@ -80,27 +73,29 @@ final class PasswordFormTypeTest extends KernelTestCase
         self::assertFalse($second->getConfig()->getOption('strength_feedback'));
     }
 
-    public function testUserPasswordTypeExposesPolicyConfigOnlyWhenFeedbackEnabled(): void
+    public function testUserPasswordTypeExposesThePolicyByDefault(): void
     {
-        $enabledForm = $this->formFactory->create(UserPasswordType::class);
-        $disabledForm = $this->formFactory->create(UserPasswordType::class, null, [
-            'strength_feedback' => false,
-        ]);
+        $form = $this->formFactory->create(UserPasswordType::class);
 
-        $this->assertStrengthFeedbackView($enabledForm->createView(), enabled: true);
-        $this->assertStrengthFeedbackView($disabledForm->createView(), enabled: false);
+        $this->assertStrengthFeedbackShown($form->createView());
     }
 
-    private function assertStrengthFeedbackView(FormView $view, bool $enabled): void
+    public function testUserPasswordTypeHidesThePolicyWithoutFeedback(): void
     {
-        self::assertSame($enabled, $view->vars['strength_feedback']);
+        $form = $this->formFactory->create(UserPasswordType::class, null, ['strength_feedback' => false]);
 
-        if ($enabled) {
-            self::assertSame(UserPasswordConstraints::clientConfig(), $view->vars['password_strength_policy']);
+        $this->assertStrengthFeedbackHidden($form->createView());
+    }
 
-            return;
-        }
+    private function assertStrengthFeedbackShown(FormView $view): void
+    {
+        self::assertTrue($view->vars['strength_feedback']);
+        self::assertSame(UserPasswordConstraints::clientConfig(), $view->vars['password_strength_policy']);
+    }
 
+    private function assertStrengthFeedbackHidden(FormView $view): void
+    {
+        self::assertFalse($view->vars['strength_feedback']);
         self::assertArrayNotHasKey('password_strength_policy', $view->vars);
     }
 }
