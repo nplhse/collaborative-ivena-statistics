@@ -223,7 +223,32 @@ refused. An existing `login_locked_until` is ignored while the lock is off. The 
 
 `LoginFailureSubscriber` logs every failed sign-in as `security.login.failure` to the `security` channel, with a
 SHA-256 hash of the lower-cased identifier, the IP, the user agent and the exception class. Successful sign-ins are not
-logged. These entries are not sent to Sentry (#1577); an aggregated view for administrators is planned in #1487.
+logged. These entries are not sent to Sentry (#1577).
+
+## Failed sign-in counters
+
+Failed sign-ins are also counted in the database (#1487), so operators can see attacks without reading logs. The view
+for administrators and their notification follow in a later step.
+
+- **Single failures:** `LoginFailureRecorder` writes one row to `login_failure_event` for every failed sign-in
+  (`LoginFailureSubscriber`) and for the account lock (`AccountLock`). The kind is `failure` (wrong credentials, unknown
+  identifier and other refusals), `refused` (stopped by `login_throttling` or a locked account before the password was
+  checked), `lock_threshold` (threshold reached while the lock is off) or `account_locked`. Identifier (trimmed, lower
+  case) and IP are stored only as HMAC-SHA256 with `kernel.secret`: equal values can be counted, but not read back.
+  The user agent is not stored. A failed write is logged as `security.login.failure_record_failed` and does not change
+  the answer of the sign-in.
+- **Daily counts:** the scheduler job `login_failure_aggregation` (daily 02:25,
+  [messenger-monitoring.md](../../05-operations/messenger-monitoring.md#scheduler-jobs-in-the-run-log)) folds every
+  finished Europe/Berlin day into one row of `login_failure_daily`: failures, refused attempts, lock thresholds, locks,
+  distinct identifiers and IPs, and the two maxima "IPs per identifier" and "identifiers per IP". Attempts are failures
+  plus refused attempts; the distinct counts and maxima look at attempts only. A day without failures gets a row with
+  zeros. The job writes yesterday again on every run and catches up days after the last row, at most as far back as
+  single failures are kept. The first counted day can be incomplete, from the time of the deployment.
+- **Patterns:** a day is flagged when one identifier was tried from at least 10 IPs
+  (`LoginFailureDaily::MANY_IPS_PER_IDENTIFIER`) or one IP tried at least 10 identifiers
+  (`LoginFailureDaily::MANY_IDENTIFIERS_PER_IP`).
+- **Retention:** the same job deletes single failures after 30 days (`LoginFailureDaily::EVENT_RETENTION_DAYS`) and
+  daily rows after one year (`LoginFailureDaily::DAILY_RETENTION_DAYS`).
 
 ## Tests
 
@@ -231,6 +256,7 @@ logged. These entries are not sent to Sentry (#1577); an aggregated view for adm
 the shared throttling; `LoginLinkTest` covers the login link (opt-in, same answer for every request, rate limit,
 confirmation page, single use, invalidation, consent); `TwoFactorLoginTest`, `TwoFactorSettingsTest`,
 `TwoFactorObligationAndResetTest`, `SignInGatesTest` and `ResetTwoFactorCommandTest` cover the second factor;
-`AccountLockTest` (unit: counting, duration, expiry, clearing; functional: many IPs, password reset) covers the account
-lock; `RegistrationControllerTest` covers the registration answers for new and existing addresses; `RememberMeLoginTest` and `ConfirmPasswordControllerTest` cover
+`AccountLockTest` (unit: counting, duration, expiry, clearing; functional: many IPs, password reset, recorded kinds) covers the account
+lock; `LoginFailureAggregationTest` (integration: daily counts, day boundaries, second run, retention, hashes) and
+`LoginFailureDailyTest` cover the counters; `RegistrationControllerTest` covers the registration answers for new and existing addresses; `RememberMeLoginTest` and `ConfirmPasswordControllerTest` cover
 sessions and re-authentication.

@@ -64,6 +64,7 @@ Every scheduler job writes a `job_run` row, with the trigger `scheduler`. Jobs w
 | `import_pending_upload_purge` | `PurgePendingImportUploadsMessage` | hourly :25 | 120 | `deleted_files` ([import pipeline](../04-features/import/import-pipeline.md#background-upload)) |
 | `media_integrity_check` | `CheckMediaIntegrityMessage` | daily 05:10 | 1500 | `skip_reason` (`maintenance_running`), `files`, `hashed`, `missing`, `damaged`, `orphans_deleted`, `orphans_kept`, `leftovers_deleted`, `unexpected` ([media storage](../04-features/content/media-storage.md)) |
 | `reaction_cleanup` | `CleanUpReactionsMessage` | daily 05:40 | 1500 | `reactions_deleted` ([reactions](../04-features/content/reactions.md#cleanup)) |
+| `login_failure_aggregation` | `AggregateLoginFailuresMessage` | daily 02:25 | 1500 | `days_processed`, `failures`, `flagged_days`, `events_deleted`, `daily_rows_deleted` ([failed sign-in counters](../04-features/user/authentication.md#failed-sign-in-counters)) |
 
 Times are Europe/Berlin.
 

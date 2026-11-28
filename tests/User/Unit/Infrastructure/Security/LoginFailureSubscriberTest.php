@@ -4,12 +4,19 @@ declare(strict_types=1);
 
 namespace App\Tests\User\Unit\Infrastructure\Security;
 
+use App\User\Infrastructure\Security\AccountLock\AccountLockedException;
+use App\User\Infrastructure\Security\LoginFailure\LoginFailureRecorder;
 use App\User\Infrastructure\Security\LoginFailureSubscriber;
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
+use Symfony\Component\Security\Core\Exception\TooManyLoginAttemptsAuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\AuthenticatorInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\PasswordCredentials;
@@ -23,10 +30,38 @@ final class LoginFailureSubscriberTest extends TestCase
 
     private LoginFailureSubscriber $subscriber;
 
+    /** @var list<array<string, mixed>> rows written to login_failure_event */
+    private array $recorded = [];
+
     protected function setUp(): void
     {
         $this->logger = $this->createMock(LoggerInterface::class);
-        $this->subscriber = new LoginFailureSubscriber($this->logger);
+
+        $connection = $this->createStub(Connection::class);
+        $connection->method('insert')->willReturnCallback(function (string $table, array $data): int {
+            $this->recorded[] = $data;
+
+            return 1;
+        });
+
+        $this->subscriber = new LoginFailureSubscriber(
+            $this->logger,
+            new LoginFailureRecorder($connection, new MockClock('2026-11-28 10:00:00'), 'test-secret', new NullLogger()),
+        );
+    }
+
+    public function testRecordsWrongCredentialsAsFailureAndLimitsAsRefused(): void
+    {
+        $this->logger->expects(self::exactly(3))->method('warning');
+        $request = Request::create('/login', Request::METHOD_POST, ['login' => ['username' => 'Alice']], server: ['REMOTE_ADDR' => '203.0.113.10']);
+
+        $this->subscriber->onLoginFailure($this->createFailureEvent($request));
+        $this->subscriber->onLoginFailure($this->createFailureEvent($request, exception: new TooManyLoginAttemptsAuthenticationException()));
+        $this->subscriber->onLoginFailure($this->createFailureEvent($request, exception: new AccountLockedException('Invalid credentials.')));
+
+        self::assertSame(['failure', 'refused', 'refused'], array_column($this->recorded, 'kind'));
+        self::assertSame(hash_hmac('sha256', 'identifier:alice', 'test-secret'), $this->recorded[0]['identifier_hash']);
+        self::assertSame(hash_hmac('sha256', 'ip:203.0.113.10', 'test-secret'), $this->recorded[0]['ip_hash']);
     }
 
     public function testLogsHashFromLoginFormUsernameWithoutPassport(): void
@@ -96,10 +131,10 @@ final class LoginFailureSubscriberTest extends TestCase
         ));
     }
 
-    private function createFailureEvent(Request $request, ?Passport $passport = null): LoginFailureEvent
+    private function createFailureEvent(Request $request, ?Passport $passport = null, ?AuthenticationException $exception = null): LoginFailureEvent
     {
         return new LoginFailureEvent(
-            new BadCredentialsException('Invalid credentials.'),
+            $exception ?? new BadCredentialsException('Invalid credentials.'),
             $this->createStub(AuthenticatorInterface::class),
             $request,
             null,

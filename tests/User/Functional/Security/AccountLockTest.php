@@ -18,7 +18,7 @@ use Zenstruck\Foundry\Test\Factories;
 
 /**
  * Account lock after 20 wrong passwords from any IP (#1762). The edge cases of counting and expiry are unit tests of
- * AccountLock; these tests cover the wiring into the sign-in form and the password reset.
+ * AccountLock; these tests cover the wiring into the sign-in form, the failure counters (#1487) and the password reset.
  */
 #[ResetDatabase]
 final class AccountLockTest extends WebTestCase
@@ -61,6 +61,12 @@ final class AccountLockTest extends WebTestCase
 
         self::assertSame(1, $this->countRows("SELECT COUNT(*) FROM notification WHERE type = 'security.account_locked'"));
         self::assertSame(1, $this->countRows("SELECT COUNT(*) FROM audit_log WHERE intent = 'user.login.account_locked'"));
+
+        // Counters (#1487): 20 wrong passwords plus the unknown username, the refused right password, the lock.
+        self::assertSame(
+            ['account_locked' => 1, 'failure' => 21, 'refused' => 1],
+            self::getContainer()->get(Connection::class)->fetchAllKeyValue('SELECT kind, COUNT(*) FROM login_failure_event GROUP BY kind ORDER BY kind'),
+        );
     }
 
     public function testPasswordResetLiftsTheLock(): void
