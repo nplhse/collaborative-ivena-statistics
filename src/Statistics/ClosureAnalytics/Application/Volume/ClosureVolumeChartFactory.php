@@ -20,7 +20,7 @@ final class ClosureVolumeChartFactory
         /** @var array<string, array{start: \DateTimeImmutable, end: \DateTimeImmutable, observed: float, expected: float, hospitalObserved: ?float, hospitalExpected: ?float, inClosure: bool, influenced: bool, expectedKnown: bool, hospitalExpectedKnown: bool, observedKnown: bool, hospitalObservedKnown: bool}> $grouped */
         $grouped = [];
         foreach ($drafts as $draft) {
-            $key = $draft->bucketStart->format('Y-m-d H:i:s');
+            $key = $this->pointKey($draft);
             $grouped[$key] ??= [
                 'start' => $draft->bucketStart,
                 'end' => $draft->bucketEnd,
@@ -45,7 +45,13 @@ final class ClosureVolumeChartFactory
             } else {
                 $grouped[$key]['expected'] += $draft->expectedArea;
             }
-            $hospitalKey = $draft->metric->value.'|'.$key;
+            if ($draft->bucketStart < $grouped[$key]['start']) {
+                $grouped[$key]['start'] = $draft->bucketStart;
+            }
+            if ($draft->bucketEnd > $grouped[$key]['end']) {
+                $grouped[$key]['end'] = $draft->bucketEnd;
+            }
+            $hospitalKey = $draft->metric->value.'|'.$draft->bucketStart->format('Y-m-d H:i:s');
             if (!isset($grouped[$key]['seen'][$hospitalKey])) {
                 $grouped[$key]['seen'][$hospitalKey] = true;
                 if (null === $draft->observedHospital) {
@@ -132,8 +138,10 @@ final class ClosureVolumeChartFactory
         $byBucket = [];
         $bucketOrder = [];
         foreach ($drafts as $draft) {
-            $bucketKey = $draft->bucketStart->format('Y-m-d H:i:s');
-            $bucketOrder[$bucketKey] = $draft->bucketStart;
+            $bucketKey = $this->pointKey($draft);
+            if (!isset($bucketOrder[$bucketKey]) || $draft->bucketStart < $bucketOrder[$bucketKey]) {
+                $bucketOrder[$bucketKey] = $draft->bucketStart;
+            }
             $seriesKey = $this->barSeriesKey($draft);
             if (null === $draft->observedArea) {
                 continue;
@@ -187,6 +195,17 @@ final class ClosureVolumeChartFactory
         }
 
         return [$visible, !$hiddenFrom instanceof \DateTimeImmutable || !$hiddenUntil instanceof \DateTimeImmutable ? null : [$hiddenFrom, $hiddenUntil]];
+    }
+
+    /**
+     * One chart point per piece inside the closure, one per clock hour outside it: the projection also cuts the
+     * context at the edges of the 1 h and 3 h windows (#1018), which the chart does not show as extra points.
+     */
+    private function pointKey(ClosureVolumeHourDraft $draft): string
+    {
+        return $draft->inClosure
+            ? $draft->bucketStart->format('Y-m-d H:i:s')
+            : ClosureVolumeClock::wall($draft->bucketStart)->format('Y-m-d H').':00:00|context';
     }
 
     private function startsAfter(\DateTimeImmutable $bucketStart, \DateTimeImmutable $hiddenUntil): bool

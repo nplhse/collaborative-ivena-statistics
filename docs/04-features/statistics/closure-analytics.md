@@ -497,8 +497,13 @@ end. Overview figures are clipped to the selected period and to now. A clock
 hour that the period cuts is weighted by the overlap inside that hour. Detail
 figures use the full closure and the cumulative 1, 3 and 6 hour windows before
 and after it, even when they extend beyond the overview period; the page says
-so. Follow-up windows are omitted while a closure is still running. Each partial
-hour counts allocations with `created_at >= start AND created_at < end`. Windows
+so. Follow-up windows are omitted while a closure is still running. The projection
+cuts the context into clock-hour pieces and also at the edges of the 1 and 3 hour
+windows (#1018), so every window consists of whole pieces: a closure from 15:25
+has a −3 h window from 12:25 that counts 12:25–13:00, not the whole hour
+12:00–13:00 and not nothing. Each partial
+hour counts allocations with `created_at >= start AND created_at < end`. The course
+chart merges the pieces of one clock hour outside the closure back into one point. Windows
 influenced by another closure of the same population, or windows that are
 incomplete or not computable, stay visible and are excluded from the before/after
 comparison. The chart uses consecutive hour pieces of the department series.
