@@ -1,0 +1,108 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}{{ 'sign_in_security.page.title'|trans({}, 'admin') }}{% endblock %}
+
+{% block page_actions %}
+    {% if lock_enabled %}
+        <twig:ea:Badge color="success">{{ 'sign_in_security.lock.enabled'|trans({}, 'admin') }}</twig:ea:Badge>
+    {% else %}
+        <twig:ea:Badge color="secondary">{{ 'sign_in_security.lock.disabled'|trans({}, 'admin') }}</twig:ea:Badge>
+    {% endif %}
+{% endblock %}
+
+{% block main %}
+    <div class="card mb-4 ea-dashboard-ops">
+        <div class="card-body">
+            <h2 class="h6 text-secondary mb-3">{{ 'sign_in_security.today.title'|trans({}, 'admin') }}</h2>
+            <div class="d-flex flex-wrap gap-4">
+                {% for key, value in {
+                    failures: today.failures,
+                    refused: today.refused,
+                    identifiers: today.distinct_identifiers,
+                    ips: today.distinct_ips,
+                } %}
+                    <div>
+                        <div class="ea-kpi-value">{{ value|format_number }}</div>
+                        <div class="text-secondary small">{{ ('sign_in_security.column.' ~ key)|trans({}, 'admin') }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4" data-testid="locked-accounts">
+        <div class="card-body">
+            <h2 class="h6 text-secondary mb-3">{{ 'sign_in_security.locked.title'|trans({}, 'admin') }}</h2>
+            {% if locked_accounts is empty %}
+                <p class="text-secondary mb-0">{{ 'sign_in_security.locked.none'|trans({}, 'admin') }}</p>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table mb-0 align-middle">
+                        <thead>
+                            <tr>
+                                <th>{{ 'sign_in_security.locked.username'|trans({}, 'admin') }}</th>
+                                <th>{{ 'sign_in_security.locked.until'|trans({}, 'admin') }}</th>
+                                <th class="text-end"><span class="visually-hidden">{{ 'sign_in_security.locked.actions'|trans({}, 'admin') }}</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for account in locked_accounts %}
+                                <tr>
+                                    <td>{{ account.username }}</td>
+                                    <td>{{ account.lockedUntil|format_datetime('medium', 'short') }}</td>
+                                    <td class="text-end">
+                                        <form method="post" action="{{ ea_url().setRoute('app_admin_dashboard_operations_sign_in_security_unlock', {id: account.id}) }}" class="d-inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('sign_in_unlock_' ~ account.id) }}">
+                                            <twig:ea:Button type="submit" size="sm" icon="fas fa-lock-open">{{ 'sign_in_security.locked.unlock'|trans({}, 'admin') }}</twig:ea:Button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card" data-testid="daily-failures">
+        <div class="card-body">
+            <h2 class="h6 text-secondary mb-3">{{ 'sign_in_security.daily.title'|trans({days: constant('App\\User\\Application\\LoginFailure\\LoginFailureTrend::DAYS')}, 'admin') }}</h2>
+            {% if daily is empty %}
+                <p class="text-secondary mb-0">{{ 'sign_in_security.daily.none'|trans({}, 'admin') }}</p>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table mb-0 align-middle">
+                        <thead>
+                            <tr>
+                                <th>{{ 'sign_in_security.column.date'|trans({}, 'admin') }}</th>
+                                {% for key in ['failures', 'refused', 'identifiers', 'ips', 'max_ips', 'max_identifiers', 'locks'] %}
+                                    <th class="text-end">{{ ('sign_in_security.column.' ~ key)|trans({}, 'admin') }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for day in daily %}
+                                <tr>
+                                    <td>
+                                        {{ day.date|format_date('medium') }}
+                                        {% if day.flagged %}
+                                            <twig:ea:Badge color="danger">{{ 'sign_in_security.daily.flagged'|trans({}, 'admin') }}</twig:ea:Badge>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">{{ day.failures|format_number }}</td>
+                                    <td class="text-end">{{ day.refused|format_number }}</td>
+                                    <td class="text-end">{{ day.distinctIdentifiers|format_number }}</td>
+                                    <td class="text-end">{{ day.distinctIps|format_number }}</td>
+                                    <td class="text-end{{ day.identifierFromManyIps ? ' text-danger fw-semibold' : '' }}">{{ day.maxIpsPerIdentifier|format_number }}</td>
+                                    <td class="text-end{{ day.ipAgainstManyIdentifiers ? ' text-danger fw-semibold' : '' }}">{{ day.maxIdentifiersPerIp|format_number }}</td>
+                                    <td class="text-end">{{ (day.accountsLocked + day.lockThresholdsReached)|format_number }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

@@ -4,14 +4,20 @@ declare(strict_types=1);
 
 namespace App\User\Infrastructure\Security\LoginFailure;
 
+use App\Notification\Application\Contract\NotificationPublisherInterface;
+use App\Notification\Application\Publishing\NotificationAction;
+use App\Notification\Application\Publishing\NotificationRequest;
+use App\User\Application\Contract\AdminNotificationRecipientResolverInterface;
 use App\User\Domain\Entity\LoginFailureDaily;
+use App\User\Infrastructure\Notification\LoginFailurePatternNotification;
 use App\User\Infrastructure\Query\LoginFailureDayQuery;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
 
 /**
  * Daily job `login_failure_aggregation` (#1487): folds the single failures of finished days into LoginFailureDaily,
- * then deletes single failures and daily rows past their retention.
+ * tells the administrators about flagged days (at most once per day) and deletes single failures and daily rows past
+ * their retention.
  *
  * Which days are written is decided by LoginFailureDaily::daysToFold(). Days are calendar days of the app time zone
  * (Europe/Berlin).
@@ -23,6 +29,8 @@ final readonly class LoginFailureAggregation
         private LoginFailureDayQuery $query,
         private EntityManagerInterface $entityManager,
         private ClockInterface $clock,
+        private AdminNotificationRecipientResolverInterface $recipients,
+        private NotificationPublisherInterface $publisher,
     ) {
     }
 
@@ -39,7 +47,10 @@ final readonly class LoginFailureAggregation
             $daily = $this->aggregate($day);
             ++$metrics['days_processed'];
             $metrics['failures'] += $daily->getFailures();
-            $metrics['flagged_days'] += $daily->isFlagged() ? 1 : 0;
+            if ($daily->isFlagged()) {
+                ++$metrics['flagged_days'];
+                $this->announce($daily);
+            }
         }
 
         return $metrics + [
@@ -73,6 +84,28 @@ final readonly class LoginFailureAggregation
 
             return $daily;
         });
+    }
+
+    private function announce(LoginFailureDaily $daily): void
+    {
+        $recipientIds = $this->recipients->recipientIds();
+        if ([] === $recipientIds) {
+            return;
+        }
+
+        $date = $daily->getDate();
+        $this->publisher->publish(new NotificationRequest(
+            type: LoginFailurePatternNotification::TYPE,
+            recipientUserIds: $recipientIds,
+            deduplicationKey: \sprintf('%s:%s', LoginFailurePatternNotification::TYPE, $date->format('Y-m-d')),
+            parameters: [
+                'date' => $date->getTimestamp(),
+                'failures' => $daily->getFailures() + $daily->getRefused(),
+                'maxIps' => $daily->getMaxIpsPerIdentifier(),
+                'maxIdentifiers' => $daily->getMaxIdentifiersPerIp(),
+            ],
+            action: new NotificationAction('app_admin_dashboard_operations_sign_in_security_index'),
+        ));
     }
 
     private function startOfToday(): \DateTimeImmutable

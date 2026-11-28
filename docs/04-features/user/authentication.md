@@ -197,8 +197,8 @@ account for three hours (`AccountLock::LOCK_DURATION`, column `user.login_locked
 - Only a wrong password for an enabled, verified account counts. Unknown identifiers, CSRF errors, throttling and
   refusals for disabled or unverified accounts do not, and failures during a lock neither extend it nor count.
 - The lock ends on its own after three hours, or when the owner resets the password (`ResetPasswordController`, audit
-  intent `user.password_reset_completed` with `login_lock_lifted`). Lifting a lock from the admin area follows with
-  #1487.
+  intent `user.password_reset_completed` with `login_lock_lifted`), or when an administrator lifts it on the page
+  *Sign-in security* (`AccountLock::unlock()`, audit intent `user.login.account_unlocked`, see below).
 - Locking writes the audit intent `user.login.account_locked` (`DoctrineAccountLockWriter`), logs `security.login.account_locked` (user id only) and
   tells the owner once per lock with the notification `security.account_locked` (in-app and a mandatory email), which
   points to the password reset.
@@ -227,8 +227,7 @@ logged. These entries are not sent to Sentry (#1577).
 
 ## Failed sign-in counters
 
-Failed sign-ins are also counted in the database (#1487), so operators can see attacks without reading logs. The view
-for administrators and their notification follow in a later step.
+Failed sign-ins are also counted in the database (#1487), so operators can see attacks without reading logs.
 
 - **Single failures:** `LoginFailureRecorder` writes one row to `login_failure_event` for every failed sign-in
   (`LoginFailureSubscriber`) and for the account lock (`AccountLock`). The kind is `failure` (wrong credentials, unknown
@@ -249,6 +248,15 @@ for administrators and their notification follow in a later step.
   (`LoginFailureDaily::MANY_IDENTIFIERS_PER_IP`).
 - **Retention:** the same job deletes single failures after 30 days (`LoginFailureDaily::EVENT_RETENTION_DAYS`) and
   daily rows after one year (`LoginFailureDaily::DAILY_RETENTION_DAYS`).
+- **Admin view:** the admin dashboard shows a card with the attempts of the last 30 finished days as bars (flagged days
+  in red, days without a daily row are not counted), the number of flagged days and of accounts locked right now
+  (`LoginFailureTrend`). It links to *System → Sign-in security* (`/admin/operations/sign-in-security`,
+  `SignInSecurityController`): whether the lock is on, today's counts read live from the single failures, the accounts
+  locked right now with *Lift lock* (POST with CSRF), and the daily rows of the last 30 days with the flagged maxima.
+  The column *Locks* adds locks and thresholds reached while the lock is off.
+- **Admin notification:** for every flagged day the job writes, it sends `admin.login_failure_pattern` to the
+  administrators (in-app and email; each admin can switch the email off in the settings). The deduplication key is
+  the day, and the key is kept 40 days, so a day written again is not announced twice.
 
 ## Tests
 
@@ -260,5 +268,5 @@ confirmation page, single use, invalidation, consent); `TwoFactorLoginTest`, `Tw
 password reset lifts the lock) and `AccountLockListenerTest` (which sign-ins are refused and which failures count) cover
 the account lock; `LoginFailureDayQueryTest` (SQL of the daily counts), `LoginFailureDailyTest` (patterns, which days a
 run writes), `LoginFailureAggregationTest` (one run with retention) and the contract tests of
-`LoginFailureRecorderInterface` and `AccountLockWriterInterface` (fakes in `tests/User/Doubles/`) cover the counters; `RegistrationControllerTest` covers the registration answers for new and existing addresses; `RememberMeLoginTest` and `ConfirmPasswordControllerTest` cover
+`LoginFailureRecorderInterface` and `AccountLockWriterInterface` (fakes in `tests/User/Doubles/`) cover the counters; `LoginFailureTrendTest`, `LoginFailureOverviewQueryTest` and `SignInSecurityControllerTest` (Admin) cover the admin view; `RegistrationControllerTest` covers the registration answers for new and existing addresses; `RememberMeLoginTest` and `ConfirmPasswordControllerTest` cover
 sessions and re-authentication.

@@ -164,6 +164,18 @@ final class AccountLockTest extends TestCase
         self::assertFalse($wasLocked);
     }
 
+    public function testAnAdministratorUnlockLiftsTheLockAndSavesIt(): void
+    {
+        $accountLock = $this->accountLock();
+        $user = $this->user(7);
+        $this->failPasswords($accountLock, $user, 20);
+
+        $accountLock->unlock($user);
+
+        self::assertSame(1, $this->writer->unlocks);
+        self::assertSame([7 => null], $this->writer->savedLocks);
+    }
+
     public function testWhenNotEnforcedReachingTheThresholdIsOnlyLoggedAndRecorded(): void
     {
         $accountLock = $this->accountLock(enforced: false);

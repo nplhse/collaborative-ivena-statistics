@@ -342,3 +342,29 @@ body.page-content .content-body > .row:first-child > :first-child {
 .form-fieldset-body.show:not(.collapsing) {
     overflow: visible;
 }
+
+/* Failed sign-ins of the last 30 days (#1487): one bar per day, flagged days in red, uncounted days as a dotted base. */
+.ea-sign-in-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 48px;
+}
+
+.ea-sign-in-bar {
+    flex: 1 1 0;
+    min-height: 1px;
+    background: var(--bs-secondary-color, #6c757d);
+    opacity: 0.55;
+    border-radius: 1px 1px 0 0;
+}
+
+.ea-sign-in-bar.is-flagged {
+    background: var(--bs-danger, #dc3545);
+    opacity: 1;
+}
+
+.ea-sign-in-bar.is-uncounted {
+    border-bottom: 1px dotted var(--bs-secondary-color, #6c757d);
+    background: transparent;
+}

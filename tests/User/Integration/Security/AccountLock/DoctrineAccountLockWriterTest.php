@@ -38,6 +38,20 @@ final class DoctrineAccountLockWriterTest extends AccountLockWriterContract
         ));
     }
 
+    public function testTheUnlockIsSavedUnderItsAuditIntent(): void
+    {
+        $user = $this->user();
+        $user->lockLoginUntil(new \DateTimeImmutable('2026-11-27 13:00:00'));
+        $this->writer()->saveLock($user);
+        $user->clearLoginLock();
+
+        $this->writer()->saveUnlock($user);
+
+        self::assertSame(1, (int) self::getContainer()->get(Connection::class)->fetchOne(
+            "SELECT COUNT(*) FROM audit_log WHERE intent = 'user.login.account_unlocked'",
+        ));
+    }
+
     #[\Override]
     protected function writer(): AccountLockWriterInterface
     {

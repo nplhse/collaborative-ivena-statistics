@@ -75,6 +75,7 @@ final class DashboardOperationsTest extends WebTestCase
         self::assertCount(1, $crawler->filter('.ea-storage-card'));
         self::assertCount(1, $crawler->filter('.ea-storage-card a[href*="/admin/operations/storage"]'));
         self::assertCount(1, $crawler->filter('.ea-messenger-card a[href*="/admin/operations/messenger"]'));
+        self::assertCount(1, $crawler->filter('[data-testid="sign-in-security-card"] a[href*="/admin/operations/sign-in-security"]'));
 
         $notificationsPosition = strpos($text, 'Recent notifications');
         $operationsPosition = strpos($text, 'Operations');

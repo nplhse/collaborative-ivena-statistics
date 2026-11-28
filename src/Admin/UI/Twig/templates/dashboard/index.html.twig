@@ -24,8 +24,9 @@
 
     <h3 class="h5 text-secondary text-uppercase mb-3">{{ 'ops.section.title'|trans({}, 'admin') }}</h3>
     <div class="row ea-dashboard-ops">
-        <div class="col-12 col-xl-6 mb-4">{{ include('@Admin/dashboard/_ops_storage.html.twig') }}</div>
-        <div class="col-12 col-xl-6 mb-4">{{ include('@Admin/dashboard/_ops_messenger.html.twig') }}</div>
+        <div class="col-12 col-xl-4 mb-4">{{ include('@Admin/dashboard/_ops_storage.html.twig') }}</div>
+        <div class="col-12 col-xl-4 mb-4">{{ include('@Admin/dashboard/_ops_messenger.html.twig') }}</div>
+        <div class="col-12 col-xl-4 mb-4">{{ include('@Admin/dashboard/_ops_sign_in.html.twig') }}</div>
     </div>
 
     {{ include('@Admin/dashboard/_ops_notifications.html.twig') }}
