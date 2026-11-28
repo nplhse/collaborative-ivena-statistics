@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Admin\Application\Service;
 
-use App\Admin\Application\DTO\HealthCheckItemDto;
+use App\Admin\Application\DTO\HealthCheckItemLinks;
 use App\Admin\Application\DTO\HealthStatusDto;
 use App\Admin\Application\DTO\MessengerStatusDto;
 use App\Admin\Application\DTO\RecentNotificationEventDto;
 use App\Admin\Application\Service\Messenger\MessengerMonitoringService;
-use App\Shared\Application\Health\HealthCheckReport;
 use App\Shared\Application\Health\HealthCheckService;
 use App\Shared\Application\Health\HealthCheckStatus;
 use App\Storage\Application\DTO\StorageSummary;
@@ -19,9 +18,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 final readonly class OperationalDashboardService
 {
     /** The admin job run list; named as a string, so Application does not depend on the UI layer. */
-    /** Checks shown as one "Messenger" item on the dashboard while all of them are ok (ADR 019). */
-    private const array MESSENGER_CHECKS = ['messenger_failed', 'messenger_backlog', 'messenger_stalled', 'messenger_retries'];
-
     private const string JOB_RUN_CONTROLLER = \App\Admin\UI\Http\Controller\JobRun\JobRunCrudController::class;
 
     public function __construct(
@@ -30,7 +26,7 @@ final readonly class OperationalDashboardService
         private HealthCheckService $healthCheckService,
         private RecentNotificationEvents $recentNotificationEvents,
         private AdminUrlGeneratorInterface $adminUrlGenerator,
-        private StorageHealthItemFactory $storageHealthItemFactory,
+        private HealthCheckItemMapper $healthCheckItemMapper,
     ) {
     }
 
@@ -42,7 +38,7 @@ final readonly class OperationalDashboardService
             status: $report->status,
             appVersion: $report->version,
             checks: $report->checks,
-            items: $this->mapHealthCheckItems($report),
+            items: $this->healthCheckItemMapper->map($report, $this->healthCheckLinks()),
             statuses: $report->statuses,
         );
     }
@@ -62,7 +58,7 @@ final readonly class OperationalDashboardService
     public function getMessengerStatus(HealthStatusDto $health): MessengerStatusDto
     {
         $status = HealthCheckStatus::Healthy;
-        foreach (self::MESSENGER_CHECKS as $key) {
+        foreach (HealthCheckItemMapper::MESSENGER_CHECKS as $key) {
             $status = $status->worst($health->statuses[$key] ?? HealthCheckStatus::Healthy);
         }
 
@@ -100,89 +96,13 @@ final readonly class OperationalDashboardService
         return $this->recentNotificationEvents->latest($limit);
     }
 
-    /**
-     * Health items for the dashboard card. The Messenger checks collapse into one "Messenger: ok" item while all
-     * of them are ok; otherwise only the ones that are not ok are shown, each with its own severity.
-     *
-     * @return list<HealthCheckItemDto>
-     */
-    private function mapHealthCheckItems(HealthCheckReport $report): array
+    private function healthCheckLinks(): HealthCheckItemLinks
     {
-        $messengerKeys = array_values(array_intersect(self::MESSENGER_CHECKS, array_keys($report->checks)));
-        $messengerOk = [] !== $messengerKeys && [] === array_filter(
-            $messengerKeys,
-            static fn (string $key): bool => 'ok' !== $report->checks[$key],
-        );
-        $messengerUrl = $this->adminUrlGenerator->setRoute('app_admin_dashboard_operations_messenger')->generateUrl();
-
-        $items = [];
-        $messengerShown = false;
-        foreach ($report->checks as $key => $value) {
-            if (\in_array($key, self::MESSENGER_CHECKS, true)) {
-                if ($messengerOk && !$messengerShown) {
-                    $items[] = $this->statusItem('messenger', 'ok', HealthCheckStatus::Healthy, 'fas fa-tower-broadcast', $messengerUrl);
-                    $messengerShown = true;
-                }
-                if ($messengerOk || 'ok' === $value) {
-                    continue;
-                }
-            }
-
-            $items[] = match ($key) {
-                'database' => new HealthCheckItemDto(
-                    key: $key,
-                    labelKey: 'ops.health.check.database',
-                    value: $value,
-                    severity: 'ok' === $value ? 'success' : 'danger',
-                    icon: 'fas fa-database',
-                ),
-                'messenger_failed' => new HealthCheckItemDto(
-                    key: $key,
-                    labelKey: 'ops.health.check.messenger_failed',
-                    value: $value,
-                    severity: 'warning',
-                    icon: 'fas fa-triangle-exclamation',
-                    detailUrl: 'skipped' === $value ? null : $this->generateFailedMessagesUrl(),
-                ),
-                'storage' => $this->storageHealthItemFactory->create($value),
-                'messenger_backlog', 'messenger_stalled', 'messenger_retries' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-tower-broadcast', $messengerUrl),
-                'media' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-photo-film', $this->adminUrlGenerator->setRoute('app_admin_dashboard_media_index')->generateUrl()),
-                // Two-factor key (#1357, ADR 040): no page of its own; the value names the problem.
-                'two_factor' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-key', null),
-                // Export connection of data extract requests (#1635, ADR 045): no page of its own; the value names the state.
-                'research_export' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-file-export', null),
-                // Maintenance mode (#1680, ADR 046): `on` is degraded, so a mode left on after a deploy stands out.
-                'maintenance' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-screwdriver-wrench', null),
-                'scheduled_jobs' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-stopwatch', $this->adminUrlGenerator->setController(self::JOB_RUN_CONTROLLER)->setAction('index')->generateUrl()),
-                default => new HealthCheckItemDto(
-                    key: $key,
-                    labelKey: 'ops.health.check.'.$key,
-                    value: $value,
-                    severity: 'success',
-                    icon: 'fas fa-circle-check',
-                ),
-            };
-        }
-
-        return $items;
-    }
-
-    /**
-     * A check whose severity follows its health status (ADR 019), linking to the page that explains it, if there is one.
-     */
-    private function statusItem(string $key, string $value, HealthCheckStatus $status, string $icon, ?string $detailUrl): HealthCheckItemDto
-    {
-        return new HealthCheckItemDto(
-            key: $key,
-            labelKey: 'ops.health.check.'.$key,
-            value: $value,
-            severity: match ($status) {
-                HealthCheckStatus::Healthy => 'success',
-                HealthCheckStatus::Degraded => 'warning',
-                HealthCheckStatus::Unhealthy => 'danger',
-            },
-            icon: HealthCheckStatus::Healthy === $status ? $icon : 'fas fa-triangle-exclamation',
-            detailUrl: $detailUrl,
+        return new HealthCheckItemLinks(
+            messenger: $this->adminUrlGenerator->setRoute('app_admin_dashboard_operations_messenger')->generateUrl(),
+            failedMessages: $this->generateFailedMessagesUrl(),
+            media: $this->adminUrlGenerator->setRoute('app_admin_dashboard_media_index')->generateUrl(),
+            scheduledJobs: $this->adminUrlGenerator->setController(self::JOB_RUN_CONTROLLER)->setAction('index')->generateUrl(),
         );
     }
 
