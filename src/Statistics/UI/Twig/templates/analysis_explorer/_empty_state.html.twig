@@ -21,7 +21,7 @@
         {% elseif reason == 'filtered' %}
             <button type="button" class="btn btn-primary" data-action="live#action" data-live-action-param="clearAnalysisFilters">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</button>
         {% elseif reason == 'no_data' %}
-            <button type="button" class="btn btn-primary" onclick="document.getElementById('statistics-analysis-context-trigger')?.click()">{{ 'empty.context.cta'|trans({}, 'shared') }}</button>
+            <button type="button" class="btn btn-primary" data-controller="click-proxy" data-click-proxy-target-value="#statistics-analysis-context-trigger" data-action="click-proxy#click">{{ 'empty.context.cta'|trans({}, 'shared') }}</button>
         {% endif %}
     </twig:block>
 </twig:EmptyState>

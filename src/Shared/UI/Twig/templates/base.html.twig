@@ -26,7 +26,7 @@
 
     {% block javascripts %}
         {% block importmap %}
-            {{ importmap('app') }}
+            {{ importmap('app', {nonce: csp_nonce('script')}) }}
         {% endblock %}
     {% endblock %}
 </head>

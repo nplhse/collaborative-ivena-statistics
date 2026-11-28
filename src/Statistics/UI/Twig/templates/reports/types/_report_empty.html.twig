@@ -26,7 +26,7 @@
             {% elseif filterActive and statsFilterDrawerResetUrl|default('') is not empty %}
                 <a href="{{ statsFilterDrawerResetUrl }}" class="btn btn-primary" target="_top">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</a>
             {% else %}
-                <button type="button" class="btn btn-primary" onclick="document.getElementById('statistics-analysis-context-trigger')?.click()">{{ 'empty.context.cta'|trans({}, 'shared') }}</button>
+                <button type="button" class="btn btn-primary" data-controller="click-proxy" data-click-proxy-target-value="#statistics-analysis-context-trigger" data-action="click-proxy#click">{{ 'empty.context.cta'|trans({}, 'shared') }}</button>
             {% endif %}
             <a href="{{ dashboardUrl }}" class="btn btn-outline-secondary" target="_top">{{ 'stats.reports.monthly.empty.cta_dashboard'|trans({}, 'statistics') }}</a>
         </twig:block>

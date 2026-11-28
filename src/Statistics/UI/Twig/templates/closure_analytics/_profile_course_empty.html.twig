@@ -4,10 +4,10 @@
     icon="tabler:chart-line"
 >
     <twig:block name="actions">
-        <button type="button" class="btn btn-primary" onclick="document.getElementById('statistics-analysis-context-trigger')?.click()">
+        <button type="button" class="btn btn-primary" data-controller="click-proxy" data-click-proxy-target-value="#statistics-analysis-context-trigger" data-action="click-proxy#click">
             {{ 'empty.context.cta'|trans({}, 'shared') }}
         </button>
-        <button type="button" class="btn" onclick="document.querySelector('[data-testid=&quot;statistics-filters-drawer-trigger&quot;]')?.click()">
+        <button type="button" class="btn" data-controller="click-proxy" data-click-proxy-target-value="[data-testid=&quot;statistics-filters-drawer-trigger&quot;]" data-action="click-proxy#click">
             {{ 'stats.closure.profile.course.empty.filters'|trans({}, 'statistics') }}
         </button>
     </twig:block>

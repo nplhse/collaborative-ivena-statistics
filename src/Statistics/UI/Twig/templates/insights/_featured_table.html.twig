@@ -6,7 +6,7 @@
             icon="tabler:chart-bar-off"
         >
             <twig:block name="actions">
-                <button type="button" class="btn btn-primary" onclick="document.getElementById('statistics-analysis-context-trigger')?.click()">{{ 'empty.context.cta'|trans({}, 'shared') }}</button>
+                <button type="button" class="btn btn-primary" data-controller="click-proxy" data-click-proxy-target-value="#statistics-analysis-context-trigger" data-action="click-proxy#click">{{ 'empty.context.cta'|trans({}, 'shared') }}</button>
             </twig:block>
         </twig:EmptyState>
     </div>

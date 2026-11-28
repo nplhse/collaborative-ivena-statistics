@@ -12,6 +12,7 @@
         <form method="get"
               action="{{ path('app_stats_case_flow') }}"
               class="case-flow-segment-header-picker"
+              data-controller="autosubmit"
               data-testid="stats-case-flow-segment-picker-form">
             {% for key, value in app.request.query.all %}
                 {% if key != 'geo_segment' and value is not iterable %}
@@ -23,7 +24,7 @@
                     name="geo_segment"
                     class="form-select form-select-sm"
                     data-testid="stats-case-flow-segment-picker"
-                    onchange="this.form.requestSubmit()">
+                    data-action="change->autosubmit#submit">
                 <option value="">{{ 'stats.case_flow.segment.entire_area'|trans({}, 'statistics') }}</option>
                 {% set originOptions = segmentCatalog.pickerOriginOptions() %}
                 {% set travelOptions = segmentCatalog.pickerTravelOptions() %}

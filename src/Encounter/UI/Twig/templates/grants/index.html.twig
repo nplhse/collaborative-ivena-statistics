@@ -39,7 +39,7 @@
                                     <td>{{ grant.createdAt|date('d.m.Y H:i') }}</td>
                                     <td class="text-nowrap">
                                         <a class="btn btn-sm" href="{{ path('app_encounter_grants_edit', {id: hospital.id, grantId: grant.id}) }}">{{ 'encounter.grant.action_edit'|trans({}, 'encounter') }}</a>
-                                        <form class="d-inline" method="post" action="{{ path('app_encounter_grants_delete', {id: hospital.id, grantId: grant.id}) }}" onsubmit="return confirm({{ 'encounter.grant.confirm_delete'|trans({}, 'encounter')|json_encode }});">
+                                        <form class="d-inline" method="post" action="{{ path('app_encounter_grants_delete', {id: hospital.id, grantId: grant.id}) }}" data-controller="confirm-submit" data-confirm-submit-message-value="{{ 'encounter.grant.confirm_delete'|trans({}, 'encounter') }}" data-action="submit->confirm-submit#confirm">
                                             <input type="hidden" name="_token" value="{{ csrf_token('delete_encounter_grant_' ~ grant.id) }}">
                                             <button class="btn btn-sm btn-outline-danger" type="submit">{{ 'encounter.grant.action_delete'|trans({}, 'encounter') }}</button>
                                         </form>
