@@ -43,6 +43,7 @@ Set in `shared/.env.local` on the server when you want violations in Sentry.
 | `object-src` | `'none'` | |
 | `script-src` | `'self'`, `'unsafe-inline'`, `data:` | Legacy inline scripts; AssetMapper CSS importmap (`data:application/javascript,`); `es-module-shims` is self-hosted (do not allow `ga.jspm.io`) |
 | `style-src` | `'self'`, `'unsafe-inline'` | Twig `style=""`, inline `<style>` |
+| `style-src-attr` | `'unsafe-inline'` | Inline `style=""` attributes, an accepted exception ([ADR 047](../02-architecture/decisions/047-inline-style-attributes-allowed-by-csp.md)). Appended by `StyleAttributePolicyListener`, because Nelmio 3.9 does not know the directive |
 | `img-src` | `'self'`, `data:`, `https://*.tile.openstreetmap.org` | Favicon, Leaflet |
 | `font-src` | `'self'`, `data:` | |
 | `connect-src` | `'self'`, `https://*.tile.openstreetmap.org`, `https://*.ingest.sentry.io` | Fetch/XHR, OSM tiles, CSP report POST to Sentry |
@@ -141,6 +142,8 @@ Multiple users / many events / unknown domain?
 ### EasyAdmin and nonces
 
 EasyAdmin calls Nelmio’s `csp_nonce()` and adds `'nonce-…'` to `script-src` / `style-src` on `/admin` responses. Under **CSP Level 3**, that **disables `'unsafe-inline'`** for those directives — even though the YAML policy still lists it. Inline event handlers (`onsubmit`), bare `<script>` / `style=""` attributes, and vendor-injected `<style>` without a matching nonce therefore show up as Report-Only violations on admin pages only.
+
+Style attributes are not affected: `style-src-attr 'unsafe-inline'` allows them on every page, also with a nonce in `style-src` ([ADR 047](../02-architecture/decisions/047-inline-style-attributes-allowed-by-csp.md)). Before it was added (#580), they caused nearly all reports (`style-src-attr`, `blocked_uri: inline`).
 
 Mitigations already in place for the known Failed Messages / dashboard KPI noise:
 
